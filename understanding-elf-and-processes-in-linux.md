@@ -125,3 +125,22 @@ Dynamic linking is the preferred linking mechanism by a compiler. But it can be 
 Now we are ready to execute our binary.
 
 It is a surface level overview to what actually happens under the hood. We will dive deeper into this when we start reverse engineering. Until then, we have enough knowledge to move forward.
+
+## Part 2 - Understanding An Executable
+
+An executable file is a type of computer file containing instructions that the computer's processor can directly execute.
+
+Executable files differ greatly on Windows and Linux. The reason is that both the environments are designed differently.
+
+| Property                   | Windows                                      | Linux                                   |
+| -------------------------- | -------------------------------------------- | --------------------------------------- |
+| Binary File Format         | Executable and Linkable File Format (or ELF) | Portable Executable File Format (or PE) |
+| File Extension             | No extension required                        | `.exe`, `.dll`                          |
+| System Call Interface      | Linux System Calls (`syscall`)               | Windows NT syscall layer or WinAPI      |
+| Dynamic Linker/Loader      | ld-linux.so                                  | Windows Loader                          |
+| C Runtime Library          | GNU C Library (or `glibc`)                   | Microsoft C Runtime (`MSVCRT`)          |
+| Linker                     | `ld`                                         | `link.exe`                              |
+| Calling Convention         | System V AMD64 ABI                           | Microsoft x64 ABI                       |
+| Format For Dynamic Linking | Shared objects (`.so`)                       | Dynamic Link Library (`.dll`)           |
+
+This time, we are learning about Linux environment.
