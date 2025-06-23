@@ -41,7 +41,6 @@ which we can compile using GNU C Compiler or `gcc` with the following command
 
 ```bash
 gcc hello.c -o hello_executable
-On running it, we get the desired output.
 ./hello_executable
 ​
 Hello, World!
@@ -95,7 +94,7 @@ The object code can be obtained as:
 
 ```bash
 gcc -c hello.s -o hello.o
-OR
+# OR
 as hello.s -o hello.o
 ```
 
