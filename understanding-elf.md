@@ -1,7 +1,7 @@
 ---
 description: >-
   This article explores Executable & Linkable File Format (popularly known as
-  ELF) and the lifecycle of processes in Linux
+  ELF)
 layout:
   title:
     visible: true
@@ -15,13 +15,12 @@ layout:
     visible: false
 ---
 
-# Understanding ELF And Processes In Linux
+# Understanding ELF
 
-The article is structured into three parts.
+The article is structured into two parts.
 
 1. How the source code is compiled into an executable file?
-2. What is an executable?
-3. What is the lifecycle of a process in Linux?
+2. What is an executable file?
 
 ## Part 1 - The Journey Of From Source Code To Executable
 
@@ -202,9 +201,9 @@ ELF is not reserved for executable files only. It is used by a variety of other 
 
 ELF files aren't readable by a text editor. Therefore, we use some command line utilities. The two most widely used and versatile utilities are `objdump` and `readelf`. There exist other like `nm`, `xxd`, `hexdump` and so on.  And they'll be introduced as needed.
 
+### Reading Object Dump
 
-
-
+`objdump` is a utility which helps in inspecting object files and displaying information from them.
 
 
 
