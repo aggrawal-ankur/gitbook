@@ -144,3 +144,73 @@ Executable files differ greatly on Windows and Linux. The reason is that both th
 | Format For Dynamic Linking | Shared objects (`.so`)                       | Dynamic Link Library (`.dll`)           |
 
 This time, we are learning about Linux environment.
+
+### Brief History
+
+It is a common standard file format for executable files, object code, shared libraries, and core dumps on Linux.
+
+It was first released in "_System V ABI, Release 4_".
+
+In 1999, it was chosen as the standard binary file format for Unix and Unix-like systems on x86 processors by the 86open project.
+
+### Modern ELF
+
+ELF is a general-purpose file format in Linux ecosystem, which defines the structure for binaries, libraries, and core files.
+
+It is used throughout the build and execution pipeline.
+
+* Different "types" of ELF files (relocatable, executable, shared object, core) exist to serve different roles in this pipeline.
+* These are typically created during specific phases.
+
+### Structure Of An ELF File
+
+Regardless of the type of ELF, the structure of an ELF file remains mostly the same.
+
+An ELF file can be divided into 4 parts.
+
+<table><thead><tr><th width="222">Part</th><th>Importance</th></tr></thead><tbody><tr><td>ELF Header</td><td>Identifies the file as ELF and file metadata.</td></tr><tr><td>Program Header Table</td><td>Used by the dynamic loader at runtime.</td></tr><tr><td>Section Header Table</td><td>Used by the linker at build time.</td></tr><tr><td>Data (segments/sections)</td><td>Includes things which are referred by the above 2 tables, such as, text (code), data (globals), bss (uninitialized data), and others.</td></tr></tbody></table>
+
+Lets take an example to understand ELF.
+
+```c
+// hello.c
+#include <stdio.h>
+​
+void main(){
+  printf("Hello, World!");
+  return 0;
+}
+```
+
+The object code can be obtained by
+
+```bash
+gcc -c hello.c hello_object.o
+```
+
+Object files are binary representations of a program's source code, intended to be executed directly on a processor, which is why they are required to follow a consistent structure.
+
+We can check the type of this object file.
+
+```bash
+file hello_object.o
+
+hello_object.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
+```
+
+ELF is not reserved for executable files only. It is used by a variety of other files of the same genre, and object code (.o), shared object (.so) libraries are two of them.
+
+ELF files aren't readable by a text editor. Therefore, we use some command line utilities. The two most widely used and versatile utilities are `objdump` and `readelf`. There exist other like `nm`, `xxd`, `hexdump` and so on.  And they'll be introduced as needed.
+
+
+
+
+
+
+
+
+
+
+
+
+
