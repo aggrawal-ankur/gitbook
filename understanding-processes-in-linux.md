@@ -533,7 +533,7 @@ Now, lets understand the flow of execution, that's the most important thing here
   * The `pid` variable for the calling process would have a random 4-5 digit unsigned value, which is definitely not equal to -1. Therefore, it never goes in the first `if` block.
   * Also, it is not 0. So, it never goes in the second `if` block as well.
   * Remaining `else` block. Here, it will find `waitpid()`, which will tell it to wait until the cloned process ends up.
-    * If you comment this part, this means, the parent didn't wait until the child finished. Such a process is called zombie process.
+    * If you comment this part, this means, the parent didn't wait until the child finished. Such a process is called zombie process. Such processes are adopted by `init`.
     * You'll only see `Hello, World!` and no `sleep(10)` effect.
     * But wait. After 10 seconds, you'll see that too, but in a new prompt.
     * Here the parent process finished. Lets focus on the child now.&#x20;
