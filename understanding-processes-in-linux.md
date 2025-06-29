@@ -427,22 +427,30 @@ Downloadable source code of the program can be found at [https://github.com/hi-a
 int main() {
   pid_t pid;
 
-  printf("Parent PID: %d\n", getpid());
-
+  printf("Calling Process `p_proc`:\n");
+  printf("  PPID: %d\n", getppid());
+  printf("  PID : %d\n", getpid());
+  printf("---------------------------\n");
+  
   // 1. Process creation (fork)
+  printf("Calling fork.....\n");
   pid = fork();
-
-  if (pid < 0) {
+  
+  if (pid == -1) {
     perror("fork failed");
+    printf("`p_proc`: return value from fork(): %d\n", pid);
     exit(EXIT_FAILURE);
   }
-
+  
   if (pid == 0) {
-    // Child process
-    printf("Child PID: %d, PPID: %d\n", getpid(), getppid());
+    printf("Cloned Process `c_proc`:\n");
+    printf("  PPID: %d\n", getppid());
+    printf("  PID : %d\n", getpid());
+    printf("Return value from fork() to `c_proc`: %d\n", pid);
+    printf("---------------------------\n");
 
     // 2. Image replacement using exec
-    char *argv[] = {"./main_elf", NULL};
+    char *args[] = {"./main_elf", NULL};
     if (execvp(args[0], args) == -1) {
       perror("exec failed");
       exit(EXIT_FAILURE);
@@ -453,9 +461,11 @@ int main() {
     // Parent process
     int status;
     waitpid(pid, &status, 0);  // Wait for child to finish
-
+    
     if (WIFEXITED(status)) {
       printf("Child exited with status %d\n", WEXITSTATUS(status));
+      printf("---------------------------\n");
+      printf("Return value from fork(): to `p_proc` %d\n", pid);
     } else {
       printf("Child did not exit normally.\n");
     }
@@ -469,16 +479,22 @@ Lets understand this program.
 
 `pid_t` is a type definition, defined in`POSIX` to hold process IDs. It allows the kernel and user-space programs to use a consistent and portable data type for managing process IDs.
 
-* The `pid` variable just holds an integer value returned by `fork()`.
+* The `pid` variable is very important. Understanding this small and harmless looking part is very important.
+* The confusion is paired with `fork`, so we'll learn it there.
 
 ***
 
-`fork()` function is used to clone the calling process. It returns
+`fork()` function is used to clone the calling process. Tell me, where would `fork` send its return value?
 
-* `0` if the process is cloned successfully and we are in the context of the newly created child process.
-* `-1` if an error occurred.
-* and the process ID of the cloned process to the parent process.
-* What concerns us is 0, or -1. These are the two values that `pid` can actually hold.
+* To the calling process? or, To the cloned process?
+* The answer is, both. And this is where the question how the parent process maintains its state arises from.
+
+&#x20;It returns
+
+* `0` to the **cloned process** if the calling process is cloned successfully and the process ID of the cloned process to the calling process (which is now the parent process).
+* `-1` to the **parent process**, if an error occurred and cloning didn't succeed.
+
+Remember, `fork()` makes a near-clone of the calling process. Only certain things are different.
 
 ***
 
@@ -487,7 +503,9 @@ The functions `getpid()` and `getppid()` are used to obtain the child process ID
 * These functions are relative to the process that has invoked them.
 * This is why `getpid()` before forking the process returned the process ID of the current process, which became the parent process after forking.
 
-The `exec()` family of functions replaces the current process image with a new process image. Under the hood, they all use the `execve` syscall.
+***
+
+The `exec()` family of functions replaces the current process image with a new process image. Under the hood, they all use the mighty `execve` syscall.
 
 * The `char *argv[]` argument is an array of pointers to null-terminated strings that represent the argument list available to the new program.
 * The first argument, by convention, should point to the filename associated with the file being executed. The array of pointers must be terminated by a `null` pointer.
@@ -497,59 +515,60 @@ The `exec()` family of functions replaces the current process image with a new p
     int execvp(const char *file, char *const argv[]);
     ```
 * The first argument is a pointer to the binary which is to be executed and the second argument is an array to the arguments provided to the binary.
-* Why not `execvp(args)` directly?
+* Why not `execvp(argv)` directly?
   * Remember, `sys.argv[0]` is reserved to the filename in python. `$0` is reserved for the script name in bash. The same principle is followed here.
-
-The `exec()` family of functions returns only when an error has occurred, which is -1.
-
-* Therefore, we are running the binary through `execvp` and matching if the return value is -1, to indicate failure or success.
-
-The `waitpid()` function is like `async()` function in JavaScript, which waits for a longer process to finish and then adjusts the results appropriately, without stopping the current thread.
-
+* The `exec()` family of functions returns only when an error has occurred, which is -1, which is why we are running the binary through `execvp` and matching if the return value is -1, to indicate failure or success.
+* The `waitpid()` function is like `async()` function in JavaScript, which waits for a longer process to finish and then adjusts the results appropriately, without stopping the current thread.
 * After that some cleanup happens and we are done.
 
 ***
 
 Now, lets understand the flow of execution, that's the most important thing here.
 
-* After forking the current process, now there exists two process with exact memory layout and execution context.
-* Both the processes continue executing the same code from the point where fork() returned. The only difference is the return value of fork(), which tells them if they're the parent or the child.
-* Since the first process has a `pid > 0`, it will go in either of the if-blocks.
-  * But the forked process has a `pid = 0`, therefore it will go in the second if-block.
-  * And since the first process has not gone into any of the if-blocks, it will go into the else-block.
+* Lets name the process of the calling C program as `p_proc` and the process of the binary it is calling internally as `c_proc` .
+* The calling process is cloned.
+* We know that process are independent in their execution context, which means that `p_proc` and `c_proc` will be running independently.
+  * If we print something just after cloning the process, there is no guarantee if the first print came from the parent or the child because the child has a copy of the file descriptors and it depends on scheduling algorithms that which on goes first.
+* Both the processes continue executing the same code from the point where fork() returned. Lets look at the execution of `p_proc` first.
+  * The `pid` variable for the calling process would have a random 4-5 digit unsigned value, which is definitely not equal to -1. Therefore, it never goes in the first `if` block.
+  * Also, it is not 0. So, it never goes in the second `if` block as well.
+  * Remaining `else` block. Here, it will find `waitpid()`, which will tell it to wait until the cloned process ends up.
+    * If you comment this part, this means, the parent didn't wait until the child finished. Such a process is called zombie process.
+    * You'll only see `Hello, World!` and no `sleep(10)` effect.
+    * But wait. After 10 seconds, you'll see that too, but in a new prompt.
+    * Here the parent process finished. Lets focus on the child now.&#x20;
+* The `c_proc` receives `0` in its `pid` variable. Thus, it qualifies to go inside the second `if` block.
+  * And everything happens as stated before in `execve` section.
+  * But remember, both the processes are executing independently. But because of `waitpid()`, the parent waits for the child to finish and cleans up everything.
 * That's how it works.
-* The first process then waits in the else part for the child to finish and then does the cleanup.
 
-And that's how we finish establishing a baseline understanding in linux processes.
+## \`exec\` Family Of Functions
 
-## When To Use What?
+`execve` syscall has multiple wrappers in the form of C library functions. The questions is, which one to use when?
 
-`execve` syscall has multiple wrappers as C library functions. The questions is, which one to use when?
-
-`execve(path, argv, envp)` is the raw signature of execve syscall.
+`execve(path, argv, envp)` is the raw signature of this syscall.
 
 ```c
-char *args[] = {"/path/to/binary", .., .., NULL};
+char *argv[] = {"/path/to/binary", .., .., NULL};
 char *envp[] = {"variable=value", "var2=val2", NULL}
-execve(args[0], args, envp)
+execve(args[0], args, envp);
 ```
-
-`execv(path, argv)`: inherits caller's environment.
-
-`execl(path, arg0, arg1, ..., NULL)`: Same as `execv`, except that the arguments are directly passed as varargs, rather than an array.
-
-`execvp(file, argv)`: searches `$PATH` variable for the binary. Good to run programs like a shell would do, like `ls` or `./exe`
-
-`execlp(file, arg0, ...., argN, NULL)`: combines `execl + $PATH`
-
-`execle(path, arg0, ..., NULL, envp)`: varargs + custom env
 
 ### Prefix Guide
 
-v: vector: refers to an array/vector of arguments
+* `v`: vector: refers to an array/vector of arguments
+* `l`: list: refers to a list of arguments, passed as varargs
+* `p`: path: tells the function to search $PATH for the executable
+* `e`: environment: lets you explicitly pass the environment
 
-l: list: refers to a list of arguments, passed as varargs
+### Functions
 
-p: path: tells the function to search $PATH for the executable
+* `execv(path, argv)`: inherits caller's environment.
+* `execl(path, arg0, arg1, ..., NULL)`: Same as `execv`, except that the arguments are directly passed as varargs, rather than an array.
+* `execvp(file, argv)`: searches `$PATH` variable for the binary. Good to run programs like a shell would do, like `ls` or `./exe`
+* `execlp(file, arg0, ...., argN, NULL)`: combines `execl + $PATH`
+* `execle(path, arg0, ..., NULL, envp)`: varargs + custom env
 
-e: environment: lets you explicitly pass the environment
+And that's how we finish establishing a baseline understanding in Linux processes.
+
+Thank You.
