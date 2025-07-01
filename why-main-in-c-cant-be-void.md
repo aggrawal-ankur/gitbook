@@ -62,13 +62,15 @@ All that is very logical. But the question is, why does `void main();` even work
 
 ## If That's Wrong, Why It Works?
 
+In simple words, there is guarantee it will work.
 
+* It is a case of undefined behavior. And the problem with undefined behavior is that it maybe what you expect or what you may not.
+* It is a compiler optimization.
 
+## Is There Any Way I Can Test It?
 
+Well, I am still learning about it and if I find something, I'll share.
 
+## What's The Exact Answer?
 
-
-
-
-
-
+I am learning that as well. Once I find something solid, I'll share.
