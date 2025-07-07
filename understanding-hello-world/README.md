@@ -21,6 +21,7 @@ For example, it takes only 4 lines to do this in C:
 
 ```c
 #include<stdio.h>
+
 int main(void){
   printf("Hello, World!\n");
 }
