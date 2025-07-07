@@ -37,12 +37,7 @@ Why does process hierarchy exists? Why can't processes be truly independent?
 
 It is a 4 step "process".
 
-| Step | Description                                                           | Syscall  |
-| ---- | --------------------------------------------------------------------- | -------- |
-| 1    | Clone the current process                                             | `fork()` |
-| 2    | Replaces the process image with the new program in the cloned process | `exec()` |
-| 3    | Parent waits for the child to finish                                  | `wait()` |
-| 4    | Process finishes and returns the status to the parent                 | `exit()` |
+<table><thead><tr><th width="130">Step</th><th width="450">Description</th><th>Syscall</th></tr></thead><tbody><tr><td>1</td><td>Clone the current process</td><td><code>fork()</code></td></tr><tr><td>2</td><td>Replaces the process image with the new program in the cloned process</td><td><code>exec()</code></td></tr><tr><td>3</td><td>Parent waits for the child to finish</td><td><code>wait()</code></td></tr><tr><td>4</td><td>Process finishes and returns the status to the parent</td><td><code>exit()</code></td></tr></tbody></table>
 
 Each process may require other helper processes.
 
