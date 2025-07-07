@@ -59,15 +59,28 @@ Great. All that is very logical. But their are some questions.
 
 ## If That's Wrong, Why It Works?
 
-In simple words, there is guarantee it will work.
+In simple words, there is no guarantee it will work.
 
-* It is a case of undefined behavior. And the problem with undefined behavior is that it maybe what you expect or what you may not.
+* It is a case of **undefined behavior**. And the problem with undefined behavior is that it maybe what you expect or what you may not.
 * It is a compiler optimization.
+* In the upcoming articles, we'll see how our source code is just a tiny part in the computer universe. There is a lot that comes before it and after it. And the system is so meticulously designed that as a by product it ends up supporting the `void main();` signature.
 
-## Is There Any Way I Can Test It?
+## Can this undefined behavior be tested?
 
 Well, I am still learning about it and if I find something, I'll share.
 
-## What's The Exact Answer?
+## Why old tutorial use it?
 
-I am learning that as well. Once I find something solid, I'll share.
+Only those tutors can answer this. But I have a few ideas in mind.
+
+1. Online tutorials are never really meant to understand low level engineering behind programming. They are aimed at learning to pass instructions to the computer, and high level abstractions allow that very easily. So, practically there is no need to understand this. And when someone do actual development in C, they themself find what is right and wrong.
+2. Understanding low level engineering is also not easy.
+   1. Why a function needs a data type?
+   2. Why does a function returns?
+   3. Who calls `main`?
+   4. What are processes? How Linux manages processes?
+   5. Why a process returns an exit code?
+3. All the above mentioned things are largely a part of computer architecture. And you know how many people start with computer architecture. I too didn't learn it until now. Not everyone might need it as well but those who are doing serious work will someday find it.
+4. It's a complex space. So, lets not blame anyone.
+
+It is highly possible that only I don't know about this. But I thought there is nothing bad in sharing this.
