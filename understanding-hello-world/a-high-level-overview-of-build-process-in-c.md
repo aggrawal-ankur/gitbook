@@ -64,7 +64,7 @@ The architecture specific things (x86 and x86\_64) are taken care by the assembl
 To compile intermediate C code into assembly code, we can run the following command:
 
 ```bash
-gcc -S -M masm=intel hello.i -o hello.s
+gcc -S masm=intel hello.i -o hello.s
 ```
 
 ### Assembling
