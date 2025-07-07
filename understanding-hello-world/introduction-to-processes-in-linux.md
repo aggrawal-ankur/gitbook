@@ -1,10 +1,10 @@
-# Understanding Processes In Linux
+# Introduction To Processes In Linux
 
 ## Introduction To Processes
 
 A process is an instance of a running program. Every time you execute a command or run a program, the Linux kernel creates a process to run it.
 
-Every process gets a virtual address space, which is mostly made up of the program image.
+Every process gets a virtual address space (VAS), which is mostly made up of the program image.
 
 * A virtual memory address (VMA) is the same as the name of a street and the physical memory address (PMA) is the actual GPS coordinates.
 * Two cities can have a "main street" but their coordinates would be unique.
