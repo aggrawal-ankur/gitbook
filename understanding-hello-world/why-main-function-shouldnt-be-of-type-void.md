@@ -41,7 +41,7 @@ All in all, the operating system is the one that manages all these processes and
 
 If you look at **ISO C standard**, it clearly defines that the `main` function must be of type `int` and should return an integer value, which is considered the exit status.
 
-* Here is that document, [https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2310.pdf](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2310.pdf)
+* [Here is that document.](../)
 * Open page 9 in the PDF or, search for "Program startup". It is located at "5.1.2.2.1" section.
 *   The two valid signatures for `main` function are:\
 

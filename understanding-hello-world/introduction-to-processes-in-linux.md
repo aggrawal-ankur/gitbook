@@ -387,7 +387,7 @@ The kernel:
 
 ## Lets Manage An Actual Process Using C
 
-Downloadable source code of the program can be found at [https://github.com/hi-anki/process-creation-in-linux/blob/main/process.c](https://github.com/hi-anki/process-creation-in-linux/blob/main/process.c)
+Downloadable source code of the program can be found at [here](https://github.com/hi-anki/process-creation-in-linux/blob/main/process.c).
 
 ```c
 // Standard I/O: printf() and perror()
