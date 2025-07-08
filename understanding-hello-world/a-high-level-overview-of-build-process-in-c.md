@@ -69,7 +69,15 @@ gcc -S masm=intel hello.i -o hello.s
 
 ### Assembling
 
-The assembly code is converted into object code, or machine code. This is the actual code which gets executed on the CPU.
+The assembly code undergoes a transformation process, which lay down a foundation for **linking** to work. Various steps are taken in this process. Some of them include:
+
+* Lexing and parsing of assembly source.
+* Instructions are encoded into machine code.
+* Sections are created.
+* Labels within the file are resolved.
+* Symbol table is generated.
+* Relocation entries are created for unresolved foreign references.
+* ELF headers are constructed.
 
 The object code can be obtained as:
 
@@ -79,11 +87,9 @@ gcc -c hello.s -o hello.o
 as hello.s -o hello.o
 ```
 
-Here, the assembly instructions are translated into binary opcodes (operation codes).
-
 The file obtained in this step is an object file with `.o` extension.
 
-Object files are strict in their structure. They follow a format known as **Executable File Format**, popularly known as ELF.
+Object files are strict in their structure. They follow a format known as **Executable and Linkable File Format**, popularly known as ELF.
 
 But this object file is not an executable yet. It needs to be linked.
 
