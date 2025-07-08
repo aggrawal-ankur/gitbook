@@ -5,71 +5,69 @@ The source can be compiled into assembly using `gcc -S -masm=intel hello.c -o he
 Previously, we've learned that `void main();` is a wrong signature for main function. But if we compile the code with `void main();` signature, we get an almost similar assembly.
 
 ```nasm
-	.file	"hello.c"
-	.intel_syntax noprefix
-	.text
-	.section	.rodata
+    .file     "hello.c"
+    .intel_syntax noprefix
+    .text
+    .section  .rodata
 .LC0:
-	.string	"Hello, World!"
-	.text
-	.globl	main
-	.type	main, @function
+    .string   "Hello, World!"
+    .text
+    .globl    main
+    .type     main, @function
 main:
 .LFB0:
-	.cfi_startproc
-	push	rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	mov	rbp, rsp
-	.cfi_def_cfa_register 6
-	lea	rax, .LC0[rip]
-	mov	rdi, rax
-	call	puts@PLT
-	nop
-	pop	rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
+    .cfi_startproc
+    push rbp
+    .cfi_def_cfa_offset 16
+    .cfi_offset 6, -16
+    mov	rbp, rsp
+    .cfi_def_cfa_register 6
+    lea	rax, .LC0[rip]
+    mov	rdi, rax
+    call     puts@PLT
+    nop
+    pop	rbp
+    .cfi_def_cfa 7, 8
+    ret
+    .cfi_endproc
 .LFE0:
-	.size	main, .-main
-	.ident	"GCC: (Debian 14.2.0-19) 14.2.0"
-	.section	.note.GNU-stack,"",@progbits
-
+    .size	main, .-main
+    .ident	"GCC: (Debian 14.2.0-19) 14.2.0"
+    .section	.note.GNU-stack,"",@progbits
 ```
 
 And this is the assembly generated for `int main(void);` signature.
 
 ```nasm
-	.file	"hello.c"
-	.intel_syntax noprefix
-	.text
-	.section	.rodata
+    .file     "hello.c"
+    .intel_syntax noprefix
+    .text
+    .section  .rodata
 .LC0:
-	.string	"Hello, World!"
-	.text
-	.globl	main
-	.type	main, @function
+    .string   "Hello, World!"
+    .text
+    .globl    main
+    .type     main, @function
 main:
 .LFB0:
-	.cfi_startproc
-	push	rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	mov	rbp, rsp
-	.cfi_def_cfa_register 6
-	lea	rax, .LC0[rip]
-	mov	rdi, rax
-	call	puts@PLT
-	mov     eax, 0
-	pop	rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
+    .cfi_startproc
+    push rbp
+    .cfi_def_cfa_offset 16
+    .cfi_offset 6, -16
+    mov	rbp, rsp
+    .cfi_def_cfa_register 6
+    lea	rax, .LC0[rip]
+    mov	rdi, rax
+    call     puts@PLT
+    mov eax, 0
+    pop	rbp
+    .cfi_def_cfa 7, 8
+    ret
+    .cfi_endproc
 .LFE0:
-	.size	main, .-main
-	.ident	"GCC: (Debian 14.2.0-19) 14.2.0"
-	.section	.note.GNU-stack,"",@progbits
-
+    .size	main, .-main
+    .ident	"GCC: (Debian 14.2.0-19) 14.2.0"
+    .section	.note.GNU-stack,"",@progbits
 ```
 
 It's clear that only line 21 is different, from `nop` to `mov eax, 0`.
@@ -132,13 +130,13 @@ If we visit [https://godbolt.org/](https://godbolt.org/) and paste our source co
 .LC0:
         .string "Hello, World!"
 main:
-        push    rbp
-        mov     rbp, rsp
-        mov     edi, OFFSET FLAT:.LC0
-        call    puts
-        mov     eax, 0
-        pop     rbp
-        ret
+    push  rbp
+    mov   rbp, rsp
+    mov   edi, OFFSET FLAT:.LC0
+    call  puts
+    mov   eax, 0
+    pop   rbp
+    ret
 ```
 
 In the right section, where the assembly part is displayed, you can find a clickable link to **Libraries**. Above that is green tick. Click on that and you will find that different options are passed to the compiler to optimize the command.
@@ -154,3 +152,4 @@ By default, there is no optimization done on the code, which is why it is length
 And we have walked the first step. This marks the end of understanding assembly.
 
 Now we will move to object code.
+
