@@ -37,8 +37,7 @@ It is really complex, but equally magnificent. Creating one single article would
 4. [Why `void main();` is technically incorrect?](https://ankuragrawal.gitbook.io/home/understanding-hello-world/why-main-function-shouldnt-be-of-type-void)
 5. [A high level overview of the movement](macro-level-understanding.md)
 6. [Moving from C source to assembly (x64 Intel, of course)](c-greater-than-assembly.md)
-
-
+7. [Inspecting the object code](object-code.md)
 
 
 
