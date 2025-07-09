@@ -49,19 +49,86 @@ It is a feature-rich tool. The ones that concern us include these:
 
 ```bash
 objdump hello.o -D -M intel   # Complete disassembly using Intel syntax
-objdump hello.o -d -M intel   # Disassembly of .text using Intel syntax
 objdump hello.o -t            # Symbol table
 objdump hello.o -r            # Relocation entries
 objdump hello.o -h            # Section headers
 ```
 
+***
 
+### Full Disassembly (-D)
 
+It can be found here at [GitHub](https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/full_disasm_from_obj_code).
 
+The full disassembly is 69 lines long. But wait, the assembly generated from source was only 29 lines long!
 
+* As we have read before, assembling lays down the base at which linking can be performed.
+  * Refer to [a-high-level-overview-of-build-process-in-c.md](a-high-level-overview-of-build-process-in-c.md "mention")
+* Our source is a tiny part of the picture.
+* The instructions for printing the string are in the `.text` section, while the string itself is a read-only data and thus it is stored in the `.rodata` section.
+* `.comment` and `.eh_frame` are compiler sections.
 
+***
 
+If you notice, there is no sign of "Hello, World!\n" in the disassembly.
 
+* But, it is there in encoded form. And we can verify that.
+* Strings are immutable, therefore, they must be in the `.rodata` section.
+*   This is the `.rodata` section.
+
+    ```
+    Disassembly of section .rodata:
+
+    0000000000000000 <.rodata>:
+       0:	48                   	rex.W
+       1:	65 6c                	gs ins BYTE PTR es:[rdi],dx
+       3:	6c                   	ins    BYTE PTR es:[rdi],dx
+       4:	6f                   	outs   dx,DWORD PTR ds:[rsi]
+    ```
+
+    ```
+       5:	2c 20                	sub    al,0x20
+       7:	57                   	push   rdi
+       8:	6f                   	outs   dx,DWORD PTR ds:[rsi]
+       9:	72 6c                	jb     77 <main+0x77>
+       b:	64 21 00             	and    DWORD PTR fs:[rax],eax
+    ```
+* Now visit this website [https://www.rapidtables.com/convert/number/ascii-to-hex.html](https://www.rapidtables.com/convert/number/ascii-to-hex.html) and paste `"Hello, World!\n"` there.
+* In the bottom box, you can find a stream of characters as `48 65 6C 6C 6F 2C 20 57 6F 72 6C 64`.
+* Visit an [ASCII to Hex reference](https://www.ascii-code.com/) table. And match the characters above in the `HEX` column with the `Symbol` column.
+* `48(H) 65(e) 6C(l) 6C(l) 6F(o) 2C(,) 20(SP) 57(W) 6F(o) 72(r) 6C(l) 64(d)`&#x20;
+
+***
+
+### Symbol Table (-t)
+
+```bash
+SYMBOL TABLE:
+0000000000000000      l          df        *ABS*       0000000000000000    hello.c
+0000000000000000      l          d         .text       0000000000000000    .text
+0000000000000000      l          d         .rodata     0000000000000000    .rodata
+0000000000000000      g          F         .text       000000000000001a    hello
+0000000000000000                           *UND*       0000000000000000    puts
+
+# Value (Offset   Linker       Symbol    Section it    Size of symbol     Symbol name
+# relative to     Visibility   Type      belongs to
+# section)
+```
+
+* Since it is unlinked, the `00...` part in the first column is all about placeholders, which would be replaced at runtime.
+* `l`: local; `g`: global.
+  * Only `main` has global visibility, because we made it so.
+* `df`: file definition (name).
+  * Remember the `.file` directive?
+* `*ABS*`: absolute section, not relocatable.
+* `d`: section definition, marks the beginning of a section.
+* `F`: a function. It is located within the `.text` section. The size is `1a` bytes or `0001 1010`, which is 26 bytes.
+* `*UND*` refers to an undefined symbol which would be resolved at link time.
+  * This is for the `puts` function which comes from `glibc`.
+
+***
+
+### Relocation Entries
 
 
 
