@@ -35,6 +35,26 @@ Object files can't be opened with standard text editors as they are not designed
 2. Disassemblers, which convert machine code into readable assembly, like `objdump`, `ndisasm` and `ghidra`.
 3. ELF parsers like `readelf` and `objdump`.
 
+Lets inspect our object file using `objdump`.
+
+***
+
+## Introduction To \`objdump\`
+
+`objdump` or object dump, is a GNU development tool, which is used to specializes in displaying information from object files.
+
+Syntax of usage looks like: `objdump <elf_file> flag(s)`
+
+It is a feature-rich tool. The ones that concern us include these:
+
+```bash
+objdump hello.o -D -M intel   # Complete disassembly using Intel syntax
+objdump hello.o -d -M intel   # Disassembly of .text using Intel syntax
+objdump hello.o -t            # Symbol table
+objdump hello.o -r            # Relocation entries
+objdump hello.o -h            # Section headers
+```
+
 
 
 
