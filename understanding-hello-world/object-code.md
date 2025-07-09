@@ -43,9 +43,9 @@ Lets inspect our object file using `objdump`.
 
 ## Introduction To \`objdump\`
 
-`objdump` or object dump, is a GNU development tool, which is used to specializes in displaying information from object files.
+`objdump` or object dump, is a GNU development tool, which specializes in displaying information from object files.
 
-Syntax of usage looks like: `objdump <elf_file> flag(s)`
+Syntax of usage looks like: `objdump <elf_file> <flag(s)>`
 
 It is a feature-rich tool. The ones that concern us include these:
 
@@ -193,11 +193,30 @@ The code section (`.text`) must be available at runtime, has dynamic entries whi
 
 What is `VMA` and `LMA` ?
 
-* We are going to talk about this very soon.
+* We are going to talk about this very soon, in a separate article.
 
 ***
 
 Here comes the end of inspection through `objdump`. Next we are going to be using `readelf`.
+
+## Introduction To \`readelf\`
+
+`readelf` is a part GNU Binutils Project.
+
+It's a versatile program that excels at parsing files with ELF structure.
+
+Syntax of usage looks like: `readelf <elf_file> [flag(s)]`
+
+And yes, it is feature-rich just like `objdump` . The ones that concern us now include these:
+
+```bash
+```
+
+
+
+
+
+
 
 
 
