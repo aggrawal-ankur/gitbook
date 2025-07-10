@@ -19,7 +19,7 @@ gcc -c hello.c -o hello.o
 We can start our analysis by inspecting the file type, using `file`.
 
 ```bash
-file hello.o
+$ file hello.o
 
 hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
 ```

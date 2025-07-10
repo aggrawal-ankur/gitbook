@@ -22,8 +22,8 @@ int main(){
 which we can compile using GNU C Compiler or `gcc` with the following command
 
 ```bash
-gcc hello.c -o hello_executable
-./hello_executable
+$ gcc hello.c -o hello_executable
+$ ./hello_executable
 ​
 Hello, World!
 ```
@@ -118,6 +118,7 @@ Now we are ready to execute our binary.
 
 ```
 $ ./hello_elf
+
 Hello, World!
 ```
 
