@@ -1,12 +1,12 @@
 ---
 description: >-
   This article explores Executable & Linkable File Format (popularly known as
-  ELF)
+  ELF).
 ---
 
-# Understanding ELF
+# A Brief Introduction To ELF
 
-An executable file is a type of computer file containing instructions that the computer's processor can directly execute.
+An executable file is a type of computer file, containing instructions that the computer's processor can directly execute.
 
 Executable files differ greatly on Windows and Linux. The reason is that both the environments are designed differently.
 
@@ -54,9 +54,8 @@ Lets take an example to understand ELF.
 // hello.c
 #include <stdio.h>
 ​
-int main(){
+int main(void){
   printf("Hello, World!\n");
-  return 0;
 }
 ```
 
@@ -68,16 +67,16 @@ gcc -c hello.c hello_object.o
 
 Object files are binary representations of a program's source code, intended to be executed directly on a processor, which is why they are required to follow a consistent structure.
 
-ELF is not reserved for executable files only. It is used by a variety of other files of the same genre, and object code (.o), shared object (.so) libraries are two of them.
+ELF is not reserved for executable files only. It is used by a variety of other files of the same genre, and object code (.o) & shared object (.so) libraries are two of them.
 
-ELF files aren't readable by a text editor. Therefore, we use some command line utilities. The two most widely used and versatile utilities are `objdump` and `readelf`. There exist other like `nm`, `xxd`, `hexdump` and so on.  And they'll be introduced as needed.
+ELF files aren't readable by a text editor. Therefore, we use some command line utilities. The two most widely used and versatile utilities are `objdump` and `readelf`.
 
 ### Understanding The Result Of \`file\`
 
-We can check the type of this object file using the `file` utility.
+We can check the type of this object file using the `file` utility. It is designed to read certain bytes in a file to find the type of it.
 
 ```bash
-file hello_object.o
+$ file hello_object.o
 
 hello_object.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
 ```
@@ -92,70 +91,27 @@ hello_object.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripp
 * `version 1 (SYSV)` means it uses System V AMD64 ABI (for conventions).
 * `x86-64` tells we are on 64-bit Linux.
 
-### Reading Object Dump
+***
 
-`objdump` is a utility which helps in inspecting object files and displaying information from them.
-
-Since it is a very comprehensive tool, it is not in our interest to go through every flag. The most relevant ones include these.
-
-| Command                       | Use Case                                       |
-| ----------------------------- | ---------------------------------------------- |
-| `objdump -d -M intel hello.o` | Disassemble the object file using Intel syntax |
-| `objdump -t hello.o`          | Gives the symbol table                         |
-| `objdump -r hello.o`          | Gives the relocation table                     |
-| `objdump -h hello.o`          | Gives the section headers table                |
-
-Lets go through them one by one.
-
-#### Inspecting Disassembly
+A binary file also follows the same structure. The above object file can be linked like this:
 
 ```bash
-$ objdump -d -M intel hello.o
-
-main.o:     file format elf64-x86-64
-Disassembly of section .text:
-
-0000000000000000 <main>:
-   0:   55                      push   rbp
-   1:   48 89 e5                mov    rbp,rsp
-   4:   48 8d 05 00 00 00 00    lea    rax,[rip+0x0]        # b <main+0xb>
-   b:   48 89 c7                mov    rdi,rax
-   e:   e8 00 00 00 00          call   13 <main+0x13>
-  13:   b8 00 00 00 00          mov    eax,0x0
-  18:   5d                      pop    rbp
-  19:   c3                      ret
-  
- # Address    Hex-Encoded    Disassembly
- # Offset     Machine Code
+gcc hello_object.o -o hello_elf
 ```
 
-Since we didn't used any optimizations, the result is quite verbose.
+Lets check this one.
 
-Since the program is not loaded into memory, it is quite logical to understand that the address of the `main` function, which is `0000000000000000` here, is just a placeholder value. This is resolved when the program is loaded.&#x20;
+```bash
+$ file hello_elf
 
-These address offsets are relative to where the `main` resides.
+hello_elf: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, not stripped
+```
 
-Everything here is hex-encoded.
+* `pie executable` means position independent executable. No static locations are required.
+* `dynamically linked` means the binary resolves references during runtime via an `interpreter` called `ld-linux.so` (can be different though).
 
-* There are 16 0's in `0000000000000000`.
-* A single hex digit is half a byte. Therefore, it is just a 8-byte address or a 64-bit address.
+***
 
-It is quite logical to ask how does 55 translates to `push rbp`. And the answer is opcodes.
+Here comes the end of _a brief introduction to ELF._
 
-* Each operation in assembly has a binary opcode.
-* These opcodes are used to translate an assembly instruction into machine code.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+It was designed to serve this purpose exactly. Very soon we are going to study a binary **in-detail**, which is where we'll explore this in **full-depth**.
