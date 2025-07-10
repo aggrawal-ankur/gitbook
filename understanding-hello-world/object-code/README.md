@@ -39,7 +39,11 @@ Object files can't be opened with standard text editors as they are not designed
 2. Disassemblers, which convert machine code into readable assembly, like `objdump`, `ndisasm` and `ghidra`.
 3. ELF parsers like `readelf` and `objdump`.
 
-Lets inspect our object file using `objdump`.
+We will inspect our file from the perspective of `objdump` and `readelf`. These are enough.
+
+This section is long enough which is why it is divided into two separate articles, one is for `objdump` and the other one is for `readelf`.
+
+
 
 **Note: The output of certain commands is slightly modified. Otherwise, it would be confusing to understand what it actually means.**
 
@@ -69,7 +73,7 @@ It can be found here at [GitHub](https://github.com/hi-anki/reverse-engineering/
 The full disassembly is 69 lines long. But wait, the assembly generated from source was only 29 lines long!
 
 * As we have read before, assembling lays down the base at which linking can be performed.
-  * Refer to [a-high-level-overview-of-build-process-in-c.md](a-high-level-overview-of-build-process-in-c.md "mention")
+  * Refer to [a-high-level-overview-of-build-process-in-c.md](../a-high-level-overview-of-build-process-in-c.md "mention")
 * Our source is a tiny part of the picture.
 * The instructions for printing the string are in the `.text` section, while the string itself is a read-only data and thus it is stored in the `.rodata` section.
 * `.comment` and `.eh_frame` are compiler sections.
@@ -344,9 +348,22 @@ These headers include information (metadata) that identifies a file as an ELF.
 * `EXEC` (Executable file), used by binaries (value 2).
 * `REL` (Relocatable file), object code ready to be linked (value 1).
 
+ELF headers is the first thing in an ELF file, which is why the entry point address is `0x0` .
 
+Programs headers are created during linking, that's why there is `0` for the start, number and size of program headers.
 
+No flags were provided so `0x0` in that.
 
+Section headers are used by the linker during build time. Also, the assembling process lays down a basic section layout. That's why we are seeing values related to section headers.
+
+* It starts from 536 bytes in the binary.
+* Total 13 section headers.
+* And their size is 64-bytes.
+
+The size of this ELF header is 64 bytes.
+
+* On 64-bit architecture, it is 64-bytes.
+* On 32-bit architecture, it is 32-bytes.
 
 
 
