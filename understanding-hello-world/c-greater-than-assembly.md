@@ -4,6 +4,7 @@ The source can be compiled into assembly using `gcc -S -masm=intel hello.c -o he
 
 Previously, we've learned that `void main();` is a wrong signature for main function. But if we compile the code with `void main();` signature, we get an almost similar assembly.
 
+{% code title="C_source_to_assembly.asm" %}
 ```nasm
     .file     "hello.c"
     .intel_syntax noprefix
@@ -35,9 +36,11 @@ main:
     .ident	"GCC: (Debian 14.2.0-19) 14.2.0"
     .section	.note.GNU-stack,"",@progbits
 ```
+{% endcode %}
 
 And this is the assembly generated for `int main(void);` signature.
 
+{% code title="C_source_to_assembly.asm" %}
 ```nasm
     .file     "hello.c"
     .intel_syntax noprefix
@@ -69,6 +72,7 @@ main:
     .ident	"GCC: (Debian 14.2.0-19) 14.2.0"
     .section	.note.GNU-stack,"",@progbits
 ```
+{% endcode %}
 
 It's clear that only line 21 is different, from `nop` to `mov eax, 0`.
 
@@ -126,9 +130,10 @@ There is something that is missing here. Can you spot it?
 
 If we visit [https://godbolt.org/](https://godbolt.org/) and paste our source code there, we can find that the assembly generated there is very different. Something like this:
 
+{% code title="asm_from_godbolt_org.asm" %}
 ```nasm
 .LC0:
-        .string "Hello, World!"
+    .string "Hello, World!"
 main:
     push  rbp
     mov   rbp, rsp
@@ -138,6 +143,7 @@ main:
     pop   rbp
     ret
 ```
+{% endcode %}
 
 In the right section, where the assembly part is displayed, you can find a clickable link to **Libraries**. Above that is green tick. Click on that and you will find that different options are passed to the compiler to optimize the command.
 

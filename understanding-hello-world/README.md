@@ -19,6 +19,7 @@ Everyone starts their coding journey with a `Hello, World!\n` program.
 
 For example, it takes only 4 lines to do this in C:
 
+{% code title="hello.c" %}
 ```c
 #include<stdio.h>
 
@@ -26,6 +27,7 @@ int main(void){
   printf("Hello, World!\n");
 }
 ```
+{% endcode %}
 
 But how does it really works? This is what we are going to understand here.
 

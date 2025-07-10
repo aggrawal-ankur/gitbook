@@ -50,14 +50,15 @@ An ELF file can be divided into 4 parts.
 
 Lets take an example to understand ELF.
 
+{% code title="hello.c" %}
 ```c
-// hello.c
 #include <stdio.h>
 ​
 int main(void){
   printf("Hello, World!\n");
 }
 ```
+{% endcode %}
 
 The object code can be obtained by
 

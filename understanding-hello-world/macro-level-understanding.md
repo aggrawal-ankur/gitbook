@@ -4,6 +4,7 @@ Now we can start understanding the low level architecture fueling `Hello, World!
 
 This is the source we are going to analyze \~
 
+{% code title="hello.c" %}
 ```c
 #include<stdio.h>
 
@@ -11,6 +12,7 @@ int main(void){
   printf("Hello, World!\n");
 }
 ```
+{% endcode %}
 
 We are going to have a look at the:
 

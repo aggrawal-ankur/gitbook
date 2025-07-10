@@ -16,6 +16,7 @@ I decided to write simple C programs myself and analyze them with the help of Ch
 
 In that pursuit, the first program I decided to analyze was "**Hello, World!\n**". And I have written it as I was used to:
 
+{% code title="hello.c" %}
 ```c
 #include <stdio.h>
 
@@ -23,6 +24,7 @@ void main(){
   printf("Hello, World!\n");
 }
 ```
+{% endcode %}
 
 But when I started analyzing it, I found out that `void` signature for main function is not valid. And I was shocked.
 
