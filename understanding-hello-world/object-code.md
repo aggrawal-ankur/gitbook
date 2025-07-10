@@ -1,3 +1,7 @@
+---
+description: Now we are going to unleash into ELF structures.
+---
+
 # Object Code
 
 ## What is object code?
@@ -154,6 +158,7 @@ Relocations are instructions for the linker/loader program (`ld-linux.so`).
 
 ### Section Headers (-h)
 
+{% code fullWidth="true" %}
 ```bash
 Sections:
 Idx         Name             Size      VMA               LMA               File off     Algn
@@ -176,6 +181,7 @@ Idx         Name             Size      VMA               LMA               File 
 # Index     Name             Bytes     Addrress          Address           File Where   Requirement
 #                                                                          It Begins
 ```
+{% endcode %}
 
 `CONTENTS, ALLOC, LOAD, DATA, RELOC, READONLY, CODE` are flags.
 
@@ -210,6 +216,12 @@ Syntax of usage looks like: `readelf <elf_file> [flag(s)]`
 And yes, it is feature-rich just like `objdump` . The ones that concern us now include these:
 
 ```bash
+readelf hello.o -a            # Everything under one roof
+readelf hello.o -h            # ELF headers
+readelf hello.o -l            # Program headers
+readelf hello.o -S            # Section headers
+readelf hello.o -s            # Symbol table
+readelf hello.o -r            # Relocation entries
 ```
 
 
