@@ -43,6 +43,7 @@ We will inspect our file from the perspective of `objdump` and `readelf`. These 
 
 This section is long enough which is why it is divided into two separate articles, one is for `objdump` and the other one is for `readelf`.
 
-
+1. [objdump-perspective.md](objdump-perspective.md "mention")
+2. [readelf-perspective.md](readelf-perspective.md "mention")
 
 **Note: The output of certain commands is slightly modified. Otherwise, it would be confusing to understand what it actually means.**
