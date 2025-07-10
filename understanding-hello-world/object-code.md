@@ -158,7 +158,7 @@ Relocations are instructions for the linker/loader program (`ld-linux.so`).
 
 ### Section Headers (-h)
 
-{% code fullWidth="true" %}
+{% code fullWidth="false" %}
 ```bash
 Sections:
 Idx         Name             Size      VMA               LMA               File off     Algn
