@@ -8,8 +8,8 @@ This article explores the C build process which is abstracted by the GNU C Compi
 
 This is a simple C program \~
 
+{% code title="hello.c" %}
 ```c
-// hello.c
 #include <stdio.h>
 ​
 int main(){
@@ -17,6 +17,7 @@ int main(){
   return 0;
 }
 ```
+{% endcode %}
 
 which we can compile using GNU C Compiler or `gcc` with the following command
 
