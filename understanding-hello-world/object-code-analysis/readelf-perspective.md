@@ -200,6 +200,78 @@ It was huge! Anyways, you can take some rest before continuing further.
 
 ### Section Headers
 
+An ELF is structured into various sections, and "section headers" form a table that contains metadata about each of these sections, including its type, size, and where in the ELF file the section is located.
+
+`[Nr]` is the index field.
+
+`Name` field in a section header is an offset into the `.shstrtab` (section header string table), which stores actual section names as strings. A parser program, like `readelf` in our case, uses this offset to locate and display the human-readable name of the section.
+
+`Type` defines the type of the section.
+
+* `PROGBITS` contains actual code/data from the source.
+* `RELA` holds relocation entries with addends.
+* `BSS` is used for uninitialized data, which occupies no space in file.
+* `SYMTAB` stands for symbol table. More on this later.
+* `STRTAB` stands for string table. More on this later.
+* `NULL` type exists for alignment purposes. Computers index from 0 (like index in arrays) and ELF has preserved that. But to avoid confusion, it has kept the 0th index to NULL and starts everything from 1.
+
+`Offset` is the position of a section inside the ELF.
+
+`Address` is the virtual address at which the section is loaded inside the virtual address space. This address can be absolute or relative.
+
+* It is absolute when the elf is linked as a **non-PIE executable.**
+* It is relative \[to the address where the binary is loaded] when the elf is linked as a **position-independent executable.**
+
+`Size` of the section in hexadecimal bytes.
+
+`EntSize` is the size of each individual entry within the section, if the section stores a table of uniform entries. If the section just holds raw data, it is 0.
+
+`Flags` in a section header specify how the section should be treated in the memory.
+
+`Link` refers to the index of a section related to this section.
+
+`Info` is for extra information.
+
+`Align` refers to the required alignment of the section in memory and/or file. We can gloss over it, for now.
+
+***
+
+There are no section groups, program headers and the dynamic section. Lets examine why.
+
+Section group is a mechanism to **group related sections** so that linker program can treat them as a **single unit**.
+
+* We need not to think about these.
+
+Program headers (which is a topic for later discussion) define how the binary is going to be mapped in the memory.
+
+* If you remember the ELF header section, the object code is of type `REL`, which stands for relocatable.
+* Program headers define loadable segments for the OS.
+* When a file can't be loaded, why program headers would be there?
+
+The dynamic section tells the dynamic linker (interpreter program) what it needs to know to link the binary at runtime.
+
+* An object code is not dynamically linked. There is no reason for the dynamic section to be there.
+
+**All of these are inserted by the dynamic linker program, which is** `ld` **in our case. That is why they are absent in the object code.**
+
+***
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
