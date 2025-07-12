@@ -44,39 +44,26 @@ ELF Header:
   Section header string table index: 12
 
 Section Headers:
-  [Nr] Name              Type             Address           Offset
-       Size              EntSize          Flags  Link  Info  Align
-  [ 0]                   NULL             0000000000000000  00000000
-       0000000000000000  0000000000000000           0     0     0
-  [ 1] .text             PROGBITS         0000000000000000  00000040
-       000000000000001a  0000000000000000  AX       0     0     1
-  [ 2] .rela.text        RELA             0000000000000000  00000168
-       0000000000000030  0000000000000018   I      10     1     8
-  [ 3] .data             PROGBITS         0000000000000000  0000005a
-       0000000000000000  0000000000000000  WA       0     0     1
-  [ 4] .bss              NOBITS           0000000000000000  0000005a
-       0000000000000000  0000000000000000  WA       0     0     1
-  [ 5] .rodata           PROGBITS         0000000000000000  0000005a
-       000000000000000e  0000000000000000   A       0     0     1
-  [ 6] .comment          PROGBITS         0000000000000000  00000068
-       0000000000000020  0000000000000001  MS       0     0     1
-  [ 7] .note.GNU-stack   PROGBITS         0000000000000000  00000088
-       0000000000000000  0000000000000000           0     0     1
-  [ 8] .eh_frame         PROGBITS         0000000000000000  00000088
-       0000000000000038  0000000000000000   A       0     0     8
-  [ 9] .rela.eh_frame    RELA             0000000000000000  00000198
-       0000000000000018  0000000000000018   I      10     8     8
-  [10] .symtab           SYMTAB           0000000000000000  000000c0
-       0000000000000090  0000000000000018          11     4     8
-  [11] .strtab           STRTAB           0000000000000000  00000150
-       0000000000000013  0000000000000000           0     0     1
-  [12] .shstrtab         STRTAB           0000000000000000  000001b0
-       0000000000000061  0000000000000000           0     0     1
-Key to Flags:
-  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
-  L (link order), O (extra OS processing required), G (group), T (TLS),
-  C (compressed), x (unknown), o (OS specific), E (exclude),
-  D (mbind), l (large), p (processor specific)
+  [Nr] Name              Type             Address           Offset    Size              EntSize          Flags  Link  Info  Align
+  [ 0]                   NULL             0000000000000000  00000000  0000000000000000  0000000000000000           0     0     0
+  [ 1] .text             PROGBITS         0000000000000000  00000040  000000000000001a  0000000000000000  AX       0     0     1
+  [ 2] .rela.text        RELA             0000000000000000  00000168  0000000000000030  0000000000000018   I      10     1     8
+  [ 3] .data             PROGBITS         0000000000000000  0000005a  0000000000000000  0000000000000000  WA       0     0     1
+  [ 4] .bss              NOBITS           0000000000000000  0000005a  0000000000000000  0000000000000000  WA       0     0     1
+  [ 5] .rodata           PROGBITS         0000000000000000  0000005a  000000000000000e  0000000000000000   A       0     0     1
+  [ 6] .comment          PROGBITS         0000000000000000  00000068  0000000000000020  0000000000000001  MS       0     0     1
+  [ 7] .note.GNU-stack   PROGBITS         0000000000000000  00000088  0000000000000000  0000000000000000           0     0     1
+  [ 8] .eh_frame         PROGBITS         0000000000000000  00000088  0000000000000038  0000000000000000   A       0     0     8
+  [ 9] .rela.eh_frame    RELA             0000000000000000  00000198  0000000000000018  0000000000000018   I      10     8     8
+  [10] .symtab           SYMTAB           0000000000000000  000000c0  0000000000000090  0000000000000018          11     4     8
+  [11] .strtab           STRTAB           0000000000000000  00000150  0000000000000013  0000000000000000           0     0     1
+  [12] .shstrtab         STRTAB           0000000000000000  000001b0  0000000000000061  0000000000000000           0     0     1
+
+ Key to Flags:
+   W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+   L (link order), O (extra OS processing required), G (group), T (TLS),
+   C (compressed), x (unknown), o (OS specific), E (exclude),
+   D (mbind), l (large), p (processor specific)
 
 There are no section groups in this file.
 
@@ -85,9 +72,9 @@ There are no program headers in this file.
 There is no dynamic section in this file.
 
 Relocation section '.rela.text' at offset 0x168 contains 2 entries:
-  Offset          Info           Type           Sym. Value    Sym. Name + Addend
-000000000007  000300000002 R_X86_64_PC32     0000000000000000 .rodata - 4
-00000000000f  000500000004 R_X86_64_PLT32    0000000000000000 puts - 4
+  Offset          Info            Type           Sym. Value     Sym. Name + Addend
+000000000007  000300000002  R_X86_64_PC32     0000000000000000  .rodata - 4
+00000000000f  000500000004  R_X86_64_PLT32    0000000000000000  puts - 4
 
 Relocation section '.rela.eh_frame' at offset 0x198 contains 1 entry:
   Offset          Info           Type           Sym. Value    Sym. Name + Addend
@@ -95,13 +82,13 @@ Relocation section '.rela.eh_frame' at offset 0x198 contains 1 entry:
 No processor specific unwind information to decode
 
 Symbol table '.symtab' contains 6 entries:
-   Num:    Value          Size Type    Bind   Vis      Ndx Name
-     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND 
-     1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS hello.c
-     2: 0000000000000000     0 SECTION LOCAL  DEFAULT    1 .text
-     3: 0000000000000000     0 SECTION LOCAL  DEFAULT    5 .rodata
-     4: 0000000000000000    26 FUNC    GLOBAL DEFAULT    1 main
-     5: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND puts
+   Num:    Value          Size  Type     Bind    Vis       Ndx  Name
+     0: 0000000000000000     0  NOTYPE   LOCAL   DEFAULT   UND  
+     1: 0000000000000000     0  FILE     LOCAL   DEFAULT   ABS  hello.c
+     2: 0000000000000000     0  SECTION  LOCAL   DEFAULT     1  .text
+     3: 0000000000000000     0  SECTION  LOCAL   DEFAULT     5  .rodata
+     4: 0000000000000000    26  FUNC     GLOBAL  DEFAULT     1  main
+     5: 0000000000000000     0  NOTYPE   GLOBAL  DEFAULT   UND  puts
 
 No version information found in this file.
 ```
@@ -209,7 +196,9 @@ At last, we have this weird entry in the ELF headers, `Section header string tab
 
 It was huge! Anyways, you can take some rest before continuing further.
 
+***
 
+### Section Headers
 
 
 
