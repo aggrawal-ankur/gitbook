@@ -193,9 +193,26 @@ At last, we have this weird entry in the ELF headers, `Section header string tab
 ***
 
 * What is the solution? **Minimize the maximum wastage.**
-* What if we create a **central name registry** and ask everyone to refer to it, instead of storing individually?
+* What if we create a **central name registry** and ask everyone to refer to it, instead of storing it individually?
 * Only the central registry would have to face the space problem. This would drastically reduce the overall wastage of space.
-* During dynamic linking, when names are changed, you have to change it once and it would be reflected everywhere else.
+* If any name needs a change, you have to change it once and it would be reflected everywhere else.
+*   Plus, since these names are independent now, we can altogether remove these **central tables** when not required. You remember the output of `file`?&#x20;
+
+    ```bash
+    $ file hello.o
+
+    hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
+    ```
+* This "not stripped" part is actually about removing stuff which is not really required. Removing these string tables is one of the things that happen when turning an elf from "not stripped" to "stripped".
+* Why remove? Because these are required only by toolchains and during debugging. A binary ready for production doesn't really need it, which is why it is stripped.
+
+***
+
+* So, `Section header string table index: 12` means the section header string table, which contains string names to all of these sections in the section header, is at the 12th entry inside section headers table.
+
+It was huge! Anyways, you can take some rest before continuing further.
+
+
 
 
 
