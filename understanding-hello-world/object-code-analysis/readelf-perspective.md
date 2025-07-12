@@ -156,3 +156,27 @@ The size of this ELF header is 64 bytes.
 * On 64-bit architecture, it is 64-bytes.
 * On 32-bit architecture, it is 32-bytes.
 
+At last, we have this weird entry in the ELF headers, `Section header string table index: 12` .
+
+*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
