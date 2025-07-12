@@ -221,6 +221,7 @@ An ELF is structured into various sections, and "section headers" form a table t
 
 * It is absolute when the elf is linked as a **non-PIE executable.**
 * It is relative \[to the address where the binary is loaded] when the elf is linked as a **position-independent executable.**
+* The 00...00 is a placeholder value as it is resolved at runtime.
 
 `Size` of the section in hexadecimal bytes.
 
@@ -256,7 +257,11 @@ The dynamic section tells the dynamic linker (interpreter program) what it needs
 
 ***
 
+### Relocation Entries
 
+Relocations are instructions for the linker/loader program (`ld-linux.so`).
+
+* In simple words, a relocation entry asks to replace the mentioned placeholder offset with the real address or offset for this symbol.
 
 
 
