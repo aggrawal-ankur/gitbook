@@ -262,6 +262,7 @@ The dynamic section tells the dynamic linker (interpreter program) what it needs
 Relocations are instructions for the linker/loader program (`ld-linux.so`).
 
 * In simple words, a relocation entry asks to replace the mentioned placeholder offset with the real address or offset for this symbol.
+* What gets relocated is the symbol. There are cross-references to symbols in shared libraries which are required to be resolved. The process that resolves them is called relocation.
 
 Relocation entries are of two types.
 
@@ -272,7 +273,9 @@ Relocation entries are of two types.
 
 `.rela.eh_frame` is read as relocation (with addend) for exception handling frame section.
 
-Lets dive into them.
+***
+
+Lets start with attributes.
 
 * `at offset 0x168/0x198` means these relocation entries start at 168/198 hexadecimal bytes from the position the binary is located at.
 * `Offset` is the address in a section where the relocation has to be applied.
@@ -282,25 +285,10 @@ Lets dive into them.
 * `Sym. Value` is the value of the symbol before relocation.
 * `Sym. Name + Addend` is the symbol name with addend.
 
+***
 
+This marks the end of inspecting into object code. I know we have not figured out the relocation part and the `.symtab` part yet. It is because it is impossible to be done right now. Relocation is not a single concept. It's a group of various small concepts combined before you reach the boss. Plus, relocation can't be understood solely at object level. You need to be at link level to fully comprehend it.
 
+For these reasons, it is in the best of our interest to avoid it for the time being. We are avoiding it right now so that we don't end up glossing over it. But very soon we will get to it.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Take rest and we'll continue again.
