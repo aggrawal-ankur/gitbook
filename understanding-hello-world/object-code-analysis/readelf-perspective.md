@@ -72,13 +72,13 @@ There are no program headers in this file.
 There is no dynamic section in this file.
 
 Relocation section '.rela.text' at offset 0x168 contains 2 entries:
-  Offset          Info            Type           Sym. Value     Sym. Name + Addend
-000000000007  000300000002  R_X86_64_PC32     0000000000000000  .rodata - 4
-00000000000f  000500000004  R_X86_64_PLT32    0000000000000000  puts - 4
+  Offset          Info            Type         Sym. Value     Sym. Name + Addend
+000000000007  000300000002  R_X86_64_PC32   0000000000000000  .rodata - 4
+00000000000f  000500000004  R_X86_64_PLT32  0000000000000000  puts - 4
 
 Relocation section '.rela.eh_frame' at offset 0x198 contains 1 entry:
-  Offset          Info           Type           Sym. Value    Sym. Name + Addend
-000000000020  000200000002 R_X86_64_PC32     0000000000000000 .text + 0
+  Offset          Info           Type          Sym. Value     Sym. Name + Addend
+000000000020  000200000002  R_X86_64_PC32   0000000000000000  .text + 0
 No processor specific unwind information to decode
 
 Symbol table '.symtab' contains 6 entries:
@@ -263,9 +263,24 @@ Relocations are instructions for the linker/loader program (`ld-linux.so`).
 
 * In simple words, a relocation entry asks to replace the mentioned placeholder offset with the real address or offset for this symbol.
 
+Relocation entries are of two types.
 
+1. Relocation with addend (`RELA`)
+2. Relocation without addend (`REL`)
 
+`.rela.text` is read as relocation (with addend) for text (code) section.
 
+`.rela.eh_frame` is read as relocation (with addend) for exception handling frame section.
+
+Lets dive into them.
+
+* `at offset 0x168/0x198` means these relocation entries start at 168/198 hexadecimal bytes from the position the binary is located at.
+* `Offset` is the address in a section where the relocation has to be applied.
+  * Offset 0x7&#x20;
+* `Info` encodes the symbol index and relocation type.
+* `Type` refers to the kind of relocation to apply.
+* `Sym. Value` is the value of the symbol before relocation.
+* `Sym. Name + Addend` is the symbol name with addend.
 
 
 
