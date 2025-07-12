@@ -185,10 +185,7 @@ At last, we have this weird entry in the ELF headers, `Section header string tab
 ***
 
 * This was just one table. There are other tables as well which uses the same `Name` field and similar values. If separate tables were created, that would lead to an awful lot of wastage of space.
-
-***
-
-* During dynamic linking, values change, which we'll see very soon. If there were so many tables, so much of compute would be required just to manage these names.
+* If we have to change these name entries, we have to change it everywhere they are used. Imagine how much compute would get wasted just to manage these names.
 
 ***
 
