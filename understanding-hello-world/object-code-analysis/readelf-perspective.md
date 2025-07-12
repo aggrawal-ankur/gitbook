@@ -156,17 +156,46 @@ The size of this ELF header is 64 bytes.
 * On 64-bit architecture, it is 64-bytes.
 * On 32-bit architecture, it is 32-bytes.
 
-At last, we have this weird entry in the ELF headers, `Section header string table index: 12` .
+At last, we have this weird entry in the ELF headers, `Section header string table index: 12` . Lets not gloss over it as it contains an important design concept.
 
-*
+*   Just for the time being, run `readelf hello.o -S` . You can see an output like&#x20;
 
+    ```
+    Section Headers:
+      [Nr] Name              Type             Address           Offset
+           Size              EntSize          Flags  Link  Info  Align
+      [ 0]                   NULL             0000000000000000  00000000
+           0000000000000000  0000000000000000           0     0     0
+      [ 1] .text             PROGBITS         0000000000000000  00000040
+           000000000000001a  0000000000000000  AX       0     0     1
+    ```
+*   It is less formatted. After formatting, we will get something like this&#x20;
 
+    ```
+    Section Headers:
+      [Nr]   Name    Type       Address           Offset    Size              EntSize          Flags  Link  Info  Align
+      [ 0]           NULL       0000000000000000  00000000  0000000000000000  0000000000000000           0     0     0
+      [ 1]   .text   PROGBITS   0000000000000000  00000040  000000000000001a  0000000000000000  AX       0     0     1
+    ```
+* Have a look at all of the attributes here. You will find that most of these attributes are having a fixed size. For example, the `Address` field is always made up of 16 hexadecimal digits, so as the `Size` field.
+* The only field we are concerned about is the `Name` field. This field practically has no bounds. Name of a section has to be verbose for practical reasons. Verbosity often comes at the price of length. But, not all the fields need that much verbosity. For example, there is `.text` and `.rela.eh_frame` . This creates a tension.
+* The `Name` field has to be long enough to contain the longest possible values. But the longest possible range is never really utilized fully. This leads to increase in size, which leads to wastage.
+* For example, the longest entry in the "section headers" section in the output above  (`readelf -a`) is 15 characters long. We have 12 sections in total. `12*15 = 180 bytes` . `Name` has to be 15 characters long for each entry. On the contrary, how many bytes are actually used? `87 bytes` ONLY. `93 bytes` are wasted space.
 
+***
 
+* This was just one table. There are other tables as well which uses the same `Name` field and similar values. If separate tables were created, that would lead to an awful lot of wastage of space.
 
+***
 
+* During dynamic linking, values change, which we'll see very soon. If there were so many tables, so much of compute would be required just to manage these names.
 
+***
 
+* What is the solution? **Minimize the maximum wastage.**
+* What if we create a **central name registry** and ask everyone to refer to it, instead of storing individually?
+* Only the central registry would have to face the space problem. This would drastically reduce the overall wastage of space.
+* During dynamic linking, when names are changed, you have to change it once and it would be reflected everywhere else.
 
 
 
