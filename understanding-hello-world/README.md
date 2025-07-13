@@ -40,6 +40,7 @@ It is really complex, but equally magnificent. Creating one single article would
 5. [A high level overview of the movement](macro-level-roadmap.md)
 6. [Moving from C source to assembly (x64 Intel, of course)](c-greater-than-assembly.md)
 7. [Inspecting the object code](object-code-analysis/)
+8. [Inspecting the linked ELF Binary](linked-elf-analysis.md)
 
 
 
