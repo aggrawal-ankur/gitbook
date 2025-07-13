@@ -9,10 +9,10 @@ Syntax of usage looks like: `objdump <elf_file> <flag(s)>`
 It is a feature-rich tool. The ones that concern us include these:
 
 ```bash
-objdump hello.o -D -M intel   # Complete disassembly using Intel syntax
-objdump hello.o -t            # Symbol table
-objdump hello.o -r            # Relocation entries
-objdump hello.o -h            # Section headers
+objdump object_code.o -D -M intel   # Complete disassembly using Intel syntax
+objdump object_code.o -t            # Symbol table
+objdump object_code.o -r            # Relocation entries
+objdump object_code.o -h            # Section headers
 ```
 
 ***

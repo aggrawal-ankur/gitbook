@@ -13,13 +13,13 @@ In Linux, it follows a specific file format, called **Executable and Linkable Fi
 To obtain object code for our source code, run
 
 ```c
-gcc -c hello.c -o hello.o
+gcc -c hello.c -o object_code.o
 ```
 
 We can start our analysis by inspecting the file type, using `file`.
 
 ```bash
-$ file hello.o
+$ file object_code.o
 
 hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
 ```

@@ -1,6 +1,6 @@
 # C -> Assembly
 
-The source can be compiled into assembly using `gcc -S -masm=intel hello.c -o hello.s` .
+The source can be compiled into assembly using `gcc -S -masm=intel hello.c -o hello_asm.s` .
 
 Previously, we've learned that `void main();` is a wrong signature for main function. But if we compile the code with `void main();` signature, we get an almost similar assembly.
 

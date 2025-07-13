@@ -11,12 +11,12 @@ Syntax of usage looks like: `readelf <elf_file> [flag(s)]`
 And yes, it is feature-rich just like `objdump` . The ones that concern us now include these:
 
 ```bash
-readelf hello.o -a            # Everything under one roof
-readelf hello.o -h            # ELF headers
-readelf hello.o -l            # Program headers
-readelf hello.o -S            # Section headers
-readelf hello.o -s            # Symbol table
-readelf hello.o -r            # Relocation entries
+readelf object_code.o -a          # Everything under one roof
+readelf object_code.o -h          # ELF headers
+readelf object_code.o -l          # Program headers
+readelf object_code.o -S          # Section headers
+readelf object_code.o -s          # Symbol table
+readelf object_code.o -r          # Relocation entries
 ```
 
 ```
@@ -183,7 +183,7 @@ At last, we have this weird entry in the ELF headers, `Section header string tab
 *   Plus, since these names are independent now, we can altogether remove these **central tables** when not required. You remember the output of `file`?&#x20;
 
     ```bash
-    $ file hello.o
+    $ file object_code.o
 
     hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
     ```
