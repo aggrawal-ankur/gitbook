@@ -1,12 +1,14 @@
 # Linked ELF Analysis
 
+## Setup
+
 We had the object code from previous step, which we can link in order to make it an executable.
 
 ```bash
-gcc -o object_code.o -o linked_elf
+gcc object_code.o -o linked_elf
 ```
 
-This one is going to be quite lengthy. So, be calm.
+This one is going to be quite lengthy. So, be prepared.
 
 ## Type Inspection
 
@@ -44,7 +46,7 @@ I have omitted the `BuildId` thing. It has no use.
 
 ***
 
-### ELF Headers
+## ELF Headers
 
 
 
