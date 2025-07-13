@@ -33,7 +33,7 @@ hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
 
 ***
 
-Object files can't be opened with standard text editors as they are not designed for that purpose. To open them, we need specialized editors and parsers, which can read these files. These include:
+Any file of type ELF can't be opened with standard text editors as they are not designed for that purpose. To open them, we need specialized editors and parsers, which can read these files. These include:
 
 1. Hex editors like `xxd` and `hexdump`.
 2. Disassemblers, which convert machine code into readable assembly, like `objdump`, `ndisasm` and `ghidra`.

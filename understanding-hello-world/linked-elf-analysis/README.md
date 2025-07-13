@@ -46,11 +46,10 @@ I have omitted the `BuildId` thing. It has no use.
 
 ***
 
-## ELF Headers
+## What really happens during linking?
 
+This question is really hard to answer for me at this point. Why not to see it directly?
 
+We will start by `objdump` and will gradually move to `readelf`.
 
-
-
-
-
+[part-i.md](part-i.md "mention")
