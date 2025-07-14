@@ -12,4 +12,5 @@
     * [\`readelf\` Perspective](understanding-hello-world/object-code-analysis/readelf-perspective.md)
   * [Linked ELF Analysis](understanding-hello-world/linked-elf-analysis/README.md)
     * [Part I: Analyzing ELF Headers And Disassembly](understanding-hello-world/linked-elf-analysis/part-i-analyzing-elf-headers-and-disassembly.md)
+    * [Part II](understanding-hello-world/linked-elf-analysis/part-ii.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)

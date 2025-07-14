@@ -52,10 +52,17 @@ This question is really hard to answer for me at this point. Why not to see it d
 
 ## Macro Level Roadmap
 
-1. ELF header Analysis
-2. Section headers table
-3. Program headers table
-
-
-
 [part-i-analyzing-elf-headers-and-disassembly.md](part-i-analyzing-elf-headers-and-disassembly.md "mention")
+
+[part-ii.md](part-ii.md "mention")
+
+
+
+
+
+
+
+
+
+
+
