@@ -52,4 +52,4 @@ This question is really hard to answer for me at this point. Why not to see it d
 
 We will start by `objdump` and will gradually move to `readelf`.
 
-[part-i.md](part-i.md "mention")
+[part-i-analyzing-elf-headers-and-disassembly.md](part-i-analyzing-elf-headers-and-disassembly.md "mention")

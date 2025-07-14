@@ -1,4 +1,4 @@
-# Part I
+# Part I: Analyzing ELF Headers And Disassembly
 
 ## Premise
 
@@ -109,9 +109,11 @@ Shocked, right! The generated assembly is 800 lines long. The first and the imme
 
 This is what linking has done, precisely. It is all compiler (`gcc`) generated.
 
-Before complexity consumes us, lets try to organize the abundance of knowledge available here.
+Before complexity consumes us, lets try to organize the abundance of knowledge here.
 
 ### All the sections in the disassembly
+
+These are all the sections in the disassembly.
 
 ```
 .note.gnu.property
@@ -140,25 +142,19 @@ Before complexity consumes us, lets try to organize the abundance of knowledge a
 .got.plt
 .data
 .comment
+
+= 26 sections
 ```
 
-There are total 26 sections here.
+The ELF headers said there are 31 section headers. The disassembly shows 26. Where are the remaining 5 headers?
 
-We can also verify this with elf headers
+* First of all, index 0 is NULL. So 4, not 5.
+* What are these 4 sections even? `.bss .symtab .strtab .shstrtab`
+* From assembly, we know that `.bss` is for uninitialized global/static variables.
+* `.symtab .strtab .shstrtab` are compiler generated internal bookkeeping material. They are used in linking and debugging only. And we know that it can be stripped. When something is neither a part of the executable code nor really required at runtime, these form enough reasons for `objdump` not include them in full disassembly.
 
+### What to do with this disassembly?
 
+This disassembly is a roadmap. There is no meaning in reading it line by line.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+We will use it in the process to make sense of what we are doing and why we are doing it. That's it.
