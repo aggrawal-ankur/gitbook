@@ -72,7 +72,7 @@ The first difference is obviously in `Type`. And we have already spotted this di
 We know that object code can't be loaded in memory, which is why it can't be executed.
 
 * Here, the value in the `Entry point address` field has changed from `0x0` to `0x1050`.
-* It is because an object code which has undergo linking has everything necessary to be loaded into memory \[, which we will talk about very soon].
+* It is because an object code which has undergo linking has everything necessary to be loaded into memory, which we will talk about very soon.
 * `0x1050` is the starting virtual address at which execution begins when the OS transfers the control to the ELF.
 
 As we have discussed earlier, program headers are used by the `dynamic linker/loader` program at runtime to resolve cross-references. And it is build time linker program that actually creates those headers in the final executable ELF.
@@ -84,12 +84,20 @@ As we have discussed earlier, program headers are used by the `dynamic linker/lo
 * They are found together in the program headers table, which we are going to refer to as PHT.
 * `Size of program headers` entry is also populated. It is 56 bytes.
 
-What's interesting to see here is about **section headers**.
+What's interesting to see here is **section headers**.
 
 * Earlier section headers started from 536 bytes into the ELF. This time, it is 13968 bytes into the file. Maybe it is a part of restructuring as a lot of things have been added.
 * Wait, the number of section headers has moved from 13 to 31. And the size is still the same, 64 bytes. How's that possible?
+* The answer is, compilation (.asm to .o) lay downs only a partial structure. Linking completes the object code. These extra section headers are about the things which were absent earlier.
+* If you notice, `.note.GNU-stack` is not present in the linked ELF. This is because it is empty in size and that means "non-executable stack". It is not needed in the final binary so it got stripped.
+
+`Section header string table index: 30` we need not to talk about. We have invested great amount of time understanding this.
 
 
+
+_We are done with ELF headers. Take a break._
+
+***
 
 ## Full Disassembly (-D)
 
