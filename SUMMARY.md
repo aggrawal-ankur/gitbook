@@ -13,7 +13,7 @@
   * [Linked ELF Analysis](understanding-hello-world/linked-elf-analysis/README.md)
     * [Step 1: Analyzing ELF Headers](understanding-hello-world/linked-elf-analysis/step-1-analyzing-elf-headers.md)
     * [Full Disassembly](understanding-hello-world/linked-elf-analysis/full-disassembly.md)
-    * [Part II: Analyzing Section Headers](understanding-hello-world/linked-elf-analysis/part-ii-analyzing-section-headers.md)
+    * [Analyzing Section Headers](understanding-hello-world/linked-elf-analysis/analyzing-section-headers.md)
     * [Part III: Analyzing Program Headers Table](understanding-hello-world/linked-elf-analysis/part-iii-analyzing-program-headers-table.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)

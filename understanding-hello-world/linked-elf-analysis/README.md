@@ -54,17 +54,9 @@ This question is really hard to answer for me at this point. Why not to see it d
 
 Complete output of `readelf` can be found at [GitHub](https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/complete_elf_headers).
 
-[step-1-analyzing-elf-headers.md](step-1-analyzing-elf-headers.md "mention")
+1. [step-1-analyzing-elf-headers.md](step-1-analyzing-elf-headers.md "mention")
+2. [analyzing-section-headers.md](analyzing-section-headers.md "mention") as they form the basis for the next step.
+3. [part-iii-analyzing-program-headers-table.md](part-iii-analyzing-program-headers-table.md "mention")
 
-[part-ii-analyzing-section-headers.md](part-ii-analyzing-section-headers.md "mention")
-
-
-
-
-
-
-
-
-
-
+[analyzing-section-headers.md](analyzing-section-headers.md "mention")
 
