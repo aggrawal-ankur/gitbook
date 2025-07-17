@@ -123,11 +123,25 @@ Now the kernel gives control to the entry point of the dynamic linker (or the in
 
 ***
 
+### Introducing The Interpreter
 
+First of all, the **interpreter program** and the **dynamic linker/loader** are the same thing. And we use it interchangeably. _So, don't get confused_.
 
+The name of this program is `ld-linux`.
 
+Anyways, the interpreter looks for the dynamic section within the program headers table of our binary. Since the binary is already mapped into the memory, all the access is via the virtual address space. So, the interpreter goes to `0x3de0` address in the virtual address space of our binary to find the `dynamic` section.
 
+Here comes the crazy part. Now sit tight and read carefully, otherwise you might end up glossing over something and it will not settle properly.
 
+* Our binary and the interpreter program, both share the same virtual address space.
+* Although the interpreter program is loaded as a separate ELF and it undergoes everything separately, it is not a separate process.
+* Although the `execve` syscall starts by loading our binary, but when the kernel finds out that it requires an interpreter, it shifts to loading the interpreter instead.
+* And by that time, the loadable segments are already mapped out in the virtual address space.
+* So, everything that is required is practically loaded already. And the interpreter just have to act on it.
+
+### What does the interpreter program do?
+
+Now the interpreter went on the `0x3de0` location within the virtual address space and found the dynamic section there.
 
 
 
