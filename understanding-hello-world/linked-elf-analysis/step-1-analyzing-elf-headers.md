@@ -1,12 +1,6 @@
-# Part I: Analyzing ELF Headers And Disassembly
+# Step 1: Analyzing ELF Headers
 
-## Premise
-
-Since we have already explored one elf (object code), we have an idea of how things certainly move. We are not going to do something new. We are going to use contrast to differentiate between the two stages.
-
-If you are anxious and you didn't get anything, just sit tight and trust me. Your times is not going to be wasted at all. I hope you are ready.
-
-## ELF Headers
+## Understanding ELF Headers
 
 These are the ELF headers from the object code.
 
@@ -69,7 +63,7 @@ The first difference is obviously in `Type`. And we have already spotted this di
 * It has changed from `REL` to `DYN`.
 * This means that this ELF is dynamically linked and is ready to be executed.
 
-We know that object code can't be loaded in memory, which is why it can't be executed.
+We know that object code can't be loaded in memory, which is why it is not an executable.
 
 * Here, the value in the `Entry point address` field has changed from `0x0` to `0x1050`.
 * It is because an object code which has undergo linking has everything necessary to be loaded into memory, which we will talk about very soon.
@@ -93,68 +87,24 @@ What's interesting to see here is **section headers**.
 
 `Section header string table index: 30` we need not to talk about. We have invested great amount of time understanding this.
 
-
-
-_We are done with ELF headers. Take a break._
+* The entry at index 30 in the section headers table is where the string table for section headers is located.
 
 ***
 
-## Full Disassembly (-D)
+## What to do about this?
 
-```bash
-objdump linked_elf -D -M intel
-```
+When this linked elf (or binary) is executed in the terminal, the first thing that happens is the kernel checks if the binary can be loaded into the memory.
 
-Shocked, right! The generated assembly is 800 lines long. The first and the immediate question is **WHERE ALL THIS ASSEMBLY IS COMING FROM?**
+If the binary can't be loaded into memory, it doesn't poses relevant information required to setup the environment in which it can be executed.
 
-This is what linking has done, precisely. It is all compiler (`gcc`) generated.
+To find this, the kernel checks up the ELF headers. The `Type` header we have talked about recently is the one that is checked. If the value is `REL`, it can't be loaded.
 
-Before complexity consumes us, lets try to organize the abundance of knowledge here.
+Since our elf is linked now, it has the value of `DYN` in the `Type` field, which means that it has necessary information required to setup the environment for execution.
 
-### All the sections in the disassembly
+Therefore, the first task is done.
 
-These are all the sections in the disassembly.
+## What is the next step?
 
-```
-.note.gnu.property
-.note.gnu.build-id
-.interp
-.gnu.hash
-.dynsym
-.dynstr
-.gnu.version
-.gnu.version_r
-.rela.dyn
-.rela.plt
-.init
-.plt
-.plt.got
-.text
-.fini
-.rodata
-.eh_frame_hdr
-.eh_frame
-.note.ABI-tag
-.init_array
-.fini_array
-.dynamic
-.got
-.got.plt
-.data
-.comment
+Now the kernel goes to the program headers, which are present just after the ELF headers at offset 0x64 in the binary.
 
-= 26 sections
-```
-
-The ELF headers said there are 31 section headers. The disassembly shows 26. Where are the remaining 5 headers?
-
-* First of all, index 0 is NULL. So 4, not 5.
-* What are these 4 sections even? `.bss .symtab .strtab .shstrtab`
-* From assembly, we know that `.bss` is for uninitialized global/static variables.
-* `.symtab .strtab .shstrtab` are compiler generated internal bookkeeping material. They are used in linking and debugging only. And we know that it can be stripped. When something is neither a part of the executable code nor really required at runtime, these form enough reasons for `objdump` not include them in full disassembly.
-
-### What to do with this disassembly?
-
-This disassembly is a roadmap. There is no meaning in reading it line by line.
-
-We will use it in the process to make sense of what we are doing and why we are doing it. That's it.
+What are we waiting for? Lets go there. But before that, we need to clear our mind about something.

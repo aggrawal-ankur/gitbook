@@ -71,7 +71,7 @@ In simple words, there is no guarantee it will work.
 
 Well, I am still learning about it and if I find something, I'll share.
 
-## Why old tutorial use it?
+## Why old tutorials use it?
 
 Only those tutors can answer this. But I have a few ideas in mind.
 
