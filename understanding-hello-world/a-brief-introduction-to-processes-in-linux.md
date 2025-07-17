@@ -47,17 +47,34 @@ What are these necessities?
 6. Execution, a.k.a the day of marriage.
 7. At last, cleanup.
 
+## Virtual Address Space
 
+There are thousands of processes running normally. The number rises when we multitask.
 
+Just imagine how crazy and chaotic it would get to manage millions of process inside the RAM, with all demanding various services like stack and heap.
 
+This is why an abstraction known as virtual address space (or VAS) exist. Every process is executed in an isolated environment called virtual address space.
 
+A process image is the complete in-memory layout of a program after it has been loaded into memory by the OS.
 
+It is the answer to the question, "What the process looks like in the RAM?" A process image is the memory representation of a program at runtime.
 
+It includes code, data, stack, heap, environment, memory-mapped regions, loaded libraries etc....
 
+It is created by the kernel based on the ELF layout.
 
+## Segments
 
+Segments are logical grouping of multiple sections.
 
+## Program Headers
 
+Program headers are a set of structures in an ELF file that describe how to create a process image in the memory.
 
+It describes how the operating system should load the ELF binary into the memory. It maps parts of the binary into memory regions with specific permissions and purposes.
 
+***
 
+That's all we need to know about processes for now.
+
+**Note: This is just the start. We will explore processes in real depth when the time comes. Until then, lets move on to the next thing.**
