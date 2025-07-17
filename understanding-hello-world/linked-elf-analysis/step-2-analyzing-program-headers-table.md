@@ -2,7 +2,7 @@
 
 ## Introduction To Program Headers
 
-Program headers are a set of structures in an ELF file that describe how to create a process image in memory.
+Program headers are a set of structures in an ELF file that describe how to create a process image in memory. These are used by the runtime dynamic linker/loader program (or, the interpreter program).
 
 ## Setup
 
@@ -42,4 +42,102 @@ Program Headers:
    12
    13    .init_array .fini_array .dynamic .got
 ```
+
+## Understanding The Attributes
+
+Each program header maps to a segment. `Type` refers to the type of that segment.
+
+* `PHDR`: Program header table
+* `LOAD`: Loadable segment
+* `DYNAMIC`: Dynamic linking info, where is the dynamic section in the binary
+* `INTERP`: Path to dynamic linker
+* `NOTE`: Auxiliary information (e.g., build ID, security notes)
+* `GNU_STACK`: Stack permissions
+* `GNU_RELRO`: Read-only after relocation
+* `GNU_EH_FRAME`: Exception handling info
+
+`Offset` is the location of this segment within the ELF binary.
+
+`VirtualAddr` is the virtual memory address where the segment should be mapped in memory during execution.
+
+`PhysAddr` is usually ignored by modern OS. Same as `VirtAddr` or meaningless.
+
+`FileSize` is the size of the segment in the binary.
+
+`MemSize` is the size of the segment in memory after loading.
+
+`Flags` refer to memory access permissions.
+
+* `R`: Readable
+* `W`: Writable
+* `E`: Executable
+
+`Align` refers to the required alignment for the segment in memory and in the file.
+
+## How Program Headers Are Read?
+
+So far, the kernel has verified that the ELF has necessary information required to be executed.
+
+Now the kernel is at the program headers table.&#x20;
+
+### Setup Virtual Address Space (Process Image)
+
+It is looking for all the entries of type `LOAD`, so that it can map those segments into the virtual address space.
+
+Each entry in the program headers table map exactly in the same order with the entries inside the **section to segment mapping**.
+
+The `LOAD` segments are at indices 2, 3, 4 and 5. The segments corresponding to them are these:
+
+```
+02    .note.gnu.property .note.gnu.build-id .interp .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt 
+03    .init .plt .plt.got .text .fini 
+04    .rodata .eh_frame_hdr .eh_frame .note.ABI-tag 
+05    .init_array .fini_array .dynamic .got .got.plt .data .bss 
+```
+
+***
+
+Is there any logic behind such segmentation of sections? Yes. If we have a look at the section headers table, we can find that:
+
+* section 1-10 have the same flags, `A` except the 10th one, which had `I` as well. And they are made in one segment. These include read-only metadata.
+* section 11-15 are all `AX`, which are allocated and executable,
+* section 16-19 are all with `A` flag. These include read-only data, and
+* section 20-26 are with `WX` flags. These include writable and allocated data.
+
+Every segment is carefully containing sections with same permissions. Also, each segment is page-aligned (typically 4 KB) to simplify mapping and protect boundaries.
+
+***
+
+### "Is any dynamic interpreter required?"
+
+After loading all the `LOAD` segments, the kernel looks if there is a requirement for a dynamic linker program. Since our binary is linked dynamically, it contains an `INTERP` entry.
+
+This `INTERP` segment points to the **path of the interpreter**, which is stored as a string in the `.interp` section of the ELF file. The kernel reads the interpreter path from there, locates the dynamic linker program on the disk and loads it as a separate ELF, repeating the entire ELF loading process for it.
+
+After the interpreter (dynamic linker) is loaded, the kernel sets up the process stack and transfers control to the dynamic linker's entry point, not the main program.
+
+* The process stack setup includes argv, envp, and auxv (auxiliary vectors with ELF info).
+* We need not to worry about it.
+
+Now the kernel gives control to the entry point of the dynamic linker (or the interpreter) program.
+
+***
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
