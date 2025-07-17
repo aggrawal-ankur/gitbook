@@ -45,9 +45,6 @@ If you notice, there is no sign of "Hello, World!\n" in the disassembly.
        1:	  65 6c                	gs ins BYTE PTR es:[rdi],dx
        3:	  6c                   	ins    BYTE PTR es:[rdi],dx
        4:	  6f                   	outs   dx,DWORD PTR ds:[rsi]
-    ```
-
-    ```bash
        5:	  2c 20                	sub    al,0x20
        7:	  57                   	push   rdi
        8:	  6f                   	outs   dx,DWORD PTR ds:[rsi]
