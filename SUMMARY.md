@@ -17,5 +17,6 @@
     * [Analyzing Section Headers](understanding-hello-world/linked-elf-analysis/part-ii-analyzing-section-headers.md)
     * [Step 2: Analyzing Program Headers Table](understanding-hello-world/linked-elf-analysis/step-2-analyzing-program-headers-table.md)
     * [Step 3: Interpreter In Action](understanding-hello-world/linked-elf-analysis/step-3-interpreter-in-action.md)
+    * [Step 4: Symbols And Relocations](understanding-hello-world/linked-elf-analysis/step-4-symbols-and-relocations.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
