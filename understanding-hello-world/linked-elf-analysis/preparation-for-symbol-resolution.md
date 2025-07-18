@@ -1,4 +1,4 @@
-# Step 4: Symbols And Relocations
+# Preparation For Symbol Resolution
 
 ## Premise
 
@@ -12,7 +12,7 @@ Great. `printf()` is coming from `glibc`. But our source code and the `glibc` ar
 
 We also know that our source code is just a tiny part of the infrastructure that runs it. I didn't write that infrastructure. That infra would also require various functions and other things. Where are those things coming from?
 
-The answer is symbol relocation. And we are going to discuss the same in this article.
+The answer is symbol resolution. And we are going to discuss the same in this article.
 
 ## Setting Up The Grounds
 
@@ -89,16 +89,11 @@ Symbol table '.symtab' contains 36 entries:
 
 ### Understanding The Attributes
 
-<table><thead><tr><th width="120">Attribute</th><th>Description</th></tr></thead><tbody><tr><td><strong>Num</strong></td><td>Symbol number (index in the symbol table)</td></tr><tr><td><strong>Value</strong></td><td>Symbol's value (usually an address or offset, depending on section context)</td></tr><tr><td><strong>Size</strong></td><td>Size of the symbol in bytes (zero for undefined size or functions sometimes)</td></tr><tr><td><strong>Type</strong></td><td>What kind of symbol it is (<code>FUNC</code>, <code>OBJECT</code>, <code>SECTION</code>, etc.)</td></tr><tr><td><strong>Bind</strong></td><td>Symbol binding: how it is linked (<code>LOCAL</code>, <code>GLOBAL</code>, <code>WEAK</code>, etc.)</td></tr><tr><td><strong>Visibility</strong></td><td>Symbol visibility: how it is seen across objects (<code>DEFAULT</code>, <code>HIDDEN</code>, etc.)</td></tr><tr><td><strong>Ndx</strong></td><td>Section index: which section the symbol is defined in (<code>UND</code>, number, etc.)</td></tr><tr><td><strong>Name</strong></td><td>The symbol's name (looked up via the string table)</td></tr></tbody></table>
+<table><thead><tr><th width="138">Attribute</th><th>Description</th></tr></thead><tbody><tr><td><code>Num</code></td><td>Symbol number (index in the symbol table).</td></tr><tr><td><code>Value</code></td><td>Symbol's value (usually an address or offset, depending on section context)</td></tr><tr><td><code>Size</code></td><td>Size of the symbol in bytes (zero for undefined size or functions sometimes)</td></tr><tr><td><code>Type</code></td><td>What kind of symbol it is (<code>FUNC</code>, <code>OBJECT</code>, <code>SECTION</code>, etc.)</td></tr><tr><td><code>Bind</code></td><td>Symbol binding: how it is linked (<code>LOCAL</code>, <code>GLOBAL</code>, <code>WEAK</code>, etc.)</td></tr><tr><td><code>Visibility</code></td><td>Symbol visibility: how it is seen across objects (<code>DEFAULT</code>, <code>HIDDEN</code>, etc.)</td></tr><tr><td><code>Ndx</code></td><td>Section index: which section the symbol is defined in (<code>UND</code>, number, etc.)</td></tr><tr><td><code>Name</code></td><td>The symbol's name (looked up via the string table)</td></tr></tbody></table>
 
 ### What are these two tables used for?
 
-<table><thead><tr><th width="116">Table</th><th>Purpose</th></tr></thead><tbody><tr><td><code>.symtab</code></td><td>Full symbol table for internal use by the linker (includes all symbols: static, local, global). Not needed at runtime.</td></tr><tr><td><code>.dynsym</code></td><td>Minimal symbol table used by the dynamic linker at runtime (includes only dynamic/global symbols needed for relocation or symbol resolution).</td></tr></tbody></table>
-
-In short:
-
-* `.symtab` is for **link-time**.
-* `.dynsym` is for **run-time**.
+<table><thead><tr><th width="116">Table</th><th width="540">Purpose</th><th>In short</th></tr></thead><tbody><tr><td><code>.symtab</code></td><td>Full symbol table for internal use by the linker (includes all symbols: static, local, global). Not needed at runtime.</td><td>Link-time</td></tr><tr><td><code>.dynsym</code></td><td>Minimal symbol table used by the dynamic linker at runtime (includes only dynamic/global symbols needed for relocation or symbol resolution).</td><td>Run-time</td></tr></tbody></table>
 
 ### String Table
 
@@ -106,7 +101,7 @@ String table is the general table which serves as the central table for symbol n
 
 To access it, run
 
-```
+```bash
 $ readelf ./linked_elf -p .strtab
 
 String dump of section '.strtab':
@@ -142,13 +137,48 @@ String dump of section '.strtab':
   [   1d5]  _init
 ```
 
+## Relocation Entries
 
+Relocations are instructions for the linker/loader program (`ld-linux.so`).
 
+* In simple words, a relocation entry asks to replace the mentioned placeholder offset with the real address or offset for this symbol.
 
+Primarily, there are two kinds of relocation entries.
 
+* Relocation with addend, `RELA`.
+* Relocation without addend, `REL`.
 
+An addend is a constant value added to the symbol's address during relocation.
 
+* When this constant is stored in the relocation entry itself, we call it `RELA`, which means, "Relocation with Addend".
+* When this constant is embedded in the section being relocated, we call it `REL`, which means, "Relocation without Addend".
 
+There are two relocation tables in our binary, `.rela.dyn` and `.rela.plt`.
 
+* `.rela.dyn` is for general data/function pointer relocations.
+* `.rela.plt` is for function calls through the PLT, typically used for lazy binding.
 
+These are the relocation entries in our binary.
 
+```
+Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:
+  Offset          Info            Type            Sym. Value     Sym. Name + Addend
+000000003dd0  000000000008  R_X86_64_RELATIVE                      1130
+000000003dd8  000000000008  R_X86_64_RELATIVE                      10f0
+000000004010  000000000008  R_X86_64_RELATIVE                      4010
+000000003fc0  000100000006  R_X86_64_GLOB_DAT  0000000000000000  __libc_start_main@GLIBC_2.34 + 0
+000000003fc8  000200000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_deregisterTM[...] + 0
+000000003fd0  000400000006  R_X86_64_GLOB_DAT  0000000000000000  __gmon_start__ + 0
+000000003fd8  000500000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_registerTMCl[...] + 0
+000000003fe0  000600000006  R_X86_64_GLOB_DAT  0000000000000000  __cxa_finalize@GLIBC_2.2.5 + 0
+
+Relocation section '.rela.plt' at offset 0x610 contains 1 entry:
+  Offset          Info           Type           Sym. Value       Sym. Name + Addend
+000000004000  000300000007  R_X86_64_JUMP_SLO  0000000000000000  puts@GLIBC_2.2.5 + 0
+```
+
+### Understanding The Attributes
+
+<table><thead><tr><th width="148">Attribute</th><th>Description</th></tr></thead><tbody><tr><td><code>Offset</code></td><td>Location in the section where the relocation has to be applied.</td></tr><tr><td><code>Info</code></td><td>Encodes the relocation type and symbol index (e.g., high bits: symbol, low bits: type).</td></tr><tr><td><code>Type</code></td><td>Relocation type, how to apply the relocation.</td></tr><tr><td><code>Sym. Value</code></td><td>The value of the referenced symbol (from the symbol table), if applicable</td></tr><tr><td><code>Sym. Name</code></td><td>Name of the symbol being relocated against (can be empty for some types like <code>RELATIVE</code>)</td></tr><tr><td><code>Addend</code></td><td>Constant value added to the relocation calculation (explicit in <code>.rela.*</code>)</td></tr></tbody></table>
+
+Addend is probably the only foreign term here. Next we are going to understand that. But before that we need to clear a small concept.
