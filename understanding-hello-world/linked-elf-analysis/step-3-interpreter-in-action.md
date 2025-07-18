@@ -50,6 +50,7 @@ The `Name/Value` field is the most complicated one here.
 * When it comes to a shared library, this attribute holds a string name.
 * When it comes to anything related to size, it stores a size.
 * When it comes to offset, it stores `0x` prefixed addresses.
+* It only stores offset or size. It is the elf-parser that resolves it to string names, if possible.
 
 ## Understanding Each Entry Type
 
@@ -57,21 +58,26 @@ The `Name/Value` field is the most complicated one here.
 
 Lots of information we have no idea about. Don't stress about it. We will go through everything. Nothing would be left.
 
+## How does the interpreter reads them?
 
+First, it walks through each entry until it hits the `NULL` termination entry. And stores pointers to key entries for later use.
 
+Second, all the entries of type `NEEDED` refers to the shared libraries, so it reads the name of the library from `.dynstr` table and loads the shared library. And it handles transitive dependencies recursively..
 
+Third, it maps relocation-related sections into memory for later processing during symbol resolution and relocation.
 
+Fourth, cross-references are relocated.
 
+Fifth, it sets up the procedure linkage table for lazy binding.
 
+Sixth, it uses `DT_VERNEED`, `DT_VERNEEDNUM`, `DT_VERSYM` to check symbol versions match between binary and shared libraries.
 
+Seventh, constructors are called, `INIT` and `INIT_ARRAY` .
 
+Finally, our source gets the control.
 
+***
 
+This was an high level overview of how the interpreter works. Now, its time to learn relocations. And don't worry. All the things that were left unresolved here will start to get resolved from relocations on wards.
 
-
-
-
-
-
-
-
+Take rest.
