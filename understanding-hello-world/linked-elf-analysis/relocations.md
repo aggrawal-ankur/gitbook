@@ -157,6 +157,65 @@ The `Info` field is 8 bytes long, although here it is 6 bytes, which is I am als
 
 * The upper 8-bytes refers to the symbol index value and the lower 8-bytes refers to the relocation type.
 
+### \`R\_X86\_64\_RELATIVE\` Relocation
+
+```
+  Offset          Info            Type            Sym. Value     Sym. Name + Addend
+000000003dd0  000000000008  R_X86_64_RELATIVE                      1130
+```
+
+Its symbol index is 0 and the relocation type is 8, which resolves to `R_X86_64_RELATIVE`.
+
+* Entries of type 8 doesn't require any symbol lookup.
+*   `Offset` is where we have to write the result. And the result is calculated as follows:&#x20;
+
+    ```
+    *(Offset) = Base Address of the binary + Addend
+    ```
+* In simple words, take the base address of the binary and add the value in the `Sym. Name + Addend` field to it. Now write the obtained value at the mentioned offset. Relocation is done.
+* ```
+  relocation_address = base_addr + 0x3dd0;
+  value_to_write = base_addr + 1130;
+
+  *(relocation_address) = value_to_write
+  ```
+
+The remaining two entries are relocated in the same manner.
+
+```
+000000003dd8  000000000008  R_X86_64_RELATIVE                      10f0
+000000004010  000000000008  R_X86_64_RELATIVE                      4010
+```
+
+### \`R\_X86\_64\_GLOB\_DAT\` Relocation
+
+```
+  Offset          Info            Type            Sym. Value     Sym. Name + Addend
+000000003fc0  000100000006  R_X86_64_GLOB_DAT  0000000000000000  __libc_start_main@GLIBC_2.34 + 0
+000000003fc8  000200000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_deregisterTM[...] + 0
+000000003fd0  000400000006  R_X86_64_GLOB_DAT  0000000000000000  __gmon_start__ + 0
+000000003fd8  000500000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_registerTMCl[...] + 0
+000000003fe0  000600000006  R_X86_64_GLOB_DAT  0000000000000000  __cxa_finalize@GLIBC_2.2.5 + 0
+```
+
+Lets take the first entry here.
+
+The symbol index is 1 and relocation type is 6.
+
+* `R_X86_64_GLOB_DAT` does require symbol lookup.
+* This is a global data relocation, commonly used for symbol pointers in the GOT (Global Offset Table).\
+  Its purpose is to fill a pointer with the runtime address of a symbol — typically function pointers or global variables imported from shared libraries.
+
+The symbol is `__libc_start_main.`&#x20;
+
+The relocation logic is&#x20;
+
+```
+*(base_addr + 0x3fc0) = address_of(__libc_start_main)
+```
+
+The symbol is looked up in all the loaded shared libraries using the dynamic symbol table and the symbol hash tables. Once the runtime address is found in memory, the address is written in place of `0x3fc0` in the global offset table. And the relocation is done.
+
 
 
 
