@@ -62,7 +62,7 @@ Every entry in the `.rela.plt` table undergoes lazy binding because it includes 
 
 But why does lazy binding exist?
 
-Lets have a look at this following code.
+Lets have a look at the following code.
 
 ```c
 #include<stdio.h>
@@ -134,9 +134,28 @@ I guess we have find the answer to our question. The interpreter would go to `RE
 
 ## Introducing Relocations
 
+The interpreter uses the `RELA` entry to jump to the `.rela.dyn` relocation table. `RELA` entry in the dynamic section has a value of `0x550` and we can verify that the `.rela.dyn` table is also located at the same offset by this line `Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:` .
 
+To revise, a relocation entry can be read as: _at offset in the section, replace the placeholder address of the symbol with its actual address._
 
+These are the relocation entries in the `.rela.dyn` table.
 
+```
+Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:
+  Offset          Info            Type            Sym. Value     Sym. Name + Addend
+000000003dd0  000000000008  R_X86_64_RELATIVE                      1130
+000000003dd8  000000000008  R_X86_64_RELATIVE                      10f0
+000000004010  000000000008  R_X86_64_RELATIVE                      4010
+000000003fc0  000100000006  R_X86_64_GLOB_DAT  0000000000000000  __libc_start_main@GLIBC_2.34 + 0
+000000003fc8  000200000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_deregisterTM[...] + 0
+000000003fd0  000400000006  R_X86_64_GLOB_DAT  0000000000000000  __gmon_start__ + 0
+000000003fd8  000500000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_registerTMCl[...] + 0
+000000003fe0  000600000006  R_X86_64_GLOB_DAT  0000000000000000  __cxa_finalize@GLIBC_2.2.5 + 0
+```
+
+The `Info` field is 8 bytes long, although here it is 6 bytes, which is I am also wondering why readelf is not showing the remaining 2 bytes, but leave it.
+
+* The upper 8-bytes refers to the symbol index value and the lower 8-bytes refers to the relocation type.
 
 
 
