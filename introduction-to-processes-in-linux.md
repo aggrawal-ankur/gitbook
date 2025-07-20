@@ -1,3 +1,7 @@
+---
+hidden: true
+---
+
 # Introduction To Processes In Linux
 
 ## Introduction To Processes
