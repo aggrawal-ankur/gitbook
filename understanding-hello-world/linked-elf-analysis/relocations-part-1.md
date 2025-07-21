@@ -1,4 +1,4 @@
-# Relocations
+# Relocations - Part 1
 
 ## Setup
 
@@ -216,15 +216,13 @@ The relocation logic is&#x20;
 
 The symbol is looked up in all the loaded shared libraries using the dynamic symbol table and the symbol hash tables. Once the runtime address is found in memory, the address is written in place of `0x3fc0` in the global offset table. And the relocation is done.
 
+The term **global offset table** is new here.
 
+We are done with `.rela.dyn` relocations.
 
+Now the interpreter jumps to the `JUMPREL` entry in the dynamic section and finds `.rela.plt`. The real chaos starts here.
 
-
-
-
-
-
-
-
-
-
+* PLT entries are about lazy binding, by default.
+* For lazy binding, we need to understand global offset table (GOT) and procedure linkage table (PLT). Both of which are really complex and confusing.
+* Since it is fairly long, it deserves its own separate place. Therefore, we are dividing this article into two parts.
+* Here ends the first part.

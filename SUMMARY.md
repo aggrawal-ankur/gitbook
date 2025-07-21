@@ -20,7 +20,7 @@
     * [Preparation For Symbol Resolution](understanding-hello-world/linked-elf-analysis/preparation-for-symbol-resolution.md)
     * [Why arrays in C follow 0-based indexing?](understanding-hello-world/linked-elf-analysis/why-arrays-in-c-follow-0-based-indexing.md)
     * [What Are Addends?](understanding-hello-world/linked-elf-analysis/what-are-addends.md)
+    * [Relocations - Part 1](understanding-hello-world/linked-elf-analysis/relocations-part-1.md)
     * [Global Offset Table](understanding-hello-world/linked-elf-analysis/global-offset-table.md)
-    * [Relocations](understanding-hello-world/linked-elf-analysis/relocations.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
