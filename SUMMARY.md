@@ -21,6 +21,6 @@
     * [Why arrays in C follow 0-based indexing?](understanding-hello-world/linked-elf-analysis/why-arrays-in-c-follow-0-based-indexing.md)
     * [What Are Addends?](understanding-hello-world/linked-elf-analysis/what-are-addends.md)
     * [Relocations - Part 1](understanding-hello-world/linked-elf-analysis/relocations-part-1.md)
-    * [Global Offset Table](understanding-hello-world/linked-elf-analysis/global-offset-table.md)
+    * [Relocation - Part 2](understanding-hello-world/linked-elf-analysis/relocation-part-2.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
