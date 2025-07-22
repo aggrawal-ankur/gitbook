@@ -99,12 +99,24 @@ Ultimately, do you end up accessing the clothes individually or through the ward
 
 Once these segments are created, program headers come into existence.
 
-## There's something off here
+## How does it fit in the bigger picture?
 
+As we have read recently that the infrastructure we are understanding is basically made up of various object files, which get combined with our source code and the final binary becomes an executable.&#x20;
 
+Those object files are also ELF at the end of the day. They will also have sections like `.text` and `.got` . To form a combined binary, these sections are combined in a thoughtful way and a final version of that section emerges.
+
+Therefore, the `.text` section we see in the final elf binary doesn't only contain our source code, but the source code from various shared object files.
+
+Just for knowledge, some of these files include `crt1.o`, `crtn.o` etc.
+
+This can be verified by looking at the full disassembly.
+
+* Line 341 on wards starts the disassembly of `.text` section.
+* First, we have `_start`. Then `deregister_tm_clones`, `register_tm_clones`, `__do_global_dtors_aux`, `frame_dummy` and, at last, `main`.
+* All these are coming from the shared object files.
 
 ## Conclusion
 
-Sections are used at build time.
-
-Segments are used at runtime.
+1. Sections are used at build time.
+2. Segments are used at runtime.
+3. The final binary is a mixture of our source code and shared object files.

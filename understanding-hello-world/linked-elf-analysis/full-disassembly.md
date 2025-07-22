@@ -8,6 +8,8 @@ While analyzing the object code, we have checked out full disassembly of the com
 objdump linked_elf -D -M intel
 ```
 
+The full disassembly can be found at [GitHub](https://app.gitbook.com/o/INdQuuDU9bWeHPnQrCc1/s/c8zMu1DKh6Wb29pnFliA/).
+
 Shocked, right! The generated assembly is 800 lines long. The first and the immediate question is **WHERE ALL THIS ASSEMBLY IS COMING FROM?**
 
 ## The Big Picture
@@ -30,7 +32,7 @@ The next question would be, _how does all of this code become one single entity?
 
 Each object code has its own ELF structure. When the linker combines them, a unified structure comes out, which is our final binary.
 
-### What to do with this disassembly?
+## What to do with this disassembly?
 
 This disassembly exposes almost everything, therefore, it is a roadmap for us. But to read that roadmap, we have to understand the things it points to.
 
