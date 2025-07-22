@@ -7,19 +7,11 @@ description: >-
 
 # Analyzing Section Headers
 
-## Premise
+## What are sections?
 
-Wait, the second step is about program headers table, then why we are at section headers table?
+Sections are formally defined logical divisions inside an ELF file in the ELF specification. They describe how an ELF file organizes its contents for linking, loading, and debugging.
 
-Section headers are used during linking at build time. They have no significance at runtime.
-
-They can be stripped to reduce the size of the binary.
-
-But they indirectly influence the process, which is why we have to study them first before we study program headers.
-
-## Setup
-
-These are our section headers.
+These are the section headers in our binary.
 
 ```
 Section Headers:
@@ -63,25 +55,21 @@ Section Headers:
    D (mbind), l (large), p (processor specific)
 ```
 
-You may not find output like this because I have formatted it manually so that it is clear and makes sense.
+**Note:** You may not find your output like this because I have formatted it manually so that it is clear and makes sense.
 
-## What are sections?
-
-Sections are formally defined logical divisions inside and ELF file in the ELF specification. They describe how an ELF file organizes its contents for linking, loading, and debugging.
-
-We are already familiar with the attributes of this table, so we'll skip that part. Lets have a look at these sections.
+We are already familiar with the attributes of this table, so we'll skip that. Lets have a look at these sections.
 
 ## Baseline Understanding Of Sections
 
 <table><thead><tr><th width="202">Name</th><th width="112">Type</th><th width="239">Explanation</th><th>View</th></tr></thead><tbody><tr><td>Section 0</td><td>NULL</td><td>This section is empty. It is their just of alignment purposes. Nothing much. That's why it is of type NULL and everything is zeroed out.</td><td></td></tr><tr><td><code>.note.gnu.property</code></td><td><code>NOTE</code></td><td>Metadata for hardware/ABI features (e.g., IBT, SHSTK).</td><td><code>readelf -n</code></td></tr><tr><td><code>.note.gnu.build-id</code></td><td><code>NOTE</code></td><td>Unique hash/fingerprint of the binary for debug symbol matching.</td><td><code>readelf -n</code></td></tr><tr><td><code>.interp</code></td><td><code>PROGBITS</code></td><td><p>Path to the dynamic loader program (<code>ld.so</code>) for resolving cross-references.</p><p><code>PROGBITS</code> means a section that holds <strong>raw data</strong> to be loaded into memory, such as code, constants, or initialized variables.</p></td><td><code>readelf -p .interp</code></td></tr><tr><td><code>.gnu.hash</code></td><td><code>GNU_HASH</code></td><td>Hash table for faster dynamic symbol lookup.<br><strong>We need not to dive into this much.</strong></td><td>NA</td></tr><tr><td><code>.dynsym</code></td><td><code>DYNSYM</code></td><td>Dynamic symbol table used at runtime linking by the interpreter program (<code>ld-linux</code>).</td><td>NA</td></tr><tr><td><code>.dynstr</code></td><td><code>STRTAB</code></td><td>String table for names in <code>.dynsym</code>.</td><td><code>readelf -p .dynstr</code></td></tr><tr><td><code>.gnu.version</code></td><td><code>VERSYM</code></td><td>Version info for each dynamic symbol.</td><td>NA</td></tr><tr><td><code>.gnu.version_r</code></td><td><code>VERNEED</code></td><td>Declares required versions of shared libraries.</td><td>NA</td></tr><tr><td><code>.rela.dyn</code></td><td><code>RELA</code></td><td>Relocation entries for global data and non-PLT addresses.</td><td></td></tr><tr><td><code>.rela.plt</code></td><td><code>RELA</code></td><td>Relocation entries via PLT.</td><td></td></tr><tr><td><code>.init</code></td><td><code>PROGBITS</code></td><td>Code run before <code>main()</code> (init routine).</td><td>NA</td></tr><tr><td><code>.plt</code></td><td><code>PROGBITS</code></td><td>Procedure Linkage Table — stubs for external function calls.</td><td>NA</td></tr><tr><td><code>.plt.got</code></td><td><code>PROGBITS</code></td><td>Used in lazy binding (jump to GOT entries).</td><td>NA</td></tr><tr><td><code>.text</code></td><td><code>PROGBITS</code></td><td>Main executable code section.</td><td>NA</td></tr><tr><td><code>.fini</code></td><td><code>PROGBITS</code></td><td>Code run after <code>main()</code> returns (cleanup).</td><td>NA</td></tr><tr><td><code>.rodata</code></td><td><code>PROGBITS</code></td><td>Read-only static data (e.g., strings, constants).</td><td><code>readelf -p .rodata</code></td></tr><tr><td><code>.eh_frame_hdr</code></td><td><code>PROGBITS</code></td><td>Header for exception handling frames.</td><td></td></tr><tr><td><code>.eh_frame</code></td><td><code>PROGBITS</code></td><td>Stack unwinding info for exceptions or debugging.</td><td></td></tr><tr><td><code>.note.ABI-tag</code></td><td><code>NOTE</code></td><td>Identifies the target OS/ABI version.</td><td></td></tr><tr><td><code>.init_array</code></td><td><code>INIT_ARRAY</code></td><td>List of constructor function pointers (run before <code>main</code>).</td><td></td></tr><tr><td><code>.fini_array</code></td><td><code>FINI_ARRAY</code></td><td>List of destructor function pointers (run after <code>main</code>).</td><td></td></tr><tr><td><code>.dynamic</code></td><td><code>DYNAMIC</code></td><td>Table used by the dynamic linker to resolve symbols/relocations.</td><td></td></tr><tr><td><code>.got</code></td><td><code>PROGBITS</code></td><td>Global Offset Table for storing resolved addresses.</td><td></td></tr><tr><td><code>.got.plt</code></td><td><code>PROGBITS</code></td><td>GOT entries specifically for <code>.plt</code> lazy binding.</td><td></td></tr><tr><td><code>.data</code></td><td><code>PROGBITS</code></td><td>Writable static/global data.</td><td></td></tr><tr><td><code>.bss</code></td><td><code>NOBITS</code></td><td>Uninitialized global/static data (zeroed at runtime).</td><td></td></tr><tr><td><code>.comment</code></td><td><code>PROGBITS</code></td><td>Compiler version or build metadata (ignored at runtime).</td><td></td></tr><tr><td><code>.symtab</code></td><td><code>SYMTAB</code></td><td>Full symbol table (for static linking/debugging).</td><td></td></tr><tr><td><code>.strtab</code></td><td><code>STRTAB</code></td><td>String table for names in <code>.symtab</code>.</td><td><code>readelf -p .strtab</code></td></tr><tr><td><code>.shstrtab</code></td><td><code>STRTAB</code></td><td>String table for section names themselves.</td><td><code>readelf -p .shstrtab</code></td></tr></tbody></table>
 
-## What do these sections even mean?
+## What is their significance?
 
-Sections are used by the linker to organize our code/data/symbols etc.
+Sections are used by the linker to organize our code/data/symbols etc. Lets usage an analogy to understand the importance of their existence.
 
 Consider an ELF as a room, containing so many different types of things. There are clothes, pens and paper, bottle, bag, notebooks etc. And everything is scattered.
 
-To make sense of them, you decided to clear the floor and put everything organized on the floor.
+To make sense of them, you decided to clear the floor and put everything categorized on the floor.
 
 * You put papers together.
 * You put notebooks together.
@@ -90,24 +78,30 @@ To make sense of them, you decided to clear the floor and put everything organiz
 * You put shirts together.
 * You put books together.
 
-Now you have so many things, a little bit organized. But, further organization can be made.
+**This resembles sections.**
+
+Now we have so many things, a little bit organized. But, further organization can be made.
 
 * Books, papers and pens are related things. They are all stationary. So, they can be put together in the bookshelf.
 * &#x20;Jeans, shirts, t-shirts, lower, jacket etc.... all of them are clothes. So, they can be put together in the wardrobe.
 * And so on....
 
-This further categorization is what segments are.
+**This further categorization is what segments are.**
 
 * When you have to look for fiction books, or course books, you don't go to different place. They are within the same bookshelf.
-* When you want a lower or a jacket, you don't go to separate places again. They are within the same wardrobe.
-* The idea behind segments is that you group sections logically to the point that no further categorization can be done and all the related things can be accessed at one place.
+* When you want a lower or a jacket, you don't go to separate places again. They are within the same wardrobe. You want party clothes or comfy clothes, all of them are in the same wardrobe.
+* The idea behind segments is that you group sections logically to the point that no further categorization can be made and all the related things can be accessed at one place in a logical manner.
 
-Ultimately, do you end up accessing the clothes individually or through the wardrobe? The answer is through the wardrobe. The same is with stationary. You access it from the bookshelf.
+Ultimately, do you end up accessing the clothes individually or through the wardrobe? The answer is through the wardrobe.
 
 * Sections are just kind of intermediaries. They are used initially to do things but they are not the ones that are ultimately used in the end.
-* Segments on the other hand evolve from sections and these are what that get used during runtime.
+* Segments, on the other hand, evolve from sections and these are what that get used at runtime.
 
-Once these segments are created, program headers come into existence
+Once these segments are created, program headers come into existence.
+
+## There's something off here
+
+
 
 ## Conclusion
 
