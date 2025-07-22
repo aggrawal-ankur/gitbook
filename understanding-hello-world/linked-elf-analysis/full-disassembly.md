@@ -8,7 +8,7 @@ While analyzing the object code, we have checked out full disassembly of the com
 objdump linked_elf -D -M intel
 ```
 
-The full disassembly can be found at [GitHub](https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/full_disasm_from_obj_code).
+The full disassembly can be found at [GitHub](https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/full_disasm_from_bin).
 
 Shocked, right! The generated assembly is 800 lines long. The first and the immediate question is **WHERE ALL THIS ASSEMBLY IS COMING FROM?**
 
