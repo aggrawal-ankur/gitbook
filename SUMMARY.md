@@ -22,5 +22,6 @@
     * [What Are Addends?](understanding-hello-world/linked-elf-analysis/what-are-addends.md)
     * [Relocation - Part 1](understanding-hello-world/linked-elf-analysis/relocation-part-1.md)
     * [Global Offset Table](understanding-hello-world/linked-elf-analysis/global-offset-table.md)
+    * [Procedure Linkage Table](understanding-hello-world/linked-elf-analysis/procedure-linkage-table.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
