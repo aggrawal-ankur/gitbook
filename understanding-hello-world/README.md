@@ -14,28 +14,30 @@ int main(void){
 ```
 {% endcode %}
 
-But how does it really works? This is what we are going to understand here.
+But how does it really work? This is what we are going to understand here.
 
-It is really complex, but equally magnificent. Creating one single article would make it boring as it is very long. Therefore, it would come in a series of articles, which are in proper order.
+## Expectations
 
-1. [A high level overview of the build process](https://ankuragrawal.gitbook.io/home/understanding-hello-world/a-high-level-overview-of-build-process-in-c)
-2. [Introduction to ELF format](https://ankuragrawal.gitbook.io/home/understanding-hello-world/introduction-to-elf)
-3. [Introduction to processes in Linux](https://ankuragrawal.gitbook.io/home/understanding-hello-world/introduction-to-processes-in-linux)
-4. [Why `void main();` is technically incorrect?](https://ankuragrawal.gitbook.io/home/understanding-hello-world/why-main-function-shouldnt-be-of-type-void)
-5. [A high level overview of the movement](macro-level-roadmap.md)
-6. [Moving from C source to assembly (x64 Intel, of course)](c-greater-than-assembly.md)
-7. [Inspecting the object code](object-code-analysis/)
-8. [Inspecting the linked ELF Binary](linked-elf-analysis/)
+I am not going to lie. This thing is inherently very complex. It took me a lot to create these articles.
 
+* Sometimes, even the most simple and straightforward looking thing holds a sea worth of complexity.
 
+When I chose to understand it, I really mean it.
 
+* Now I can't back off or settle with high level understanding.
+* No matter how complex and confusing it gets, you have to be willing to understand it.
 
+Asking questions is very important. A **dialogue** is very important.
 
+* But a series of articles is just a monologue and neither I am a writer nor I am here with the intention to write a dialogue.
+* But I have tried to ask as many questions as I can so that you don't feel you are foolish when those questions come in your mind.
+* But there is a limit to the number of questions I can ask. It is highly possible that I might understand something and you don't. Although I am trying my best to keep even smallest things in account, but, at the end of the day, I am also a human.
+* You have to ask questions yourself. And if they are not answered here, you have to find their answer yourself. You can pull a request on GitHub. Or you can drop in an email.
 
+There are certain questions which are better not asked right now.
 
+* Because we might lack the information necessary to understand them.
+* Most of the questions are answered but you'll find some unanswered, because it is in the best of our interest to not go after them. They will only increase the mental agitation.
+* But how we will decide whether to go after a question or not? I will leave an explanation. I have invested many hours like these, without any lead. But I don't want you to waste your time.
 
-
-
-
-
-
+Lets start the dive.
