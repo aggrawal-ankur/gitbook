@@ -1,13 +1,5 @@
 # Global Offset Table
 
-## Setup
-
-There are solutions which were primarily created for solving a problem at a certain place but their feasibility was so good that they end up getting applied to some other places as well, where the problem was either non-existing or separate solutions were applied to deal with them. Basically, to keep the system consistent, the solution was applied everywhere it could.
-
-Kind of same vibe is with the global offset table
-
-## Problem Statement
-
 So far, we know that when we are talking about relocation, we are updating a placeholder value at an offset in the loaded segments by the actual runtime address of the symbol.
 
 But, there is a problem. To update means to write. To write something, you need write permission, correct? Is the `.text` section writable? Or, should it be writable?
@@ -53,7 +45,14 @@ Now we have to take help from the **full disassembly.**
 
     The above instruction is calling that `libc` function. In the comment, we can see that it resolves to a location `0x3fc0`. Lets visit that.
 * I suggest you to use _VS Code's Search_ functionality for this. Otherwise, I am already putting the lines numbers here.
-* Offset `0x3fc0` is found at line 764. And what it points to? `.got`. And guess what, this offset matches the one in the relocation table.
+*   Offset `0x3fc0` is found at line 764. And what it points to? `.got`. And guess what, this offset matches the one in the relocation table.&#x20;
+
+    ```
+    Disassembly of section .got:
+
+    0000000000003fc0 <.got>:
+    	...
+    ```
 * The rest of the functions in the `.rela.dyn` table have the same story. But, here is the twist and it can only be found by people who have not lost their sanity so far. Offsets `0x3fc8 0x3fd0 3fd8 3fe0` are nowhere to be found in the `.got` section. Just a call in their respective sections but no entry in `.got`.
 * If you have found that, here is the answer. Global offset table is a runtime thing. It is meant to be filled dynamically, which is why no placeholder offsets are present in the `.got` disassembly as it is meaningless. We can also notice that the only sections which have got placeholder addresses are the ones which are `read-only`, and `.got` is `writable`.
 
@@ -71,78 +70,174 @@ Enough building hype. Lets introduce global offset table now.
 
 The Global Offset Table (GOT) is a table in an ELF binary used at runtime to hold the absolute addresses of global variables and functions, allowing for position-independent code (PIC) by deferring the resolution of symbol addresses until execution.
 
-Each entry in this table is an address. Earlier it is a placeholder address, later, when resolved, it becomes the actual runtime address of that symbol.
+Each entry in this table is an address. When it is created, it is a placeholder address, later, when it is resolved, it becomes the actual runtime address of that symbol.
 
-The one thing that makes global offset table and procedure linkage table intimidating is the absence of the ability to visualize it. It is simple to say that **it is just a pointer table** but **how does it really look like?** That does matter.
+The one thing that makes global offset table and procedure linkage table intimidating is the absence of the ability to visualize it. It is simple to say that **it is just a pointer table** but **how does it really look like?** That changes the game.
 
 ## Structure of GOT
 
-It depends on the architecture.
+Global offset table is logically divided into two parts. But it is one entity at the lowest level.
 
-For 32-bit systems:
+We are building the binary with default options, i.e&#x20;
 
-```
-+------------------------+
-| GOT[0]                 |  --> Reserved entry (often for dynamic linker)
-+------------------------+
-| GOT[1]                 |  --> Reserved (e.g., for link-time resolver, __dl_runtime_resolve)
-+------------------------+
-| GOT[2]                 |  --> Pointer to global function or variable #1
-+------------------------+
-| GOT[3]                 |  --> Pointer to global function or variable #2
-+------------------------+
-| GOT[4]                 |  --> Pointer to global function or variable #3
-+------------------------+
-| ...                    |
-+------------------------+
-| GOT[n]                 |  --> Pointer to global function or variable #n
-+------------------------+
+```bash
+gcc hello.c -o hello_elf
 ```
 
-For 64-bit systems:
+Default options use eager binding for startup functions and lazy binding for source code functions. And the distinction in global offset table is based on this binding principle only.
+
+The global offset table starts from the eager binding section. This section is very simple as there is no requirement for anything extra. So, it is all offset entries.
+
+When the eager binding section ends, lazy binding section starts. And here we need certain entries before the actual relocation entries using PLT can come. After those entries, regular relocation entries start.
+
+The best we can do to actually visualize how the global offset table looks like is to see the one for our binary. Since it is a runtime thing, we can't actually see it right now, as we are doing static analysis. But that should not hinder our understanding, right?
+
+What we are going to do is, we are going to utilize the full disassembly of the `.got` section, relocation tables along with the theory to form a structure. By the way, we will verify it later when we do the dynamic analysis.
+
+## Finding the structure of global offset table
+
+### Supplies
+
+Relocation entries
 
 ```
-+------------------------+
-| GOT[0]                 |  --> Reserved (often unused)
-+------------------------+
-| GOT[1]                 |  --> Reserved (link_map)
-+------------------------+
-| GOT[2]                 |  --> Reserved (address of the runtime resolver function, __dl_runtime_resolve)
-+------------------------+
-| GOT[3]                 |  --> Pointer to global function or variable #1
-+------------------------+
-| GOT[4]                 |  --> Pointer to global function or variable #2
-+------------------------+
-| ...                    |
-+------------------------+
-| GOT[n]                 |  --> Pointer to global function or variable #n
-+------------------------+
+Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:
+  Offset          Info            Type            Sym. Value     Sym. Name + Addend
+000000003dd0  000000000008  R_X86_64_RELATIVE                      1130
+000000003dd8  000000000008  R_X86_64_RELATIVE                      10f0
+000000004010  000000000008  R_X86_64_RELATIVE                      4010
+000000003fc0  000100000006  R_X86_64_GLOB_DAT  0000000000000000  __libc_start_main@GLIBC_2.34 + 0
+000000003fc8  000200000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_deregisterTM[...] + 0
+000000003fd0  000400000006  R_X86_64_GLOB_DAT  0000000000000000  __gmon_start__ + 0
+000000003fd8  000500000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_registerTMCl[...] + 0
+000000003fe0  000600000006  R_X86_64_GLOB_DAT  0000000000000000  __cxa_finalize@GLIBC_2.2.5 + 0
+
+Relocation section '.rela.plt' at offset 0x610 contains 1 entry:
+  Offset          Info           Type           Sym. Value       Sym. Name + Addend
+000000004000  000300000007  R_X86_64_JUMP_SLO  0000000000000000  puts@GLIBC_2.2.5 + 0
 ```
 
+The disassembly of the `_start` symbol to find where is `__libc_start_main` coming from.
 
+```
+Disassembly of section .text:
 
-Immediately, we can infer this from the table that actual entries start from `GOT[2]`. What's interesting here is the first two entries.
+0000000000001050 <_start>:
+    1050:	31 ed                	xor    ebp,ebp
+    1052:	49 89 d1             	mov    r9,rdx
+    1055:	5e                   	pop    rsi
+    1056:	48 89 e2             	mov    rdx,rsp
+    1059:	48 83 e4 f0          	and    rsp,0xfffffffffffffff0
+    105d:	50                   	push   rax
+    105e:	54                   	push   rsp
+    105f:	45 31 c0             	xor    r8d,r8d
+    1062:	31 c9                	xor    ecx,ecx
+    1064:	48 8d 3d ce 00 00 00 	lea    rdi,[rip+0xce]        # 1139 <main>
+    106b:	ff 15 4f 2f 00 00    	call   QWORD PTR [rip+0x2f4f]        # 3fc0 <__libc_start_main@GLIBC_2.34>
+    1071:	f4                   	hlt
+    1072:	66 2e 0f 1f 84 00 00 	cs nop WORD PTR [rax+rax*1+0x0]
+    1079:	00 00 00 
+    107c:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+```
 
-### What is \`GOT\[0]\` ?
+Global offset table section
 
-The value of the 0th entry in the global offset table depends on the architecture.
+```
+Disassembly of section .got:
 
-<table><thead><tr><th width="198">Architecture</th><th>GOT[0]</th></tr></thead><tbody><tr><td>32-bit (x86)</td><td>The address of the <code>.dynamic</code> section.</td></tr><tr><td>64-bit (x64 or x86_64)</td><td>Generally unused or reserved. The entry exists, but it's <strong>not meant for direct use</strong> by the application.</td></tr></tbody></table>
+0000000000003fc0 <.got>:
+	...
 
-`GOT[0]` has less to no use on 64-bit systems.
+Disassembly of section .got.plt:
 
-### What is \`GOT\[1]\` ?
+0000000000003fe8 <_GLOBAL_OFFSET_TABLE_>:
+    3fe8:	e0 3d                	loopne 4027 <_end+0x7>
+	...
+    3ffe:	00 00                	add    BYTE PTR [rax],al
+    4000:	36 10 00             	ss adc BYTE PTR [rax],al
+    4003:	00 00                	add    BYTE PTR [rax],al
+    4005:	00 00                	add    BYTE PTR [rax],al
+	...
+```
 
-<table><thead><tr><th width="198">Architecture</th><th>GOT[1]</th></tr></thead><tbody><tr><td>32-bit (x86)</td><td>The address of the resolver function (<code>_dl_runtime_resolve</code>) used by the PLT stub to transfer control to the dynamic linker.</td></tr><tr><td>64-bit (x64 or x86_64)</td><td>The address of the <code>.dynamic</code> section's link map, which is a runtime data structure used by the dynamic linker to track loaded shared objects and their metadata. We can't see it in static analysis but in dynamic analysis we can see it. (<em>Wait for dynamic analysis part, not now, but later.</em>)</td></tr></tbody></table>
+### Lets dive in!
 
-***
+We are going to start with this relocation entry.
 
-In 32-bit architecture, relocation entries start from 2nd GOT entry on wards.
+```
+000000003fc0  000100000006  R_X86_64_GLOB_DAT  0000000000000000  __libc_start_main@GLIBC_2.34 + 0
+```
 
-In 64-bit architecture, relocation entries start from 3rd GOT entry on wards.
+* The offset is `0x3fc0`. If we locate it in the full disassembly, we can find that it points to the global offset table itself.
+*   If we go to the disassembly of the `_start` symbol, we can find this instruction telling that _the call to this function symbol points to this offset in the disassembly._ And the offset is again `0x3fc0`.
 
-***
+    ```
+    106b:	ff 15 4f 2f 00 00    	call   QWORD PTR [rip+0x2f4f]        # 3fc0 <__libc_start_main@GLIBC_2.34>
+    ```
 
-Entries from `GOT[3]` to `GOT[n]` are placeholder offsets, which get replaced when the actual address is resolved.
+This means that the first entry in the global offset table is allocated to `__libc_start_main` symbol.
+
+And it should not be hard to think that the rest of the entries in the `.rela.dyn` table follows the same trend. Just because it is a runtime table, those entries don't exist.
+
+We know that, each address in 64-bit architecture is 8-byte long. That means, addresses should be separated by 8 units.&#x20;
+
+With that in mind, the eager binding part of the global offset table should look like this:
+
+```
+GOT[0] -> *(__libc_start_main) -> 0x3fc0 (placeholder) -> [Actual Runtime Address]
+GOT[1] -> *(_ITM_deregisterTM) -> 0x3fc8 (placeholder) -> [Actual Runtime Address]
+GOT[2] -> *(__gmon_start__)    -> 0x3fd0 (placeholder) -> [Actual Runtime Address]
+GOT[3] -> *(_ITM_registerTMCl) -> 0x3fd8 (placeholder) -> [Actual Runtime Address]
+GOT[4] -> *(__cxa_finalize)    -> 0x3fe0 (placeholder) -> [Actual Runtime Address]
+```
+
+Now comes the lazy binding part.
+
+* To do lazy binding, you need to know certain things. Since we have not touched on lazy binding yet, we will keep it simple.
+* There are 3 entries required to be reserved for lazy binding in the global offset table. These are offsets to `.dynamic` segment, link\_map, and the runtime resolver function.
+* Link map is a data structure which tracks all the loaded objects and runtime resolver function is the function that find those symbols in the loaded shared objects and resolve their runtime address.
+
+Since the last entry was at `0x3fe0` offset, the next entry should start at `0x3fe8`, right? Have a look at the disassembly for `.got.plt` section. Just look at the offset, the disassembly is garbage.
+
+That means, the lazy binding section in the global offset table should look like this:
+
+```
+GOT[5] -> *(.dynamic)         -> 0x3fe8 -> [Actual Runtime Address]
+GOT[6] -> *(link_map)         -> 0x3ff0 -> [Actual Runtime Address]
+GOT[7] -> *(runtime resolver) -> 0x3ff8 -> [Actual Runtime Address]
+GOT[8] -> *(puts)             -> 0x4000 -> [Actual Runtime Address]
+```
+
+Combining both of them, the final structure should emerge something like this:
+
+```
+----------    ------------------------    ----------    --------------------------
+| GOT[0] | -> | *(__libc_start_main) | -> | 0x3fc0 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[1] | -> | *(_ITM_deregisterTM) | -> | 0x3fc8 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[2] | -> | *(__gmon_start__)    | -> | 0x3fd0 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[3] | -> | *(_ITM_registerTMCl) | -> | 0x3fd8 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[4] | -> | *(__cxa_finalize)    | -> | 0x3fe0 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[5] | -> | *(.dynamic)          | -> | 0x3fe8 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[6] | -> | *(link_map)          | -> | 0x3ff0 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[7] | -> | *(runtime)           | -> | 0x3ff8 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+| GOT[8] | -> | *(puts)              | -> | 0x4000 | -> | Actual Runtime Address |
+----------    ------------------------    ----------    --------------------------
+```
 
 That's it.
+
+## Conclusion
+
+I took \~5 days to write understand global offset table and write this article. Its painful, chaotic, confusing, agitating, frustrating and what not. But it is worth it.
+
+Thank you. Next we would go through PLT as it is necessary to understand `.rela.plt` based relocations.
+
+Until then, take rest.
