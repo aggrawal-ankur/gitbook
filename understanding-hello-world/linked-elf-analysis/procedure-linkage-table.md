@@ -39,7 +39,7 @@ I have understood stub as _a piece of instructions, consistent across all entrie
 
 ```
           +------------------------------+
-PLT[0] -> | jmp *GOT[LINKER_FUNC_PTR]    | ; jump to the entry in GOT which points to thedynamic linker
+PLT[0] -> | push *GOT[link_map]          | ; jump to the entry in GOT which points to thedynamic linker
           | jmp RESOLVER_FUNC            | ; usually _dl_runtime_resolve()
           +------------------------------+
 
