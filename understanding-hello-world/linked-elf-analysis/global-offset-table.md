@@ -276,6 +276,8 @@ That's it.
 ----------------------------------------------------------------------------------------
 ```
 
+But, this table is still incomplete. And we will complete it in the next section, which is procedure linkage table.
+
 ## Conclusion
 
 I took \~5 days to write understand global offset table and write this article. Its painful, chaotic, confusing, agitating, frustrating and what not. But it is worth it.

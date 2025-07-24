@@ -1,16 +1,41 @@
 # Procedure Linkage Table
 
+## Problem Statement
+
+Now we are inside the `main` symbol and our code i executing. The program reached the instruction where a call to puts is made. Just think about how it would get resolved?
+
+* Right now, the control is in the hands of `main`. And `puts` is hiding somewhere in the shared libraries.
+* It is essential that the interpreter program has the control, so that we can use the runtime resolver function to find `puts`. Right? Where we would get it?
+
+The global offset table is designed to contain offsets only. How will you encapsulate the logic for finding `puts` or any function that needs lazy binding?
+
+* You may say that the GOT entry can point to the interpreter program.
+* In that case, how will you jump to the runtime resolver function? How will you tell the runtime resolver function which symbol is needed to be found?
+* A single entry in the global offset table can't afford to do all of this.
+
+So, whats the solution, then?
+
 ## Introduction To Procedure Linkage Table
 
 The Procedure Linkage Table is a section in an ELF binary used to support dynamic function calls to external (shared library) functions. It acts as an indirect jump table, allowing a program to call shared library functions whose actual memory addresses are not known until runtime, typically resolved through lazy binding.
-
-It is a table of stubs that handle runtime linkage of procedures (functions) in a dynamically linked environment.
 
 The global offset table stores pointers to both function symbols and global variables, but procedure linkage table is used for external functions only.
 
 Procedure linkage table is tightly coupled with the global offset table.
 
+### Why it is called procedure linkage table? Is there any meaning?
+
+Just like the global offset table is a table where each entry is designed to be an offset to the actual runtime address of a symbol, the procedure linkage table is also meaningful in its name.
+
+_It is a table of stubs that handle runtime linkage of procedures (functions) in a dynamically linked environment._
+
 ## Structure of Procedure Linkage Table
+
+### First of all, what is a stub?
+
+I have understood stub as _a piece of instructions, consistent across all entries._
+
+***
 
 ```
           +------------------------------+
@@ -39,13 +64,11 @@ PLT[N] -> | jmp *GOT[FUNCN]              | ; jump to resolved address of FUNC(N)
           +------------------------------+
 ```
 
-Clearly, it is a little chaotic to understand. We have to use global offset table along with procedure linkage table to understand how lazy binding actually works, and in that process we will also understand how PLT works.
+`PLT[0]` is reserved for providing the base for relocation. `PLT[1 to n]` onward are the actual relocation entries requiring lazy binding.
 
-### PLT\[0] Entry
+## Understanding \`puts\` Relocation
 
-This entry is reserved for the actual resolution purpose. `PLT[1]` to `PLT[n]` onward are the actual relocation entries requiring lazy binding.
-
-When the `main` of our program has control, and it is executing instructions one-by-one, it eventually encounters the call the puts via plt. This can be verified from the disassembly of `main`.
+When the `main` has control, and it is executing instructions one-by-one, it eventually encounters the call to puts via plt. This can be verified from the disassembly of `main`.
 
 ```
 1147:	e8 e4 fe ff ff       	call   1030 <puts@plt>
@@ -113,7 +136,48 @@ The instruction at offset 0x1020 pushes the link\_map to the stack. This include
 
 After this, the control is given to main again and a call to puts is successfully made.
 
+## Possible Look Of Our \`.got.plt\` And \`.plt\` Section
 
+\[ERASER.IO DRAWING]
 
+## Final Structure Of The Global Offset Table
 
-
+```
+----------------------------------------------------------------------------------------
+| // Eager Binding Division -> .got at offset 0x0000 (RELA) (.rela.dyn)                |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[0] | -> | *(func/symb 1)         | -> | 0x0000 | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[1] | -> | *(func/symb 2)         | -> | 0x0008 | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[2] | -> | *(func/symb 3)         | -> | 0x0010 | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[3] | -> | *(func/symb 4)         | -> | 0x0018 | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[4] | -> | *(func/symb 5)         | -> | 0x0020 | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+| ....                                                                                 |
+| ....                                                                                 |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[N] | -> | *(func/symb N)         | -> | 0x.... | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+|--------------------------------------------------------------------------------------|
+| // Lazy Binding Division -> .got.plt at offset 0x0028 (JMPREL) (.rela.plt)           |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[0] | -> | *(.dynamic)            | -> | 0x0028 | -> | Actual Runtime Address | | <- Reserved for enabling lazy binding 
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[1] | -> | *(link_map)            | -> | 0x0030 | -> | Actual Runtime Address | | <- Reserved for enabling lazy binding 
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[2] | -> | *(_dl_runtime_resolve) | -> | 0x0038 | -> | Actual Runtime Address | | <- Reserved for enabling lazy binding 
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[3] | -> | *(PLT stub for func 1) | -> | 0x0040 | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[4] | -> | *(PLT stub for func 2) | -> | 0x0048 | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+| ....                                                                                 |
+| ....                                                                                 |
+| ----------    --------------------------    ----------    -------------------------- |
+| | GOT[M] | -> | *(PLT stub for func M) | -> | 0x.... | -> | Actual Runtime Address | |
+| ----------    --------------------------    ----------    -------------------------- |
+----------------------------------------------------------------------------------------
+```
