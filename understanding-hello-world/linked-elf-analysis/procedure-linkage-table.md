@@ -71,9 +71,47 @@ Relocation section '.rela.plt' at offset 0x610 contains 1 entry:
 
 ## Process
 
+The main has the control and it now executes the following instruction:
 
+```
+1147:	e8 e4 fe ff ff       	call   1030 <puts@plt>
+```
 
+Now we are at offset `0x1030`. It resolves to this in the full disassembly.
 
+```
+0000000000001030 <puts@plt>:
+  1030:	ff 25 ca 2f 00 00    	jmp    QWORD PTR [rip+0x2fca]        # 4000 <puts@GLIBC_2.2.5>
+  1036:	68 00 00 00 00       	push   0x0
+  103b:	e9 e0 ff ff ff       	jmp    1020 <_init+0x20>
+```
+
+* This is the PLT stub for the `puts` function.
+
+According to the structure we have studied previously, this jump instruction should be to the corresponding global offset table.
+
+*   We can visit `0x4000` to confirm that this is indeed true.
+
+    ```
+    0000000000003fe8 <_GLOBAL_OFFSET_TABLE_>:
+        3fe8:	e0 3d                	loopne 4027 <_end+0x7>
+    	...
+        3ffe:	00 00                	add    BYTE PTR [rax],al
+        4000:	36 10 00             	ss adc BYTE PTR [rax],al
+        4003:	00 00                	add    BYTE PTR [rax],al
+        4005:	00 00                	add    BYTE PTR [rax],al
+    	...
+    ```
+* The disassembly is garbage so don't focus on that.
+
+The question is, what does the corresponding global offset entry for a PLT entry points to?
+
+* It points to the next instruction in the PLT stub, which is about pushing the symbol index for the `puts` function from the `.rela.plt` table to the stack.
+* After the symbol index is pushed (ins 1036), the next instruction is jumping to offset 1020.
+
+The instruction at offset 0x1020 pushes the link\_map to the stack. This includes important information for the runtime resolver function. The instruction at 0x1026 jumps to runtime resolver function, uses the link map and symbol index to find the actual address of the symbol and updates the got entry.
+
+After this, the control is given to main again and a call to puts is successfully made.
 
 
 
