@@ -31,7 +31,7 @@ _It is a table of stubs that handle runtime linkage of procedures (functions) in
 
 ## Structure of Procedure Linkage Table
 
-### First of all, what is a stub?
+### First of all, what is stub?
 
 I have understood stub as _a piece of instructions, consistent across all entries._
 
@@ -68,23 +68,49 @@ PLT[N] -> | jmp *GOT[FUNCN]              | ; jump to resolved address of FUNC(N)
 
 ## Understanding \`puts\` Relocation
 
-When the `main` has control, and it is executing instructions one-by-one, it eventually encounters the call to puts via plt. This can be verified from the disassembly of `main`.
+```
+0000000000001139 <main>:
+    1139:	55                   	push   rbp
+    113a:	48 89 e5             	mov    rbp,rsp
+    113d:	48 8d 05 c0 0e 00 00 	lea    rax,[rip+0xec0]        # 2004 <_IO_stdin_used+0x4>
+    1144:	48 89 c7             	mov    rdi,rax
+    1147:	e8 e4 fe ff ff       	call   1030 <puts@plt>
+    114c:	b8 00 00 00 00       	mov    eax,0x0
+    1151:	5d                   	pop    rbp
+    1152:	c3                   	ret
+```
 
 ```
-1147:	e8 e4 fe ff ff       	call   1030 <puts@plt>
+Disassembly of section .plt:
+
+0000000000001020 <puts@plt-0x10>:
+    1020:	ff 35 ca 2f 00 00    	push   QWORD PTR [rip+0x2fca]        # 3ff0 <_GLOBAL_OFFSET_TABLE_+0x8>
+    1026:	ff 25 cc 2f 00 00    	jmp    QWORD PTR [rip+0x2fcc]        # 3ff8 <_GLOBAL_OFFSET_TABLE_+0x10>
+    102c:	0f 1f 40 00          	nop    DWORD PTR [rax+0x0]
+
+0000000000001030 <puts@plt>:
+    1030:	ff 25 ca 2f 00 00    	jmp    QWORD PTR [rip+0x2fca]        # 4000 <puts@GLIBC_2.2.5>
+    1036:	68 00 00 00 00       	push   0x0
+    103b:	e9 e0 ff ff ff       	jmp    1020 <_init+0x20>
 ```
 
-Since `main` has the control, the control has to be passed to dynamic linker (interpreter) program so that the runtime resolver function (`_dl_runtime_resolve()`) can be called which would eventually find the address of `puts`.
+```
+Disassembly of section .got:
 
-* For this to happen, we need to know where is the dynamic linker program and where is the runtime resolver function in the memory.
-* And that's what the the reserved entries in the global offset table are about. The `link_map` stores information about the loaded libraries. And the other entry stores a pointer to the runtime resolver function.
-* And the two entries in the the `PLT[0]` stub exactly jump to these offsets, with necessary inputs to do the required job.
+0000000000003fc0 <.got>:
+	...
 
-### PLT\[1] to PLT\[n]
+Disassembly of section .got.plt:
 
-These are the actual entries asking for lazy binding.
-
-We have only one entry.
+0000000000003fe8 <_GLOBAL_OFFSET_TABLE_>:
+    3fe8:	e0 3d                	loopne 4027 <_end+0x7>
+	...
+    3ffe:	00 00                	add    BYTE PTR [rax],al
+    4000:	36 10 00             	ss adc BYTE PTR [rax],al
+    4003:	00 00                	add    BYTE PTR [rax],al
+    4005:	00 00                	add    BYTE PTR [rax],al
+	...
+```
 
 ```
 Relocation section '.rela.plt' at offset 0x610 contains 1 entry:
@@ -92,47 +118,31 @@ Relocation section '.rela.plt' at offset 0x610 contains 1 entry:
 000000004000  000300000007  R_X86_64_JUMP_SLO  0000000000000000  puts@GLIBC_2.2.5 + 0
 ```
 
-## Process
-
-The main has the control and it now executes the following instruction:
-
 ```
-1147:	e8 e4 fe ff ff       	call   1030 <puts@plt>
-```
-
-Now we are at offset `0x1030`. It resolves to this in the full disassembly.
-
-```
-0000000000001030 <puts@plt>:
-  1030:	ff 25 ca 2f 00 00    	jmp    QWORD PTR [rip+0x2fca]        # 4000 <puts@GLIBC_2.2.5>
-  1036:	68 00 00 00 00       	push   0x0
-  103b:	e9 e0 ff ff ff       	jmp    1020 <_init+0x20>
+PLT stub for puts()
+    jmp *GOT[puts]
+    push puts_idx
+    jmp plt[0]
 ```
 
-* This is the PLT stub for the `puts` function.
+When the `main` has control, and it is executing instructions one-by-one, it eventually encounters the call to puts via plt. This can be verified from the disassembly of `main` .
 
-According to the structure we have studied previously, this jump instruction should be to the corresponding global offset table.
+Since `main` has the control, the control has to be passed to dynamic linker (interpreter) program so that the runtime resolver function (`_dl_runtime_resolve()`) can be called which would eventually find the address of `puts`.
 
-*   We can visit `0x4000` to confirm that this is indeed true.
+* Offset `0x1030` resolves to the plt stub for `puts` function. The instruction at this offset jumps to an entry in the plt section of the global offset table, which is at the offset `0x4000`.
+* Although the disassembly at `0x4000` is garbage because it is filled at runtime, but we know that offset `0x4000` is where the relocation for `puts` has to be done. This can be confirmed from the relocation entry in the `.rela.plt` table.
 
-    ```
-    0000000000003fe8 <_GLOBAL_OFFSET_TABLE_>:
-        3fe8:	e0 3d                	loopne 4027 <_end+0x7>
-    	...
-        3ffe:	00 00                	add    BYTE PTR [rax],al
-        4000:	36 10 00             	ss adc BYTE PTR [rax],al
-        4003:	00 00                	add    BYTE PTR [rax],al
-        4005:	00 00                	add    BYTE PTR [rax],al
-    	...
-    ```
-* The disassembly is garbage so don't focus on that.
+When the interpreter program was creating PLT stubs and corresponding entries in the global offset table, each `.got.plt` entry points to the PLT stub it corresponds to. This might be confusing so lets understand the flow here.
 
-The question is, what does the corresponding global offset entry for a PLT entry points to?
+* When a call to `puts` is made via plt, it goes through the the PLT stub.
+* The first instruction in the plt stub points to the global offset table, which is logical as if the address is resolved, no relocation should be repeated. It is done in accordance to calls after lazy binding is done.
+* Its global offset table entry points to the next instruction in its PLT stub. This instruction pushes the symbol index for `puts` from the `.rela.plt` relocation table. We can notice that it is `push 0x0`, which is a placeholder value, which gets resolved at runtime.
 
-* It points to the next instruction in the PLT stub, which is about pushing the symbol index for the `puts` function from the `.rela.plt` table to the stack.
-* After the symbol index is pushed (ins 1036), the next instruction is jumping to offset 1020.
+Now that the symbol index is pushed on the stack, the third and the final instruction in the plt stub executes, offset `0x103b`, which jumps to the `PLT[0]` stub at offset `0x1020`.
 
-The instruction at offset 0x1020 pushes the link\_map to the stack. This includes important information for the runtime resolver function. The instruction at 0x1026 jumps to runtime resolver function, uses the link map and symbol index to find the actual address of the symbol and updates the got entry.
+* The instruction at offset `0x1020` is pushing something on the stack. It is an entry in the global offset table, which corresponds to the `link_map` . `link_map` is the resolver data, required by the runtime resolver function to resolve the symbol.
+
+The instruction at `0x1026` points to the runtime resolver function entry in the global offset table. The interpreter jumps on this and marks the start of actual find and patch process for `puts`.
 
 After this, the control is given to main again and a call to puts is successfully made.
 
