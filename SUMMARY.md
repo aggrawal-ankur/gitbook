@@ -3,6 +3,7 @@
 * [Hi 👋](README.md)
 * [Understanding Hello, World!](understanding-hello-world/README.md)
   * [A High Level Overview Of Build Process In C](understanding-hello-world/a-high-level-overview-of-build-process-in-c.md)
+  * [Lets talk about \`gcc\`](understanding-hello-world/lets-talk-about-gcc.md)
   * [A Brief Introduction To ELF](understanding-hello-world/a-brief-introduction-to-elf.md)
   * [A Brief Introduction To Processes In Linux](understanding-hello-world/a-brief-introduction-to-processes-in-linux.md)
   * [Why main Function Shouldn't Be Of Type \`void\` ?](understanding-hello-world/why-main-function-shouldnt-be-of-type-void.md)
