@@ -25,5 +25,7 @@
     * [Global Offset Table](understanding-hello-world/linked-elf-analysis/global-offset-table.md)
     * [Procedure Linkage Table](understanding-hello-world/linked-elf-analysis/procedure-linkage-table.md)
     * [After Relocation](understanding-hello-world/linked-elf-analysis/after-relocation.md)
+  * [What's Next?](understanding-hello-world/whats-next.md)
+* [My First C Project, A C-Style ELF Dumper](my-first-c-project-a-c-style-elf-dumper.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
