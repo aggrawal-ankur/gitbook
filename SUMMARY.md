@@ -29,5 +29,6 @@
 * [My First C Project, An ELF Parser & Interpreter](my-first-c-project-an-elf-parser-and-interpreter/README.md)
   * [Project Design](my-first-c-project-an-elf-parser-and-interpreter/project-design.md)
   * [Magic Verification API](my-first-c-project-an-elf-parser-and-interpreter/magic-verification-api.md)
+  * [Why A \`.c\` and \`.h\` File?](my-first-c-project-an-elf-parser-and-interpreter/why-a-.c-and-.h-file.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
