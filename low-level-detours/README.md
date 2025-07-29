@@ -52,4 +52,4 @@ My liberty to write expressive write ups is not taken away from me. So I am also
 
 But, there is one last challenge that I am very well aware of. The detours have to be short enough so that the reader doesn't forget where they came from. In short, the length of the detour must be short enough that the momentum is not lost. Plus, they have to be explanatory enough, so that the detour doesn't become a problem itself.
 
-Plus, it will help me in improving my articulation skills. I will write better.
+Plus, it will help in improving my articulation skills.
