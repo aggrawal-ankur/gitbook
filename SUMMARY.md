@@ -32,3 +32,4 @@
   * [Why A \`.c\` and \`.h\` File?](my-first-c-project-an-elf-parser-and-interpreter/why-a-.c-and-.h-file.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
+* [Low Level Detours](low-level-detours.md)
