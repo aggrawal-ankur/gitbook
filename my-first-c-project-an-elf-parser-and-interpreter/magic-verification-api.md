@@ -2,13 +2,15 @@
 
 ## Problem Statement
 
-How we will know if the file passed to our program is an ELF? We have to verify the magic number in the file headers.
+The first step in parsing an ELF is to verify if the file loaded is an ELF or not.
+
+How can we do that? By verifying the magic bytes (or numbers) in the file headers.
 
 ## What are magic numbers?
 
-A magic can take multiple forms in computer programming. In our case, a magic number is a constant stream of characters which are used to identify a file format.
+Magic numbers can take multiple forms in computer programming. In our case, it is a constant stream of characters, used to identify a file format.
 
-While statically analyzing the hello world binary, we have analyzed the file headers. The readelf output started like this:
+While statically analyzing the hello world binary, we had started by analyzing the file headers. The readelf output started like this:
 
 ```
 ELF Header:
@@ -19,26 +21,23 @@ The first 4 hexadecimal numbers represent the magic number.
 
 But `readelf` refers all the pairs as magic?
 
-* Actually, only the first 4 pairs form the magic number. Rest are the values in the `e_ident[]` array.
-* We will see it very soon.
+* Actually, only the first 4 pairs form the magic number. Rest are the values in the `e_ident[]` array, which is a part of the file headers.
 
-Each pair is 1 byte in size.
+Remember, each pair is hexadecimal so they are 1 byte in size.
 
 ### Does this magic number hold any meaning?
 
-Yes.
-
-`0x7f` = DEL, `0x45` = E, `0x4c` = L and `0x46` = F
+Yes. `0x7f` = DEL, `0x45` = E, `0x4c` = L and `0x46` = F
 
 ### Why \`0x7f\` ?
 
-A random text file may start with `45 4c 46` bytes, but it is very unlikely to start with `0x7f 45 4c 46` . This is the reason behind why a radon character is used.
+A random text file may start with `45 4c 46` bytes, but it is very unlikely for a text file to start with `0x7f 45 4c 46` . That is why a random character is used.
 
 ## Reading The Magic
 
-So, to verify a file as a valid ELF, the first 4 bytes must be `0x7F 45 4C 46` . To do this, we have to read those 4 bytes. `fread()` is used for that purpose.
+To mark a file as a valid ELF, the first 4 bytes must be `0x7F 0x45 0x4C 0x46` . We will use `fread()` to read those bytes.
 
-It is provided by the standard I/O header file. The signature of `fread()` is as follows.
+It is provided by the C standard I/O library (`stdio.h`). The signature of `fread()` is as follows.
 
 ```c
 // General Signature
@@ -55,7 +54,7 @@ size_t fread(void ptr[restrict .size * .nmemb], size_t size, size_t nmemb, FILE 
 * `size_each_element` is self-explanatory.
 * `file_ptr` has access to the file's raw bytes. This is how we are going to read the file.
 
-It reads number of elements each of same size from the file pointer and stores them in the destination pointer.
+It reads N number of elements each of size S from the file pointer and stores them in the destination pointer.
 
 ### Return Value
 
@@ -63,7 +62,7 @@ If reading was successful, it returns the number of items read.
 
 ### Why fread is like this?
 
-On surface, fread() looks strange. Why can't we just pass the number of bytes to be read?
+Why we can't just pass the number of bytes we've to read?
 
 The answer is rather simple. C is strictly-typed. It has data types for everything. But the key lies in how those data types are translated at memory level as there exist only raw bytes.
 
@@ -149,7 +148,7 @@ In simplest terms, `fread` provides a healthy abstraction where we don't have to
 
 ### Why we are using \`fprint\` when we have \`printf\`?
 
-In assembly, we know that `exec` is the main syscall and `execve`, `execvp` are just wrappers around it. The same is with `*printf*` functions, just remove the idea of syscall.
+In assembly, the `exec` syscall is the main one and `execve`, `execvp` are just wrappers around it. The same is with `*printf*` functions, just remove the idea of syscall.
 
 If we open the `man 3` entry for `printf`, we can find a big list of `*printf*` function.
 
