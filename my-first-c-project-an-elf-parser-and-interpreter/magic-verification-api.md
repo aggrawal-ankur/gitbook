@@ -129,29 +129,48 @@ We are passing a reference of the `magic_number` array because `fread` expects a
 
 We are reading 4 elements, each of size 1-byte.
 
-And we are done. But there is one more question I would like to ask here.
+And we are done. But there are two more questions I would like to ask here.
 
-### Why we are using \`fread\` when we have \`read\`?
+### Why we are not using \`read\`?
 
 If you have taken a C tutorial, you know that in the file I/O section, we use the `read()` and `write()` functions to operate on files.
 
-Why we are choosing `fread` then?
+`fread` belongs to the standard I/O library. It is designed to aid in file operation.
 
-## Fun part
+`read` , on the other hand, belong to the UNIX standard library, or `unistd.h` . It provides access to the POSIX operating system API.
 
-We could have needed just one value (instead of 4) to verify this. But we have avoided it otherwise we would have missed all this interesting part.
+The signature for `read` is:
 
+```c
+ssize_t read(int fd, void *buf, size_t count);
+```
 
+In simplest terms, `fread` provides a healthy abstraction where we don't have to manage extraction of bytes and their interpretation. Otherwise, if we chose to go with `read`, we have to manage all that ourselves. Plus, `fread` is portable as well and `read` is UNIX-dependent.&#x20;
 
+### Why we are using \`fprint\` when we have \`printf\`?
 
+In assembly, we know that `exec` is the main syscall and `execve`, `execvp` are just wrappers around it. The same is with `*printf*` functions, just remove the idea of syscall.
 
+If we open the `man 3` entry for `printf`, we can find a big list of `*printf*` function.
 
+```
+printf,   fprintf,  dprintf,  sprintf, 
+snprintf, vprintf,  vfprintf, vdprintf, 
+vsprintf, vsnprintf
+```
 
+Why `man 3`?
 
+* The `3` corresponds to **library calls** (functions in program libraries) section. If you do `man printf`, you will find the entry for `printf` as a **user command**.
 
+Only the `v*` variants of `printf` are the real workers. Everything else is just a wrapper around them.
 
+For example, `printf` is a shorthand for `fprintf(stdout, const char*, format);` .&#x20;
 
+Clearly, `fprintf` lets us choose the output stream. It can be `stdout`, `stderr` or even a `FILE*` . We are using `stderr` as it keeps errors separate from the standard output and they can be directed elsewhere.
 
+## Conclusion
 
+And we have managed to verify if the file passed to our program is an ELF or not.
 
-
+Next, we will parse the file headers.
