@@ -58,14 +58,15 @@ It reads N number of elements each of size S from the file pointer and stores th
 
 Those who have taken C tutorials can spot something here. So, its worth addressing.
 
-* Depending on the time you have watched that tutorial and the creator of it, you may have seen different functions to read a file.
-* They may include `fscanf`, `fgets` etc. Why we are using `fread`?
-* The answer is simple. The key lies in parsing those raw bytes. The scope of those tutorials was text files and we are dealing with binary files. Memory on low level is purely bytes and we are accessing it in terms of `char`, `int` etc.
+* Depending on the time you have watched that tutorial and the creator of it, you may have seen different functions to read a file. They may include `fscanf`, `fgets` etc.
+* The key lies in parsing those raw bytes. Those tutorials focused on text files. We are dealing with binary files, which need different handling.
 * We have to work on interpreting those bytes the right way. Either we do it ourselves or outsource it some API. `fread` is that API.
 
 ### Return Value
 
-If reading was successful, it returns the number of items read. This is what we to verify if `fread` was successful or not.
+If reading was successful, it returns the number of items read. This is what we use to verify if `fread` was successful or not.
+
+If fewer than 4 bytes are read, the file is too short to be a valid ELF.
 
 ***
 
@@ -121,13 +122,11 @@ Lets make it clear. C does have abstraction. But those abstractions are usually 
 
 Even these are just wrapper APIs. The actual heavy lifters are `v*` prefixed printfs.
 
-We want to segregate errors from general output that's why we are using `fprintf`.
+`fprintf` lets us send error messages to `stderr` instead of mixing them with normal output.
 
 ***
 
 We are passing a reference of the `magic_number` array because `fread` expects a pointer.
-
-We are reading 4 elements, each of 1-byte.
 
 ## Conclusion
 
