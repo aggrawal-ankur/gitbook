@@ -49,15 +49,10 @@ The idea is to pack every API call in one struct and instead of passing the depe
 
 ### What Are The Drawbacks?
 
+The scope of this struct-based design is to make the access of core API to the interpreter functions easy and straightforward.
 
+### What About The Mess Of API Calling In The Main?
 
+The structure of the `main` program depends on how we are projecting to use the project.
 
-
-
-
-
-
-
-
-
-
+Right now, the idea is to input a file and dump a c-style interpretation of it. No customization, no nothing. So, orchestrating main has no point. But possibilities are endless and I am open to them.
