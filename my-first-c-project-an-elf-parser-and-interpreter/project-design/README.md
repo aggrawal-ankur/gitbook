@@ -35,6 +35,7 @@ elf_parser
   └─ hello_elf
   └─ hello_world.c
   └─ readelf_output
+└─ main.c
 ```
 
 The project is version controlled on [GitHub](https://github.com/hi-anki/elf-dump-project).
