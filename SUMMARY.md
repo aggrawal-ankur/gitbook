@@ -31,6 +31,7 @@
     * [Managing Chaos & Reducing Boilerplate Code](my-first-c-project-an-elf-parser-and-interpreter/project-design/managing-chaos-and-reducing-boilerplate-code.md)
   * [Magic Verification API](my-first-c-project-an-elf-parser-and-interpreter/magic-verification-api.md)
   * [Why A \`.c\` and \`.h\` File?](my-first-c-project-an-elf-parser-and-interpreter/why-a-.c-and-.h-file.md)
+  * [Stack Allocated vs Heap Allocated Arrays](my-first-c-project-an-elf-parser-and-interpreter/stack-allocated-vs-heap-allocated-arrays.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
 * [Low Level Detours](low-level-detours/README.md)
