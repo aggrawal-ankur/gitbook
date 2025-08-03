@@ -30,6 +30,13 @@ elf_parser
 └─ main.c
 ```
 
+## Few Things About The Project
+
+1. It is not perfect.
+2. I am not trying to compete with projects like `binutils` , which hosts `readelf` or `pax-utils` , which hosts `dumpelf` or any other project. It is purely to understand the elf specification not by reading docs but by implementing something myself.
+3. It is verbose by design because I am not familiar with things that reduce code but at the cost of readability. I wanted something straightforward.
+4. It is great for educational purposes, where beginners can read the code and understand it themselves, where things obscure to them are not used to do the thing.
+
 ## Timeline
 
 Started on _July 24, 2025_
