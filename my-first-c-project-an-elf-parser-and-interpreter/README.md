@@ -8,26 +8,12 @@ After finishing the static analysis of the Hello World binary (with some parts s
 
 While I was studying the hello world binary, I felt something was missing: a clear, C-style view of the entire ELF structure. I wanted to see actual structs with spec-defined types, populated with values parsed directly from a real binary.
 
-I found a project called `dumpelf`, but it didn’t meet my expectations.
+I have found a project called `pax-utils`, from GNU Project, which has a utility named `dumpelf`. And i decided that I will explore ELF spec myself by extracting raw bytes from an elf file and dump the values in a C-style format.
 
-That’s when the idea struck: build a tool that parses an ELF file and generates a C-style dump of its structure — variables defined in the ELF spec, filled with real binary values.
+I began this project on **24/07/2025** with one goal in mind. I have to build a tool which can parse a Hello World ELF binary on **x86\_64**. That's it.
 
-I began this project on **24/07/2025** with one goal in mind. I have to build a tool which can parse a Hello World ELF binary on **x86\_64**. That's it. Once that works, I’ll consider extending it.
+I used `readelf` as a reference throughout this process as it is too easy to get lost in raw bytes without a guide.
 
-I’ll use `readelf` as a reference throughout as it is too easy to get lost in raw bytes without a guide.
+The language would be C.
 
-## Which Language?
-
-I will use because everything here is present as is. There is no abstraction. Plus, it directly matches with elf type definitions.
-
-## Resources?
-
-The `elf.h` header file in C is a goldmine to understand ELF. It has all the type definitions and what are the possible set of values for any entry.
-
-`gcc` in tool-chain.
-
-VS Code as the IDE.
-
-And internet.
-
-That's it.
+Here is the project repository, [GitHub](https://github.com/hi-anki/elf-dump).

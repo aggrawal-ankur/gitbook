@@ -1,16 +1,16 @@
-# Magic Verification API
+# Magic Verification
 
 ## Problem Statement
 
-The first step in parsing an ELF is to verify if the file loaded is an ELF or not.
+The first step in parsing an ELF is to verify if the file passed in the argument is an ELF or not.
 
-How can we do that? By verifying the magic bytes (or numbers) in the file headers.
+This is done by verifying the magic bytes (or numbers) present as the first thing in all kinds of binary files.
 
 ## What are magic numbers?
 
 Magic numbers can take multiple forms in computer programming. In our case, it is a constant stream of characters, used to identify a file format.
 
-While statically analyzing the hello world binary, we had started by analyzing the file headers. The readelf output started like this:
+From the static analysis of the hello world binary, we know that file headers are the first thing in an ELF. The output for readelf started like this:
 
 ```
 ELF Header:
@@ -21,9 +21,9 @@ The first 4 hexadecimal numbers represent the magic number.
 
 But `readelf` refers all the pairs as magic?
 
-* Actually, only the first 4 pairs form the magic number. Rest are the values in the `e_ident[]` array, which is a part of the file headers.
+* Only the first 4 pairs of hexadecimal values form the magic number. Rest are the values in the `e_ident[]` array, which is a part of the file headers.
 
-Remember, each pair is hexadecimal so they are 1 byte in size.
+_Remember, each pair is hexadecimal so they are 1 byte in size._
 
 ### Does this magic number hold any meaning?
 
@@ -41,10 +41,7 @@ It is provided by the C standard I/O library (`stdio.h`). The signature of `frea
 
 ```c
 // General Signature
-fread(dest_ptr, size_each_element, n_elements, file_ptr);
-
-// From Manual
-size_t fread(void ptr[restrict .size * .nmemb], size_t size, size_t nmemb, FILE *restrict stream);
+fread(dest_ptr, size_each_element, n_ele, file_ptr);
 ```
 
 `fread` requires 4 arguments.
@@ -54,19 +51,31 @@ size_t fread(void ptr[restrict .size * .nmemb], size_t size, size_t nmemb, FILE 
 * `size_each_element` is self-explanatory.
 * `file_ptr` has access to the file's raw bytes. This is how we are going to read the file.
 
-It reads N number of elements each of size S from the file pointer and stores them in the destination pointer.
+In simple words, _read N number of elements, each of size S, from the file pointer and store them in the destination pointer._
+
+```c
+// From Manual Entry
+size_t fread(void ptr[restrict .size * .nmemb], size_t size, size_t nmemb, FILE *restrict stream);
+```
+
+* Lets discuss what `void ptr[restrict .size * .nmemb]` means.
+* `nmemb` represents number of memory blocks to read.
+* `size` represents the size of each memory block.
+* `void *restrict stream` means the pointer can point to data of any type.
+* `restrict` is a type qualifier introduced in the C99 standard. It tells the compiler that, _for the lifetime of this pointer, no other pointer will be used to access the object it points to._
+* `ptr[restrict .size * .nmemb]` indicates that `ptr` is a pointer to a block of memory with a minimum size of `size * nmemb` bytes.
+
+***
 
 Those who have taken C tutorials can spot something here. So, its worth addressing.
 
-* Depending on the time you have watched that tutorial and the creator of it, you may have seen different functions to read a file. They may include `fscanf`, `fgets` etc.
-* The key lies in parsing those raw bytes. Those tutorials focused on text files. We are dealing with binary files, which need different handling.
-* We have to work on interpreting those bytes the right way. Either we do it ourselves or outsource it some API. `fread` is that API.
+* Depending on the time you have watched the **File I/O tutorials**, you may have seen a variety of functions to read a file. They may include `fscanf`, `fgets` etc.
+* Those tutorials focused on text files. We are dealing with binary files, which need different handling.
+* If you are known to assembly, you know that memory is a flat-array of bytes at low level. We have to interpret those bytes the right way to obtain the intended meaning. Either we do it ourselves or outsource it to some API. `fread` is that API.
 
 ### Return Value
 
-If reading was successful, it returns the number of items read. This is what we use to verify if `fread` was successful or not.
-
-If fewer than 4 bytes are read, the file is too short to be a valid ELF.
+If successful, it returns the number of items read. And this forms the basis for error handling.
 
 ***
 
@@ -83,10 +92,8 @@ For more information on `fread`, visit its man page.
 
 ## Verifying The Magic Bytes
 
+{% code title="parser.c" %}
 ```c
-#include <stdio.h>
-#include "verify_elf.h"
-
 int verify_elf(FILE* f_obj){
   unsigned char magic_bytes[4];
 
@@ -105,12 +112,13 @@ int verify_elf(FILE* f_obj){
   return 0;
 }
 ```
+{% endcode %}
 
 ### Why unsigned char?
 
-`char` is 1-byte, so it is appropriate to store magic bytes. But `char` can be signed (-128 to 127) or unsigned (0-255).&#x20;
+`char` is 1-byte, so it is appropriate to store magic bytes.
 
-We have to make sure that it is unsigned because the magic bytes for an ELF are unsigned.
+But `char` can be signed (-128 to 127) or unsigned (0-255). We have to make sure that it is unsigned because the magic bytes for an ELF are unsigned.
 
 ***
 
@@ -118,15 +126,23 @@ We have to make sure that it is unsigned because the magic bytes for an ELF are 
 
 Lets make it clear. C does have abstraction. But those abstractions are usually a collection of very low level stuff.
 
-`printf` defaults to printing at standard out `stdout`. `fprintf` allows you to set the direction for the output stream.
+`printf` defaults to printing at standard out (`stdout`). `fprintf` allows you to set the direction for the output stream. Therefore, the below two are the same.
 
-Even these are just wrapper APIs. The actual heavy lifters are `v*` prefixed printfs.
+```c
+printf("Hi\n");
+fprintf(stdout, "Hi\n");
+```
+
+Even these are just wrapper APIs. The actual heavy lifters are `v*` prefixed printfs. Checkout the library functions manual for `printf`.
+
+* `man 3 printf`&#x20;
+* [man7 online](https://man7.org/linux/man-pages/man3/printf.3.html)
 
 `fprintf` lets us send error messages to `stderr` instead of mixing them with normal output.
 
 ***
 
-We are passing a reference of the `magic_number` array because `fread` expects a pointer.
+We are passing a reference of the `magic_number` array as `fread` expects a pointer.
 
 ## Conclusion
 
