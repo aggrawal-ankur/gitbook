@@ -26,3 +26,15 @@ elf_parser
   └─ elf_spec.h
 └─ main.c
 ```
+
+## Timeline
+
+Started on _July 24, 2025_
+
+Finished writing core API on _July 31, 2025_
+
+Finished writing c-style dumps on _August 02, 2025_
+
+Starting documentation on _August 03, 2025_
+
+**Improvements ahead.**
