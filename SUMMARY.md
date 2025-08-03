@@ -31,7 +31,6 @@
   * [What's the point of having \`.c\` and \`.h\` files?](my-first-c-project-an-elf-parser-and-interpreter/whats-the-point-of-having-.c-and-.h-files.md)
   * [Magic Verification](my-first-c-project-an-elf-parser-and-interpreter/magic-verification.md)
   * [What are the available APIs?](my-first-c-project-an-elf-parser-and-interpreter/what-are-the-available-apis.md)
-  * [Stack Allocated vs Heap Allocated Arrays](my-first-c-project-an-elf-parser-and-interpreter/stack-allocated-vs-heap-allocated-arrays.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
 * [Low Level Detours](low-level-detours/README.md)
