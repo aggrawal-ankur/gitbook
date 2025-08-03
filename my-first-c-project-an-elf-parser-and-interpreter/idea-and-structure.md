@@ -11,6 +11,9 @@ The whole project can be divided into two parts.
 
 ```
 elf_parser
+└─ build-steps
+   ...
+   ...
 └─ core_api
   └─ parser.c
   └─ parser.h
