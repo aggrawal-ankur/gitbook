@@ -81,17 +81,11 @@ The output of readelf is significantly smaller for the dynamically linked elf.
 
 ### File Header
 
-| Property              | Dynamically Linked | Statically Linked |
-| --------------------- | ------------------ | ----------------- |
-| OS/ABI                | UNIX - System V    | UNIX - GNU        |
-| Type                  | ET\_DYN            | EX\_EXEC          |
-| Entry Point Address   | 0x1050             | 0x401600          |
-| Start of Shdrs        | 13968              | 756760            |
-| Program Headers Count | 14                 | 11                |
-| Section Headers Count | 31                 | 26                |
-| Shstrtab Index        | 30                 | 25                |
+<table><thead><tr><th width="232">Property</th><th>Dynamically Linked</th><th>Statically Linked</th></tr></thead><tbody><tr><td>OS/ABI</td><td>UNIX - System V</td><td>UNIX - GNU</td></tr><tr><td>Type</td><td>ET_DYN</td><td>EX_EXEC</td></tr><tr><td>Entry Point Address</td><td>0x1050</td><td>0x401600</td></tr><tr><td>Start of Shdrs</td><td>13968</td><td>756760</td></tr><tr><td>Program Headers Count</td><td>14</td><td>11</td></tr><tr><td>Section Headers Count</td><td>31</td><td>26</td></tr><tr><td>Shstrtab Index</td><td>30</td><td>25</td></tr></tbody></table>
 
 The most interesting part here is the difference in ABI. This means, an operating system supports multiple ABI contracts?
+
+* The GNU ABI is just an extension of the System V ABI.
 
 ### Section Headers
 
@@ -149,6 +143,29 @@ The statically linked ELF lacks these sections, which are mostly used by the dyn
 .eh_frame_hdr
 .dynamic
 ```
+
+#### Why?
+
+`.interp, .dynsym, .dynstr, .rela.dyn, .plt.got. eh_frame_hdr, .dynamic` are self-explanatory. These are specific to runtime resolution.
+
+`.gnu.hash, .gnu.version, .gnu.version_r` are also runtime used during runtime resolution.
+
+* To make symbol lookup fast, ELF uses hash tables for dynamic symbols.
+* Since a static ELF has all the relocations performed during link-time, there is no need for a hash table for lookup.
+
+These sections are new in the static ELF.
+
+```
+rodata.cst32
+.gcc_except_table
+.tdata
+.tbss
+.data.rel.ro
+```
+
+* We can avoid this for now.
+
+***
 
 Comparing the size for section headers,
 
@@ -214,6 +231,6 @@ There are 22 entries in `.rela.plt` and their type is `R_X86_64_IRELATIV`, which
 
 ## Conclusion
 
-A statically linked ELF is a self-contained ELF, and the high size of specific sections shows why it is called _a self-contained elf_. In the next article, we will explore the questions we had while exploring the differences on surface.
+A statically linked ELF is a self-contained ELF, and the high size of specific sections shows why it is called _a self-contained elf_.
 
 Thanks. Bye.

@@ -28,6 +28,7 @@
   * [What's Next?](understanding-hello-world/whats-next.md)
   * [Static Linking v/s Dynamic Linking](understanding-hello-world/static-linking-v-s-dynamic-linking/README.md)
     * [A Surface Level Overview Of The Differences](understanding-hello-world/static-linking-v-s-dynamic-linking/a-surface-level-overview-of-the-differences.md)
+    * [Stripping ELF](understanding-hello-world/static-linking-v-s-dynamic-linking/stripping-elf.md)
     * [Use Cases](understanding-hello-world/static-linking-v-s-dynamic-linking/use-cases.md)
 * [My First C Project, An ELF Parser & Interpreter](my-first-c-project-an-elf-parser-and-interpreter/README.md)
   * [Idea & Structure](my-first-c-project-an-elf-parser-and-interpreter/idea-and-structure.md)
