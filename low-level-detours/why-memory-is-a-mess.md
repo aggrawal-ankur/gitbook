@@ -1,8 +1,27 @@
-# Why C Is Statically Typed?
+---
+hidden: true
+---
 
-Why we can't just pass the number of bytes we've to read?
+# Why Memory Is A Mess?
 
-The answer is rather simple. C is strictly-typed. It has data types for everything. But the key lies in how those data types are translated at memory level as there exist only raw bytes.
+##
+
+## Advantages Of Static Typing
+
+C was designed in the early 1970s for writing **UNIX**, where performance was non-negotiable.
+
+1. Having data types for everything make sure that the runtime overhead to manage them is eliminated.
+2. The compiler can generate a no-bloat code, which is fast and efficient.
+3. Efficient memory management as you know exactly how much is required.
+4. Early error detection.
+5. Predictable memory-layout.
+6. Maximum control over memory, no need for garbage collection.
+
+***
+
+
+
+It has data types for everything. But the key lies in how those data types are translated at memory level as there exist only raw bytes.
 
 So, how those data types are translated at memory level?
 
