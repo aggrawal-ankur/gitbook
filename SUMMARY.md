@@ -1,6 +1,17 @@
 # Table of contents
 
 * [Hi 👋](README.md)
+* [A Guide To x64 Assembly](a-guide-to-x64-assembly/README.md)
+  * [The Assembly Mindset](a-guide-to-x64-assembly/the-assembly-mindset.md)
+  * [Basic Introduction](a-guide-to-x64-assembly/basic-introduction.md)
+  * [Theoretical Introduction](a-guide-to-x64-assembly/theoretical-introduction.md)
+  * [Common Terminologies](a-guide-to-x64-assembly/common-terminologies.md)
+  * [Introduction To Instructions & Company](a-guide-to-x64-assembly/introduction-to-instructions-and-company.md)
+  * [Anatomy Of An Assembly Program](a-guide-to-x64-assembly/anatomy-of-an-assembly-program.md)
+  * [Calling Conventions](a-guide-to-x64-assembly/calling-conventions.md)
+  * [ISA & Assemblers](a-guide-to-x64-assembly/isa-and-assemblers.md)
+  * [Hello, World!](a-guide-to-x64-assembly/hello-world.md)
+  * [Taking User Input](a-guide-to-x64-assembly/taking-user-input.md)
 * [Understanding Hello, World!](understanding-hello-world/README.md)
   * [A High Level Overview Of Build Process In C](understanding-hello-world/a-high-level-overview-of-build-process-in-c.md)
   * [Lets talk about \`gcc\`](understanding-hello-world/lets-talk-about-gcc.md)
