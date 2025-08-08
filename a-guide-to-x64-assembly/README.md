@@ -14,6 +14,8 @@ Consider them as a starting point, not an ultimate source of truth. They can be 
 
 This is the original git repository for the project, [GitHub](https://github.com/hi-anki/x86_64-assembly).
 
+Expect grammatical errors, typos, inconsistent formatting, inconsistent structure, especially in the original GitHub repository. Here, it is a lot more polished.
+
 
 
 Keep learning!
