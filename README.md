@@ -1,7 +1,7 @@
 # Hi 👋
 
-Hello, I am Ankur.
+Hello, my name is Ankur Agarwal. I am from India.
 
-I am interested in everything related to low level systems engineering.
+I am interested in low level systems engineering.
 
 Here I publish my polished notes.
