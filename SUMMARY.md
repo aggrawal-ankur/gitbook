@@ -48,6 +48,7 @@
   * [What are the available APIs?](my-first-c-project-an-elf-parser-and-interpreter/what-are-the-available-apis.md)
 * [All Roads To Memory](all-roads-to-memory/README.md)
   * [Introductory Concepts](all-roads-to-memory/introductory-concepts.md)
+  * [Paging](all-roads-to-memory/paging.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [Full Disassembly](full-disassembly.md)
 * [Low Level Detours](low-level-detours/README.md)

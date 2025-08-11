@@ -1,5 +1,7 @@
 # Introductory Concepts
 
+_**August 11, 2025**_
+
 ## Physical Memory
 
 Byte-addressable: each address refers to 1-byte.
@@ -84,3 +86,11 @@ A page fault occurs when the CPU tries to access a virtual address, but the page
 2. the access violates permissions.
 
 The CPU stops the instruction and hands control to the OS so it can handle the situation.
+
+## Memory Size Unit
+
+KB can be ambiguous as it may represent both the binary and the decimal representations, which vary greatly in terms of value.
+
+* 1 KB is 1000 bytes while 1 KiB is 1024 bytes.
+
+We will use the `i` ones because they are more relevant here.
