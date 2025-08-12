@@ -7,6 +7,10 @@ description: >-
 
 # Virtual Addressing System
 
+_**August 11 and 12, 2025**_
+
+***
+
 ## A Virtual Address
 
 Total number of bits we have are 64. But not all the 64-bits are required to manage addresses now. It would be huge to manage 2^64 addresses.
