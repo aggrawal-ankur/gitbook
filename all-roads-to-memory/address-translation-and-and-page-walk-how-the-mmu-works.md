@@ -1,5 +1,5 @@
 ---
-description: This is the exact moment we are preparing for.
+description: This is the exact moment we were preparing for.
 ---
 
 # Address Translation && Page Walk: How The MMU Works?
@@ -90,4 +90,4 @@ After a successful page walk, the translation lookaside buffer is updated to con
 
 What if the page walk failed?
 
-* A page fault; the next deep dive for us.
+* A page fault;

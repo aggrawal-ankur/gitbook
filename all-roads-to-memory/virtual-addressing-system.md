@@ -2,7 +2,7 @@
 description: >-
   There were so many virtual prefixed concepts that they were driving me crazy.
   So to bring all of them together, I named this article virtual addressing
-  system
+  system.
 ---
 
 # Virtual Addressing System
