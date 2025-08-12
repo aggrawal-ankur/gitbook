@@ -51,6 +51,7 @@
   * [Paging](all-roads-to-memory/paging.md)
   * [Virtual Addressing System](all-roads-to-memory/virtual-addressing-system.md)
   * [General Process Layout In Virtual Memory](all-roads-to-memory/general-process-layout-in-virtual-memory.md)
+  * [Address Translation && Page Walk: How The MMU Works?](all-roads-to-memory/address-translation-and-and-page-walk-how-the-mmu-works.md)
 * [Approaches To Memory Management](approaches-to-memory-management/README.md)
   * [Stack](approaches-to-memory-management/stack.md)
   * [Heap](approaches-to-memory-management/heap.md)
