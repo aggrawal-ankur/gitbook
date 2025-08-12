@@ -1,6 +1,6 @@
 # Paging
 
-_**August 11, 2025**_
+_**August 11 and 12, 2025**_
 
 ## Why Pages?
 
@@ -55,17 +55,17 @@ We will move from low to high because that is more logical and comprehensible.
 
 ### Plain Page Table
 
-A page is a collection of individual bytes. At basic, we are dealing with 4 KiB pages. So we will restrict to that.
+A page is a collection of individual bytes. At basic, we are dealing with 4 KiB pages. So, a page is a collection of 4096 addressable bytes in virtual memory.
 
-Therefore, a page is a collection of 4096 addressable bytes in virtual memory.
+As named, a page table should be a collection of pages, right? Not really.
 
-A page table is a collection of pages. How many pages, to be exact? The number is 512.
+Page is just a conceptual term. It exist in theory only. What we really deal with is page frame in the physical memory. And, a page table is a collection of page frames. How many page frames, to be exact? The number is 512.
 
-This number is obtained by dividing the page size by size of each entry, where size of each entry is given by the register width, which is 8 bytes on x64. So, we get, `4096/512`, giving us 512 entries. And this mathematics is applicable to rest of the tables as well.
+This number is obtained by dividing the page size by size of each entry, where size of each entry is given by the register width, which is 8 bytes on x64. So, we get, `4096/8`, giving us 512 entries. And this mathematics is applicable to rest of the tables as well.
 
 ***
 
-Therefore, a plain page table is a collection of 512 pages, or, each entry in a page table is a gateway to a page.
+Therefore, a plain page table is a collection of 512 page frames, or, each entry in a page table is a gateway to a page frame in the physical memory.
 
 A page is sized 4096 bytes, so, a plain page table manages a total of `512 * 4096` bytes, which is `2097152` bytes.
 
@@ -107,8 +107,6 @@ So these bytes look daunting. Lets simplify them.
 
 281474976710656/1099511627776 = 256 TiB
 
-
-
 Therefore:
 
 | Page Tables                | Bytes Managed         | Simplified Size |
@@ -122,15 +120,34 @@ Therefore:
 
 That's enough for paging. Lets talk about virtual addresses.
 
+### But what really exist in these tables?
 
+What we just had was a conceptual view of these page tables. But what do these page tables actually contain? That is important to understand, especially for the plain page table. Otherwise, it would lead to mental ruckus.
 
+In simple words, all of them are pointer tables. And each address (pointer) is 64-bit, obviously.
 
+* The PML4 table contains 512 pointers to page directory pointer tables.
+* The page directory pointer table contains 512 pointers to page directory index/offset tables.
+* The page directory index table contains 512 pointers to plain page tables.
+* A plain page table contains 512 pointers to physical page frames.
 
+The only important thing to understand here is the entries in the plain page tables.
 
+A page table is a gateway to physical page frames. A page table entry looks like this:
 
+```
+*--------* *----------* *-------------* *-------------------* *---------------------*
+| NX-bit | | CPU bits | | OS-Reserved | | Page Frame Number | Flags && Control Bits |
+*--------* *----------* *-------------* *-------------------* *---------------------*
+        63 62        59 58           52 51                 12 11                    0
+```
 
+If you are deep into the trenches, and constantly thinking, you will spot that something is missing. Let me tell you that something. _**How everything fits in the bigger picture?**_
 
+## A Note
 
+Before you start to wonder how these 4 page tables work together and stuff, I want to say, sit tight and enjoy the journey. Right now we don't know virtual addresses in-depth, which are essential to understand how all of this fits in.
 
+Once we understand the virtual addressing system, we can hop on a process called **page walk**, which would piece everything we have understood so far together.
 
-
+And the next thing we are going to study is exactly that.
