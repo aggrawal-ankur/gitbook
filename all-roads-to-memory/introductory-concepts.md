@@ -6,15 +6,13 @@ _**August 11, 2025**_
 
 Byte-addressable: each address refers to 1-byte.
 
-Flat address space: goes from 0 to (total\_bytes - 1).
+Flat address space: goes from `0` to `total_bytes - 1`.
 
 Linux abstracts physical memory into pages.
 
 Physical addresses aren't directly visible. The visible addresses are in virtual memory.
 
 Virtual addresses are connected with physical address space by the Memory Management Unit (MMU).
-
-
 
 ## Virtual Memory
 
