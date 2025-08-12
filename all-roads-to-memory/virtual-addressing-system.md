@@ -24,6 +24,7 @@ At high level, a virtual address is structured like this:
 ```
 +--------------+ +--------------+ +--------------+ +------------+ +----------------------+
 | PML4: 9-bits | | PDPT: 9-bits | | PDIT: 9-bits | | PT: 9-bits | | Page Offset: 12-bits |
+|              | |              | |              | |            | | In Actual Page Frame |
 +--------------+ +--------------+ +--------------+ +------------+ +----------------------+
 47            39 38            30 29            21 20          12 11                     0
 ```
@@ -32,7 +33,7 @@ At high level, a virtual address is structured like this:
 
 All the 4 page tables have 512 entries, which require a minimum of 9-bits to represent. So, 9-bits are reserved for them.
 
-Page offset is the actual byte being addressed within a page. Since there are 4096 bytes in total, 12-bit are required at minimum to represent them.
+Page offset is the actual byte being addressed within a page frame in physical memory. Since there are 4096 bytes in total, 12-bit are required at minimum to represent them.
 
 ### Some Good-To-Know Things
 
@@ -107,10 +108,6 @@ CPUs implement multiple **protection rings** numbered 0 to 3, with:
 * **Rings 1 and 2** exist but are rarely used in mainstream Linux.
 
 System calls cause a CPU privilege level switch from Ring 3 → Ring 0.
-
-
-
-
 
 
 
