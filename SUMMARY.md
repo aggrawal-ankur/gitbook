@@ -56,7 +56,6 @@
   * [Stack](approaches-to-memory-management/stack.md)
   * [Heap](approaches-to-memory-management/heap.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
-* [Full Disassembly](full-disassembly.md)
 * [Low Level Detours](low-level-detours/README.md)
   * [Why Memory Is A Mess?](low-level-detours/why-memory-is-a-mess.md)
   * [What Is Garbage Collection?](low-level-detours/what-is-garbage-collection.md)
