@@ -56,6 +56,8 @@
   * [Stack](approaches-to-memory-management/stack.md)
   * [Heap](approaches-to-memory-management/heap.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
+* [How X Exist At Low Level?](how-x-exist-at-low-level.md)
+* [The Story Of Format Specifiers](the-story-of-format-specifiers.md)
 * [Low Level Detours](low-level-detours/README.md)
   * [Why Memory Is A Mess?](low-level-detours/why-memory-is-a-mess.md)
   * [What Is Garbage Collection?](low-level-detours/what-is-garbage-collection.md)
