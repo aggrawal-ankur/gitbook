@@ -57,7 +57,7 @@
   * [Heap](approaches-to-memory-management/heap.md)
 * [Introduction To Processes In Linux](introduction-to-processes-in-linux.md)
 * [How X Exist At Low Level?](how-x-exist-at-low-level/README.md)
-  * [How an uninitialized character buffer exist and managed at low level?](how-x-exist-at-low-level/how-an-uninitialized-character-buffer-exist-and-managed-at-low-level.md)
+  * [How a character buffer exist and managed at low level?](how-x-exist-at-low-level/how-a-character-buffer-exist-and-managed-at-low-level.md)
   * [The Story Of Format Specifiers](how-x-exist-at-low-level/the-story-of-format-specifiers.md)
 * [Low Level Detours](low-level-detours/README.md)
   * [Why Memory Is A Mess?](low-level-detours/why-memory-is-a-mess.md)
