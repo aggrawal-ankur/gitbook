@@ -1,3 +1,20 @@
+---
+layout:
+  width: wide
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: true
+  pagination:
+    visible: true
+  metadata:
+    visible: false
+---
+
 # How a character buffer exist and managed at low level?
 
 _**August 14, 2025**_
