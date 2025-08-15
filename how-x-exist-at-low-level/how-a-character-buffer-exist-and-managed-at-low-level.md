@@ -88,7 +88,7 @@ But these things don't affect what we are looking for.
 You can immediately notice that there is no `.data` section or `.rodata` section. There is no `.bss` section as well. Where is `NAME_BUFF` defined then?
 
 * This is a classic case to understand how memory allocation for even simple variables work.
-*   For clarity, I have divided the `main:` section in smaller chunks using empty lines. The assembly looks like this now:&#x20;
+*   For clarity, I have divided the `main:` section in smaller chunks using empty lines. The assembly looks like this now:
 
     ```nasm
     main:
@@ -123,32 +123,16 @@ You can immediately notice that there is no `.data` section or `.rodata` section
             ret
     ```
 
-Since we already know assembly, we can tell that  the buffer is being stored on stack. But what's the reasoning behind it? Why the system chose to store the buffer on stack? The answer lies within storage classes.
+Since we already know assembly, we can tell that the buffer is being stored on stack. But what's the reasoning behind it? Why the system chose to store the buffer on stack?
 
-### Storage Class
+* The answer is storage classes.
+* By default, every variable has `auto` storage class, which defines stack as the storage place.
+* _If you are not known to this, I have explored storage classes separately_ [_here_](../getting-lost-in-c/storage-classes.md)_._
 
-Storage classes tell the compiler how to manage a variable.
-
-1. Where the variable would be stored?
-2. How long it would exist (lifetime) ?
-3. Who can access it, or where it can be accessed from (scope) ?
-4. Whether it has a default initial value?
-
-There are 4 main storage classes in C.
-
-<table><thead><tr><th width="138">Storage Class</th><th width="199">Scope &#x26;&#x26; Lifetime</th><th width="134">Default Value</th><th width="156">Storage Location</th><th>Notes</th></tr></thead><tbody><tr><td><strong>auto</strong></td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>Stack</td><td>Default for local variables; no need to mention explicitly.</td></tr><tr><td><strong>register</strong></td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage</td><td>CPU register (if available)</td><td>Hint to store in CPU register for faster access (compiler may ignore it). Cannot take address with <code>&#x26;</code>.</td></tr><tr><td><strong>static</strong></td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td>Data segment</td><td>Local static: retains value between function calls. Global static: limits scope to file (internal linkage).</td></tr><tr><td><strong>extern</strong></td><td>File/global<br><br>Until the program exists in the memory</td><td>0</td><td>Data segment</td><td>Declares a variable that’s defined elsewhere; used for sharing globals across files.</td></tr></tbody></table>
-
-Now you can see why the `NAME_BUFF` wasn't stored in the `.data` segment, because it was never meant to be.
+Now you can see why `NAME_BUFF` wasn't stored in the `.data` section, because it was never meant to be.
 
 * The `.data` section hold static/globals which are already initialized in the program.
 * The `.bss` section hold static/globals which are uninitialized in the program and reserve memory in the heap.
-
-***
-
-You may still ask _why the variables are stored on the stack by default?_ And the answer to it is quite simple.
-
-* _For a detailed answer, you can visit this article which explores the whole idea behind_ [_stack_](../approaches-to-memory-management/stack.md)_._
-* Functions go on the stack in the form of stack frame. And every thing related to that function is scoped to it. A variable declared in that function is scoped to that function. And it should be accessible until that stack frame exist. This you can't achieve with heap. That's why `NAME_BUFF` goes on the stack, because they way we expect to manage it aligns perfect with the idea of stack.
 
 ## How the format specifier exist here?
 
