@@ -47,4 +47,4 @@ You may ask why the default storage class stores variables on stack. What's the 
 * In simple words, each function call gets a stack frame in the stack region for that process.
 * These frames are stacked over each other. You would not appreciate a function accessing a variable defined in another function without receiving it in its own arguments.
 * Those rights are enforced by stack frames and that is why the `auto` storage class or the default storage class makes the variables inside a function call or block stack allocated because it protects them.
-* For a more deep dive, explore the article where I have discussed stack as a memory management approach. [Link](../approaches-to-memory-management/stack.md).
+* For a more deep dive, explore the article where I have discussed stack as a memory management approach. [Link](../understanding-x64-assembly/stack.md).

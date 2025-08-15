@@ -25,7 +25,9 @@ And if you flip the address space, you get an upward growing stack. But the addr
 
 ***
 
-_**The whole addressable memory is not managed with the idea stack. There are multiple techniques for multiple purposes.**_
+_**The whole addressable memory is not managed with stack. There are multiple techniques for multiple purposes.**_
+
+## How stack managed memory?
 
 ## What are some places where stack is irreplaceable?
 
@@ -33,16 +35,25 @@ This section would effectively explore what the stack actually has to offer.
 
 ### Argument Management In Variable Length Functions
 
-Functions like `printf` expect multiple arguments. Stack can do this flawlessly.&#x20;
+Functions like `printf` expect multiple arguments. Managing the state of those arguments is a pain if you don't use stack.
 
-### Nested / Recursive Function Calls
+If you use stack, its fairly straight forward.
 
-If you want to explore how functions exist at low level and how recursion is managed at low level, you can checkout these two articles:
+### Nested /Function Calls
 
-1. [functions-in-assembly.md](../understanding-x64-assembly/functions-in-assembly.md "mention")
-2. [special-case-of-functions-recursion.md](../understanding-x64-assembly/special-case-of-functions-recursion.md "mention")
+If you want to explore how functions exist at low level, you can checkout these two articles:
 
+1. [functions-in-assembly.md](functions-in-assembly.md "mention")
+2. [special-case-of-functions-recursion.md](special-case-of-functions-recursion.md "mention")
 
+In simple words, a function manages a lot of things.
+
+1. Local variables.
+2. Global variables.
+3. Function arguments.
+4. Return context.
+
+Managing all of this is a cakewalk with stack. It is still not easy, but provided that it is the easiest when stack is used, we can safely say stack is irreplaceable when the talk is about managing function calls.&#x20;
 
 
 
