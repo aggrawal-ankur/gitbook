@@ -4,8 +4,6 @@ _**August 15 and 16, 2025**_
 
 ***
 
-## A Note Before Diving In
-
 Everyone knows stack as a data structure, and functions as reusable code blocks. So we are not going to repeat that theory.
 
 ## The basic idea behind stack
