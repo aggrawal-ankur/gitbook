@@ -6,20 +6,20 @@ _**August 15 and 16, 2025**_
 
 ## A Note Before Diving In
 
-Earlier I have tried to keep them distinct. But, in the end, I found them so tightly coupled that exploring them individually makes no sense and unnecessarily complicates things further.
+Earlier I have tried to keep them distinct. But, later I've found them tightly coupled, which made exploring them individually no sense.
 
 Therefore, we are going to explore them together.
 
-Everyone knows stack as a data structure, the push/pop operations etc. And everyone knows what are functions. So, we are not going to repeat that theory.
+Everyone knows stack as a data structure, and functions as reusable blocks of code. So we are not going to repeat that theory.
 
 ## The basic idea behind stack
 
-We know that memory is a flat-array at low level. Stack approaches that memory sequentially.
+We know that memory is a flat-array. Stack approaches that memory sequentially.
 
-Stack as a memory management technique works exactly like a stack of plates in real life.
+Stack as a memory management technique works exactly like a stack of plates.
 
-* The first plate is at the bottom and every other plate comes above it (_pop_).
-* The last plate is the top one (\*_top_).
+* The first plate is at the bottom and every other plate comes above it (_push_).
+* The last plate is the top one.
 * When we take out plates, it happens from the top, not bottom (_pop_).
 
 Why stack grows downward?
@@ -32,24 +32,27 @@ _**The whole addressable memory is not managed with stack. There are multiple te
 
 ## What makes something a function?
 
-1. A function has a universe of its own, with its memory allocation and individual function calls.
+1. A function has its own variable declarations and nested function calls.
 2. A function can receive arguments.
 3. A function has a return context.
 4. A function can return values to the callee.
 
-If something can explain functions at best, it is **code reusability**. It allows you to not repeat the code. This is what writing modular code is about, right?
+If something can explain functions at best, it's **code reusability**.
 
 ***
 
-We know that labels combined with jump statements help us achieving control flow. In case of iteration, we were able to reuse the code to some extent.
+We know that labels combined with jump statements help us achieve control flow.
 
-The problem with jump statements is that they are absolute in nature. There is no context for returning. If I have to return to the label which called this second label, the jump would be absolute, meaning, I would return to the start of the callee label, not where the callee label had called that second label.
+The problem with jump statements is that they are absolute in nature.
+
+* There is no return context.
+* If I have to return to the label which called this second label, the jump would be absolute, means, I would return to the start of the callee label, not where the callee label had called that second label.
 
 This lack of context limits code reusability, which is paramount to functions.
 
 ***
 
-Now the question is, how can we create labels such that they can emulate a function? We already know everything that makes up a function. Now the question is about finding something that can provide all of this.
+Now the question is, how can we create labels such that they can emulate a function?
 
 * And the answer is **stack**.
 
@@ -57,25 +60,22 @@ Now the question is, how can we create labels such that they can emulate a funct
 
 Primarily there are 2 parts to function management.
 
-1. Managing the scope of one function.
+1. Managing the scope of a function.
 2. Managing the scope of nested function calls.
 
 Everyone has some experience with C. You create a `main` function and call `printf` from `stdio.h` to print `Hello, World!\n`.
 
 * `printf` itself is a function, which uses other internal functions to perform the task it is meant to.
-* Just imagine how many functions there would be? Lets say, 4, including `main` and `printf`.
 
-We would not appreciate one function accessing the variables inside another function, right? But we want other functions to access a limited part of other functions, right? **That's the problem of scope**.
+We would not appreciate one function accessing the variables declared inside another function, right? But we want other functions to access a limited part of other functions, right? **That's the problem of scope**.
 
 We would like to pass a function some arguments that it depends on external functions.
 
 When we call `printf` from `main` , we would not appreciate `main` finishing before `printf`. We want it to wait, right? **That's the problem of lifecycle.**
 
-Every function would have its own variables, which we would not appreciate to be accessible out of them. **Again, a problem of scope.**
+Every function has its own variable declarations, which we would not appreciate to be accessible out of the function. **Again, a problem of scope.**
 
-When one function calls another function, we want the callee function to return to the caller function, so that it can know it has finished and can continue its execution. Maybe we want to return somethings to the caller function. **That's the problem of return context and return values.**
-
-Now that we know the pain points, its time to see how stack solves these problems.
+When one function calls another function, we want the callee function to return to the caller function, so that it can know it has finished and can continue its execution. Maybe we want to return something to the caller function. **That's the problem of return context and return values.**
 
 ### How stack fits in?
 
@@ -112,17 +112,17 @@ Can you see stack smoothly lining up with our priorities?
 
 ***
 
-I hope that this was explicit and verbose enough for this who question why only stack! I hope this gives a broader overview of stack as methodology, not a data structure.
+I hope this was explicit and verbose enough and gives a broader overview of stack as a methodology, not a data structure.
 
 ***
 
-Now the next question would be, how functions actually exist in assembly. Let's see.
+Let's see how functions actually exist in assembly.
 
 ## Introducing Procedures
 
 In simple words, a procedure is just a code symbol with jump statements and some clever usage of stack.
 
-A procedure is a named, reusable block of code that performs a specific task, can accept input (arguments), has proper memory-management and can return a result — while managing control flow and memory context safely.
+A procedure is a named, reusable block of code that performs a specific task, can accept input (arguments), has proper memory-management and returns a result.
 
 ### Anatomy Of A Procedure
 
@@ -135,7 +135,7 @@ A procedure is composed of four core components:
 
 ### Management Pointers
 
-To use stack cleverly, implement stack frames and return context, we need some general purpose registers, reserved for some specific purposes in the System V ABI.
+The clever use of stack is about implementing stack frames and return context, which requires some general purpose registers, reserved for some specific purposes in the System V ABI.
 
 <table><thead><tr><th width="153">Pointer Register</th><th>Purpose</th></tr></thead><tbody><tr><td><code>rsp</code></td><td>Stack pointer register; holds a pointer to the top of the stack.</td></tr><tr><td><code>rbp</code></td><td>Base pointer register; holds a pointer to the start of a stack frame.</td></tr><tr><td><code>rip</code></td><td>Global instruction pointer register; holds the address of the next instruction.</td></tr></tbody></table>
 
@@ -143,9 +143,9 @@ To use stack cleverly, implement stack frames and return context, we need some g
 
 A stack frame is chunk of stack that belongs to a single procedure call.
 
-When a function calls another function, a new stack frame is created and the instruction pointer register (`rip`) is adjusted by the CPU to the instructions of that stack frame.
+When a function calls another function, a new stack frame is created and the instruction pointer register (`rip`) is adjusted by the CPU to point to the instructions in the new procedure.
 
-While the upper stack frame exists, the lower one can't execute itself. Once the upper stack frame is done with its execution and it is killed, `rip` is adjusted again to continue where it left.
+While the upper stack frame exists, the lower one can't execute itself. Once the upper stack frame is done with its execution and it is killed, `rip` is adjusted again to continue where it has left.
 
 ***
 
@@ -174,7 +174,7 @@ Lets revise how user space memory is laid out.
 
 ***
 
-This is how a stack frame is laid out.
+This is the general layout of a stack frame.
 
 ```
 *---------------------*
@@ -190,7 +190,7 @@ This is how a stack frame is laid out.
 *---------------------*
 |     Empty Space     |
 |   (for alignment)   |
-|     (if needed)     |
+|     (as needed)     |
 *---------------------* <-- rsp
 ```
 
@@ -200,17 +200,13 @@ Successive frames built upon this.
 
 ### Padding
 
-Stack pointer movement is word-aligned. It means that the stack pointer always moves in units of the machine's word size, which is 64-bit for us. Therefore, every push/pop operation adjusts `rsp` by that size, keeping the stack aligned for efficient memory access.
+Stack pointer movement is word-aligned. It means, the stack pointer always moves in units of the machine's word size, which is 64-bit for us. Therefore, every push/pop operation adjusts `rsp` by that size, keeping the stack aligned for efficient memory access.
 
-If you store the default integer, which is sized 4 bytes, additional padding of 4 bytes would be required so that the next thing that comes is properly aligned.
+If you store the default integer, which is sized 4 bytes, additional padding of 4 bytes would be required so that the next thing is properly aligned.
 
 That means, allocating 1 character reserves 7 extra bytes? Yes!
 
 * Allocating 10 character reserves 80 bytes in total? Well, yes!
-
-***
-
-_Its time to get my hands on something practical, otherwise I would go insane._
 
 ***
 
@@ -223,30 +219,28 @@ A call instruction calls a procedure, which is shorthand for pushing the address
   jmp label
   ```
 
-`push` is a shorthand for **subtract and move**. A push operation translates to:
+`push` is a shorthand for:
 
 * ```nasm
   sub rsp, 8
   mov [rsp], reg/imm
   ```
 
-`pop` operation is a shorthand for **move and add**. A `pop` operations translates to:
+`pop` is a shorthand for:
 
 * ```nasm
   mov reg, [rsp]
   add rsp, 8
   ```
 
-To restore a stack frame, `leave` or `ret` like operations are used.
-
-`leave` is a shorthand for:
+`leave` restores the previous stack frame, which is a shorthand for:
 
 * ```nasm
   mov rsp, rbp
   pop rbp
   ```
 
-`ret` is a shorthand for take return address from stack and put it into `rip`:
+`ret` is a shorthand to take the return address from stack and put it into `rip`:
 
 * ```nasm
   pop rip
@@ -267,7 +261,7 @@ The prologue is about saving the base pointer for the previous stack frame and c
 
 ***
 
-You do your stuff now.
+Function body.
 
 ***
 
@@ -275,28 +269,24 @@ The epilogue is about cleanup and return.
 
 First you call `leave` instruction, which restores the old base pointer and removes the current base pointer. Now the top of the stack (`rsp`) is pointing at the return address.
 
-Then you call `ret` which pops the return address into `rip`. And we are back into the old stack frame.
+Then you call `ret` which pops the return address into `rip`. And we are back into the old stack frame or old function context.
 
 ### And what about return value?
 
-As per the ABI conventions, the return goes in the accumulator.
+As per the ABI conventions, the return goes in the accumulator (`rax`).
 
-When you are writing raw assembly, you can technically return multiple things as long as the registers don't get clobbered. When you are writing in C, only one return value is allowed.
+When you write raw assembly, you can technically return multiple things as long as you keep ABI rules in mind. When you are writing in C, only one return value is allowed.
 
 ## The Ultimate Question: Why functions In C return only one value?
 
 I always have to use heap to return values. Why C is not like Python or JavaScript where your function can return multiple values?
 
-I don't know! All I found was that the question is too broad to be answered.
+A simple value can be returned in a register. Multiple values require multiple registers, which would need complex ABI rules. Although the existing ABI conventions are no simpler but that's all I have found.
 
-A simple value can be returned in a register. Multiple values may require multiple registers, which would need complex ABI conventions. Although the existing ABI conventions are no simpler but that's all I have found.
+Although we can return a complex data structure like `struct`, but again, that only changes the scope of our question.
 
-We can return a complex data structure like struct though, but again, that only changes the scope of our question and to understand that, we have to understand how a complex data type like struct exists.
+***
 
-**For now, I am done.**
+**For now, I am done. I hope you like it.**
 
-## Conclusion
-
-And ladies and gentlemen, that's how functions and stack exist.
-
-Now I am signing off. Hope you like it. Bye.
+Now I am signing off. Bye.
