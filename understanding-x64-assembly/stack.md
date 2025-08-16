@@ -137,20 +137,160 @@ A procedure is composed of four core components:
 
 To use stack cleverly, implement stack frames and return context, we need some general purpose registers, reserved for some specific purposes in the System V ABI.
 
-<table><thead><tr><th width="175">Pointer Register</th><th>Purpose</th></tr></thead><tbody><tr><td><code>rsp</code></td><td>Stack pointer register; holds a pointer to the top of the stack.</td></tr><tr><td><code>rbp</code></td><td>Base pointer register; stack frame pointer.</td></tr><tr><td><code>rip</code></td><td>Instruction pointer register; holds the address of the next instruction.</td></tr></tbody></table>
+<table><thead><tr><th width="153">Pointer Register</th><th>Purpose</th></tr></thead><tbody><tr><td><code>rsp</code></td><td>Stack pointer register; holds a pointer to the top of the stack.</td></tr><tr><td><code>rbp</code></td><td>Base pointer register; holds a pointer to the start of a stack frame.</td></tr><tr><td><code>rip</code></td><td>Global instruction pointer register; holds the address of the next instruction.</td></tr></tbody></table>
 
+### Stack Frame
 
+A stack frame is chunk of stack that belongs to a single procedure call.
 
+When a function calls another function, a new stack frame is created and the instruction pointer register (`rip`) is adjusted by the CPU to the instructions of that stack frame.
 
+While the upper stack frame exists, the lower one can't execute itself. Once the upper stack frame is done with its execution and it is killed, `rip` is adjusted again to continue where it left.
 
+***
 
+### How is a stack frame structured?
 
+Lets revise how user space memory is laid out.
 
+```
+  User Space Memory Layout
+*--------------------------*
+|  High Memory (~128 TiB)  |
+|  *--------------*        |
+|  |   Stack (↓)  |        |
+|  *--------------*        |
+|  |  Free Space  |        |
+|  *--------------*        |
+|  |   Heap (↑)   |        |
+|  *--------------*        |
+|  |     Data     |        |
+|  *--------------*        |
+|  |     Code     |        |
+|  *--------------*        |
+|  Low Memory (0..0)       |
+*--------------------------*
+```
 
+***
 
+This is how a stack frame is laid out.
 
+```
+*---------------------*
+| Function Arugments  | <-- [rbp+16], [rbp+24], ....
+|     (beyond 6)      |
+*---------------------*
+|   Return Address    |
+| (next ins in prev.) | <-- [rbp+8]
+*---------------------*
+| Old Base Ptr Saved  | <-- [rbp]: old base pointer && <-- rbp: new base pointer
+*---------------------*
+|   Local Variables   | <-- [rbp-8], [rbp-16], ....
+*---------------------*
+|     Empty Space     |
+|   (for alignment)   |
+|     (if needed)     |
+*---------------------* <-- rsp
+```
 
+The first 6 arguments go in registers, we know that.
 
+Successive frames built upon this.
 
+### Padding
+
+Stack pointer movement is word-aligned. It means that the stack pointer always moves in units of the machine's word size, which is 64-bit for us. Therefore, every push/pop operation adjusts `rsp` by that size, keeping the stack aligned for efficient memory access.
+
+If you store the default integer, which is sized 4 bytes, additional padding of 4 bytes would be required so that the next thing that comes is properly aligned.
+
+That means, allocating 1 character reserves 7 extra bytes? Yes!
+
+* Allocating 10 character reserves 80 bytes in total? Well, yes!
+
+***
+
+_Its time to get my hands on something practical, otherwise I would go insane._
+
+***
+
+## Shorthand Operations
+
+A call instruction calls a procedure, which is shorthand for pushing the address of next instruction (`rip`) to stack and jumping to the procedure's label, like this:
+
+* ```nasm
+  push rip
+  jmp label
+  ```
+
+`push` is a shorthand for **subtract and move**. A push operation translates to:
+
+* ```nasm
+  sub rsp, 8
+  mov [rsp], reg/imm
+  ```
+
+`pop` operation is a shorthand for **move and add**. A `pop` operations translates to:
+
+* ```nasm
+  mov reg, [rsp]
+  add rsp, 8
+  ```
+
+To restore a stack frame, `leave` or `ret` like operations are used.
+
+`leave` is a shorthand for:
+
+* ```nasm
+  mov rsp, rbp
+  pop rbp
+  ```
+
+`ret` is a shorthand for take return address from stack and put it into `rip`:
+
+* ```nasm
+  pop rip
+  ```
+
+## How procedures are set up?
+
+The prologue is about saving the base pointer for the previous stack frame and create a new base pointer for another stack frame.
+
+* ```nasm
+  push rbp
+  mov rbp, rsp
+  ```
+* Lets stop for a while and understand this operation.
+* A push operation subtracts 8 bytes and stores the old base pointer there. It doesn't move `rsp` further.
+* After the old base pointer is saved, the current value of stack pointer is moved into `rbp`, which acts as the base pointer for new stack frame.
+* Suppose `rsp` is pointing at `4000`. After subtracting 8 bytes, it becomes `3992`. You dereference `3992`, you get old base pointer. And `3992` itself becomes the new base pointer. This is it.
+
+***
+
+You do your stuff now.
+
+***
+
+The epilogue is about cleanup and return.
+
+First you call `leave` instruction, which restores the old base pointer and removes the current base pointer. Now the top of the stack (`rsp`) is pointing at the return address.
+
+Then you call `ret` which pops the return address into `rip`. And we are back into the old stack frame.
 
 ## The Ultimate Question: Why functions In C return only one value?
+
+I always have to use heap to return values. Why C is not like Python or JavaScript where your function can return multiple values?
+
+I don't know! All I found was that the question is too broad to be answered.
+
+A simple value can be returned in a register. Multiple values may require multiple registers, which would need complex ABI conventions. Although the existing ABI conventions are no simpler but that's all I have found.
+
+We can return a complex data structure like struct though, but again, that only changes the scope of our question and to understand that, we have to understand how a complex data type like struct exists.
+
+**For now, I am done.**
+
+## Conclusion
+
+And ladies and gentlemen, that's how functions and stack exist.
+
+Now I am signing off. Hope you like it. Bye.
