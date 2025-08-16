@@ -6,11 +6,7 @@ _**August 15 and 16, 2025**_
 
 ## A Note Before Diving In
 
-Earlier I have tried to keep them distinct. But, later I've found them tightly coupled, which made exploring them individually no sense.
-
-Therefore, we are going to explore them together.
-
-Everyone knows stack as a data structure, and functions as reusable blocks of code. So we are not going to repeat that theory.
+Everyone knows stack as a data structure, and functions as reusable code blocks. So we are not going to repeat that theory.
 
 ## The basic idea behind stack
 
