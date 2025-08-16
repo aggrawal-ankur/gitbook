@@ -15,6 +15,7 @@
   * [Control Flow: Jump Statements](understanding-x64-assembly/control-flow-jump-statements.md)
   * [Functions && Stack: The Inseparable Two](understanding-x64-assembly/stack.md)
   * [Special Case Of Functions: Recursion](understanding-x64-assembly/special-case-of-functions-recursion.md)
+  * [The Story Of Buffers](understanding-x64-assembly/the-story-of-buffers.md)
 * [Getting Lost In C](getting-lost-in-c/README.md)
   * [Storage Classes](getting-lost-in-c/storage-classes.md)
 * [Understanding Hello, World!](understanding-hello-world/README.md)
