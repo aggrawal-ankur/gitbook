@@ -85,7 +85,7 @@ Close your eyes and imagine a stack of plates.
 * When more plates come after getting washed, they come on the top of the existing stack.
 * Plates can't be taken out from middle.
 
-Isn't stack the same thing we are looking for while managing the scope of function calls?
+Isn't this the same thing we are looking to manage the order and lifecycle of function calls?
 
 * Until the callee is not finished, caller can't execute further.
 
@@ -95,61 +95,62 @@ Close your eyes again and imagine a stack of office files, organized from high p
 
 * Each file is a case and each case has its own data collection, studies and outcomes.
 
-Isn't this the same thing that we are looking for while managing storage for individual functions?
+Isn't this the same thing we are looking for to manage storage for individual functions?
 
-* Each function has its own universe where declarations and calls reside.
+* Each function gets its own universe where its declarations and calls reside.
 
+***
 
+Close your eyes one last time and imagine adding and removing plates from the stack.
 
+Can you see stack smoothly lining up with our priorities?
 
+* There is `main` which calls `printf`. A stack frame is created. The execution control is transferred to it.
+* When `printf` is finished, the control naturally returns to `main` , without any extra managerial logic.
+* When `scanf` is called, another stack frame is created. And the execution is transferred to it. And when it finishes, the control returns back `main`.
+* Each stack frame is isolated, so the previous frame or the next frame can't mess with it.
 
+***
 
+I hope that this was explicit and verbose enough for this who question why only stack! I hope this gives a broader overview of stack as methodology, not a data structure.
 
+***
 
-
-
-
-
+Now the next question would be, how functions actually exist in assembly. Let's see.
 
 ## Introducing Procedures
 
-In simple words, a procedure is just a label with a return context.
+In simple words, a procedure is just a code symbol with jump statements and some clever usage of stack.
 
-A procedure is a named, reusable block of code that performs a specific task, can accept input (arguments), has proper memory-management and can return a result — while managing control flow and memory context safely, everything that a function needs.
+A procedure is a named, reusable block of code that performs a specific task, can accept input (arguments), has proper memory-management and can return a result — while managing control flow and memory context safely.
 
-Basically, a procedure is a disciplined version of label.
-
-## Anatomy Of A Procedure
+### Anatomy Of A Procedure
 
 A procedure is composed of four core components:
 
-1. Procedure Header (label)
-2. Prologue (entry setup)
-3. Body (the actual logic)
-4. Epilogue (cleanup and return)
+1. **Header** (label) is the name of the function.
+2. **Prologue** (entry setup) represents the clever use of stack.
+3. **Body** represents the function body.
+4. **Epilogue** (cleanup and return)
 
-## What are some places where stack is irreplaceable?
+### Management Pointers
 
-This section would effectively explore what the stack actually has to offer.
+To use stack cleverly, implement stack frames and return context, we need some general purpose registers, reserved for some specific purposes in the System V ABI.
 
-### Argument Management In Variable Length Functions
+<table><thead><tr><th width="175">Pointer Register</th><th>Purpose</th></tr></thead><tbody><tr><td><code>rsp</code></td><td>Stack pointer register; holds a pointer to the top of the stack.</td></tr><tr><td><code>rbp</code></td><td>Base pointer register; stack frame pointer.</td></tr><tr><td><code>rip</code></td><td>Instruction pointer register; holds the address of the next instruction.</td></tr></tbody></table>
 
-Functions like `printf` expect multiple arguments. Managing the state of those arguments is a pain if you don't use stack.
 
-If you use stack, its fairly straight forward.
 
-### Nested /Function Calls
 
-If you want to explore how functions exist at low level, you can checkout these two articles:
 
-1. [Broken link](broken-reference "mention")
-2. [special-case-of-functions-recursion.md](special-case-of-functions-recursion.md "mention")
 
-In simple words, a function manages a lot of things.
 
-1. Local variables.
-2. Global variables.
-3. Function arguments.
-4. Return context.
 
-Managing all of this is a cakewalk with stack. It is still not easy, but provided that it is the easiest when stack is used, we can safely say stack is irreplaceable when the talk is about managing function calls.&#x20;
+
+
+
+
+
+
+
+## The Ultimate Question: Why functions In C return only one value?
