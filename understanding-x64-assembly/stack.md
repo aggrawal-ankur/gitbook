@@ -277,6 +277,12 @@ First you call `leave` instruction, which restores the old base pointer and remo
 
 Then you call `ret` which pops the return address into `rip`. And we are back into the old stack frame.
 
+### And what about return value?
+
+As per the ABI conventions, the return goes in the accumulator.
+
+When you are writing raw assembly, you can technically return multiple things as long as the registers don't get clobbered. When you are writing in C, only one return value is allowed.
+
 ## The Ultimate Question: Why functions In C return only one value?
 
 I always have to use heap to return values. Why C is not like Python or JavaScript where your function can return multiple values?
