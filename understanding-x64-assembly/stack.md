@@ -194,13 +194,15 @@ Successive frames built upon this.
 
 ### Padding
 
-Stack pointer movement is word-aligned. It means, the stack pointer always moves in units of the machine's word size, which is 64-bit for us. Therefore, every push/pop operation adjusts `rsp` by that size, keeping the stack aligned for efficient memory access.
+Stack pointer movement is word-aligned. It means, the stack pointer always moves in units of the machine's word size, which is 64-bit for us.
 
-If you store the default integer, which is sized 4 bytes, additional padding of 4 bytes would be required so that the next thing is properly aligned.
+But, there are some special instructions (`SIMD`) which require the stack to be 16-bytes aligned.
 
-That means, allocating 1 character reserves 7 extra bytes? Yes!
+Before `call`, `rsp` is 16-bytes aligned. After the return address is pushed to the stack, it becomes 8-bytes aligned. Next we push `rbp` on stack, which makes it 16-bytes aligned again.
 
-* Allocating 10 character reserves 80 bytes in total? Well, yes!
+The total allocation on stack has to be 16-bytes aligned as well. As long as it is true, no padding is required. If not, extra space is calculated and saved.
+
+If 100 bytes of locals were required, 112 bytes are actually reserved. The 12 bytes are for 16-bytes alignment. And this is perfectly possible as we know the size of total allocation already.
 
 ***
 
