@@ -11,6 +11,7 @@
   * [Calling Conventions](understanding-x64-assembly/calling-conventions.md)
   * [ISA & Assemblers](understanding-x64-assembly/isa-and-assemblers.md)
   * [Hello, World!](understanding-x64-assembly/hello-world.md)
+  * [How Data Types In C Are Translated To Assembly?](understanding-x64-assembly/how-data-types-in-c-are-translated-to-assembly.md)
   * [Managing User Input: Memory As A Buffer](understanding-x64-assembly/taking-user-input.md)
   * [Control Flow: Jump Statements](understanding-x64-assembly/control-flow-jump-statements.md)
   * [Functions && Stack: The Inseparable Two](understanding-x64-assembly/stack.md)
