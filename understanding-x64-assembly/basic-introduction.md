@@ -6,26 +6,26 @@ Learning assembly is not similar to learning yet another programming language. T
 
 ### Memory (RAM)
 
-Imagine a room inside of a bank, full of personal-lockers. Every locker is the same.
+Imagine a room of personal-lockers inside of a bank. Every locker is the same.
 
 1. Same size and color,
 2. Same capacity,
 3. Same access mechanism, and
 4. An addressing system to uniquely identify them.
 
-The locker can contain anything, but what identifies them commonly is **valuables**. A person can keep gold or silver items in their locker while another person can keep the photos of their family. Items are different but both of them identifies as a valuable.
+A locker can contain anything, but what identifies them commonly is **valuables**. A person can keep gold or silver items while another person can keep the photos of their family. Items are different but both of them identifies as a _valuable_.
 
 Similarly, memory is a huge collection of boxes, which have common properties, like:
 
 1. They are fixed in capacity, 1 byte (or 8-bits).
 2. Each box is identified by a unique number, called **memory address**.
 
-Just as the locker itself can't identify its contents, everything is just a valuable, the same is with memory.
+Just as a locker itself can't identify its contents, everything is just a valuable, the same is with memory.
 
 * Everything is raw bytes. What defines a byte as an integer, a decimal, an emoji, an alphabet is the interpretation of that byte (or a group of bytes).
 * Previously, we have read that **context** and **interpretation** is what that rules assembly. We can see it in practice here.
 * A byte can be interpreted as digit, as an alphabet. When those same bytes are grouped, and interpreted, their meaning changes.
-* Understanding the context we are in enables the kind of interpretation that has to be performed in order to get the right meaning out of those bytes.
+* Context decides the kind of interpretation required in order to get the right meaning out of those bytes.
 
 ### Central Processing Unit
 
@@ -86,16 +86,15 @@ Mainly, there are two types of registers:
 
 ### Size/Width Of A Register
 
-The size or the width of the register depends on the architecture.
-
-"Word" is the fundamental unit of CPU. Just like m/s is for velocity.
-
-* The word is the size of the registers in a particular CPU architecture.
-* For example: 32-bit systems has a word size of 32-bits or 4-bytes.
-
 Word size is the size of the data, or the number of bits the CPU can process at once.
 
-### Wait, What Is This 32-bit && 64-bit?
+It is architecture dependent. 32-bit systems has a word size of 32-bits or 4-bytes, while 64-bit systems have 64-bit wide registers.
+
+Word is the size of the registers in a particular CPU architecture.
+
+"Word" is the fundamental unit of CPU. Just like _m/s_ is for velocity.
+
+### What is 32-bit && 64-bit?
 
 We download software. If that's a technical software, it is always mentioned whether you are at 32-bit or 64-bit OS. And there are different software for both.
 

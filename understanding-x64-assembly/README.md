@@ -1,21 +1,17 @@
-# A Guide To x64 Assembly
+# Understanding x64 Assembly
 
 To start reverse engineering, I thought it would be great to have a basic idea of assembly.
 
-These are a few articles I have written while documenting my journey.
+I learned assembly for a month in **May 2025**.
 
-These are no longer raw because the raw ones were very redundant, plus incorrect. Therefore, I have polished them.
+Later in **August 2025**, I felt the need to go deeper into it, plus, the existing notes were very redundant and wrong. So, I started polishing the existing ones and created the new ones as I progressed.
 
-I learned assembly in **May 2025** and these were written at that time only.
+Consider them a starting point, not an ultimate source of truth. They can be incorrect and I keep correcting them as I find.
 
-I have polished them in **August 2025**.
+Expect grammatical errors, typos, inconsistent formatting and inconsistent structure because grammar is not my priority right now.
 
-Consider them as a starting point, not an ultimate source of truth. They can be incorrect as well.
-
-This is the original git repository for the project, [GitHub](https://github.com/hi-anki/x86_64-assembly).
-
-Expect grammatical errors, typos, inconsistent formatting, inconsistent structure, especially in the original GitHub repository. Here, it is a lot more polished.
+I have tried to keep sentences as short as possible, which sometimes come at a cost of poor grammar.
 
 
 
-Keep learning!
+Lets dive deep into assembly.

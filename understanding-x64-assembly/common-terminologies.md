@@ -1,7 +1,7 @@
 # Common Terminologies
 
 1. **Mnemonic:** The actual CPU operation.
-2. **Operand:** The values passed to the mnemonic, which could be a register, intermediate or a memory location.
+2. **Operand:** Arguments passed to the mnemonic, which could be a register, intermediate or a memory location.
 3. **Instruction:** Something the CPU can execute. It includes both the mnemonic and the operands.
 4. **Immediate**: An immediate is a constant value, like `4`.
 5. **Label:** A name given to a particular memory address in the code.
@@ -15,4 +15,4 @@
 7. **Section:** The code is divided into multiple sections to organize the memory layout.
 8. **Comment:** Anything after a semi-colon (;) or hash (#) is ignored by the assembler and is a note for the programmer itself.
 9. **Keyword:** In high-level languages, keywords are reserved words (like if, for, while). In assembly, the idea of keywords basically overlaps with mnemonics and directives.
-10. **Symbol:** This is the most conflicting one, so lets skip it, for the time being.
+10. **Symbol:** This is the most conflicting one, so, skip it for the time being.

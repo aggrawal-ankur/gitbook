@@ -5,38 +5,35 @@
 Sections define how the memory layout at runtime would be prepared. Common sections include:
 
 1. `.text`, for code or instructions.
-2. `.data`, for initialized.
-3. `.bss`, for uninitialized, where bss stands for "Block Started by Symbol".
+2. `.data`, for initialized data.
+3. `.bss`, for uninitialized data, where bss stands for "Block Started by Symbol".
    * It refers to a label (symbol) that marks the start of a block of uninitialized data in memory.
-   * It helps in reducing the size of the object files by leaving a note for the system to allocate x bytes at runtime for this block and zero-initialize them.
-4. `.rodata`, for read-only.
+   * It helps in reducing the size of the object files by leaving a note for the system to allocate x bytes at runtime for this block and zero-initialize them. As allocating zeros at compile time makes no sense.
+4. `.rodata`, for read-only data.
 
 ## Registers (As Operands)
 
-You might have seen some old lectures of assembly where someone might be using ax, bx, cx, dx like registers, or eax, ebx, ecx, edx and the most recent ones might be using rax, rsi, rdi etc....
+If you've attempted assembly before, you might have seen old lectures using ax, bx, cx, dx like registers, or eax, ebx, ecx, edx and the most recent ones might be using rax, rsi, rdi etc....
 
 We know that x86 architecture emerged from 8086 processor, which was a 16-bit processor. The two lettered registers we see belongs to the 16-bit architecture.
 
 * These 16-bit registers also have smaller ones. They are sized 8-bits each.
 * They are called high and low. For example, `ax` has `al` and `ah`.
 
-Intel extended them to 32-bit architecture. This increased the register width and now all the registers from the previous 16-bit architecture got prefixed by an e. So, ax become eax, bx become ebx and so on. `e` stands for extended.
+Intel extended them to 32-bit. This increased the register width and all the registers from 16-bit architecture got prefixed by an e. So, ax become eax, bx become ebx and so on. `e` stands for extended.
 
-AMD extended it further to 64-bit architecture. The register width increased again and we get new registers prefixed with r, while retaining the existing ones. So, ax become rax, bx become rbx and so on. Along with this, we have got 8 new general purpose registers from r8-r15.
+AMD extended it further to 64-bit. The register width increased again and we get new registers prefixed with r, while retaining the existing ones. So, eax become rax, ebx become rbx and so on. Along with this, we have got 8 new general purpose registers from r8-r15.
 
 The newer systems are also backward compatible. This means that x86\_32 still supports x86 registers, x86\_64 still supports x86 and x86\_32.
-
-* Or, in simple terms, we can address each pair of bits.
-* `rax` is refers to complete 64-bits, `eax` refers to 32-bits, `ax` refers to 16-bits, `ah` refers to high 8-15 bits and `al` refers to 0-7 bits of the same register.
-* [This is hard to explain in words, so here is a visual diagram](https://miro.medium.com/v2/resize:fit:1100/format:webp/1*PSTOKsqSfpKLxrFEr2BY2Q.png).
-
-[A complete GPR list](https://www.google.com/imgres?q=x86%2064%20rax%20register%20anatomy\&imgurl=https%3A%2F%2Fwww.researchgate.net%2Fpublication%2F342043300%2Ffigure%2Ftbl1%2FAS%3A900496000827404%401591706385889%2FThe-sixteen-x86-64-general-purpose-registers-and-their-sub-registers.png\&imgrefurl=https%3A%2F%2Fwww.researchgate.net%2Ffigure%2FThe-sixteen-x86-64-general-purpose-registers-and-their-sub-registers_tbl1_342043300\&docid=xbGBS-ISu9YcPM\&tbnid=iHb1hi27pi33ZM\&vet=12ahUKEwjtu8-Zo4yNAxW7XmwGHfwTDG4QM3oECFoQAA..i\&w=565\&h=466\&hcb=2\&ved=2ahUKEwjtu8-Zo4yNAxW7XmwGHfwTDG4QM3oECFoQAA)
 
 * When we use rax, we are using the complete 64-bit register.
 * When we use eax, we are using the lower 32-bits of the rax register.
 * When we use ax, we are using the lower 16-bits of the rax register.
-* When we use al, we are using the lowest 8-bits of the rax register, 0-7.
 * When we use ah, we are using the 8-bits after al, 8-15.
+* When we use al, we are using the lowest 8-bits of the rax register, 0-7.
+* [a visual diagram](https://miro.medium.com/v2/resize:fit:1100/format:webp/1*PSTOKsqSfpKLxrFEr2BY2Q.png)
+
+A complete list of general purpose registers, [link](https://www.google.com/imgres?q=x86%2064%20rax%20register%20anatomy\&imgurl=https%3A%2F%2Fwww.researchgate.net%2Fpublication%2F342043300%2Ffigure%2Ftbl1%2FAS%3A900496000827404%401591706385889%2FThe-sixteen-x86-64-general-purpose-registers-and-their-sub-registers.png\&imgrefurl=https%3A%2F%2Fwww.researchgate.net%2Ffigure%2FThe-sixteen-x86-64-general-purpose-registers-and-their-sub-registers_tbl1_342043300\&docid=xbGBS-ISu9YcPM\&tbnid=iHb1hi27pi33ZM\&vet=12ahUKEwjtu8-Zo4yNAxW7XmwGHfwTDG4QM3oECFoQAA..i\&w=565\&h=466\&hcb=2\&ved=2ahUKEwjtu8-Zo4yNAxW7XmwGHfwTDG4QM3oECFoQAA).
 
 ## Data Addressing Modes
 
@@ -87,6 +84,8 @@ Linux supports hundreds of syscalls. Here are a few common ones:
 | Map memory       | `mmap`  | 9              |
 | Exit the program | `exit`  | 60             |
 
+_This is enough about syscalls. But if you want to learn more, checkout the memory management series,_ [_link_](../all-roads-to-memory/)_. But I wouldn't suggest that._
+
 ## Variables v/s Labels
 
 A variable is a container to store a value. A label is a named memory location. Both are different.
@@ -94,5 +93,3 @@ A variable is a container to store a value. A label is a named memory location. 
 A label can point to a group of instructions, a constant value, a procedure, anything. But a variable only stores some value. It can store the result of a computation, but not the instruction itself.
 
 In simple terms, every variable is a label, but every label need not to be a variable.
-
-The difference will become more apparent when we will understand control flow.

@@ -43,7 +43,7 @@ When **Linux** was created in **1991**, it relied heavily on GNU tools like **GC
 
 We are learning assembly, not syntaxes. The only thing that matters here is an assembler. Because an assembly code heavily uses assembler directives. That's it.
 
-We will write intel syntax in GAS. Because, the operand style matches the mathematical style, `LHS = RHS`.
+We will write intel syntax and use GAS. Because, the operand style matches the mathematical style, `LHS = RHS`.
 
 ```
 // Intel
@@ -82,9 +82,13 @@ What is convenience?
 * **Control flow**? Nothing is built in. You implement it using jump instructions.
 * **Loops**? You use jump statements to create them as well.
 * **I/O**? Use direct syscalls. No dedicated `printf` and `scanf`
-* **Data Structures**? **Functions**? **D I Y. DO.IT.YOURSELF**
+* **Data Structures**? **Functions**? **DO. IT. YOURSELF.**
 
 You have got every raw material, and building anything is your responsibility.
+
+***
+
+How these things exist then? We will explore each of them soon.
 
 ## Fun Fact
 
