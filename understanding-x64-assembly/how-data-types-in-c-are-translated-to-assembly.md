@@ -8,7 +8,7 @@ _**August 18, 2025**_
 
 ### Major Data Types In C
 
-<table><thead><tr><th width="311">Class</th><th>Types</th></tr></thead><tbody><tr><td>Primitive</td><td>char, int, float, double, void</td></tr><tr><td>Derived</td><td>array, pointer, function</td></tr><tr><td>User-defined (Complex)</td><td>struct, union, enum, typedef</td></tr></tbody></table>
+<table><thead><tr><th width="226">Class</th><th>Types</th></tr></thead><tbody><tr><td>Primitive</td><td>char, int, float, double, void</td></tr><tr><td>Derived</td><td>array, pointer, function</td></tr><tr><td>User-defined (Complex)</td><td>struct, union, enum, typedef</td></tr></tbody></table>
 
 `void` is only meaningful in functions and pointers.
 
@@ -69,7 +69,7 @@ _A data type is a contract between the programmer and the compiler that defines 
 
 
 
-
+VLA&#x20;
 
 
 
