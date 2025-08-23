@@ -2,33 +2,29 @@
 
 _**August 11, 2025**_
 
+***
+
+## Premise
+
+It is complicated if we dive directly. Therefore, here is a tasting.
+
 ## Physical Memory
 
-Byte-addressable: each address refers to 1-byte.
-
-Flat address space: goes from `0` to `total_bytes - 1`.
-
-Linux abstracts physical memory into pages.
-
-Physical addresses aren't directly visible. The visible addresses are in virtual memory.
-
-Virtual addresses are connected with physical address space by the Memory Management Unit (MMU).
+1. **Byte-addressable**: each address refers to 1-byte.
+2. **Flat address space**: goes from `0` to `total_bytes - 1`.
+3. Linux abstracts physical memory into **page frames**.
+4. Physical addresses aren't directly visible (and accessible). The visible addresses are in **virtual memory**.
+5. Virtual addresses are mapped into physical address space by the Memory Management Unit (MMU).
 
 ## Virtual Memory
 
-Every process is allotted a virtual address space, which gives a fake sense of owning all the memory.
-
-The addresses generally visible are from this virtual address space.
-
-MMU with the OS manages to translate these addresses to physical memory mappings.
-
-Each process gets the same address layout, which gives predictability.
-
-Processes can't directly see each other's memory.
-
-Virtual memory is divided into pages of 4 KiB.
-
-Each page in virtual memory maps to a page in physical memory or on disk (swap).
+1. Every process is allotted a virtual address space, which gives a fake sense of owning all the memory.
+2. Each process gets the same address layout, which gives predictability.
+3. The addresses generally visible are from VAS.
+4. MMU with the OS manages to translate these addresses to physical memory mappings.
+5. Processes can't directly see each other's memory.
+6. Virtual memory is divided into pages of 4 KiB (other configs also available, but 4 KiB is the most widely used).
+7. Each page in virtual memory maps to a page in physical memory.
 
 ## Address Space (or Virtual Address Space)
 
@@ -40,19 +36,20 @@ MMU with the OS manages to translate these addresses to physical memory.
 
 Virtual address space is split into _user space_ and _kernel space_.
 
-User space is where the program runs. Kernel space is where the OS runs.
+1. User space is where the program runs.
+2. Kernel space is where the OS runs.
 
-Provides isolation and privilege control.&#x20;
+This provides isolation and privilege control.
 
-Prevents accidental or malicious modification of OS memory.
+It prevents accidental or malicious modification of memory.
 
 ## Page
 
 A page is the smallest fixed-size chunk of memory that the CPU and the OS manages together.
 
-In most modern x86-64 Linux systems: 1 page = 4 KB (4096 bytes). There exist huge pages (2 MB, 1 GB), as well, but 4 KB is the baseline.
+In most modern x86-64 Linux systems: 1 page = 4 KiB (4096 bytes). There exist huge pages (2 MiB, 1 GiB) as well, but 4 KiB is the baseline.
 
-The page size is a hardware choice, not just an OS thing.
+Page size is a hardware choice, not just an OS thing.
 
 Every virtual address is a part of some page.
 

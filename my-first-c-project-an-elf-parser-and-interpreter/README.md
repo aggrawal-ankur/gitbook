@@ -1,4 +1,8 @@
-# My First C Project, An ELF Parser & Interpreter
+---
+description: This is my first C Project.
+---
+
+# Project: ELF Parser
 
 Hey, what's up?
 

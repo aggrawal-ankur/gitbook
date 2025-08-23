@@ -2,9 +2,7 @@
 hidden: true
 ---
 
-# Why Memory Is A Mess?
-
-##
+# Why Interpretation Is Important?
 
 ## Advantages Of Static Typing
 
@@ -18,8 +16,6 @@ C was designed in the early 1970s for writing **UNIX**, where performance was no
 6. Maximum control over memory, no need for garbage collection.
 
 ***
-
-
 
 It has data types for everything. But the key lies in how those data types are translated at memory level as there exist only raw bytes.
 

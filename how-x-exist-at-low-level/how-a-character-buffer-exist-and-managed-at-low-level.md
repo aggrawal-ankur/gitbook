@@ -15,11 +15,13 @@ layout:
     visible: false
 ---
 
-# How a character buffer exist and managed at low level?
+# Arrays
 
 _**August 14, 2025**_
 
 ***
+
+## NEEDS TO BE RESTRUCTURED AROUND THE TITLE
 
 ## Premise
 
@@ -127,7 +129,7 @@ Since we already know assembly, we can tell that the buffer is being stored on s
 
 * The answer is storage classes.
 * By default, every variable has `auto` storage class, which defines stack as the storage place.
-* _If you are not known to this, I have explored storage classes separately_ [_here_](../getting-lost-in-c/storage-classes.md)_._
+* _If you are not known to this, I have explored storage classes separately_ [_here_](storage-classes.md)_._
 
 Now you can see why `NAME_BUFF` wasn't stored in the `.data` section, because it was never meant to be.
 

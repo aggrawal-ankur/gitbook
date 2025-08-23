@@ -1,8 +1,8 @@
-# What's the point of having \`.c\` and \`.h\` files?
+# What are \`.h\` files?
 
 ## Why?
 
-`.c` files a re source files and `.h` files are header files.
+`.c` files are source files and `.h` files are header files.
 
 The idea is to keep declarations and definitions separate. Why? For a variety of reasons.
 
