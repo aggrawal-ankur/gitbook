@@ -162,3 +162,7 @@ It takes 3 arguments which are passed through registers.
 `syscall`, invoke the syscall.
 
 Done.
+
+## Fun Thing
+
+A hello world program written in C won't translate to such an assembly. That's a rabbit hole worth avoiding for now.

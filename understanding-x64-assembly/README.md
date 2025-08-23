@@ -8,7 +8,7 @@ Later in **August 2025**, I felt the need to go deeper into it, plus, the existi
 
 Consider them a starting point, not an ultimate source of truth. They can be incorrect and I keep correcting them as I find.
 
-Expect grammatical errors, typos, inconsistent formatting and inconsistent structure because grammar is not my priority right now.
+Expect grammatical errors, typos, inconsistent formatting and structure because grammar is not my priority right now.
 
 I have tried to keep sentences as short as possible, which sometimes come at a cost of poor grammar.
 

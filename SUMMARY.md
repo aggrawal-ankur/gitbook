@@ -1,10 +1,10 @@
 # Table of contents
 
-* [Hi 👋](README.md)
+* [Welcome To The World Of Low Level Systems](README.md)
 * [Understanding x64 Assembly](understanding-x64-assembly/README.md)
   * [The Assembly Mindset](understanding-x64-assembly/the-assembly-mindset.md)
   * [Basic Introduction](understanding-x64-assembly/basic-introduction.md)
-  * [Theoretical Introduction](understanding-x64-assembly/theoretical-introduction.md)
+  * [Theoretical Introduction && History](understanding-x64-assembly/theoretical-introduction.md)
   * [Common Terminologies](understanding-x64-assembly/common-terminologies.md)
   * [Introduction To Instructions & Company](understanding-x64-assembly/introduction-to-instructions-and-company.md)
   * [Anatomy Of An Assembly Program](understanding-x64-assembly/anatomy-of-an-assembly-program.md)
