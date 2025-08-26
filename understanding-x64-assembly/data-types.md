@@ -1,4 +1,8 @@
-# How Data Types In C Are Translated To Assembly?
+---
+description: How the illusion of data types is created?
+---
+
+# Data Types
 
 _**August 18, 2025**_
 
