@@ -48,7 +48,7 @@
     * [A Surface Level Overview Of The Differences](understanding-hello-world/static-linking-v-s-dynamic-linking/a-surface-level-overview-of-the-differences.md)
     * [Stripping ELF](understanding-hello-world/static-linking-v-s-dynamic-linking/stripping-elf.md)
     * [Use Cases](understanding-hello-world/static-linking-v-s-dynamic-linking/use-cases.md)
-* [Project: ELF Parser](my-first-c-project-an-elf-parser-and-interpreter/README.md)
+* [Project — ELF Parser](my-first-c-project-an-elf-parser-and-interpreter/README.md)
   * [Idea & Structure](my-first-c-project-an-elf-parser-and-interpreter/idea-and-structure.md)
   * [What are \`.h\` files?](my-first-c-project-an-elf-parser-and-interpreter/whats-the-point-of-having-.c-and-.h-files.md)
   * [Magic Verification](my-first-c-project-an-elf-parser-and-interpreter/magic-verification.md)
