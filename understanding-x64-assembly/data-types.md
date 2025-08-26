@@ -14,7 +14,7 @@ _**August 18, 2025**_
 
 <table><thead><tr><th width="226">Class</th><th>Types</th></tr></thead><tbody><tr><td>Primitive</td><td>char, int, float, double, void</td></tr><tr><td>Derived</td><td>array, pointer, function</td></tr><tr><td>User-defined (Complex)</td><td>struct, union, enum, typedef</td></tr></tbody></table>
 
-`void` is only meaningful in functions and pointers.
+Note: `void` is only meaningful in functions and pointers.
 
 ### How Much Do They Weigh?
 
@@ -67,13 +67,14 @@ Therefore, the size of an array is the size of the type of data it contains mult
 
 So, what are data types?
 
-_A data type is a contract between the programmer and the compiler that defines how a sequence of bits in memory should be interpreted and what operations are valid on it._
+* _A data type is a contract between the programmer and the compiler that defines how a sequence of bits in memory should be interpreted and what operations are valid on it._
 
+This is why interpretation is so important. A group of bytes can be represented in a variety of ways and each way changes the meaning. For example:
 
+* 16 bytes can be interpreted as 16 distinct characters, 4 integers or 2 doubles. And these 16/4/2 can exist as distinct variables or a part of an array of the same type.
 
+## Conclusion
 
+This is all about primitive data types.
 
-VLA&#x20;
-
-
-
+There are complex data types like enum, structure and union, which we will talk about later.

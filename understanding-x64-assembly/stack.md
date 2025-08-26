@@ -1,4 +1,4 @@
-# Functions && Stack: The Inseparable Two
+# Functions && Stack
 
 _**August 15 and 16, 2025**_
 
@@ -18,7 +18,7 @@ Stack as a memory management technique works exactly like a stack of plates.
 
 Why stack grows downward?
 
-* _Checkout the_ [_process memory layout_](../all-roads-to-memory/general-process-layout-in-virtual-memory.md) _article. It explains it the best._
+* _Checkout the_ [_process memory layout_](../all-roads-to-memory/virtual-memory-layout.md) _article. It explains it the best._
 
 ***
 

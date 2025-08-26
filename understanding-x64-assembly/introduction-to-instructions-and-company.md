@@ -1,6 +1,6 @@
-# Introduction To Instructions & Company
+# Instructions
 
-An instruction is an atomic operation that tells the CPU what to do.
+An instruction is an atomic operation that tells CPU what to do.
 
 ## Anatomy Of An Instruction
 
@@ -25,7 +25,7 @@ mov rax, 1
 
 There are hundreds of instructions in assembly. But the core ones are as follows.
 
-<table><thead><tr><th width="182">Category</th><th width="309">Purpose</th><th>Common Instructions</th></tr></thead><tbody><tr><td><strong>Data Movement</strong></td><td>Move data between register and memory.</td><td><code>mov</code>, <code>lea</code>, <code>xchg</code></td></tr><tr><td><strong>Arithmetic</strong></td><td>Mathematical operations</td><td><code>add</code>, <code>sub</code>, <code>mul</code>, <code>div</code>, <code>inc</code>, <code>dec</code></td></tr><tr><td><strong>Logic/Bitwise</strong></td><td>Logical or bit manipulation</td><td><code>and</code>, <code>or</code>, <code>xor</code>, <code>not</code>, <code>shl</code>, <code>shr</code></td></tr><tr><td><strong>Control Flow</strong></td><td>Changing execution path (conditionals and iteration)</td><td><code>jmp</code>, <code>je</code>, <code>jne</code>, <code>call</code>, <code>ret</code></td></tr><tr><td><strong>Comparison/Test</strong></td><td>Set CPU flags based on results</td><td><code>cmp</code>, <code>test</code></td></tr><tr><td><strong>Stack Operations</strong></td><td>Push and Pop</td><td><code>push</code>, <code>pop</code></td></tr><tr><td><strong>System/Interrupt</strong></td><td>Interacting with the OS or hardware</td><td><code>syscall</code>, <code>int</code></td></tr></tbody></table>
+<table><thead><tr><th width="156">Category</th><th width="309">Purpose</th><th>Common Instructions</th></tr></thead><tbody><tr><td><strong>Data Movement</strong></td><td>Move data between register and memory.</td><td><code>mov</code>, <code>lea</code>, <code>xchg</code></td></tr><tr><td><strong>Arithmetic</strong></td><td>Mathematical operations</td><td><code>add</code>, <code>sub</code>, <code>mul</code>, <code>div</code>, <code>inc</code>, <code>dec</code></td></tr><tr><td><strong>Logic/Bitwise</strong></td><td>Logical or bit manipulation</td><td><code>and</code>, <code>or</code>, <code>xor</code>, <code>not</code>, <code>shl</code>, <code>shr</code></td></tr><tr><td><strong>Control Flow</strong></td><td>Changing execution path (conditionals and iteration)</td><td><code>jmp</code>, <code>je</code>, <code>jne</code>, <code>call</code>, <code>ret</code></td></tr><tr><td><strong>Comparison/Test</strong></td><td>Set CPU flags based on results</td><td><code>cmp</code>, <code>test</code></td></tr><tr><td><strong>Stack Operations</strong></td><td>Push and Pop</td><td><code>push</code>, <code>pop</code></td></tr><tr><td><strong>System/Interrupt</strong></td><td>Interacting with the OS or hardware</td><td><code>syscall</code>, <code>int</code></td></tr></tbody></table>
 
 ## CPU Flags
 
@@ -66,7 +66,7 @@ Mathematically, it is `destination = source`.
 
 Most commonly, these operands are registers like rax, rsi etc.... But there are other options as well.
 
-1. `mov rax, rsi` <=> `rsi = rax`.
+1. `mov rax, rsi` means `rsi = rax`.
 2. `mov rax, [rsi]`: dereference the value in `rsi` and put it into `rax`.
 3. `mov [rsi], rax`: dereference the value in `rsi` and store what's inside `rax` in there.
 
