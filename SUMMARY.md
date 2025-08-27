@@ -16,6 +16,7 @@
     * [Primitive Variables](understanding-x64-assembly/taking-user-input/primitive-variables.md)
     * [Complex Variables](understanding-x64-assembly/taking-user-input/complex-variables.md)
     * [Arrays](understanding-x64-assembly/taking-user-input/how-a-character-buffer-exist-and-managed-at-low-level.md)
+  * [User Input](understanding-x64-assembly/user-input.md)
   * [A Deep Dive Into Binary Number System](understanding-x64-assembly/a-deep-dive-into-binary-number-system.md)
   * [Binary Arithmetic](understanding-x64-assembly/binary-arithmetic.md)
   * [Control Flow](understanding-x64-assembly/control-flow.md)
@@ -66,3 +67,4 @@
 * [Extras](low-level-detours/README.md)
   * [What Is Garbage Collection?](low-level-detours/what-is-garbage-collection.md)
   * [Introduction To Processes In Linux](low-level-detours/introduction-to-processes-in-linux.md)
+  * [How type qualifiers work?](low-level-detours/how-type-qualifiers-work.md)
