@@ -32,7 +32,7 @@ There are primarily 4 thing associated with a variable which are needed to manag
 3. Who can access that variable? And where that variable can be accessed from (**scope**)?
 4. Whether the variable has a default initial value when uninitialized or it will be garbage?
 
-<table><thead><tr><th width="123">Storage Class</th><th width="266">Scope &#x26;&#x26; Lifetime</th><th width="135">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized)<br><br><code>.bss</code> (if uninitialized)</td></tr><tr><td>extern</td><td>File/global<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized)<br><br><code>.bss</code> (if uninitialized)</td></tr></tbody></table>
+<table><thead><tr><th width="123">Storage Class</th><th width="266">Scope &#x26;&#x26; Lifetime</th><th width="135">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>File/global<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
 
 Every variable has a storage class associated to it, just that it is not visible.
 
@@ -103,11 +103,9 @@ The name refers to an entity **only in its scope**. Example, any declaration ins
 
 ### Final Mental Model
 
-| Scope  | Default Storage Class | Explicitly Mentioned |
-| ------ | --------------------- | -------------------- |
-| Local  | `auto`                | -                    |
-| File   | -                     | `static`             |
-| Global | `extern`              | -                    |
+<table><thead><tr><th width="115">Scope</th><th width="175">Default Storage Class</th><th width="169">Explicitly Mentioned</th><th>Storage Location</th></tr></thead><tbody><tr><td>Local</td><td><code>auto</code></td><td>-</td><td>Stack</td></tr><tr><td>File</td><td>-</td><td><code>static</code></td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>Global</td><td><code>extern</code></td><td>-</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
+
+**Note: Keep in mind, static variables are not constant variables. They can be changed. They are always zero-initialized at runtime if remained uninitialized in the program.**
 
 ### A Healthy Note
 
