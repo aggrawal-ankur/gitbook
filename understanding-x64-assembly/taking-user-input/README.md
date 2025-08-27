@@ -4,20 +4,23 @@
 
 We have one memory only, but how it is managed decides where the allocation will happen.
 
-Namely, we have `.data`, `.bss`, stack and heap.
+Namely, we have `.data`, `.bss`, stack and heap for memory allocation.
 
-* From [common-terminologies.md](common-terminologies.md "mention"), we know that `.data` is for initialized static/globals and `.bss` is for uninitialized static/globals.
+* From [common-terminologies.md](../common-terminologies.md "mention"), we know that `.data` is for initialized static/globals and `.bss` is for uninitialized static/globals.
 * We have not explored stack and heap yet, and we don't need. Just remember that heap is used in dynamic memory allocation and stack is for static memory allocation.
+* Heap is an advanced concept so we are going to avoid that for the time being.
 
-The question is, who will decide where the memory is allocated?
+***
+
+The question is, who will decide where the memory is going to be allocated?
 
 * Storage classes.
 
-## Storage Classes
+## The Solution
 
-Storage classes guide the compiler to manage the allocation of static memory.
+**Storage classes** guide the compiler to manage static memory allocation.
 
-There are primarily 4 thing associated to a variable which are needed to managed.
+There are primarily 4 thing associated with a variable which are needed to managed.
 
 1. Where in the memory the variable would be stored (**location**)?
    1. Registers?
@@ -26,7 +29,7 @@ There are primarily 4 thing associated to a variable which are needed to managed
    4. .data?
    5. .bss?
 2. How long the variable should exist and be accessible (**lifetime**)?
-3. Who can access that variable? Where that variable can be accessed from (**scope**)?
+3. Who can access that variable? And where that variable can be accessed from (**scope**)?
 4. Whether the variable has a default initial value when uninitialized or it will be garbage?
 
 <table><thead><tr><th width="129">Storage Class</th><th width="154">Scope &#x26;&#x26; Lifetime</th><th width="134">Default Value (when undeclared)</th><th width="141">Storage Location</th><th>Notes</th></tr></thead><tbody><tr><td><strong>auto</strong></td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>Stack</td><td>Default for local variables; no need to mention explicitly.</td></tr><tr><td><strong>register</strong></td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage</td><td>CPU register (if available)</td><td>Hint to store in CPU register for faster access (compiler may ignore it). Cannot take address with <code>&#x26;</code>.</td></tr><tr><td><strong>static</strong></td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized)<br><br><code>.bss</code> (if uninitialized or 0 initialized)</td><td>Local static: retains value between function calls. Global static: limits scope to file (internal linkage).</td></tr><tr><td><strong>extern</strong></td><td>File/global<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized)<br><br><code>.bss</code> (if uninitialized or 0 initialized)</td><td>Declares a variable that’s defined elsewhere; used for sharing globals across files.</td></tr></tbody></table>
@@ -35,13 +38,24 @@ You may ask why the default storage class stores variables on stack. What's the 
 
 * The answer lies in how function calls exist and managed at low level.
 * In simple words, each function call gets a stack frame in the stack region for that process.
-* These frames are stacked over each other. You would not appreciate a function accessing a variable defined in another function without receiving it in its own arguments.
-* Those rights are enforced by stack frames and that is why the `auto` storage class or the default storage class makes the variables inside a function call or block stack allocated because it protects them.
-* For a more deep dive, explore the article where I have discussed stack as a memory management approach. [Link](stack.md).
+* These frames are stacked over each other. You would not appreciate a function accessing a variable defined in another function without receiving it as "function arguments".
+* Those rights are enforced by stack frames and that is why the `auto` storage class or the default storage class makes the variables inside a **function call or block** stack allocated because it protects them.
+* For a deep dive on functions and stack, explore [stack.md](../stack.md "mention").
+
+***
+
+## Way Forward
+
+Before we get lost in the vastness of memory allocation, lets define some checkpoints.
+
+1. Initialized and uninitialized variables.
+2. Static/globals.
+3. In-program declared variables and user-input managed variables.
+4.
 
 
 
-CONTINUE FROM HERE
+
 
 
 
