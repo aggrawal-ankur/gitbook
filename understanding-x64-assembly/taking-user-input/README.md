@@ -32,7 +32,7 @@ There are primarily 4 thing associated with a variable which are needed to manag
 3. Who can access that variable? And where that variable can be accessed from (**scope**)?
 4. Whether the variable has a default initial value when uninitialized or it will be garbage?
 
-<table><thead><tr><th width="123">Storage Class</th><th width="266">Scope &#x26;&#x26; Lifetime</th><th width="135">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>File/global<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
+<table><thead><tr><th width="123">Storage Class</th><th width="220">Scope &#x26;&#x26; Lifetime</th><th width="147">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>File/global<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
 
 Every variable has a storage class associated to it, just that it is not visible.
 
@@ -105,7 +105,10 @@ The name refers to an entity **only in its scope**. Example, any declaration ins
 
 <table><thead><tr><th width="115">Scope</th><th width="175">Default Storage Class</th><th width="169">Explicitly Mentioned</th><th>Storage Location</th></tr></thead><tbody><tr><td>Local</td><td><code>auto</code></td><td>-</td><td>Stack</td></tr><tr><td>File</td><td>-</td><td><code>static</code></td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>Global</td><td><code>extern</code></td><td>-</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
 
-**Note: Keep in mind, static variables are not constant variables. They can be changed. They are always zero-initialized at runtime if remained uninitialized in the program.**
+So, what do you mean by static/global?
+
+* Static variables have file scope. Static doesn't mean there value is fixed, that is done by `const` and that's a completely different story. They are always zero-initialized at runtime if not initialized in the program.
+* Global variables have program scope.
 
 ### A Healthy Note
 
@@ -115,28 +118,11 @@ But every language follows a similar structure.
 
 ***
 
-## Way Forward
+## What's Next?
 
-Static memory allocation can be divided into these for better clarity.
+Now we understand how storage classes are paramount to memory allocation. And we are ready to understand how static memory allocation is carried out.
 
-1. [primitive-variables.md](primitive-variables.md "mention")
-2. [complex-variables.md](complex-variables.md "mention")
+For better clarity, we can divide static memory allocation into:
 
-Both of these explore:
-
-1.  Direct declaration
-
-    ```
-    int num = 40;
-    ```
-2.  User input based filling
-
-    ```
-    int num;
-    scanf("%d", &num);
-    ```
-3. Static/globals
-
-***
-
-For array, we can explore **variable length allocation** on the top of this.
+1. [primitive-types.md](primitive-types.md "mention"): char, int, float and double.
+2. [complex-types.md](complex-types.md "mention"): array, pointer, struct, union, enum and type definition.
