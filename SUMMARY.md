@@ -68,3 +68,4 @@
   * [What Is Garbage Collection?](low-level-detours/what-is-garbage-collection.md)
   * [Introduction To Processes In Linux](low-level-detours/introduction-to-processes-in-linux.md)
   * [How type qualifiers work?](low-level-detours/how-type-qualifiers-work.md)
+  * [Why rsp is 16 bytes aligned when we are on 8 bytes systems?](low-level-detours/why-rsp-is-16-bytes-aligned-when-we-are-on-8-bytes-systems.md)
