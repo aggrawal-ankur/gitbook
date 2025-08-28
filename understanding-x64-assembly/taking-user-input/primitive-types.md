@@ -451,5 +451,18 @@ Although it is clear, but there is one question, what's the purpose of `.size`? 
 
 * For example, 4 can belong to multiple casts of int, if you know `<inttypes.h>`. Which one it exactly belongs to? This metadata can be kept by using the `.size` directive.
 
+Lets talk about how scope is managed here.
+
+* The lifetime is increased by allocating memory in `.data`. But the scope is still block level. How does that work?
+* How other functions are not able to refer to it despite it being in `.data`?
+
+
+
+
+
+
+
+
+
 ***
 
