@@ -76,7 +76,6 @@ int main(void){
 
 ```c
 // another.c
-
 int global_PI = 3.14;       // extern, by default
 ```
 
@@ -128,9 +127,9 @@ Here, `ncalls` is a static variable, so, its state is retained in every function
 
 ***
 
-_Wait, if the scope is still block for static variables inside a block scope, how the lifetime is increased? Where they are declared? Stack wouldn't allow this, right?_
+_Wait, the lifetime is increased but the scope remains the same, how does that work?_
 
-* Wait for a while.
+* That is answered the best with experimentation.
 
 ## Practical View
 
@@ -158,7 +157,7 @@ Compile this source.
 
 **Expectation:** An integer is sized 4-bytes but that makes `rsp` misaligned, so, we are expecting the compiler to reserve 16 bytes on stack.
 
-**Reality:** A dried bu assembly with function prologue and epilogue. No allocation on stack.
+**Reality:** Function prologue and epilogue. No allocation on stack.
 
 ***
 
@@ -175,7 +174,7 @@ int main(void){
 
 **Expectation:** Same.
 
-**Reality:** We got an assembly to call printf, but no allocation on stack.
+**Reality:** The same. No allocation on stack.
 
 ***
 
@@ -237,9 +236,9 @@ main:
 	ret
 ```
 
-Here, we are not subtracting to allocate space. Instead, we are using `rbp` as a reference point (for the current stack frame) and subtracting 4 bytes from there. Then we are storing 45 at the 4th block (byte).
+Here, we are not subtracting to reserve space. Instead, we are using `rbp` as a reference point (for the current stack frame) and subtracting 4 bytes from there. Then we are storing 45 at the 4th block (byte).
 
-You may ask, isn't the stack misaligned here? The answer is NO.
+You may ask, isn't the stack misaligned here? NO.
 
 * We are moving `rbp` relative, not `rsp` relative. `rsp` is still 16-bytes aligned.
 * Compiler optimization, you know!
@@ -248,7 +247,7 @@ Doesn't this behavior makes it hard for accessing the value? Let's see.
 
 ***
 
-**Change:** This time we are also accessing the value.
+**Change:** Lets access the value.
 
 ```c
 #include <stdio.h>
@@ -278,7 +277,7 @@ main:
 	ret
 ```
 
-**Result:** There you go. Now it is using subtraction because there is need for it.
+**Result:** Now it is using subtraction because there is need for it.
 
 ***
 
@@ -378,8 +377,8 @@ int main(void){
 
 **Expectations:**
 
-1. An entry in `.data` section reserving 4 bytes as we are using this declaration later in the program.
-2. `printf` should give 0 in output because static/globals are zero initialized at runtime.
+1. An entry in `.bss` section reserving 4 bytes as we are using this declaration later in the program.
+2. `printf` should give 0 in output because static/globals are zero-initialized at runtime.
 
 **Curious:** Where it would be allocated?
 
@@ -412,7 +411,7 @@ main:
 * `.local` is a GAS directive which controls the visibility of `num.0`, it makes it file scoped.
 * `.comm` is a GAS directive which allocates memory in `.bss`. `num.0, 4, 4` means allocate 4 bytes for `num.0` and align the storage by 4 bytes for efficient access. 4 bytes of alignment because it is an integer.
 
-So, the allocation is indeed in `.bss` and we can further verify this with readelf if we are still unsure.
+**Conclusion:** The allocation is indeed in `.bss` , no stack is used and zero-initialized. We can further verify this with readelf if we are still unsure.
 
 ***
 
@@ -451,4 +450,6 @@ num.0:
 Although it is clear, but there is one question, what's the purpose of `.size`? It's extra bookkeeping.
 
 * For example, 4 can belong to multiple casts of int, if you know `<inttypes.h>`. Which one it exactly belongs to? This metadata can be kept by using the `.size` directive.
+
+***
 
