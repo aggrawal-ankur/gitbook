@@ -126,3 +126,217 @@ int main(){
 
 Here, `ncalls` is a static variable, so, its state is retained in every function call, instead of being allocated every single time, which is why the printf in main prints 4.
 
+## Practical View
+
+It's time for experiments.
+
+We will use this command to compile our source to assembly.
+
+```
+gcc ./main.c -S -O0 -fno-asynchronous-unwind-tables -fno-dwarf2-cfi-asm -masm=intel
+```
+
+This ensures that we see intel syntax, no optimization and no `cfi*` directives, just assembly. You can use `godbolt.org` as well.
+
+### Experiment 1
+
+```c
+#include <stdio.h>
+
+int main(void){
+  int a;
+}
+```
+
+Compile this source.
+
+**Expectation:** An integer is sized 4-bytes but that makes `rsp` misaligned, so, we are expecting the compiler to reserve 16 bytes on stack.
+
+**Reality:** A dried bu assembly with function prologue and epilogue. No allocation on stack.
+
+***
+
+**Change:** Maybe the previous program was too short. So, we have added a printf.
+
+```c
+#include <stdio.h>
+
+int main(void){
+  int a;
+  printf("Heyy.\n");
+}
+```
+
+**Expectation:** Same.
+
+**Reality:** We got an assembly to call printf, but no allocation on stack.
+
+***
+
+**Change:** Lets use this declaration somewhere. Lets take user input.
+
+```c
+#include <stdio.h>
+
+int main(void){
+  int a;
+  printf("Enter a: ");
+  scanf("%d", &a);
+}
+```
+
+**Expectation:** Same.
+
+There you go. We have it.
+
+```nasm
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 16		       ; <- Here
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+	lea	rax, -4[rbp]
+	mov	rsi, rax
+	lea	rax, .LC1[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	__isoc99_scanf@PLT
+	mov	eax, 0
+	leave
+	ret
+```
+
+***
+
+**Change:** What if we "declare + initialize", instead of user input?
+
+```c
+#include <stdio.h>
+
+int main(void){
+  int a = 45;
+}
+```
+
+```c
+main:
+	push	rbp
+	mov	rbp, rsp
+	mov	DWORD PTR -4[rbp], 45
+	mov	eax, 0
+	pop	rbp
+	ret
+```
+
+Here, we are not subtracting to allocate space. Instead, we are using `rbp` as a reference point (for the current stack frame) and subtracting 4 bytes from there. Then we are storing 45 at the 4th block (byte).
+
+You may ask, isn't the stack misaligned here? The answer is NO.
+
+* We are moving `rbp` relative, not `rsp` relative. `rsp` is still 16-bytes aligned.
+* Compiler optimization, you know!
+
+Doesn't this behavior makes it hard for accessing the value? Let's see.
+
+***
+
+**Change:** This time we are also accessing the value.
+
+```c
+#include <stdio.h>
+
+int main(void){
+  int a = 45;
+  printf("%d\n", a);
+}
+```
+
+**Expectation:** Extra work to access `a` due to this "so called optimization".
+
+```nasm
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 16
+	mov	DWORD PTR -4[rbp], 45
+	mov	eax, DWORD PTR -4[rbp]
+	mov	esi, eax
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+	mov	eax, 0
+	leave
+	ret
+```
+
+**Result:** There you go. Now it is using subtraction because there is need for it.
+
+***
+
+So, in a realistic situation, what behavior can we expect?
+
+Here is a simple (very non-realistic) program.
+
+```c
+#include <stdio.h>
+
+int main(void){
+  int num = 2;
+  
+  int inc_num;
+  printf("Increment number: ");
+  scanf("%d", &inc_num);
+
+  printf("Incremented by %d, becomes %d\n", inc_num, num+inc_num);
+}
+```
+
+It initializes one digit and takes another as input and uses both of them **generously**.
+
+This is the assembly.
+
+```c
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 16
+	mov	DWORD PTR -4[rbp], 2
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+	lea	rax, -8[rbp]
+	mov	rsi, rax
+	lea	rax, .LC1[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	__isoc99_scanf@PLT
+	mov	edx, DWORD PTR -8[rbp]
+	mov	eax, DWORD PTR -4[rbp]
+	add	edx, eax
+	mov	eax, DWORD PTR -8[rbp]
+	mov	esi, eax
+	lea	rax, .LC2[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+	mov	eax, 0
+	leave
+	ret
+```
+
+Although we are using two integers, we are still subtracting 16 bytes because now the `rsp` is 8-bytes misaligned (previously it was 12-bytes).
+
+***
+
+### Outcomes Of E-1
+
+1. Any allocation that uses default storage class for block scope goes on stack.
+2. `rsp` is subtracted 16-bytes aligned to reserve space.
+3. `rbp` is used as a stable pointer to reference allocations inside a stack frame.
+
+***
+
