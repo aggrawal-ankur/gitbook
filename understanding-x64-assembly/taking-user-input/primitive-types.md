@@ -126,6 +126,12 @@ int main(){
 
 Here, `ncalls` is a static variable, so, its state is retained in every function call, instead of being allocated every single time, which is why the printf in main prints 4.
 
+***
+
+_Wait, if the scope is still block for static variables inside a block scope, how the lifetime is increased? Where they are declared? Stack wouldn't allow this, right?_
+
+* Wait for a while.
+
 ## Practical View
 
 It's time for experiments.
@@ -335,8 +341,114 @@ Although we are using two integers, we are still subtracting 16 bytes because no
 ### Outcomes Of E-1
 
 1. Any allocation that uses default storage class for block scope goes on stack.
-2. `rsp` is subtracted 16-bytes aligned to reserve space.
-3. `rbp` is used as a stable pointer to reference allocations inside a stack frame.
+2. In case of uninitialized declarations, if the declaration is not used later in the program, the compiler has no incentive to reserve space for it.
+3. `rsp` is subtracted 16-bytes aligned to reserve space.
+4. `rbp` is used as a stable pointer to reference allocations inside a stack frame.
 
 ***
+
+### Experiment 2
+
+```c
+#include <stdio.h>
+
+int main(void){
+  static int num;
+}
+```
+
+**Expectation:** Since this declaration is **static** and **uninitialized**, we are expecting an entry in `.bss`.
+
+**Reality:** Function prologue and epilogue only.
+
+**Conclusion:** The case of "uninitialized declaration" is applicable here as well.
+
+***
+
+**Change:** Declare and Use
+
+```c
+#include <stdio.h>
+
+int main(void){
+  static int num;
+  printf("%d", num);
+}
+```
+
+**Expectations:**
+
+1. An entry in `.data` section reserving 4 bytes as we are using this declaration later in the program.
+2. `printf` should give 0 in output because static/globals are zero initialized at runtime.
+
+**Curious:** Where it would be allocated?
+
+**Reality:** It prints zero so that is verified.
+
+Lets talk about assembly.
+
+```nasm
+main:
+;prologue
+	push	rbp
+	mov	rbp, rsp
+; Preparation for printf
+	mov	eax, DWORD PTR num.0[rip]
+	mov	esi, eax
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+; epilogue
+	mov	eax, 0
+	pop	rbp
+	ret
+; Memory Allocation
+	.local	num.0
+	.comm	num.0,4,4
+```
+
+* `num.0` is the label that is for our variable `num`.
+* `.local` is a GAS directive which controls the visibility of `num.0`, it makes it file scoped.
+* `.comm` is a GAS directive which allocates memory in `.bss`. `num.0, 4, 4` means allocate 4 bytes for `num.0` and align the storage by 4 bytes for efficient access. 4 bytes of alignment because it is an integer.
+
+So, the allocation is indeed in `.bss` and we can further verify this with readelf if we are still unsure.
+
+***
+
+**Change:** Declare + Initialize
+
+```c
+#include <stdio.h>
+
+int main(void){
+  static int num = 15;
+}
+```
+
+**Expectation:** Declaration should be in `.data` as we are initializing it directly.
+
+**Reality:** Indeed.
+
+```nasm
+main:
+	push	rbp
+	mov	rbp, rsp
+	mov	eax, 0
+	pop	rbp
+	ret
+; Reserving space
+	.data
+	.align 4
+	.type	num.0, @object
+	.size	num.0, 4
+; Allocation
+num.0:
+	.long	15
+
+```
+
+Although it is clear, but there is one question, what's the purpose of `.size`? It's extra bookkeeping.
+
+* For example, 4 can belong to multiple casts of int, if you know `<inttypes.h>`. Which one it exactly belongs to? This metadata can be kept by using the `.size` directive.
 
