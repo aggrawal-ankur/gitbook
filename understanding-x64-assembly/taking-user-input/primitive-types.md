@@ -1,5 +1,9 @@
 # Primitive Types
 
+_**27, 28, 29 August 2025**_
+
+***
+
 ## Note
 
 We have 4 primitive data types: `char`, `int`, `float`, `double`. But we will talk only about `char` and `int`. The same rules apply to `float` and `double` .
@@ -143,7 +147,7 @@ gcc ./main.c -S -O0 -fno-asynchronous-unwind-tables -fno-dwarf2-cfi-asm -masm=in
 
 This ensures that we see intel syntax, no optimization and no `cfi*` directives, just assembly. You can use `godbolt.org` as well.
 
-### Experiment 1
+### Experiment 1: Function scope and default storage class
 
 ```c
 #include <stdio.h>
@@ -346,117 +350,177 @@ Although we are using two integers, we are still subtracting 16 bytes because no
 
 ***
 
-### Experiment 2
+### Experiment 2: Outside function scope and default storage class
+
+**Note: I am using** `PI` **as an example but declaring it as an integer, which is obviously wrong. So, in assembly, you will see** `3` **not** `3.14`**. But that doesn't create any problem.**
 
 ```c
 #include <stdio.h>
 
-int main(void){
-  static int num;
-}
+int PI;
+
+int main(void){}
 ```
 
-**Expectation:** Since this declaration is **static** and **uninitialized**, we are expecting an entry in `.bss`.
+**Expectation:** Since it is uninitialized, it should be zero-allocated at runtime and declared in `.bss`.
 
-**Reality:** Function prologue and epilogue only.
+**Reality:** Indeed.
 
-**Conclusion:** The case of "uninitialized declaration" is applicable here as well.
+```nasm
+	.text
+	.globl	PI
+	.bss
+	.align 4
+	.type	PI, @object
+	.size	PI, 4
+PI:
+	.zero	4
+```
+
+We can use readelf to check its linkage.
+
+```bash
+$ readelf ./out --symbols | grep PI
+
+31: 0000000000004014     4 OBJECT  GLOBAL DEFAULT   25 PI
+```
+
+* It is global (external).
 
 ***
 
-**Change:** Declare and Use
+**Change:** Initialize it.
+
+```c
+#include <stdio.h>
+
+int PI = 3.14;
+
+int main(void){}
+```
+
+**Expectation:** Now the declaration should be in `.data`.
+
+**Reality:** Indeed.
+
+```nasm
+	.text
+	.globl	PI
+	.data
+	.align 4
+	.type	PI, @object
+	.size	PI, 4
+PI:
+	.long	3
+```
+
+### **Outcomes Of E-2**
+
+1. A global declaration always exist.
+2. They have external linkage.
+
+***
+
+### Experiment 3: Outside function scope and \`static\` class
+
+```c
+#include <stdio.h>
+
+static int PI;
+
+int main(void){}
+```
+
+**Expectation:** Internal linkage and a declaration in `.bss`.
+
+**Reality:** Indeed.
+
+```nasm
+	.text
+	.local	PI
+	.comm	PI,4,4
+```
+
+You might find it different from previous ones. There is no `PI:` as a label. And right now (29 August 2025), I have no answer for that.
+
+***
+
+```c
+#include <stdio.h>
+
+static int PI = 3.14;
+
+int main(void){}
+```
+
+**Expectation:** In `.bss`.
+
+**Reality:** Indeed.
+
+```nasm
+	.data
+	.align 4
+	.type	PI, @object
+	.size	PI, 4
+PI:
+	.long	3
+```
+
+***
+
+### The Final Boss; Experiment 4: Function scope + \`static\`
 
 ```c
 #include <stdio.h>
 
 int main(void){
   static int num;
-  printf("%d", num);
 }
 ```
 
-**Expectations:**
+**Expectation:** In `.bss`.
 
-1. An entry in `.bss` section reserving 4 bytes as we are using this declaration later in the program.
-2. `printf` should give 0 in output because static/globals are zero-initialized at runtime.
-
-**Curious:** Where it would be allocated?
-
-**Reality:** It prints zero so that is verified.
-
-Lets talk about assembly.
+**Reality:** Indeed.
 
 ```nasm
-main:
-;prologue
-	push	rbp
-	mov	rbp, rsp
-; Preparation for printf
-	mov	eax, DWORD PTR num.0[rip]
-	mov	esi, eax
-	lea	rax, .LC0[rip]
-	mov	rdi, rax
-	mov	eax, 0
-	call	printf@PLT
-; epilogue
-	mov	eax, 0
-	pop	rbp
-	ret
-; Memory Allocation
-	.local	num.0
-	.comm	num.0,4,4
+    .local   num.0
+    .comm    num.0,4,4
 ```
+
+***
+
+```c
+#include <stdio.h>
+
+int main(void){
+  static int num = 45;
+}
+```
+
+**Expectation:** In `.data`.
+
+**Reality:** Indeed.
+
+```nasm
+	.data
+	.align 4
+	.type	num.0, @object
+	.size	num.0, 4
+num.0:
+	.long	45
+```
+
+***
+
+Lets analyze what is happening here.
 
 * `num.0` is the label that is for our variable `num`.
 * `.local` is a GAS directive which controls the visibility of `num.0`, it makes it file scoped.
 * `.comm` is a GAS directive which allocates memory in `.bss`. `num.0, 4, 4` means allocate 4 bytes for `num.0` and align the storage by 4 bytes for efficient access. 4 bytes of alignment because it is an integer.
 
-**Conclusion:** The allocation is indeed in `.bss` , no stack is used and zero-initialized. We can further verify this with readelf if we are still unsure.
-
 ***
 
-**Change:** Declare + Initialize
-
-```c
-#include <stdio.h>
-
-int main(void){
-  static int num = 15;
-}
-```
-
-**Expectation:** Declaration should be in `.data` as we are initializing it directly.
-
-**Reality:** Indeed.
-
-```nasm
-main:
-	push	rbp
-	mov	rbp, rsp
-	mov	eax, 0
-	pop	rbp
-	ret
-; Reserving space
-	.data
-	.align 4
-	.type	num.0, @object
-	.size	num.0, 4
-; Allocation
-num.0:
-	.long	15
-
-```
-
-Although it is clear, but there is one question, what's the purpose of `.size`? It's extra bookkeeping.
-
-* For example, 4 can belong to multiple casts of int, if you know `<inttypes.h>`. Which one it exactly belongs to? This metadata can be kept by using the `.size` directive.
-
-Lets talk about how scope is managed here.
-
-* The lifetime is increased by allocating memory in `.data`. But the scope is still block level. How does that work?
-* How other functions are not able to refer to it despite it being in `.data`?
-
-
+The biggest mystery here is how the lifetime is increased but the scope is still block level?
 
 
 
