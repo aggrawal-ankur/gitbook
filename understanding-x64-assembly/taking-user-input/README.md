@@ -149,7 +149,7 @@ If you use `readelf` and inspect the ELF structure of a binary, either you are g
 
 ### Final Mental Model
 
-<table><thead><tr><th width="115">Scope</th><th width="175">Default Storage Class</th><th width="169">Explicitly Mentioned</th><th>Storage Location</th></tr></thead><tbody><tr><td>Block</td><td><code>auto</code></td><td>-</td><td>Stack</td></tr><tr><td>Block</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td></tr><tr><td>File</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td></tr><tr><td>Global</td><td><code>extern</code></td><td>-</td><td><code>.data/.bss</code></td></tr></tbody></table>
+<table><thead><tr><th width="94">Scope</th><th width="156">Default Storage Class</th><th width="147">Explicitly Mentioned</th><th width="145">Storage Location</th><th>Lifetime</th></tr></thead><tbody><tr><td>Block</td><td><code>auto</code></td><td>-</td><td>Stack</td><td>Block</td></tr><tr><td>Block</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td><td>Until the program dies</td></tr><tr><td>File</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td><td>Until the program dies</td></tr><tr><td>Global</td><td><code>extern</code></td><td>-</td><td><code>.data/.bss</code></td><td>Until the program dies</td></tr></tbody></table>
 
 ## What's Next?
 

@@ -448,37 +448,34 @@ num.0:
 
 ***
 
-Lets analyze what is happening here.
+The question is, how the lifetime is increased but the scope remains block level? **This is the only edge case here.**
 
-* `num.0` is the label that is for our variable `num`.
-* `.local` is a GAS directive which controls the visibility of `num.0`, it makes it file scoped.
-* `.comm` is a GAS directive which allocates memory in `.bss`. `num.0, 4, 4` means allocate 4 bytes for `num.0` and align the storage by 4 bytes for efficient access. 4 bytes of alignment because it is an integer.
+* The answer is, there is no such "program lifespan but block scope" thing. It's an abstraction.
+* The only true scopes are program level scope, file level scope and block level scope.
+* Just as "no CGI" is just "very good CGI", this is also a perfectly crafted illusion. And the best part is, we can break that illusion ourselves.
+
+Let's try to find the answer.
 
 ***
 
-The biggest mystery here is how the lifetime is increased but the scope remains block level?
-
 To understand this, we have to understand how scopes are enforced.
 
-If you were _not zoning out_ so far, you could have noticed that
+The way `.local` and `.global` directives work is that they affect the symbol's "linker visibility" attribute. `.global` makes the symbol visible to the linker while `.local` doesn't.
 
-* Implementing block scope via `auto` class and program scope via `extern` class is very straightforward. Either you completely hide something, or you make it visible.
-* When you use static with a global variable, you make it file scope. And this file level scope is directly managed by assembly. You use `.lcomm` or `.local` directly to enforce this strictness.
-* The problem comes when you try to make a block scope (`auto`) declaration static. The declaration is happening inside `.data/.bss` but the scope is limited to the block.
-
-The way `.local` and `.global` directives work is that they affect the linker visibility attribute for a symbol. `.global` makes the symbol visible to the linker while `.local` doesn't.
-
-* But the thing is that "no linkage" and "internal linkage" both uses `LOCAL` as visibility to the linker and that is perfectly normal.
-* You don't want a block scope symbol and a file scope symbol to be available outside of the current translation unit (a name for extended source code file).
-* Therefore, if you were given just an unstripped binary (because stripped ones don't have `.symtab`), you can't tell if a `LOCAL` symbol is a file scope static or a block scope static.
+* You don't want a block scope symbol and a file scope symbol to be available outside of the current translation unit, which is why "no linkage" and "internal linkage" both uses `LOCAL` as visibility.
+* If you were given an unstripped binary (because stripped ones don't have `.symtab`), you can't tell if a `LOCAL` symbol is a file scope static or a block scope static.
 
 Making a block scope declaration static is a rule enforced at compilation level.
 
-* First, the code undergoes lexical analysis. Then abstract syntax tree formation. Next comes semantic analysis, here happens the magic.
+* First, the code undergoes lexical analysis. Then abstract syntax tree formation. Next comes semantic analysis, where the magic happens.
 * An internal symbol table is created using the AST, and that table enforces this rule. It sees that this variable requires allocation in static storage but the scope has to be kept block. So, it doesn't explicitly allows any code that refers to that declaration because it is not available outside.
-* But, once you cross compilation and reach assembly, there is no such thing. If you want, you can mess with it. There is no "program lifespan but block scope" thing at assembly. And we can try that out.
+* But once you're done with compilation and reach assembly, there is no such thing. And we are going to prove this point.
 
-Take this example we have seen before:
+There are 2 ways in which we can prove out point and we are going to explore both. Although it's not necessary as the approach remains the same, but there is a very-very small difference which we must be aware of.
+
+#### Method 1
+
+Take this example we have used before:
 
 ```c
 #include <stdio.h>
@@ -508,7 +505,7 @@ int main(){
 }
 ```
 
-Lets see assembly.
+This is the assembly.
 
 ```nasm
 	.text
@@ -623,12 +620,12 @@ main:
 	.comm	ncalls.0,4,4
 ```
 
-This follows the usual flow. I have added comments to understand the flow better.
+I have added comments to understand the flow better.
 
 * Every `printf` is taking 2 arguments. First one is the %d string and the second one is the actual integer to be printed.
-* The second argument is the return value of the `sq` function, via `eax`.
+* The second argument is the return value from the `sq` function call, via `eax`.
 
-If you are using VS Code, you can select all the `mov esi, eax` lines and replace them with `mov, esi, DWORD PTR ncalls.0[rip]`, we will see a magic. The assembly is perfectly assembled and linked. And the output is completely transformed.
+If you are using VS Code, you can select all the `mov esi, eax` lines and replace them with `mov, esi, DWORD PTR ncalls.0[rip]` to see a magic. The assembly is perfectly assembled and linked. And the output is completely transformed. But we shouldn't be "allowed" to access `ncalls`, right?
 
 ```bash
 gcc main.s -o out
@@ -645,6 +642,20 @@ gcc main.s -o out
 
 Voila. This proves our point that **lifetime + block scope** is just a rule, not a hardly imposed impossibility, which is why it can be bypassed at assembly level.
 
+#### Method 2
+
+
+
+Via hidden symbols
+
+
+
+
+
+
+
+
+
 ***
 
 IDE like VS Code have language server protocol, which is basically a real time parser of the source code and verifies it against the language rules. If there are anomalies, it flags them. There is nothing magical.
@@ -653,6 +664,6 @@ IDE like VS Code have language server protocol, which is basically a real time p
 
 ## Conclusion
 
-SO, what's the gain? If you have not lost your sanity yet, you can clearly observe that we have just seen how storage class and the concept is applied. We have not studied anything other than the two tables mentioned in the previous article. We have just tried to go as deeper as we can to prove the point even further.
+SO, what's the gain? If you have not lost your sanity yet, you can clearly observe that we have just seen how storage class, scope and linkage works. We have not studied anything other than the two tables mentioned in the previous article. We have just tried to go as deeper as we can to prove the point.
 
-It is overwhelming and I won't deny that. Take your time. Enjoy.
+It is overwhelming and I won't deny that. Take your time ans enjoy.

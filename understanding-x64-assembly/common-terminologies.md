@@ -8,6 +8,7 @@
    * It is made up of letters, digits and underscore.
    * A label must start with a letter or underscore.
    * A label must end with a colon.
+   * There are `.` prepended labels which are used to make a label available to its parent and hides from others. _Just don't think about it for now, it's a complicated thing._
    * It holds meaning for the assembler (`GAS`, in our case), not the CPU. The assembler replaces the labels with virtual addresses or offsets.
 6. **Directive (or Pseudo-Instruction):** Instructions defined for the assembler program, not the CPU.
    * They begin with a period (`.`).

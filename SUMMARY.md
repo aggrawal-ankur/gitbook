@@ -11,6 +11,7 @@
   * [Calling Conventions](understanding-x64-assembly/calling-conventions.md)
   * [ISA & Assemblers](understanding-x64-assembly/isa-and-assemblers.md)
   * [Hello, World!](understanding-x64-assembly/hello-world.md)
+  * [The Idea Behind "Invisible Symbols"](understanding-x64-assembly/the-idea-behind-invisible-symbols.md)
   * [Data Types](understanding-x64-assembly/data-types.md)
   * [Static Memory Allocation](understanding-x64-assembly/taking-user-input/README.md)
     * [Primitive Types](understanding-x64-assembly/taking-user-input/primitive-types.md)
