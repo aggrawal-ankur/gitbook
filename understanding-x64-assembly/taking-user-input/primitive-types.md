@@ -1,16 +1,18 @@
+---
+description: >-
+  We have 4 primitive data types: char, int, float, double. But we will take
+  `int` as reference. Rules are same for others.
+---
+
 # Primitive Types
 
 _**27, 28, 29, 30 August 2025**_
 
 ***
 
-## Note
-
-We have 4 primitive data types: `char`, `int`, `float`, `double`. But we will talk only about `char` and `int`. The same rules apply to `float` and `double` .
-
 ## Theoretical View
 
-Broadly, we can classify memory allocation in terms of function scope and file scope.
+We can classify memory allocation in terms of function scope and file scope.
 
 ```c
 #include <stdio.h>
@@ -29,20 +31,18 @@ int main(void){
 
 In both of these scopes, we can have:
 
-1.  Declaration + Initialization.
-
-    ```c
-    int num = 45;
-    char gen = 'M';
-    ```
-2.  Declaration only.
+1.  Declaration only.
 
     ```c
     int num;
     char gen;
     ```
+2.  Declaration + Initialization.
 
-    Here, the two locations can be populated either later in the program itself or via user-input.
+    ```c
+    int num = 45;
+    char gen = 'M';
+    ```
 
 ***
 
@@ -51,10 +51,10 @@ In both of these scopes, we can have:
 ```c
 #include <stdio.h>
 
-int PI = 3.14;            // extern, by default
-auto int PI = 3.14;       // Not allowed
-static int PI = 3.14;     // Makes the variable File Scoped.
-extern int PI = 3.14;     // Raises a warning, but no problem
+int BASE = 16;            // extern, by default
+auto int BASE = 16;       // Not allowed
+static int BASE = 16;     // Makes the variable File Scoped.
+extern int BASE = 16;     // Raises a warning as there is no need to explicitly say 'extern'
 
 int main(void);
 ```
@@ -66,21 +66,22 @@ int main(void);
 #include <stdio.h>
 
 int main(void){
-  int PI = 3.14;            // auto, by default
-  auto int PI = 3.14;
-  static int PI = 3.14;     // Lifetime is changed to "until the program exist"
-                            // Scope is still block-level
+  int BASE = 16;            // auto, by default
+  auto int BASE = 16;
 
-  extern int PI = 3.14;     // Raises error; A block scope declaration can't be made extern
+  static int BASE = 16;     // Lifetime is changed to "until the program exist"
+                            // But the scope is still block-level
 
-  // But, we can refer to an already existing variable with external linkage/global visibility
-  extern int global_PI;     // refers to the declaration in another.c
+  extern int BASE = 16;     // Raises error; A block scope declaration can't be made extern
+
+  // But we can refer to an already existing variable with external linkage/global visibility
+  extern int global_BASE;     // refers to the declaration in another.c
 }
 ```
 
 ```c
 // another.c
-int global_PI = 3.14;       // extern, by default
+int global_BASE = 16;       // extern, by default
 ```
 
 ***
@@ -91,11 +92,11 @@ int global_PI = 3.14;       // extern, by default
 #include <stdio.h>
 
 int main(void){
-  static int PI = 3.14;
+  static int BASE = 16;
 }
 ```
 
-This increases the lifetime of a variable (PI, here) but it is still block scoped. It makes the variable a "**private global**".
+This increases the lifetime of a variable but it remains block scoped. It makes the variable a "**private global**".
 
 Take this:
 
@@ -107,37 +108,36 @@ int sq(int n, int flag){
   
   if (flag != 1){
     ncalls++ ;
-    printf("sq(%d) = %d\n", n, n*n);
-    return ncalls;
+    return n*n;
   }
   if (flag == 1){
     return ncalls;
   }
-  return -1
+  return -1;
 }
 
 int main(){
-  sq(2, 0);
-  sq(3, 0);
-  sq(4, 0);
-  sq(5, 0);
-  printf("Number of calls made to square function: %d\n", sq(1, 1));
+  printf("%d\n", sq(2, 0));
+  printf("%d\n", sq(3, 0));
+  printf("%d\n", sq(4, 0));
+  printf("%d\n", sq(5, 0));
+  printf("%d\n", sq(1, 1));
 
   return 0;
 }
 ```
 
-Here, `ncalls` is a static variable, so, its state is retained in every function call, instead of being allocated every single time, which is why the printf in main prints 4.
+Here `ncalls` is a static variable, so, its state is retained in every function call, instead of being allocated every single time, which is why the last `printf` prints 4.
 
 ***
 
 _Wait, the lifetime is increased but the scope remains the same, how does that work?_
 
-* That is answered the best with experimentation.
+* This is the most complicated case and we are going to talk about it soon.
 
 ## Practical View
 
-It's time for experiments.
+Let's do some experiments to understand storage classes, the concept of scope and linkage.
 
 We will use this command to compile our source to assembly.
 
@@ -145,7 +145,7 @@ We will use this command to compile our source to assembly.
 gcc ./main.c -S -O0 -fno-asynchronous-unwind-tables -fno-dwarf2-cfi-asm -masm=intel
 ```
 
-This ensures that we see intel syntax, no optimization and no `cfi*` directives, just assembly. You can use `godbolt.org` as well.
+This ensures that we see intel syntax, no optimization and no `cfi*` directives, just pure assembly. You can use `godbolt.org` as well.
 
 ### Experiment 1: Function scope and default storage class
 
@@ -157,9 +157,7 @@ int main(void){
 }
 ```
 
-Compile this source.
-
-**Expectation:** An integer is sized 4-bytes but that makes `rsp` misaligned, so, we are expecting the compiler to reserve 16 bytes on stack.
+**Expectation:** An integer is sized 4-bytes but that makes `rsp` misaligned, so we are expecting the compiler to reserve 16 bytes on stack.
 
 **Reality:** Function prologue and epilogue. No allocation on stack.
 
@@ -172,13 +170,13 @@ Compile this source.
 
 int main(void){
   int a;
-  printf("Heyy.\n");
+  printf("Hi!\n");
 }
 ```
 
 **Expectation:** Same.
 
-**Reality:** The same. No allocation on stack.
+**Reality:** No allocation on stack.
 
 ***
 
@@ -242,16 +240,13 @@ main:
 
 Here, we are not subtracting to reserve space. Instead, we are using `rbp` as a reference point (for the current stack frame) and subtracting 4 bytes from there. Then we are storing 45 at the 4th block (byte).
 
-You may ask, isn't the stack misaligned here? NO.
+The stack is not misaligned because we are moving `rbp` relative, not `rsp` relative. `rsp` is still 16-bytes aligned.
 
-* We are moving `rbp` relative, not `rsp` relative. `rsp` is still 16-bytes aligned.
 * Compiler optimization, you know!
 
 Doesn't this behavior makes it hard for accessing the value? Let's see.
 
 ***
-
-**Change:** Lets access the value.
 
 ```c
 #include <stdio.h>
@@ -281,69 +276,13 @@ main:
 	ret
 ```
 
-**Result:** Now it is using subtraction because there is need for it.
-
-***
-
-So, in a realistic situation, what behavior can we expect?
-
-Here is a simple (very non-realistic) program.
-
-```c
-#include <stdio.h>
-
-int main(void){
-  int num = 2;
-  
-  int inc_num;
-  printf("Increment number: ");
-  scanf("%d", &inc_num);
-
-  printf("Incremented by %d, becomes %d\n", inc_num, num+inc_num);
-}
-```
-
-It initializes one digit and takes another as input and uses both of them **generously**.
-
-This is the assembly.
-
-```c
-main:
-	push	rbp
-	mov	rbp, rsp
-	sub	rsp, 16
-	mov	DWORD PTR -4[rbp], 2
-	lea	rax, .LC0[rip]
-	mov	rdi, rax
-	mov	eax, 0
-	call	printf@PLT
-	lea	rax, -8[rbp]
-	mov	rsi, rax
-	lea	rax, .LC1[rip]
-	mov	rdi, rax
-	mov	eax, 0
-	call	__isoc99_scanf@PLT
-	mov	edx, DWORD PTR -8[rbp]
-	mov	eax, DWORD PTR -4[rbp]
-	add	edx, eax
-	mov	eax, DWORD PTR -8[rbp]
-	mov	esi, eax
-	lea	rax, .LC2[rip]
-	mov	rdi, rax
-	mov	eax, 0
-	call	printf@PLT
-	mov	eax, 0
-	leave
-	ret
-```
-
-Although we are using two integers, we are still subtracting 16 bytes because now the `rsp` is 8-bytes misaligned (previously it was 12-bytes).
+**Result:** Now it is using subtraction.
 
 ***
 
 ### Outcomes Of E-1
 
-1. Any allocation that uses default storage class for block scope goes on stack.
+1. Any allocation in block scope goes on stack by default.
 2. In case of uninitialized declarations, if the declaration is not used later in the program, the compiler has no incentive to reserve space for it.
 3. `rsp` is subtracted 16-bytes aligned to reserve space.
 4. `rbp` is used as a stable pointer to reference allocations inside a stack frame.
@@ -352,40 +291,38 @@ Although we are using two integers, we are still subtracting 16 bytes because no
 
 ### Experiment 2: Outside function scope and default storage class
 
-**Note: I am using** `PI` **as an example but declaring it as an integer, which is obviously wrong. So, in assembly, you will see** `3` **not** `3.14`**. But that doesn't create any problem.**
-
 ```c
 #include <stdio.h>
 
-int PI;
+int BASE;
 
 int main(void){}
 ```
 
-**Expectation:** Since it is uninitialized, it should be zero-allocated at runtime and declared in `.bss`.
+**Expectation:** Since it is uninitialized, it should be zero-initialized at runtime and declared in `.bss`.
 
 **Reality:** Indeed.
 
 ```nasm
 	.text
-	.globl	PI
+	.globl	BASE
 	.bss
 	.align 4
-	.type	PI, @object
-	.size	PI, 4
+	.type	BASE, @object
+	.size	BASE, 4
 PI:
 	.zero	4
 ```
 
-We can use readelf to check its linkage.
+We can use readelf to check its linkage as we are not using .c multiple files so there is no other way to verify if it is "globally" available or not.
 
 ```bash
-$ readelf ./out --symbols | grep PI
+$ readelf ./out --symbols | grep BASE
 
-31: 0000000000004014     4 OBJECT  GLOBAL DEFAULT   25 PI
+31: 0000000000004014     4 OBJECT  GLOBAL DEFAULT   25 BASE
 ```
 
-* It is global (external).
+* Verified.
 
 ***
 
@@ -394,7 +331,7 @@ $ readelf ./out --symbols | grep PI
 ```c
 #include <stdio.h>
 
-int PI = 3.14;
+int BASE = 16;
 
 int main(void){}
 ```
@@ -405,19 +342,18 @@ int main(void){}
 
 ```nasm
 	.text
-	.globl	PI
+	.globl	BASE
 	.data
 	.align 4
-	.type	PI, @object
-	.size	PI, 4
+	.type	BASE, @object
+	.size	BASE, 4
 PI:
-	.long	3
+	.long	16
 ```
 
 ### **Outcomes Of E-2**
 
-1. A global declaration always exist.
-2. They have external linkage.
+A global declaration has external linkage and always exist in memory, unlike block scope declarations which require usage.
 
 ***
 
@@ -426,7 +362,7 @@ PI:
 ```c
 #include <stdio.h>
 
-static int PI;
+static int BASE;
 
 int main(void){}
 ```
@@ -436,19 +372,19 @@ int main(void){}
 **Reality:** Indeed.
 
 ```nasm
-	.text
-	.local	PI
-	.comm	PI,4,4
+.text
+.local	BASE
+.comm	BASE,4,4
 ```
 
-You might find it different from previous ones. There is no `PI:` as a label. And right now (29 August 2025), I have no answer for that.
+You might find it different from previous ones. There is no `PI:` as a label. And, as of now (29 August 2025), I have no answer for that.
 
 ***
 
 ```c
 #include <stdio.h>
 
-static int PI = 3.14;
+static int BASE = 16;
 
 int main(void){}
 ```
@@ -460,15 +396,15 @@ int main(void){}
 ```nasm
 	.data
 	.align 4
-	.type	PI, @object
-	.size	PI, 4
+	.type	BASE, @object
+	.size	BASE, 4
 PI:
-	.long	3
+	.long	16
 ```
 
 ***
 
-### The Final Boss; Experiment 4: Function scope + \`static\`
+### Experiment 4: Function scope + \`static\` :: The Final Boss
 
 ```c
 #include <stdio.h>
