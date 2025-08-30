@@ -1,6 +1,6 @@
 # Primitive Types
 
-_**27, 28, 29 August 2025**_
+_**27, 28, 29, 30 August 2025**_
 
 ***
 
@@ -572,97 +572,151 @@ int main(){
 }
 ```
 
-Lets generate the assembly.
+Lets see assembly.
 
 ```nasm
-	.text
-	.section	.rodata
-.LC0:
-	.string	"sq(%d) = %d\n"
-
-; sq() procedure
 	.text
 	.globl	sq
 	.type	sq, @function
 sq:
-; prologue
 	push	rbp
 	mov	rbp, rsp
-	sub	rsp, 16				; To push func args on stack
 
-	mov	DWORD PTR -4[rbp], edi		; arg1
-	mov	DWORD PTR -8[rbp], esi		; arg2
+	mov	DWORD PTR -4[rbp], edi			; arg1 saved on stack
+	mov	DWORD PTR -8[rbp], esi			; arg2 saved on stack
 
-	cmp	DWORD PTR -8[rbp], 1		; flag != 1 check
+	; flag != 1 check
+	cmp	DWORD PTR -8[rbp], 1
 	je	.L2
-	
+	; continue downwards if not 1
+
 	; increment ncalls
 	mov	eax, DWORD PTR ncalls.0[rip]
 	add	eax, 1
 	mov	DWORD PTR ncalls.0[rip], eax
-	
-	; square n
+
+	; setup return value
 	mov	eax, DWORD PTR -4[rbp]
 	imul	eax, eax
-	mov	edx, eax
-	mov	eax, DWORD PTR -4[rbp]
-	mov	esi, eax
-	lea	rax, .LC0[rip]
-	mov	rdi, rax
-	mov	eax, 0
-	call	printf@PLT
+	jmp	.L3															  ; jump to return Label
 
-	; return
-	mov	eax, DWORD PTR ncalls.0[rip]
-	jmp	.L3
-
-; when flag == 1
+; (flag == 1) Label
 .L2:
 	cmp	DWORD PTR -8[rbp], 1
 	jne	.L4
-	mov	eax, DWORD PTR ncalls.0[rip]	; setup eax to return ncalls
+	mov	eax, DWORD PTR ncalls.0[rip]
 	jmp	.L3
 
-; return -1;
+; setup return value == -1
 .L4:
 	mov	eax, -1
-; exit
+
+; return
 .L3:
-	leave
+	pop	rbp
 	ret
 
+; %d string for printfs
+	.section	.rodata
+.LC0:
+	.string	"%d\n"
+	.text
 	.globl	main
 	.type	main, @function
+
 main:
 	push	rbp
 	mov	rbp, rsp
+
 	mov	esi, 0
 	mov	edi, 2
-	call	sq		; sq(2, 0)
+	call	sq					; sq(2, 0)
+
+	mov	esi, eax				; arg2 for printf
+	lea	rax, .LC0[rip]
+	mov	rdi, rax				; arg1 for printf
+	mov	eax, 0
+	call	printf@PLT				; printf for sq(2, 0)
+
 	mov	esi, 0
 	mov	edi, 3
-	call	sq		; sq(3, 0)
+	call	sq					; sq(3, 0)
+
+	mov	esi, eax				; arg2 for printf
+	lea	rax, .LC0[rip]
+	mov	rdi, rax				; arg1 for printf
+	mov	eax, 0
+	call	printf@PLT				; printf for sq(3, 0)
+
 	mov	esi, 0
 	mov	edi, 4
-	call	sq		; sq(4, 0)
+	call	sq					; sq(4, 0)
+
+	mov	esi, eax				; arg2 for printf
+	lea	rax, .LC0[rip]
+	mov	rdi, rax				; arg1 for printf
+	mov	eax, 0
+	call	printf@PLT				; printf for sq(4, 0)
+
 	mov	esi, 0
 	mov	edi, 5
-	call	sq		; sq(5, 0)
+	call	sq					; sq(5, 0)
+
+	mov	esi, eax				; arg2 for printf
+	lea	rax, .LC0[rip]
+	mov	rdi, rax				; arg1 for printf
+	mov	eax, 0
+	call	printf@PLT				; printf for sq(4, 0)
+
+	mov	esi, 1
+	mov	edi, 1
+	call	sq					; sq(1, 1)
+
+	mov	esi, eax				; arg2 for printf
+	lea	rax, .LC0[rip]
+	mov	rdi, rax				; arg1 for printf
+	mov	eax, 0
+	call	printf@PLT				; printf for sq(1, 1)
+
 	mov	eax, 0
 	pop	rbp
 	ret
 
-; Our static int declaration
+; ncalls declaration
 	.local	ncalls.0
 	.comm	ncalls.0,4,4
 ```
 
+This follows the usual flow. I have added comments to understand the flow better.
 
+* Every `printf` is taking 2 arguments. First one is the %d string and the second one is the actual integer to be printed.
+* The second argument is the return value of the `sq` function, via `eax`.
 
+If you are using VS Code, you can select all the `mov esi, eax` lines and replace them with `mov, esi, DWORD PTR ncalls.0[rip]`, we will see a magic. The assembly is perfectly assembled and linked. And the output is completely transformed.
 
+```bash
+gcc main.s -o out
+./out
+```
 
-IDE like VS Code have language server protocol, which is basically a real time parser of source code and verifies it against the language rules. If there are anomalies, it flags them. There is nothing magical.
+```bash
+1
+2
+3
+4
+4
+```
+
+Voila. This proves our point that **lifetime + block scope** is just a rule, not a hardly imposed impossibility, which is why it can be bypassed at assembly level.
+
+***
+
+IDE like VS Code have language server protocol, which is basically a real time parser of the source code and verifies it against the language rules. If there are anomalies, it flags them. There is nothing magical.
 
 ***
 
 ## Conclusion
+
+SO, what's the gain? If you have not lost your sanity yet, you can clearly observe that we have just seen how storage class and the concept is applied. We have not studied anything other than the two tables mentioned in the previous article. We have just tried to go as deeper as we can to prove the point even further.
+
+It is overwhelming and I won't deny that. Take your time. Enjoy.
