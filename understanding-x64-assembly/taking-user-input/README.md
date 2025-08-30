@@ -137,32 +137,23 @@ int area(int r){
 }
 ```
 
-Here, `PI` has internal linkage. Both the function access the same object when referencing `PI`.
+Here, `PI` has internal linkage. Both the functions access the same object when referencing `PI`.
 
 ### No Linkage?
 
-The name refers to an entity **only in its scope**. Example, any declaration inside a function scope.
-
-### Final Mental Model
-
-<table><thead><tr><th width="115">Scope</th><th width="175">Default Storage Class</th><th width="169">Explicitly Mentioned</th><th>Storage Location</th></tr></thead><tbody><tr><td>Local</td><td><code>auto</code></td><td>-</td><td>Stack</td></tr><tr><td>File</td><td>-</td><td><code>static</code></td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>Global</td><td><code>extern</code></td><td>-</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
-
-So, what do you mean by static/global?
-
-* Static variables have file scope. Static doesn't mean there value is fixed, that is done by `const` and that's a completely different story. They are always zero-initialized at runtime if not initialized in the program.
-* Global variables have program scope.
-
-### A Healthy Note
-
-Every language is setup differently, so, every language implements the concept of **Scope** differently. What applies here is not necessary to be exact in other languages.
-
-But every language follows a similar structure.
+The name refers to an entity **only in its scope**. Example: any declaration inside a function scope.
 
 ***
 
+If you use `readelf` and inspect the ELF structure of a binary, either you are going to find `GLOBAL` linkage or `LOCAL` linkage, which are external and internal linkages respectively. There is nothing as `NO LINKAGE`. And this is the reason why understanding a block scope static is so confusing. We are going to explore that in the next write up.
+
+### Final Mental Model
+
+<table><thead><tr><th width="115">Scope</th><th width="175">Default Storage Class</th><th width="169">Explicitly Mentioned</th><th>Storage Location</th></tr></thead><tbody><tr><td>Block</td><td><code>auto</code></td><td>-</td><td>Stack</td></tr><tr><td>Block</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td></tr><tr><td>File</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td></tr><tr><td>Global</td><td><code>extern</code></td><td>-</td><td><code>.data/.bss</code></td></tr></tbody></table>
+
 ## What's Next?
 
-Now we understand how storage classes are paramount to memory allocation. And we are ready to understand how static memory allocation is carried out.
+Now we have the precursor knowledge and we are ready to explore the practical side.
 
 For better clarity, we can divide static memory allocation into:
 
