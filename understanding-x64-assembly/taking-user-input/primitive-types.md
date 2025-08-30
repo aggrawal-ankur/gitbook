@@ -520,13 +520,149 @@ Lets analyze what is happening here.
 
 ***
 
-The biggest mystery here is how the lifetime is increased but the scope is still block level?
+The biggest mystery here is how the lifetime is increased but the scope remains block level?
+
+To understand this, we have to understand how scopes are enforced.
+
+If you were _not zoning out_ so far, you could have noticed that
+
+* Implementing block scope via `auto` class and program scope via `extern` class is very straightforward. Either you completely hide something, or you make it visible.
+* When you use static with a global variable, you make it file scope. And this file level scope is directly managed by assembly. You use `.lcomm` or `.local` directly to enforce this strictness.
+* The problem comes when you try to make a block scope (`auto`) declaration static. The declaration is happening inside `.data/.bss` but the scope is limited to the block.
+
+The way `.local` and `.global` directives work is that they affect the linker visibility attribute for a symbol. `.global` makes the symbol visible to the linker while `.local` doesn't.
+
+* But the thing is that "no linkage" and "internal linkage" both uses `LOCAL` as visibility to the linker and that is perfectly normal.
+* You don't want a block scope symbol and a file scope symbol to be available outside of the current translation unit (a name for extended source code file).
+* Therefore, if you were given just an unstripped binary (because stripped ones don't have `.symtab`), you can't tell if a `LOCAL` symbol is a file scope static or a block scope static.
+
+Making a block scope declaration static is a rule enforced at compilation level.
+
+* First, the code undergoes lexical analysis. Then abstract syntax tree formation. Next comes semantic analysis, here happens the magic.
+* An internal symbol table is created using the AST, and that table enforces this rule. It sees that this variable requires allocation in static storage but the scope has to be kept block. So, it doesn't explicitly allows any code that refers to that declaration because it is not available outside.
+* But, once you cross compilation and reach assembly, there is no such thing. If you want, you can mess with it. There is no "program lifespan but block scope" thing at assembly. And we can try that out.
+
+Take this example we have seen before:
+
+```c
+#include <stdio.h>
+
+int sq(int n, int flag){
+  static int ncalls = 0;
+  
+  if (flag != 1){
+    ncalls++ ;
+    printf("sq(%d) = %d\n", n, n*n);
+    return ncalls;
+  }
+  if (flag == 1){
+    return ncalls;
+  }
+  return -1
+}
+
+int main(){
+  sq(2, 0);
+  sq(3, 0);
+  sq(4, 0);
+  sq(5, 0);
+  printf("Number of calls made to square function: %d\n", sq(1, 1));
+
+  return 0;
+}
+```
+
+Lets generate the assembly.
+
+```nasm
+	.text
+	.section	.rodata
+.LC0:
+	.string	"sq(%d) = %d\n"
+
+; sq() procedure
+	.text
+	.globl	sq
+	.type	sq, @function
+sq:
+; prologue
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 16				; To push func args on stack
+
+	mov	DWORD PTR -4[rbp], edi		; arg1
+	mov	DWORD PTR -8[rbp], esi		; arg2
+
+	cmp	DWORD PTR -8[rbp], 1		; flag != 1 check
+	je	.L2
+	
+	; increment ncalls
+	mov	eax, DWORD PTR ncalls.0[rip]
+	add	eax, 1
+	mov	DWORD PTR ncalls.0[rip], eax
+	
+	; square n
+	mov	eax, DWORD PTR -4[rbp]
+	imul	eax, eax
+	mov	edx, eax
+	mov	eax, DWORD PTR -4[rbp]
+	mov	esi, eax
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+
+	; return
+	mov	eax, DWORD PTR ncalls.0[rip]
+	jmp	.L3
+
+; when flag == 1
+.L2:
+	cmp	DWORD PTR -8[rbp], 1
+	jne	.L4
+	mov	eax, DWORD PTR ncalls.0[rip]	; setup eax to return ncalls
+	jmp	.L3
+
+; return -1;
+.L4:
+	mov	eax, -1
+; exit
+.L3:
+	leave
+	ret
+
+	.globl	main
+	.type	main, @function
+main:
+	push	rbp
+	mov	rbp, rsp
+	mov	esi, 0
+	mov	edi, 2
+	call	sq		; sq(2, 0)
+	mov	esi, 0
+	mov	edi, 3
+	call	sq		; sq(3, 0)
+	mov	esi, 0
+	mov	edi, 4
+	call	sq		; sq(4, 0)
+	mov	esi, 0
+	mov	edi, 5
+	call	sq		; sq(5, 0)
+	mov	eax, 0
+	pop	rbp
+	ret
+
+; Our static int declaration
+	.local	ncalls.0
+	.comm	ncalls.0,4,4
+```
 
 
 
 
 
-
+IDE like VS Code have language server protocol, which is basically a real time parser of source code and verifies it against the language rules. If there are anomalies, it flags them. There is nothing magical.
 
 ***
 
+## Conclusion
