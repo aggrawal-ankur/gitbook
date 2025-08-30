@@ -4,72 +4,114 @@
 
 We only have one memory, but how it is managed decides where the space would be allocated.
 
-Mainly we have `.data`, `.bss`, stack and heap for memory allocation.
+Static memory consists `.data` , `.bss`  and stack. Dynamic memory is all about heap.
 
-* From [common-terminologies.md](../common-terminologies.md "mention"), we know that `.data` is for initialized static/globals and `.bss` is for uninitialized static/globals.
-* We have not explored stack and heap yet, and we neither need to. Just remember that heap is used in dynamic memory allocation and stack is for static memory allocation.
-* Heap is an advanced thing, so we are going to avoid it.
-
-***
-
-The question is, who will decide where the memory is going to be allocated?
-
-* Storage classes.
+Who decides where the memory is allocated? It is **storage classes**.
 
 ## The Solution
 
-**Storage classes** guide the compiler to manage static memory allocation.
+_**Storage classes** guide the compiler to manage static memory allocation._
 
-There are primarily 4 thing associated with a variable which are needed to managed.
+Primarily there are 4 things associated with a variable.
 
-1. Where in the memory the variable would be stored (**location**)?
-   1. Registers?
-   2. Stack?
-   3. Heap?
-   4. .data?
-   5. .bss?
-2. How long the variable should exist and be accessible (**lifetime**)?
-3. Who can access that variable? And where that variable can be accessed from (**scope**)?
-4. Whether the variable has a default initial value when uninitialized or it will be garbage?
+1. **Location:** Where in the memory the variable would be stored? Our options: stack, registers, `.data` and `.bss`.
+2. **Lifetime:** How long the variable should exist (or be accessible)?
+3. **Scope:** Who can access that variable? And where that variable can be accessed from?
+4. **Default State:** Whether the variable has a default initial value when uninitialized or it would be garbage?
 
-<table><thead><tr><th width="123">Storage Class</th><th width="220">Scope &#x26;&#x26; Lifetime</th><th width="147">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>The block it is declared in (local)<br><br>Until the block ends</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>File/global<br><br>Until the program exists in the memory</td><td>0</td><td>.data (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
+A storage class answers everything about a variable.
 
-Every variable has a storage class associated to it, just that it is not visible.
+<table><thead><tr><th width="123">Storage Class</th><th width="220">Scope &#x26;&#x26; Lifetime</th><th width="147">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>Program scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
+
+Every variable has a storage class associated with it, but usually it is not visible.
 
 ## The Concept Of Scope
 
-Local and global scopes are kinda unclear when you do big projects with lots of source files.
+Local and global scopes are kinda unclear when you dump surface level knowledge.
 
-In simple words, scope defines where a declaration of an identifier can be referenced (used).
+_In simple words, scope defines where a declaration of an identifier can be referenced from (used)._
 
-Primarily, there are 3 scopes.
+Primarily there are 3 scopes.
 
-1. Block Scope (Local scope).
-2. Internal Linkage (File scope)
-3. External Linkage (Global scope)
+1. Block Scope
+2. File Scope
+3. Global scope
 
-### Block Scope (Local)
+### Block Scope
 
-As named, any declaration inside `{ }` is block scoped.
-
-Example: functions, if-else and loops.
+Any declaration inside a `{ }` block is block scoped. Example: functions, if-else and loops.
 
 The default storage class for block scoped declarations is `auto`.
 
+It kinda resembles with **local scope** but that is too shallow because a block itself can contain other blocks. Examples:
+
+* A function is a block that can contain an if block, which can contain another series of conditional blocks.
+* A function can contain a for loop, which may contain nested if-else blocks.
+
+All in all, local scope is not a resilient mental model for low level work. **That's my opinion.**
+
 ***
 
-What is linkage?
+### **File Scope**
 
-* If I use the same identifier name in multiple scopes or translation units (technical name for a source file), do they refer to the same object, or to different ones?
+_A declaration which is globally accessible within one translation unit only is considered to be a file scoped declaration._
+
+From build process, we know that the first step in processing a C source code is to expand preprocessing directives, where the toolchain (gcc, clang etc) just copies the headers files recursively until there is none.
+
+* _The result of this process is what a translation unit is._
+* Therefore, a TU is not something magical, just a sugar coating.
+
+For example, `pie` is a file scoped declaration.
+
+```c
+#include <stdio.h>
+
+static float pie = 3.14;
+
+int main(void);
+```
+
+**Note: Don't think about this code. The next write up would explore it in enough depth.**
+
+***
+
+### Program Scope
+
+_When a declaration exist until the program exist in memory and is available to be referenced by every translation unit, the declaration is program scoped._
+
+Example:
+
+```c
+#include <stdio.h>
+
+float pie = 3.14;
+
+int main(void);
+```
+
+**Note: Again, don't focus on the code.**
+
+***
+
+The concept of scope is language enforced, which is why you will find different implementations of "scope". What scope implies in C isn't the same with Python because both the languages work differently.
+
+How scopes behave in C is largely limited to C only and when you cross that boundary, the scenario changes. And we will see this practically as well.
+
+At assembly level, the "concept of linkage" seems to be more prominent. Lets explore that.
+
+***
+
+## The Concept Of Linkage
+
+_If I use the same identifier name in multiple scopes or translation units, do they refer to the same object, or different ones?_
+
 * This is defined by linkage.
 
-### External Linkage (Global)
+### External Linkage
 
-The name refers to the same object across the entire program (all .c files compiled together).
+The name refers to the same object across all the translation units.
 
-When a declaration is placed outside of any function, by default, it has the `extern` storage class.
-
-`extern` makes a declaration accessible to the entire project.
+When a declaration is placed outside of any function, by default, it has the `extern` storage class, which makes a declaration accessible to the entire project (all the .c files).
 
 ```c
 int PI = 3.14;
@@ -79,9 +121,9 @@ int circumference(int r) {
 }
 ```
 
-### Internal Linkage (File)
+### Internal Linkage
 
-In the current file scope, **X** refers to the same thing when called from anywhere. Example
+In this translation unit, anyone referring to **X** would be referring to the **X** declared in file scope.
 
 ```c
 static int PI = 3.14;
