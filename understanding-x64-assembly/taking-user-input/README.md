@@ -2,11 +2,11 @@
 
 ## The Problem
 
-We only have one memory, but how it is managed decides where the space would be allocated.
+We have one memory, but how it is managed decides where the space would be allocated.
 
-Static memory consists `.data` , `.bss`  and stack. Dynamic memory is all about heap.
+Static memory consists of `.data` , `.bss`  and stack. Dynamic memory is all about heap.
 
-Who decides where the memory is allocated? It is **storage classes**.
+Who decides where the memory will be allocated? It is **storage classes**.
 
 ## The Solution
 
@@ -16,18 +16,18 @@ Primarily there are 4 things associated with a variable.
 
 1. **Location:** Where in the memory the variable would be stored? Our options: stack, registers, `.data` and `.bss`.
 2. **Lifetime:** How long the variable should exist (or be accessible)?
-3. **Scope:** Who can access that variable? And where that variable can be accessed from?
-4. **Default State:** Whether the variable has a default initial value when uninitialized or it would be garbage?
+3. **Scope:** Where that variable can be accessed from?
+4. **Default State:** Whether the variable has a default initial value when uninitialized or a garbage value?
 
-A storage class answers everything about a variable.
+Storage class answers all of this.
 
-<table><thead><tr><th width="123">Storage Class</th><th width="220">Scope &#x26;&#x26; Lifetime</th><th width="147">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>Program scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
+<table><thead><tr><th width="123">Storage Class</th><th width="201">Scope &#x26;&#x26; Lifetime</th><th width="179">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>Program scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
 
 Every variable has a storage class associated with it, but usually it is not visible.
 
 ## The Concept Of Scope
 
-Local and global scopes are kinda unclear when you dump surface level knowledge.
+Local and global scopes are too shallow to understand scope.
 
 _In simple words, scope defines where a declaration of an identifier can be referenced from (used)._
 
