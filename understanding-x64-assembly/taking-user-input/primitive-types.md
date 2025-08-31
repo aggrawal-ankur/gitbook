@@ -642,6 +642,12 @@ gcc main.s -o out
 
 Voila. This proves our point that **lifetime + block scope** is just a rule, not a hardly imposed impossibility, which is why it can be bypassed at assembly level.
 
+***
+
+Those who may ask that the compiler is using stack to save the arguments temporarily but never reserving space for them, the answer is that `sq` is a leaf function for which there exist 128 bytes of **red zone** just below the `rsp`, for temporary use without reserving space.
+
+* We can use `-mno-red-zone` to remove red zone support and there would be stack allocation again.
+
 #### Method 2
 
 
@@ -659,5 +665,7 @@ IDE like VS Code have language server protocol, which is basically a real time p
 ## Conclusion
 
 Even a variable declaration is not that straightforward.
+
+This completes primitive data allocation. Next is complex data allocation.
 
 It is overwhelming and I won't deny that. Take your time and enjoy.

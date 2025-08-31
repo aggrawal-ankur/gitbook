@@ -206,6 +206,14 @@ If 100 bytes of locals were required, 112 bytes are actually reserved. The 12 by
 
 ***
 
+There are leaf functions which are functions which don't call any other functions inside them. For leaf functions, a concept called **red zone** exists in x64 System V ABI.
+
+* Red zone is a small area of memory on the stack that a function can use for temporary storage without explicitly moving the stack pointer.
+* The red zone is 128 bytes immediately below `rsp` (the stack pointer) at function entry.
+* The red zone is guaranteed safe, nothing will write there unexpectedly.
+
+***
+
 ## Shorthand Operations
 
 A call instruction calls a procedure, which is shorthand for pushing the address of next instruction (`rip`) to stack and jumping to the procedure's label, like this:
