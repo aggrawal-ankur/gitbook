@@ -650,12 +650,6 @@ Via hidden symbols
 
 
 
-
-
-
-
-
-
 ***
 
 IDE like VS Code have language server protocol, which is basically a real time parser of the source code and verifies it against the language rules. If there are anomalies, it flags them. There is nothing magical.
@@ -664,6 +658,6 @@ IDE like VS Code have language server protocol, which is basically a real time p
 
 ## Conclusion
 
-SO, what's the gain? If you have not lost your sanity yet, you can clearly observe that we have just seen how storage class, scope and linkage works. We have not studied anything other than the two tables mentioned in the previous article. We have just tried to go as deeper as we can to prove the point.
+Even a variable declaration is not that straightforward.
 
-It is overwhelming and I won't deny that. Take your time ans enjoy.
+It is overwhelming and I won't deny that. Take your time and enjoy.
