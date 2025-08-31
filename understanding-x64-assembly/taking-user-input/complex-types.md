@@ -1,12 +1,12 @@
-# Complex Variables
+# Complex Types
 
-Array, a derived data type.
+## Premise
 
-Structure and union, a derived but user-defined data type.
+We have pointer, array, structure, union, enum and type definition in complex data types.
 
-Enum, something.
+We will start by array
 
-Type definition.
+
 
 
 
