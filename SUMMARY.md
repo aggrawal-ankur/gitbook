@@ -2,7 +2,7 @@
 
 * [Welcome To The World Of Low Level Systems](README.md)
 * [Understanding x64 Assembly](understanding-x64-assembly/README.md)
-  * [The Assembly Mindset](understanding-x64-assembly/the-assembly-mindset.md)
+  * [Orientation](understanding-x64-assembly/the-assembly-mindset.md)
   * [Basic Introduction](understanding-x64-assembly/basic-introduction.md)
   * [Historical Introduction](understanding-x64-assembly/theoretical-introduction.md)
   * [Common Terminologies](understanding-x64-assembly/common-terminologies.md)
@@ -26,6 +26,7 @@
   * [Recursion (Recursive Function)](understanding-x64-assembly/special-case-of-functions-recursion.md)
   * [How Type Casting Works?](understanding-x64-assembly/how-type-casting-works.md)
   * [How Decimals Exist?](understanding-x64-assembly/how-decimals-exist.md)
+  * [SIMD Instructions](understanding-x64-assembly/simd-instructions.md)
 * [Understanding \`Hello, World!\`](understanding-hello-world/README.md)
   * [A High Level Overview Of Build Process In C](understanding-hello-world/a-high-level-overview-of-build-process-in-c.md)
   * [What is \`gcc\` ?](understanding-hello-world/lets-talk-about-gcc.md)
