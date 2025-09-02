@@ -244,7 +244,7 @@ What makes VLA different is that you have to calculate the total bytes required 
 
 Since `n` is not known beforehand, we can't allocate stack in one single instruction. We follow a structured process to allocate stack.
 
-## Steps In VLA
+### Steps In VLA
 
 1. Allocate space for things defined at compile-time.
 2. Ensure `n` is populated, either at compile-time or runtime.
@@ -428,5 +428,42 @@ If you have trouble making sense of this, remember the `ceil()` and `floor()` fu
 * Just reduce `rsp` and you are done. We just have to make memory inaccessible. That's it.
 * This is the reason why we sometimes get exactly what we expect but the next moment it vanishes because the stack memory mistakenly had that exact value from a previous process but soon someone else override it. An undefined behavior, basically.
 
+### Static && Extern VLA
 
+Both are possible but require **compile-time constant declaration**. Simply put,
 
+```c
+// Outisde Functions
+int n = 5;
+
+int arr1[n];
+static int arr2[n];
+
+func(){
+  int m = 5;
+  static int arr3[m];
+}
+```
+
+all of these are invalid.
+
+The valid ones are these:
+
+```c
+// Outisde Functions
+const int n = 5;
+
+int arr1[n];
+static int arr2[n];
+
+func(){
+  const int m = 5;
+  static int arr3[m];
+}
+```
+
+## Conclusion
+
+Nothing is simple.
+
+Have a nice day. Arrays is completed.
