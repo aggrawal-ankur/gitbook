@@ -17,7 +17,7 @@ layout:
 
 # Arrays
 
-_**1 September 2025**_
+_**1, 2 September 2025**_
 
 ***
 
@@ -25,11 +25,11 @@ _**1 September 2025**_
 
 Arrays are just consecutive blocks of memory interpreted together as a collection.
 
-To avoid mentioning red zone every time, we will use a printf to make `main` a non-leaf function.
+We use printf to make `main` a non-leaf function so that we don't get confused with red zone.
 
 ## Starters
 
-We re already familiar with these concepts, we just have to reinforce them for arrays.
+We are already familiar with these concepts, so we just have to reinforce them for arrays.
 
 ### Example 1: Declaration Only
 
@@ -42,9 +42,6 @@ int main(void){
 ```
 
 ```nasm
-	.text
-	.globl	main
-	.type	main, @function
 main:
 	push	rbp
 	mov	rbp, rsp
@@ -59,7 +56,7 @@ As expected, there is no reservation on stack.
 
 ### Example 2 - Declare and Use (No init)
 
-If you run a for loop on the previous program to print all the values, you will find garbage values.
+If you print the elements, you will find garbage values.
 
 ***
 
@@ -74,7 +71,7 @@ int main(void){
 }
 ```
 
-We need `5*4 = 20 bytes` on stack and the closest round off for 20 is 32 so 32 bytes will be reserved on stack.
+We need `5*4 = 20 bytes` on stack and the closest 16-bytes aligned round off for 20 is 32 so 32 bytes will be reserved on stack.
 
 ```nasm
 main:
@@ -117,7 +114,7 @@ main:
 
 The 3 instructions above are used to zero-initialize the 5 elements at runtime.
 
-We could have used simple `mov` instructions or even `xor` to do the same thing, why these instructions then? First of all, we can definitely do that. If we use `-mno-sse -mno-sse2 -mno-avx` flags with `gcc` , we can see that the compiler now uses `mov`.
+We could have used simply `mov` instructions or even `xor` to do the same thing, why these instructions then? First of all, we can definitely do that. If we use `-mno-sse -mno-sse2 -mno-avx` flags with `gcc` , we can see that the compiler now uses `mov`.
 
 ```nasm
 main:
@@ -144,7 +141,7 @@ main:
 	rep stosq
 ```
 
-This was completely out of the blue. And the best part is yet to come. I tried to compile the `arr[5]` code again and now I have a slightly different assembly. The number of `mov` instructions reduced.
+This was completely unexpected, isn't it? And the best part is yet to come. I tried to compile the `arr[5]` code again and now I have a slightly different assembly. The number of `mov` instructions reduced.
 
 ```c
 main:
@@ -158,7 +155,7 @@ main:
 
 Now the question is, what's happening here?
 
-* Modern compilers are optimization monsters. They have evolved for decades and now they have too many tricks under their sleeves. You close one door and another is opened.
+* Modern compilers are **optimization monsters**. They have evolved for decades and now they have too many tricks under their sleeves. You close one door and another is opened.
 * Compilers search for the most efficient way to do something, and that depends on so many parameters. This is why there is always a possibility that two identical systems in an identical environment with the same compiler can generate a different assembly. The extent of difference also varies.
 * The generated assembly has no guarantee to be the same, but the intent remains the same, always.
 
@@ -193,7 +190,7 @@ int main(void){
 }
 ```
 
-If you printf all the 5 values using a loop, you will find that 3rd and 4th positions are zeroed out. Let's see what the assembly says.
+If you printf the elements, you will find that 3rd and 4th positions are zeroed out. Let's have a look at assembly.
 
 ```nasm
 main:
@@ -214,7 +211,7 @@ main:
 
 An uninitialized array has garbage values but an initialized one should have values properly.
 
-When you initialize the array completely along the length, there is no need for zeroing out. Here, we are doing partial initialization, which is why we need to zero-initialize the array so that each element has a proper value, then we are initializing the initial positions with specified values.
+When you initialize the array completely along the length, there is no need to zero before. Here we are doing partial initialization, which is why we need to zero-initialize the array so that each element has a proper value, then we are initializing the initial from starting positions with specified values.
 
 ***
 
@@ -238,7 +235,7 @@ Both are identified as variable length allocation, even though `n` is known at c
 What makes VLA different is that you have to calculate the total bytes required to be allocated on stack.
 
 * As of now (_September 2, 2025_) I don't know why the compiler emitted code for VLA when `n` is known at compile-time.
-* Although the idea remains the same in both the cases, but I'd suggest to keep the **not known at compile-time** case in reference because it would not make any sense in the other one.
+* Although the idea remains the same in both the cases, I'd suggest to keep the "**not known at compile-time**" case in reference because it would not make any sense in the other one.
 
 ***
 
@@ -271,16 +268,7 @@ Normally integer is sized 4-bytes, so the total requirement is given by `n*4` by
 
 Now we have to calculate padding. Lets see how much padding is required for `n ∈ {1....8}`
 
-| Value of n | Bytes required | Padding Bytes |
-| ---------- | -------------- | ------------- |
-| 1          | 1\*4 = 4       | 16 - 4 = 12   |
-| 2          | 2\*4 = 8       | 16 - 8 = 8    |
-| 3          | 3\*4 = 12      | 16 - 12 = 4   |
-| 4          | 4\*4 = 16      | 16 - 16 = 0   |
-| 5          | 5\*4 = 20      | 32 - 20 = 12  |
-| 6          | 6\*4 = 24      | 32 - 24 = 8   |
-| 7          | 7\*4 = 28      | 32 - 28 = 4   |
-| 8          | 8\*4 = 32      | 32 - 32 = 0   |
+<table><thead><tr><th width="246">Value of n</th><th>Bytes required</th><th>Padding Bytes</th></tr></thead><tbody><tr><td>1</td><td>1*4 = 4</td><td>16 - 4 = 12</td></tr><tr><td>2</td><td>2*4 = 8</td><td>16 - 8 = 8</td></tr><tr><td>3</td><td>3*4 = 12</td><td>16 - 12 = 4</td></tr><tr><td>4</td><td>4*4 = 16</td><td>16 - 16 = 0</td></tr><tr><td>5</td><td>5*4 = 20</td><td>32 - 20 = 12</td></tr><tr><td>6</td><td>6*4 = 24</td><td>32 - 24 = 8</td></tr><tr><td>7</td><td>7*4 = 28</td><td>32 - 28 = 4</td></tr><tr><td>8</td><td>8*4 = 32</td><td>32 - 32 = 0</td></tr></tbody></table>
 
 This shows that the value for padding for a 4-byte integer belongs to `{0, 4, 8, 12}` . Plus, when the total bytes required are greater than the closest 16-divisible digit, we take the next 16-divisible digit.
 
@@ -318,7 +306,7 @@ int main(void){
 
 This program "efficiently" calculates how much `n*sizeof(int)` defers from a multiple of 16. And that's basically the "intent" behind variable length allocation. _We have to calculate how far we are from the next multiple of 16. Once we get this value, we can allocate space on stack._
 
-By the way, this is just one way to do it. Let's see how the compiler implements this.
+By the way, this is just one way to do it. Let's see how the compiler does it.
 
 ```nasm
 	.text
@@ -335,13 +323,13 @@ main:
 	push	rbx
 	sub	rsp, 40
 	mov	rax, rsp
-	mov	rbx, rax
+	mov	rbx, rax				; save rsp in rbx
 
 	; scanf("%d", &n)
-	lea	rax, -36[rbp]					; &n
-	mov	rsi, rax					; arg2 = &n
-	lea	rax, .LC0[rip]					; "%d"
-	mov	rdi, rax					; arg1 = "%d"
+	lea	rax, -36[rbp]				; &n
+	mov	rsi, rax				; arg2 = &n
+	lea	rax, .LC0[rip]				; "%d"
+	mov	rdi, rax				; arg1 = "%d"
 	mov	eax, 0
 	call	__isoc99_scanf@PLT
 
@@ -375,9 +363,9 @@ main:
 	mov	QWORD PTR -32[rbp], rax
 	mov	rax, QWORD PTR -32[rbp]
 	mov	eax, DWORD PTR [rax]
-	mov	esi, eax					; &arr[0]
-	lea	rax, .LC0[rip]					; arg2
-	mov	rdi, rax					; arg1 = arr[0]
+	mov	esi, eax				; &arr[0]
+	lea	rax, .LC0[rip]				; arg2
+	mov	rdi, rax				; arg1 = arr[0]
 	mov	eax, 0
 	call	printf@PLT
 
@@ -404,7 +392,7 @@ For example, take n = 5.
 
 If you have trouble making sense of this, remember the `ceil()` and `floor()` functions.
 
-* `ceil` rounds up to the next integer while `floor` rounds down to the next integer.
+* `ceil` rounds up to the next integer while `floor` rounds down to the previous integer.
 * `ceil(5.6)` would give 6 while `floor(5.6)` would give 5.
 * If you notice, we are rounding in terms of 1.
 * The algorithm above does the same thing except it rounds integers to the next multiple of 16.&#x20;
@@ -430,7 +418,9 @@ If you have trouble making sense of this, remember the `ceil()` and `floor()` fu
 
 ### Static && Extern VLA
 
-Both are possible but require **compile-time constant declaration**. Simply put,
+Both are possible but require **compile-time constant declaration**. Because storage with static duration must be determined fully at compile time as memory layout is fixed before runtime.
+
+Simply put,
 
 ```c
 // Outisde Functions
@@ -464,6 +454,10 @@ func(){
 
 ## Conclusion
 
-Nothing is simple.
+Arrays are just contiguous memory with compiler quirks.
 
-Have a nice day. Arrays is completed.
+Optimizations are inevitable, but vary.
+
+Whatever happens, what remains consistent across every assembly dump is the intent, the one idea that ties everything.
+
+Thank you.
