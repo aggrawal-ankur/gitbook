@@ -235,30 +235,56 @@ int arr[m];
 
 Both are identified as variable length allocation, even though `n` is known at compile time, the compiler triggers code for VLA.
 
-The point is that `n` would be initialized at runtime, so, instead of setting up stack just after function frame setup, we defer it until `n` is known. We only reserve enough space for defined operations and defer the rest.
+What makes VLA different is that you have to calculate the total bytes required to be allocated on stack.
 
-We have to keep the allocation 16-bytes aligned. The question is, how can we calculate the right value? Let's do some math here.
+* As of now (_September 2, 2025_) I don't know why the compiler emitted code for VLA when `n` is known at compile-time.
+* Although the idea remains the same in both the cases, but I'd suggest to keep the **not known at compile-time** case in reference because it would not make any sense in the other one.
 
-We have to reserve space for `int arr[n]` .
+***
 
-* Size of integer is 4 so the total requirement is given by `n*4` bytes.
+Since `n` is not known beforehand, we can't allocate stack in one single instruction. We follow a structured process to allocate stack.
 
-This value of n will decide how much extra padding we need to keep `rsp` 16-bytes aligned.
+## Steps In VLA
 
-| Value of n | Bytes required | Padding      |
-| ---------- | -------------- | ------------ |
-| 1          | 1\*4 = 4       | 16 - 4 = 12  |
-| 2          | 2\*4 = 8       | 16 - 8 = 8   |
-| 3          | 3\*4 = 12      | 16 - 12 = 4  |
-| 4          | 4\*4 = 16      | 16 - 16 = 0  |
-| 5          | 5\*4 = 20      | 32 - 20 = 12 |
-| 6          | 6\*4 = 24      | 32 - 24 = 8  |
-| 7          | 7\*4 = 28      | 32 - 28 = 4  |
-| 8          | 8\*4 = 32      | 32 - 32 = 0  |
+1. Allocate space for things defined at compile-time.
+2. Ensure `n` is populated, either at compile-time or runtime.
+3. Calculate the bytes required by `type arr[n]` declaration.
+4. Calculate the padding required for 16-bytes alignment for `rsp`.
+5. Allocate space for the array.
+6. Align the base address of the array, `arr[0]` to be 4-bytes.
+
+### Example
+
+```c
+#include <stdio.h>
+
+int main(void){
+  int n;                // Not known at compile-time
+  scanf("%d", &n);
+
+  int arr[n];
+  printf("%d", arr[0]);
+}
+```
+
+Normally integer is sized 4-bytes, so the total requirement is given by `n*4` bytes.
+
+Now we have to calculate padding. Lets see how much padding is required for `n ∈ {1....8}`
+
+| Value of n | Bytes required | Padding Bytes |
+| ---------- | -------------- | ------------- |
+| 1          | 1\*4 = 4       | 16 - 4 = 12   |
+| 2          | 2\*4 = 8       | 16 - 8 = 8    |
+| 3          | 3\*4 = 12      | 16 - 12 = 4   |
+| 4          | 4\*4 = 16      | 16 - 16 = 0   |
+| 5          | 5\*4 = 20      | 32 - 20 = 12  |
+| 6          | 6\*4 = 24      | 32 - 24 = 8   |
+| 7          | 7\*4 = 28      | 32 - 28 = 4   |
+| 8          | 8\*4 = 32      | 32 - 32 = 0   |
 
 This shows that the value for padding for a 4-byte integer belongs to `{0, 4, 8, 12}` . Plus, when the total bytes required are greater than the closest 16-divisible digit, we take the next 16-divisible digit.
 
-From this information, we can create a simple program to calculate the total bytes required to allocate on stack.
+From this information, we can create a simple program to calculate the total bytes required.
 
 ```c
 #include <stdio.h>
@@ -292,102 +318,96 @@ int main(void){
 
 This program "efficiently" calculates how much `n*sizeof(int)` defers from a multiple of 16. And that's basically the "intent" behind variable length allocation. _We have to calculate how far we are from the next multiple of 16. Once we get this value, we can allocate space on stack._
 
-By the way, this is just one way to do it.
+By the way, this is just one way to do it. Let's see how the compiler implements this.
 
-Let's see how the compiler implements this.
+```nasm
+	.text
+	.section	.rodata
+.LC0:
+	.string	"%d"
+	.text
+	.globl	main
+	.type	main, @function
+main:
+	; init
+	push	rbp
+	mov	rbp, rsp
+	push	rbx
+	sub	rsp, 40
+	mov	rax, rsp
+	mov	rbx, rax
 
-### Example 1
+	; scanf("%d", &n)
+	lea	rax, -36[rbp]					; &n
+	mov	rsi, rax					; arg2 = &n
+	lea	rax, .LC0[rip]					; "%d"
+	mov	rdi, rax					; arg1 = "%d"
+	mov	eax, 0
+	call	__isoc99_scanf@PLT
 
-```c
-#include <stdio.h>
+	; calculate total bytes required
+	mov	eax, DWORD PTR -36[rbp]
+	movsx	rdx, eax
+	sub	rdx, 1
+	mov	QWORD PTR -24[rbp], rdx
+	cdqe
+	lea	rdx, 0[0+rax*4]
 
-int main(void){
-  int n;
-  printf("%d is n\n", n);
+	; calculate padding required for 16-bytes alignment of rsp
+	mov	eax, 16
+	sub	rax, 1
+	add	rax, rdx
+	mov	ecx, 16
+	mov	edx, 0
+	div	rcx
+	imul	rax, rax, 16
 
-  int arr[n];
-  for (int i = 0; i < 5; i++){
-    scanf("%d", &arr[i]);
-  }
-}
+	; reserve space for array
+	sub	rsp, rax
+
+	; Make the base address of array (arr[0]) 4-byte aligned, if not
+	mov	rax, rsp
+	add	rax, 3
+	shr	rax, 2
+	sal	rax, 2
+
+	; printf()
+	mov	QWORD PTR -32[rbp], rax
+	mov	rax, QWORD PTR -32[rbp]
+	mov	eax, DWORD PTR [rax]
+	mov	esi, eax					; &arr[0]
+	lea	rax, .LC0[rip]					; arg2
+	mov	rdi, rax					; arg1 = arr[0]
+	mov	eax, 0
+	call	printf@PLT
+
+	; restore rsp and return
+	mov	rsp, rbx
+	mov	eax, 0
+	mov	rbx, QWORD PTR -8[rbp]
+	leave
+	ret
 ```
 
-When you run the binary, you will see a garbage value and a segfault.
+The compiler has employed another strategy to do this calculation.
 
-```bash
-$ gcc ./main.c
-$ ./a.out
+* Add 15 to the bytes required, we get `(n + 15)`.
+* Divide this by 16 and focus on quotient, we have to do `(n+15)//16` .
+* Multiply the quotient with 16 and you get the total bytes required.
 
-2085013376 is n
-zsh: segmentation fault  ./a.out
-```
+For example, take n = 5.
 
-This one was pretty much expected as stack is limited and `2085013376` bytes is definitely a big number.
+* `n*sizeof(int)` = `5*4 = 20`&#x20;
+* `20+15 = 35`&#x20;
+* `35//16 = 2`&#x20;
+* `2*16 = 32`
 
-### Example 2: Init n
+If you have trouble making sense of this, remember the `ceil()` and `floor()` functions.
 
-This time we are initializing `n`. And it works perfectly.
-
-```c
-#include <stdio.h>
-
-int main(void){
-  int n = 5;
-
-  int arr[n];
-  for (int i = 0; i < 5; i++){
-    scanf("%d", &arr[i]);
-  }
-  for (int i = 0; i < 5; i++){
-    printf("%d, ", arr[i]);
-  }
-}
-```
-
-
-
-
-
-## Example 3: n Not Known At Compile Time
-
-This is the most important one here.
-
-```c
-#include <stdio.h>
-
-int main(void){
-  int n;
-  scanf("%d", &n);
-
-  int arr[n];
-  for (int i = 0; i < 5; i++){
-    scanf("%d", &arr[i]);
-  }
-  for (int i = 0; i < 5; i++){
-    printf("%d, ", arr[i]);
-  }
-}
-```
-
-In this code, `n` is not known at compile time. The idea is simple. We need to calculate how much space we have to allocate on stack, which can only be done once `n` is initialized at runtime.
-
-The assembly looks crazy, but it's not.
-
-```
-```
-
-Here we are applying a different trick.
-
-Suppose, n is 5. So, we need 5\*4 = 20 bytes.
-
-* We have to find padding now.
-* We are adding 15 to 20, which makes 35.
-* Now we divide 35 by 16 and keep the quotient with us. 35//16 = 2.
-* At last, we multiple it by 16 to obtain 32.
-* The question is, why 15?
-*
-
-
+* `ceil` rounds up to the next integer while `floor` rounds down to the next integer.
+* `ceil(5.6)` would give 6 while `floor(5.6)` would give 5.
+* If you notice, we are rounding in terms of 1.
+* The algorithm above does the same thing except it rounds integers to the next multiple of 16.&#x20;
 
 
 
