@@ -409,9 +409,24 @@ If you have trouble making sense of this, remember the `ceil()` and `floor()` fu
 * If you notice, we are rounding in terms of 1.
 * The algorithm above does the same thing except it rounds integers to the next multiple of 16.&#x20;
 
+***
 
+### Questions Time
 
+**Q1. What's the purpose of saving `rsp` in `rbx` ? And why we are pushing `rbx` on stack?**
 
+* `rbx` is a callee-saved register. If the callee function want to use `rbx`, it has to preserve the state of `rbx` and return `rbx` in the same state to the caller function. That's why it is pushed on stack.
+* We are using it to preserve the state of `rsp` after reserving 40 bytes. Later it used in cleanup.
+
+**Q2. Why inconsistent use of registers? When you need sign-extended value, why you are using `eax`? just use `rax` directly?**
+
+* Compiler optimization.
+
+**Q3. How stack is cleaned up after usage?**
+
+* It doesn't. There are millions of processes and they use it very fast and dump it. And the next process overwrites the stack memory.
+* Just reduce `rsp` and you are done. We just have to make memory inaccessible. That's it.
+* This is the reason why we sometimes get exactly what we expect but the next moment it vanishes because the stack memory mistakenly had that exact value from a previous process but soon someone else override it. An undefined behavior, basically.
 
 
 
