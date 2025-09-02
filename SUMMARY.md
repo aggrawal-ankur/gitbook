@@ -13,7 +13,7 @@
   * [Hello, World!](understanding-x64-assembly/hello-world.md)
   * [The Idea Behind "Invisible Symbols"](understanding-x64-assembly/the-idea-behind-invisible-symbols.md)
   * [Data Types](understanding-x64-assembly/data-types.md)
-  * [Static Memory Allocation](understanding-x64-assembly/sma/README.md)
+  * [Memory Allocation](understanding-x64-assembly/sma/README.md)
     * [Primitive Types](understanding-x64-assembly/sma/primitive-types.md)
     * [Complex Types](understanding-x64-assembly/sma/complex-types.md)
     * [Pointers](understanding-x64-assembly/sma/pointers.md)

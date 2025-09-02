@@ -1,14 +1,16 @@
-# Static Memory Allocation
+# Memory Allocation
 
-## The Problem
+## Premise
 
-We have one memory, but how it is managed decides where the space would be allocated.
+Memory for storage can be divided into 3:
 
-Static memory consists of `.data` , `.bss`  and stack. Dynamic memory is all about heap.
+1. Stack: the most straightforward thing you'll ever come across
+2. Static: `.data/.bss`
+3. Heap: for dynamic allocation
 
-Who decides where the memory will be allocated? It is **storage classes**.
+As long as we are talking about **stack** and **static** memory, we have to consult **storage classes** to find the appropriate place for allocation.
 
-## The Solution
+## Storage Classes
 
 _**Storage classes** guide the compiler to manage static memory allocation._
 
