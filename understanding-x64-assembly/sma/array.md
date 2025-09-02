@@ -165,9 +165,9 @@ That's why I didn't jumped on explaining what are `pxor` and `movaps`. I wanted 
 
 So, what's the intent here?
 
-* The intent is to zero-initialize the array. **Efficiently is always present.**
-* SIMD instructions are one way to do that. They stand for **single instruction, multiple data**. They help you operate efficiently on a group of data in one single instruction, reducing the total number of instructions required to operate on a large chunk of data.
-* And, with the idea of intent, that's all we need to know about SIMD instructions right now. Otherwise, this would have spiraled into a SIMD tutorial.
+* The intent is to zero-initialize the array, efficiently.
+* SIMD instructions are one way to do that. They zero multiple integers in parallel, reducing instruction count and improving throughput. Here, `pxor` clears the register, and `movaps` writes aligned 128-bit blocks.
+* For now, it's enough to know that SIMD zeroes multiple elements in parallel for efficiency. A deeper SIMD deep-dive deserves its own write-up.
 
 ***
 
@@ -454,10 +454,10 @@ func(){
 
 ## Conclusion
 
-Arrays are just contiguous memory with compiler quirks.
+Arrays are contiguous memory blocks.
 
-Optimizations are inevitable, but vary.
+What changes is **how** the compiler allocates, aligns, and initializes them — influenced by constants, optimization flags, and ABI rules.
 
-Whatever happens, what remains consistent across every assembly dump is the intent, the one idea that ties everything.
+Optimizations vary, but the core intent stays constant: manage memory predictably and efficiently.
 
 Thank you.
