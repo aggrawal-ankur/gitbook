@@ -1,6 +1,6 @@
 # Structures
 
-_**2 September 2025**_
+_**2,3 September 2025**_
 
 ***
 
@@ -29,9 +29,9 @@ int main(void){
 }
 ```
 
-The `struct` declaration alone doesn't create storage. It just exist in compilation. When you create a variable out of it, that's when storage is created.
+The `struct` declaration alone doesn't reserve space. It exist compilation level only. When you create a variable out of it, that's when storage is reserved.
 
-Let's setup the old baseline, before we move further.
+Let's setup the old baseline, before we move any further.
 
 ### Auto
 
@@ -153,6 +153,24 @@ main:
 ```
 
 ### Extern
+
+```c
+#include <stdio.h>
+
+struct Point {
+  int x;
+  int y;
+};
+
+struct Point p1;
+
+int main(void){
+  p1.x = 6;
+  p1.y = 5;
+
+  printf("Hello.\n");
+}
+```
 
 ```nasm
 	.text
