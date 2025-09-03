@@ -160,4 +160,4 @@ Now we have the precursor knowledge and we are ready to explore the practical si
 For better clarity, we can divide static memory allocation into:
 
 1. [primitive-types.md](primitive-types.md "mention"): char, int, float and double.
-2. [complex-types.md](complex-types.md "mention"): array, pointer, struct, union, enum and type definition.
+2. [Broken link](broken-reference "mention"): array, pointer, struct, union, enum and type definition.

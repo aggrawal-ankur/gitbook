@@ -22,7 +22,7 @@ Size is architecture specific and we are talking about 64-bit only.
 
 <table><thead><tr><th width="258">Data Type</th><th width="491">Size</th></tr></thead><tbody><tr><td>char</td><td>1-byte</td></tr><tr><td>int</td><td>4-byte</td></tr><tr><td>float</td><td>4-byte</td></tr><tr><td>double</td><td>8-byte</td></tr><tr><td>array</td><td>sizeof(data_type) * number_of_blocks</td></tr><tr><td>pointer</td><td>size of the address on an architecture, 8-byte here.</td></tr></tbody></table>
 
-`char` is generally 1-byte across all architectures and implementations while `int` is implementation depended. Although the common size of `int` is 4-bytes on 64-bit but there is a complete header file called `stdint.h` which provides so many int.
+`char` is generally 1-byte across all architectures and implementations while `int` is implementation depended. Although the common size of `int` is 4-bytes on 64-bit but there is a complete header file called `inttypes.h` which provides so many int.
 
 ## How Data Types Are Translated?
 

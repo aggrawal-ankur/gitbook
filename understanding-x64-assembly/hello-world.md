@@ -16,7 +16,7 @@
 
 The assembly code for hello world looks like:
 
-```asm
+```nasm
 .intel_syntax noprefix
 
 .section .data
@@ -165,4 +165,6 @@ Done.
 
 ## Fun Thing
 
-A hello world program written in C won't translate to such an assembly. That's a rabbit hole worth avoiding for now.
+A hello world program written in C won't translate to such an assembly. That's a complete rabbit hole but the reason is that it uses C runtime for setup and cleanup, which makes the assembly slightly different.
+
+I have explored it in depth [here](../understanding-hello-world/). But it is lengthy and takes time, so I would suggest not to explore that now.

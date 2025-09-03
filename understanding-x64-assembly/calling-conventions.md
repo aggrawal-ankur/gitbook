@@ -13,7 +13,7 @@ How the registers would be used in the above two contexts is defined in a system
 
 As long as we are out of these two contexts, we can use a register as we want. And we will demonstrate this later.
 
-### General-Purpose Registers in x86\_64
+### Function Call Convention
 
 | Argument   | Register | Description      |
 | ---------- | -------- | ---------------- |
@@ -25,9 +25,14 @@ As long as we are out of these two contexts, we can use a register as we want. A
 | Argument 5 | `r8`     | Fifth parameter  |
 | Argument 6 | `r9`     | Sixth parameter  |
 
-### Syscall Register Convention
+### Syscall Convention
 
 <table><thead><tr><th width="323">Register</th><th>Purpose / Convention</th></tr></thead><tbody><tr><td><code>rax</code></td><td>Accumulator; return values, syscall #</td></tr><tr><td><code>rbx</code></td><td>Base register; often callee-saved</td></tr><tr><td><code>rcx</code></td><td>Counter for loops, shifts</td></tr><tr><td><code>rdx</code></td><td>Data register; I/O, syscall args</td></tr><tr><td><code>rsi</code></td><td>Source index; memory ops, args</td></tr><tr><td><code>rdi</code></td><td>Destination index; memory ops, args</td></tr><tr><td><code>rbp</code></td><td>Base pointer; stack frame reference</td></tr><tr><td><code>rsp</code></td><td>Stack pointer; top of the stack</td></tr><tr><td><code>r8</code></td><td>5th syscall argument</td></tr><tr><td><code>r9</code></td><td>6th syscall argument</td></tr><tr><td><code>r10</code></td><td>4th syscall argument</td></tr><tr><td><code>r11</code></td><td>Temporary scratch for syscall</td></tr><tr><td><code>r12</code>–<code>r15</code></td><td>Callee-saved; general-purpose</td></tr></tbody></table>
+
+**Note:** _Caller_ is the function that makes a call to another function. The function that is being called is termed as _callee_.
+
+* When a register is callee-saved, the callee function must preserve the state of that register if it wants to use it and restore its state before returning.
+* When a register is caller-saved, the caller function must preserve its state if it wants to use it later because a function call in-between might use it and it has no reason to preserve its state.
 
 In Linux (x86\_64), the most common calling convention is **System V AMD64 ABI**. It defines how functions and system calls exchange data by assigning specific roles to specific registers.
 

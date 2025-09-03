@@ -16,4 +16,4 @@
 7. **Section:** The code is divided into multiple sections to organize the memory layout.
 8. **Comment:** Anything after a semi-colon (;) or hash (#) is ignored by the assembler and is a note for the programmer itself.
 9. **Keyword:** In high-level languages, keywords are reserved words (like if, for, while). In assembly, the idea of keywords basically overlaps with mnemonics and directives.
-10. **Symbol:** Everything is a symbol. This is the most conflicting one, so, skip it for the time being.
+10. **Symbol:** Everything is a symbol. It is complicated, so, leave it for the time being.

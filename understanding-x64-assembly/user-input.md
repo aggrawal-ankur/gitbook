@@ -1,8 +1,8 @@
-# User Input
+# User Input In Assembly
 
-## Reading Input From The User
+To take user input, we use `read` syscall.
 
-```
+```nasm
 .intel_syntax noprefix
 
 .section .bss

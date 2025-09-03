@@ -1,4 +1,4 @@
-# Introductory Concepts
+# Orientation
 
 _**August 11, 2025**_
 
@@ -6,7 +6,7 @@ _**August 11, 2025**_
 
 ## Premise
 
-It is complicated if we dive directly. Therefore, here is a tasting.
+It's complicated, so dive in directly is foolish. Therefore, here is a tasting of each concept.
 
 ## Physical Memory
 
