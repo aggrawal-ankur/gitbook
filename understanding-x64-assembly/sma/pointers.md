@@ -49,3 +49,8 @@ main:
 There is no stack reservation because `main()` is not calling any function so it is a leaf function here and by default, it receives a 128-bytes of red zone as per x68 System V ABI.
 
 The same result is seen for char, float and double except that you can notice some extra scaffolding in case of float and double because they are pretty complex in themselves. But we need not to worry about that.
+
+## Pointer Dereferencing
+
+
+
