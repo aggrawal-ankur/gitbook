@@ -18,9 +18,11 @@ Stack as a memory management technique works exactly like a stack of plates.
 * The last plate is the top one.
 * When we take out plates, it happens from the top, not bottom (_pop_).
 
-Why stack grows downward?
+You may question that a stack of plates grow upwards while the stack in memory grows downwards.
 
-* _Checkout the_ [_process memory layout_](../../all-roads-to-memory/virtual-memory-layout.md) _article. It explains it the best._
+* Actually, the addresses grow downwards with each push on stack.
+* This feels counterintuitive because we don't know how memory is structured.
+* _Checkout the_ [_process memory layout_](../../all-roads-to-memory/virtual-memory-layout.md) _article for more information. It explains it the best._
 
 ***
 
@@ -31,7 +33,7 @@ _**The whole addressable memory is not managed with stack. There are multiple te
 1. A function has its own variable declarations and nested function calls.
 2. A function can receive arguments.
 3. A function has a return context.
-4. A function can return values to the callee.
+4. A function can return values to the caller.
 
 If something can explain functions at best, it's **code reusability**.
 
@@ -42,7 +44,7 @@ We know that labels combined with jump statements help us achieve control flow.
 The problem with jump statements is that they are absolute in nature.
 
 * There is no return context.
-* If I have to return to the label which called this second label, the jump would be absolute, means, I would return to the start of the callee label, not where the callee label had called that second label.
+* If I have to return to the caller label, which called the callee label, the jump would be absolute. Meaning, I would return to the start of the caller label, not where the caller label had called that second label.
 
 This lack of context limits code reusability, which is paramount to functions.
 
@@ -139,7 +141,7 @@ The clever use of stack is about implementing stack frames and return context, w
 
 A stack frame is chunk of stack that belongs to a single procedure call.
 
-When a function calls another function, a new stack frame is created and the instruction pointer register (`rip`) is adjusted by the CPU to point to the instructions in the new procedure.
+When a function calls another function, a new stack frame is created and the instruction pointer register (`rip`) is adjusted by the CPU to point to the instruction in the new procedure.
 
 While the upper stack frame exists, the lower one can't execute itself. Once the stack frame at top is done with its execution and it is killed, `rip` is adjusted again to continue where it has left.
 
@@ -198,10 +200,12 @@ _The first 6 arguments go in registers, we know that. Checkout_ [calling-convent
 
 A call instruction calls a procedure, which is shorthand for pushing the address of next instruction (`rip`) to stack and jumping to the procedure's label, like this:
 
-* ```nasm
-  push rip
-  jmp label
-  ```
+*   ```nasm
+    push rip
+    jmp label
+    ```
+
+    Although this is not exactly how it is done, but we can consider it like this on surface.
 
 `push` is a shorthand for:
 
