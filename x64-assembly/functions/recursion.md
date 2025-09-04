@@ -277,6 +277,8 @@ This is a compressed view of stack.
 
 * If you notice, each frame is exactly 32-bytes in size; 16 for locals, 8 for return address and 8 for old `rbp` .
 
+### 3808 Frame
+
 The top stack frame is `rbp=3808` , and `rsp=3792`. Let's look at assembly.
 
 * If `(n==0)` , we set `rax` to 1 (which is the return value) and jump to `.L3` .
@@ -306,6 +308,8 @@ The top stack frame is `rbp=3808` , and `rsp=3792`. Let's look at assembly.
 * State of pointers: `rsp=3824` and `rbp=3840` .
 
 ***
+
+### 3840 Frame
 
 Now we are inside the `rbp=3840` stack frame.
 
@@ -341,6 +345,8 @@ Now we are inside the `rbp=3840` stack frame.
 
 ***
 
+### 3872 Frame
+
 Now we are inside the `rbp=3872` stack frame.
 
 * Here, the value of `n` was `2`. So, `.L2` was executed, which sets up the next recursion call.
@@ -374,6 +380,8 @@ Now we are inside the `rbp=3872` stack frame.
 * State of pointers: `rsp=3888` and `rbp=3904` .
 
 ***
+
+### 3904 Frame
 
 Now we are inside the `rbp=3904` stack frame.
 
@@ -409,6 +417,8 @@ Now we are inside the `rbp=3904` stack frame.
 
 ***
 
+### 3936 Frame
+
 Now we are inside the `rbp=3936` stack frame.
 
 * Here, the value of `n` was `4`. So, `.L2` was executed, which sets up the next recursion call.
@@ -442,6 +452,8 @@ Now we are inside the `rbp=3936` stack frame.
 * State of pointers: `rsp=3952` and `rbp=3968` .
 
 ***
+
+### 3968 Frame
 
 Now we are inside the `rbp=3968` stack frame.
 
@@ -480,6 +492,17 @@ Now we are inside the `rbp=3968` stack frame.
 Now we are inside the `rbp=4000` stack frame.
 
 * This is where we started from.
+* From here, we return to the almighty gods of C, the startup code, which handles the exit and remaining cleanup.
+
+***
+
+Sigh. It was crazy, isn't it? Conclusion is still remaining.
+
+## Conclusion
+
+Writing this was no easy and now I have to read the whole thing again to write a conclusion.
+
+
 
 
 
