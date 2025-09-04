@@ -44,7 +44,7 @@ int rec_fact(int n){
 }
 
 int main(){
-  int n = 4;
+  int n = 5;
   rec_fact(n);
 }
 ```
@@ -84,7 +84,7 @@ main:
 	push	rbp
 	mov	rbp, rsp
 	sub	rsp, 16
-	mov	DWORD PTR -4[rbp], 4
+	mov	DWORD PTR -4[rbp], 5
 	mov	eax, DWORD PTR -4[rbp]
 	mov	edi, eax
 	call	rec_fact
@@ -94,6 +94,17 @@ main:
 ```
 
 The assembly is pretty simple. Lets do a dry run and understand the state of stack and how the original value of `n` and returns are managed.
+
+***
+
+Procedures receive the first 6 arguments in registers, where the first one goes into `edi` .
+
+* But in a continuous recursion, `edi` is constantly in use, which makes it unreliable to store the original `n`.
+* We may have used other registers. We may have tried managing the caller/callee discipline ourselves. But, there are two problems.
+  * There is no standardized way to do it. We can implement the above thing when we write pure assembly.
+  * There is no limit to how many arguments a function can receive, which makes relying on registers a mess.
+* When we are translating a language into another one, we would better prefer a more safe and consistent way to do it.
+* That's the reason behind creating a local copy of `n` on stack. This keeps the original value intact and the `rdi` is also free.
 
 ```
 4008: rsp
