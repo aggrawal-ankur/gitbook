@@ -64,7 +64,7 @@ The idea is that each recursive call reduces the value of `n`  until it becomes 
 Thus, recursion can be implemented as:
 
 ```c
-#include <sdtio.h>
+#include <stdio.h>
 
 int rec_fact(int n){
   if (n == 0){
@@ -468,7 +468,7 @@ Now we are inside the `rbp=3968` stack frame.
 *   So, the instruction translates to:
 
     ```
-    imul eax, 4
+    imul eax, 5
     ```
 
     &#x20;`eax` is 24, so the result in `eax` would be 120.
