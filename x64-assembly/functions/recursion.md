@@ -83,24 +83,24 @@ This the assembly.
 
 ```nasm
 rec_fact:
-	push	rbp
-	mov	rbp, rsp
-	sub	rsp, 16
+	push rbp
+	mov  rbp, rsp
+	sub  rsp, 16
 
-	mov	DWORD PTR -4[rbp], edi		; n received as func arg is moved to stack
+	mov DWORD PTR -4[rbp], edi		; n received as func arg is moved to stack
 
-	cmp	DWORD PTR -4[rbp], 0		; (n == 0) check
-	jne	.L2				   ; if not, prepare for next call
-	mov	eax, 1
-	jmp	.L3				   ; if yes, we've hit the base case
+	cmp  DWORD PTR -4[rbp], 0		; (n == 0) check
+	jne  .L2				; if not, prepare for next call
+	mov  eax, 1
+	jmp  .L3				; if yes, we've hit the base case
 
 ; return n * rec_fact(n - 1)
 .L2:
-	mov	eax, DWORD PTR -4[rbp]		; load n in eax
-	sub	eax, 1				; eax = eax - 1 OR ( n - 1)
-	mov	edi, eax			; setup arg1 = eax
-	call	rec_fact			; call again
-	imul	eax, DWORD PTR -4[rbp]		; when the function call hit the base case, and there is a return, multiply the return (rax) with n
+	mov  eax, DWORD PTR -4[rbp]		; load n in eax
+	sub  eax, 1				; eax = eax - 1 OR ( n - 1)
+	mov  edi, eax				; setup arg1 = eax
+	call rec_fact				; call again
+	imul eax, DWORD PTR -4[rbp]		; when the function call hit the base case, and there is a return, multiply the return (rax) with n
 
 ; return
 .L3:
@@ -108,21 +108,17 @@ rec_fact:
 	ret
 
 main:
-	push	rbp
-	mov	rbp, rsp
-	sub	rsp, 16
-	mov	DWORD PTR -4[rbp], 5
-	mov	eax, DWORD PTR -4[rbp]
-	mov	edi, eax
-	call	rec_fact
-	mov	eax, 0
+	push rbp
+	mov  rbp, rsp
+	sub  rsp, 16
+	mov  DWORD PTR -4[rbp], 5
+	mov  eax, DWORD PTR -4[rbp]
+	mov  edi, eax
+	call rec_fact
+	mov  eax, 0
 	leave
 	ret
 ```
-
-The assembly is straightforward, so we will skip that. Lets do a dry run and understand the state of stack, because, we already know what the code is doing.
-
-***
 
 Procedures receive the first 6 arguments in registers, where the first one goes into `edi` . But in a continuous recursion, `edi` is constantly in use, which makes it unreliable to keep the original value of `n`.
 
@@ -134,6 +130,10 @@ Procedures receive the first 6 arguments in registers, where the first one goes 
 * That's the reason behind creating a local copy of `n` on stack. This keeps the original value intact, stack frames clean and predictable and no management hell.
 
 ***
+
+The assembly is straightforward, so we will skip that. Lets do a dry run and understand the state of stack, because, we already know what the code is doing.
+
+## Stack Layout
 
 We can talk theory all the day, but how one interprets that theory changes everything. And the best way to ensure that we are on the same page is by visualizing the stack.
 
@@ -252,18 +252,16 @@ All the addresses are in decimal, no hex is used as it creates an overhead of ca
         *------------------*
 ```
 
-* If you have noticed, the addresses feel inconsistent. The difference is oscillating between 4 and 8.
+* If you notice, the addresses feel inconsistent. The difference is oscillating between 4 and 8.
 * That's because, a direct `push` is a shorthand for subtracting 8 bytes and moving a value at that memory. When we reserve 16 bytes separately, those bytes are used to store an integer, which is why they are 4-byte aligned as an integer is normally sized 4-bytes.
 
-This ASCII drawing has stopped at `(n = 0)` as we have reached the base condition. Now the stack frames will be removed one-by-one. Let's see how that works.
+This ASCII Art has stopped at `(n = 0)` as we have reached the base condition. Now the frames will remove one-by-one. Let's see how that works.
 
+***
 
+## Return Management
 
-CONTINUE FROM HERE
-
-
-
-For instant access, this is a compressed look of stack:
+This is a compressed view of stack.
 
 ```
 | Stack Frame | rbp  | n |
@@ -277,62 +275,211 @@ For instant access, this is a compressed look of stack:
 | rec_fact    | 3808 | 0 | <- Top
 ```
 
-The top stack frame is the one with `rbp=3808` . Let's have a look at the assembly.
+* If you notice, each frame is exactly 32-bytes in size; 16 for locals, 8 for return address and 8 for old `rbp` .
 
-* If `(n==0)` , we jump to `.L3` , not `.L2` .
+The top stack frame is `rbp=3808` , and `rsp=3792`. Let's look at assembly.
+
+* If `(n==0)` , we set `rax` to 1 (which is the return value) and jump to `.L3` .
 *   The `leave` instruction resets the stack pointer by using `rbp`&#x20;
 
     ```
-    mov rsp, rbp
+    mov rsp, 3808
     ```
 
     and pops the old base pointer (located in `rsp`) into `rbp`, which changes the current base pointer to the previous stack frame.&#x20;
 
     ```
-    pop rbp
+    mov rbp, [3808]        ; [3808] = 3840
+    add rsp, 8             ; rsp = 3816
     ```
-*   The `leave` instruction is doing:
 
-    ```
-    mov rsp, 3808
-    mov rbp, 3840       ; [3808] = 3840
-    add rsp, 8
-    ```
-* Now `rsp` is at `3816`.
-* So far, we have partially entered into the old context as the `rbp` is updated. But the context restoration happens when `ret` instruction is executed.
+    Now `rsp=3816` and `rbp=3840` .
 *   When we do `pop rip`, it is:&#x20;
 
     ```
     mov rip, [3816]
+    add rsp, 8             ; rsp = 3824
     ```
 
     dereferencing 3816 gives the address of `imul eax, DWORD PTR -4[rbp]` instruction in the previous stack frame (3840).
 * And we have successfully returned to the previous stack frame, the one with `rbp=3840` .
-*   What about return value? We have set `1` in `eax` already.
+* State of pointers: `rsp=3824` and `rbp=3840` .
 
-    ```
-    	cmp	DWORD PTR -4[rbp], 0
-    	jne	.L2
-    	mov	eax, 1
-    	jmp	.L3
-    ```
-*   So,
+***
+
+Now we are inside the `rbp=3840` stack frame.
+
+* Here, the value of `n` was `1`. So, `.L2` was executed, which sets up the next recursion call.
+* The next recursion call was `rbp=3808`, which successfully returned 1 in `eax` .
+*   Now we are at:
 
     ```
     imul eax, DWORD PTR -4[rbp]
     ```
-
-    translates to&#x20;
+* For this stack frame, `rbp=3840`. `-4[3840]` would go to `3836` which stores a local copy of `n` received by this procedure's frame. The value of `n` is `1` here.
+*   So, the instruction translates to:
 
     ```
-    imul 1, 1
+    imul eax, 1
     ```
 
-    as we are inside the `3840` frame, `n=1` .
+    and `eax` is already 1, so the result in `eax` would be 1.
+*   After this, `.L3` is called.
 
+    ```
+    ; leave
+    mov rsp, 3840
+    mov rbp, [3840]        ; [3840] = 3872
+    add rsp, 8             ; rsp = 3848
 
+    ; return
+    mov rip, [3848]
+    add rsp, 8             ; rsp = 3856
+    ```
+* And we have successfully returned to the previous stack frame, the one with `rbp=3872` .
+* State of pointers: `rsp=3856` and `rbp=3872` .
 
+***
 
+Now we are inside the `rbp=3872` stack frame.
+
+* Here, the value of `n` was `2`. So, `.L2` was executed, which sets up the next recursion call.
+* The next recursion call was `rbp=3840` , which successfully returned 1 in `eax`.
+*   Now we are at:
+
+    ```
+    imul eax, DWORD PTR -4[rbp]
+    ```
+* For this stack frame, `rbp=3872` . `-4[3872]` would go to `3868` , which stores a local copy of `n` received by this procedure's frame. The value of `n` is `2` here.
+*   So, the instruction translates to:
+
+    ```
+    imul eax, 2
+    ```
+
+    &#x20;`eax` is 1, so the result in `eax` would be 2.
+*   After this, `.L3` is called.
+
+    ```
+    ; leave
+    mov rsp, 3872
+    mov rbp, [3872]        ; [3872] = 3904
+    add rsp, 8             ; rsp = 3880
+
+    ; ret
+    mov rip, [3880]
+    add rsp, 8             ; rsp = 3888
+    ```
+* And we have successfully returned to the previous stack frame, the one with `rbp=3904` .
+* State of pointers: `rsp=3888` and `rbp=3904` .
+
+***
+
+Now we are inside the `rbp=3904` stack frame.
+
+* Here, the value of `n` was `3`. So, `.L2` was executed, which sets up the next recursion call.
+* The next recursion call was `rbp=3872` , which successfully returned 2 in `eax`.
+*   Now we are at:
+
+    ```
+    imul eax, DWORD PTR -4[rbp]
+    ```
+* For this stack frame, `rbp=3904` , `-4[3904]` would go to `3900` , which stores a local copy of `n` received by this procedure's frame. The value of `n` is `3` here.
+*   So, the instruction translates to:
+
+    ```
+    imul eax, 3
+    ```
+
+    &#x20;`eax` is 2, so the result in `eax` would be 6.
+*   After this, `.L3` is called.
+
+    ```
+    ; leave
+    mov rsp, 3904
+    mov rbp, [3904]        ; [3904] = 3936
+    add rsp, 8             ; rsp = 3912
+
+    ; ret
+    mov rip, [3912]
+    add rsp, 8             ; rsp = 3920
+    ```
+* And we have successfully returned to the previous stack frame, the one with `rbp=3936` .
+* State of pointers: `rsp=3920` and `rbp=3936` .
+
+***
+
+Now we are inside the `rbp=3936` stack frame.
+
+* Here, the value of `n` was `4`. So, `.L2` was executed, which sets up the next recursion call.
+* The next recursion call was `rbp=3904` , which successfully returned 6 in `eax`.
+*   Now we are at:
+
+    ```
+    imul eax, DWORD PTR -4[rbp]
+    ```
+* For this stack frame, `rbp=3936` , `-4[3936]` would go to `3932` , which stores a local copy of `n` received by this procedure's frame. The value of `n` is `4` here.
+*   So, the instruction translates to:
+
+    ```
+    imul eax, 4
+    ```
+
+    &#x20;`eax` is 6, so the result in `eax` would be 24.
+*   After this, `.L3` is called.
+
+    ```
+    ; leave
+    mov rsp, 3936
+    mov rbp, [3936]        ; [3936] = 3968
+    add rsp, 8             ; rsp = 3944
+
+    ; ret
+    mov rip, [3944]
+    add rsp, 8             ; rsp = 3952
+    ```
+* And we have successfully returned to the previous stack frame, the one with `rbp=3968` .
+* State of pointers: `rsp=3952` and `rbp=3968` .
+
+***
+
+Now we are inside the `rbp=3968` stack frame.
+
+* Here, the value of `n` was `5`. So, `.L2` was executed, which sets up the next recursion call.
+* The next recursion call was `rbp=3936` , which successfully returned 24 in `eax`.
+*   Now we are at:
+
+    ```
+    imul eax, DWORD PTR -4[rbp]
+    ```
+* For this stack frame, `rbp=3968` , `-4[3968]` would go to `3964` , which stores a local copy of `n` received by this procedure's frame. The value of `n` is `5` here.
+*   So, the instruction translates to:
+
+    ```
+    imul eax, 4
+    ```
+
+    &#x20;`eax` is 24, so the result in `eax` would be 120.
+*   After this, `.L3` is called.
+
+    ```
+    ; leave
+    mov rsp, 3968
+    mov rbp, [3968]        ; [3968] = 4000
+    add rsp, 8             ; rsp = 3976
+
+    ; ret
+    mov rip, [3976]
+    add rsp, 8             ; rsp = 3984
+    ```
+* And we have successfully returned to the previous stack frame, the one with `rbp=4000` .
+* State of pointers: `rsp=3984` and `rbp=4000` .
+
+***
+
+Now we are inside the `rbp=4000` stack frame.
+
+* This is where we started from.
 
 
 
