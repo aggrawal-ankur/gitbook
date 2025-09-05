@@ -239,13 +239,13 @@ And the fun begins here. Let's start with the `main` symbol.
 
 Let's shift our focus on the `sq` symbol now.
 
-*   In call by value, we are moving a double word value, which is 5.
+*   In call by value, we are moving a 4-byte value at `-4[rbp]`, which is 5.
 
     ```nasm
     mov DWORD PTR -4[rbp], edi
     ```
 
-    In call by reference, we are moving a quad word value, and we know that an integer is not sized "quad-word" or "64-bits" by default on Linux. This again reinforces the fact that this is a pointer to/address of 5, not 5 itself.
+    In call by reference, we are moving a 8-byte value, and we know that an integer is not sized "8-bytes" by default on Linux. This again reinforces the fact that this is a pointer to/address of 5, not 5 itself.
 
     ```nasm
     mov QWORD PTR -8[rbp], rdi
@@ -259,42 +259,38 @@ Let's shift our focus on the `sq` symbol now.
     ```
 
     This is quite complicated for the call by reference program.
-*   First we are loading the quad-word address in `rax`.
+*   First we are loading 8-bytes starting from `-8[rbp]`.
 
     ```nasm
     mov   rax, QWORD PTR -8[rbp]
     ```
 
-    Now we are dereferencing the quad-word value (address) to obtain the actual value (5) and we are moving the 32-bit version of it in `edx` as there is no need to waste computation. _Compiler optimization, basically._
+    Now we are dereferencing the address to obtain the actual value (5). Since it is a 32-bit value, we are using `DWORD` to move it in `edx` .
 
     ```nasm
     mov   edx, DWORD PTR [rax]
     ```
 
-    Now we are repeating the same process to hold a 32-bit version of 5 in another register for multiplication.
+    Now we are repeating the same process to hold 5 in another register for multiplication.
 
     ```nasm
     mov   rax, QWORD PTR -8[rbp]
     mov   eax, DWORD PTR [rax]
     ```
 * By the way, why we have to use separate registers here when we have used the same previously?
-*   Now the updated value `25` has to update the existing instance of stack. In call by value, it was again quite simple.
+*   Now we have to update the existing instance of stack with 25. In call by value, it was again quite simple.
 
     ```nasm
     mov   DWORD PTR -4[rbp], eax
     ```
 
-    In call by reference, first we have to load the quad-word address in `rax`:
+    In call by reference, first we have to load the 8-bytes of address in `rax`:
 
     ```nasm
     mov   rax, QWORD PTR -8[rbp]
     ```
 
-    Then we dereference it and mov a 32-bit version of 25.
-* After this we print the value, which is different again but we are now familiar with the difference at this point.
+    Then we dereference it and mov 25 there.
+* After this we print the value.
 
 And that's how call by reference works.
-
-But what is the utility of call by reference?
-
-*
