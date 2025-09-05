@@ -13,3 +13,4 @@ Assembly is not a high-level language, therefore, the usual mental models of lea
    2. Just writing a character and then backspacing it changes the outcome. And I am not joking.
 6. Progressive learning is the key. As long as you don't hurry and move progressively, you will live a happy life.
 7. Intent is more important than learning every single way of doing something. Understand what you want to achieve, then map how the generated assembly does that.
+8. What seems like an overwhelming incomprehensible black magic is just logic and compiler optimizations, where the logic becomes primitive as you go deep into trenches & understand what we are trying to do and the compiler optimizations, which are just decades of work done by intelligent beings to make code efficient stops haunting you because you understand that an **intent can be fulfilled in `n` number of ways**.
