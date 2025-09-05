@@ -1,6 +1,6 @@
 # Recursion (Recursive Function)
 
-_**04 September 2025**_
+_**04, 05 September 2025**_
 
 ***
 
@@ -281,7 +281,7 @@ This is a compressed view of stack.
 
 The top stack frame is `rbp=3808` , and is `rsp=3792` here. Let's look at assembly.
 
-* If `(n==0)` , we set `eax``=1` (which is the return value) and jump to `.L3` .
+* If `(n==0)` , we set `eax=1` (which is the return value) and jump to `.L3` .
 *   The `leave` instruction resets the stack pointer by using `rbp`&#x20;
 
     ```
@@ -313,7 +313,7 @@ The top stack frame is `rbp=3808` , and is `rsp=3792` here. Let's look at assemb
 
 Now we are inside the `rbp=3840` stack frame.
 
-* Here, `n``=1`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n=1`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3808`, which successfully returned 1 in `eax` .
 *   Now we are at:
 
@@ -349,7 +349,7 @@ Now we are inside the `rbp=3840` stack frame.
 
 Now we are inside the `rbp=3872` stack frame.
 
-* Here, `n``=2`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n=2`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3840` , which successfully returned 1 in `eax`.
 *   Now we are at:
 
@@ -385,7 +385,7 @@ Now we are inside the `rbp=3872` stack frame.
 
 Now we are inside the `rbp=3904` stack frame.
 
-* Here, `n``=3`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n=3`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3872` , which successfully returned 2 in `eax`.
 *   Now we are at:
 
@@ -421,7 +421,7 @@ Now we are inside the `rbp=3904` stack frame.
 
 Now we are inside the `rbp=3936` stack frame.
 
-* Here, `n``=4`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n=4`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3904` , which successfully returned 6 in `eax`.
 *   Now we are at:
 
@@ -457,7 +457,7 @@ Now we are inside the `rbp=3936` stack frame.
 
 Now we are inside the `rbp=3968` stack frame.
 
-* Here, `n``=5`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n=5`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3936` , which successfully returned 24 in `eax`.
 *   Now we are at:
 

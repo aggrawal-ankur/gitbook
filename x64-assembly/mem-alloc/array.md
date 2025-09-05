@@ -17,7 +17,7 @@ layout:
 
 # Arrays
 
-_**1, 2 September 2025**_
+_**1, 2, 5 September 2025**_
 
 ***
 
