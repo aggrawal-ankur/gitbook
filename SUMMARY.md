@@ -29,7 +29,7 @@
     * [Function Arguments](x64-assembly/functions/function-arguments.md)
     * [How returns are managed?](x64-assembly/functions/return.md)
   * [How Type Casting Works?](x64-assembly/type-casting.md)
-  * [The Story Of Floats](x64-assembly/floats.md)
+  * [The World Of Floats](x64-assembly/floats.md)
   * [SIMD Instructions](x64-assembly/simd.md)
   * [Type Qualifiers](x64-assembly/type-qualifiers.md)
 * [Understanding \`Hello, World!\`](understanding-hello-world/README.md)
