@@ -8,20 +8,20 @@ _**04 September 2025**_
 
 A recursive function is a function that calls itself during its execution to solve a problem by breaking it down into smaller, simpler instances of the same problem.
 
-It requires a **base case**, which is the stopping condition that prevents infinite calls, and a **recursive step** where the function calls itself with a modified input.
+It requires a **recursive step** where the function calls itself with a modified input and a **base case**, which is the stopping condition that prevents infinite calls.
 
-There are a lot of problems which can be implemented recursively, but for our use case, factorial is the best one. Why? Because it is very straightforward.
+These recursive case and base case are the things that makes a recursion either easy to understand or very complex. For this reason, we are using **factorial**, because it is very straightforward.
 
-* Problems like Tower of Hanoi and Fibonacci series can be solved with recursion but it is a little complicated to understand.
-* But we can definitely touch that once we complete factorial.
+* Problems like Tower of Hanoi and Fibonacci series can be solved with recursion but they are a little complex to understand.
+* But we can definitely touch that later.
 
 ***
 
 Recursion is the ideal next step to understand:
 
-1. how stack frames are stacked?
+1. how stack frames are "stacked"?
 2. how stack frame returns?
-3. how locals are managed?
+3. how arguments are managed across calls?
 
 ## Factorial
 
@@ -124,9 +124,9 @@ Procedures receive the first 6 arguments in registers, where the first one goes 
 
 * We can use other registers? We can manage the caller/callee discipline ourselves?
 * We can, but we've to deal with two problems.
-  * We can only implement this when we write pure assembly.
+  * We can only implement this in pure assembly.
   * There is no limit to how many arguments a function can receive, which makes relying on registers a mess.
-* We are compiling C into assembly. When we are translating a language into another one, we would prefer standard rules which remain consistent over edge cases.
+* We are compiling C into assembly. When we are translating one language into another one, we would prefer standard rules which remain consistent across all the cases.
 * That's the reason behind creating a local copy of `n` on stack. This keeps the original value intact, stack frames clean and predictable and no management hell.
 
 ***
@@ -253,7 +253,7 @@ All the addresses are in decimal, no hex is used as it creates an overhead of ca
 ```
 
 * If you notice, the addresses feel inconsistent. The difference is oscillating between 4 and 8.
-* That's because, a direct `push` is a shorthand for subtracting 8 bytes and moving a value at that memory. When we reserve 16 bytes separately, those bytes are used to store an integer, which is why they are 4-byte aligned as an integer is normally sized 4-bytes.
+* That's because a direct `push` is a shorthand for subtracting 8 bytes and moving a value at that memory. When we reserve 16 bytes separately, and they bytes are used to store an integer, they are 4-byte aligned for efficient memory access, as an integer is normally 4-bytes in size.
 
 This ASCII Art has stopped at `(n = 0)` as we have reached the base condition. Now the frames will remove one-by-one. Let's see how that works.
 
@@ -279,9 +279,9 @@ This is a compressed view of stack.
 
 ### 3808 Frame
 
-The top stack frame is `rbp=3808` , and `rsp=3792`. Let's look at assembly.
+The top stack frame is `rbp=3808` , and is `rsp=3792` here. Let's look at assembly.
 
-* If `(n==0)` , we set `rax` to 1 (which is the return value) and jump to `.L3` .
+* If `(n==0)` , we set `eax``=1` (which is the return value) and jump to `.L3` .
 *   The `leave` instruction resets the stack pointer by using `rbp`&#x20;
 
     ```
@@ -313,14 +313,14 @@ The top stack frame is `rbp=3808` , and `rsp=3792`. Let's look at assembly.
 
 Now we are inside the `rbp=3840` stack frame.
 
-* Here, the value of `n` was `1`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n``=1`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3808`, which successfully returned 1 in `eax` .
 *   Now we are at:
 
     ```
     imul eax, DWORD PTR -4[rbp]
     ```
-* For this stack frame, `rbp=3840`. `-4[3840]` would go to `3836` which stores a local copy of `n` received by this procedure's frame. The value of `n` is `1` here.
+* For this stack frame, `rbp=3840`. `-4[3840]` would go to `3836` which stores a local copy of `n` received by this procedure's frame, which is `1` here.
 *   So, the instruction translates to:
 
     ```
@@ -349,14 +349,14 @@ Now we are inside the `rbp=3840` stack frame.
 
 Now we are inside the `rbp=3872` stack frame.
 
-* Here, the value of `n` was `2`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n``=2`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3840` , which successfully returned 1 in `eax`.
 *   Now we are at:
 
     ```
     imul eax, DWORD PTR -4[rbp]
     ```
-* For this stack frame, `rbp=3872` . `-4[3872]` would go to `3868` , which stores a local copy of `n` received by this procedure's frame. The value of `n` is `2` here.
+* For this stack frame, `rbp=3872` . `-4[3872]` would go to `3868` , which stores a local copy of `n` received by this procedure's frame, which is `2` here.
 *   So, the instruction translates to:
 
     ```
@@ -385,14 +385,14 @@ Now we are inside the `rbp=3872` stack frame.
 
 Now we are inside the `rbp=3904` stack frame.
 
-* Here, the value of `n` was `3`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n``=3`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3872` , which successfully returned 2 in `eax`.
 *   Now we are at:
 
     ```
     imul eax, DWORD PTR -4[rbp]
     ```
-* For this stack frame, `rbp=3904` , `-4[3904]` would go to `3900` , which stores a local copy of `n` received by this procedure's frame. The value of `n` is `3` here.
+* For this stack frame, `rbp=3904` , `-4[3904]` would go to `3900` , which stores a local copy of `n` received by this procedure's frame, which is `3` here.
 *   So, the instruction translates to:
 
     ```
@@ -421,7 +421,7 @@ Now we are inside the `rbp=3904` stack frame.
 
 Now we are inside the `rbp=3936` stack frame.
 
-* Here, the value of `n` was `4`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n``=4`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3904` , which successfully returned 6 in `eax`.
 *   Now we are at:
 
@@ -457,14 +457,14 @@ Now we are inside the `rbp=3936` stack frame.
 
 Now we are inside the `rbp=3968` stack frame.
 
-* Here, the value of `n` was `5`. So, `.L2` was executed, which sets up the next recursion call.
+* Here, `n``=5`. So, `.L2` was executed, which sets up the next recursion call.
 * The next recursion call was `rbp=3936` , which successfully returned 24 in `eax`.
 *   Now we are at:
 
     ```
     imul eax, DWORD PTR -4[rbp]
     ```
-* For this stack frame, `rbp=3968` , `-4[3968]` would go to `3964` , which stores a local copy of `n` received by this procedure's frame. The value of `n` is `5` here.
+* For this stack frame, `rbp=3968` , `-4[3968]` would go to `3964` , which stores a local copy of `n` received by this procedure's , which is `5` here.
 *   So, the instruction translates to:
 
     ```
@@ -500,11 +500,11 @@ Sigh. It was crazy, isn't it? Conclusion is still remaining.
 
 ## Conclusion
 
-Writing this was no easy and now I have to read the whole thing again to write a conclusion.
+The only conclusion that is worth reading is that,&#x20;
 
+_<mark style="color:$danger;">it's a hoax that low level systems are complex and impossible to understand without the help of some C God. It's a hoax that you can't draw theory, visualize theory. Any idea that restricts you from doing the work to build deep understanding is just a hoax. It takes time and it takes energy, but the output is worth every bit of effort.</mark>_
 
+It took me a whole day to build this understanding and stack art, roughly \~7h accumulated.
 
-
-
-
-
+* And the result of that is that I will never be confused about stack discipline.
+* I am sure that stack is not done yet. There is a lot to explore. But I am also ready to do that, _**the hard way, the boring way, the repetitive way**_.
