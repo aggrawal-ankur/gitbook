@@ -291,27 +291,6 @@ Let's shift our focus on the `sq` symbol now.
 
 And that's how call by reference works.
 
-But, what is the utility of it? Let's find that.
+But what is the utility of call by reference?
 
-***
-
-## The Need Of Call By Reference
-
-```c
-#include <stdio.h>
-
-void printArray(){
-  
-}
-
-int main(){
-  int a;
-}
-```
-
-
-
-
-
-
-
+*
