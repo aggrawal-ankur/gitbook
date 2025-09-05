@@ -6,9 +6,9 @@ _**5 September 2025**_
 
 ## Parameters and Arguments
 
-Parameters are defined in function definition, which act as placeholders.
+Parameters are variables defined in a function definition that act as placeholders for values the function will receive.
 
-Arguments are the actual value passed in the function call.
+Arguments are the actual values supplied to a function when it is called.
 
 For example:
 
@@ -30,8 +30,8 @@ int main(){
 
 Functions can receive arguments from the caller. These arguments can be passed in two ways.
 
-1. A copy of the actual value -> call by value.
-2. A direct reference of the actual value -> call by reference.
+1. Call by value -> a copy of the actual value is passed.
+2. Call by reference -> the memory address of the value is passed, allowing the function to modify the original variable.
 
 Let's take an example. We have a number and we want to increment it by 10.
 
@@ -71,7 +71,7 @@ int main(){
 }
 ```
 
-When we normally pass a value, a copy of it is passed. When we pass the reference of a value, the memory address at which it is stored is passed, which is why the change persist after function call.
+When we normally pass a value, a copy of it is passed. When we pass the reference of a value, the memory address at which it is stored is passed, which is why the change persists after function call.
 
 * **Swapping two numbers** is very famous in this space.
 
@@ -259,13 +259,13 @@ Let's shift our focus on the `sq` symbol now.
     mov   rax, QWORD PTR -8[rbp]
     ```
 
-    Now we dereference the address to obtain the actual value (5). Since it is a 32-bit value, we are using `DWORD` to move it in `edx` .
+    Next we dereference the address to obtain the actual value (5). Since it is a 32-bit value, we are using `DWORD` to move it in `edx` .
 
     ```nasm
     mov   edx, DWORD PTR [rax]
     ```
 
-    Now we are repeating the same process to hold 5 in another register for multiplication.
+    We repeat the same process to hold 5 in another register for multiplication.
 
     ```nasm
     mov   rax, QWORD PTR -8[rbp]
