@@ -200,15 +200,92 @@ main:
 	ret
 ```
 
+## Padding
 
+Padding and alignment is very important to understand in structures.
 
+So far, we only had integer members in the structure. When we add more members, of different types, the dynamics change.
 
+For example:
 
+```c
+struct Point {
+  int x;
+  int y;
+  char gen;
+  int* memo;
+};
 
+int main(){
+  int num = 88;
 
+  struct Point P;
+  P.x = 4;
+  P.y = 5;
+  P.gen = 'M';
+  P.memo = &num;
 
+  printf("Hello\n");
+}
+```
 
+The assembly is this:
 
+```nasm
+.LC0:
+	.string	"Hello"
+
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 32
+
+	mov	DWORD PTR -4[rbp], 88		; num
+
+	mov	DWORD PTR -32[rbp], 4		; P.x
+	mov	DWORD PTR -28[rbp], 5		; P.y
+	mov	BYTE PTR -24[rbp], 77		; P.gen (ASCII value of 'M')
+
+	lea	rax, -4[rbp]			; addr of -4[rbp], which is n
+	mov	QWORD PTR -16[rbp], rax		; P.memo
+
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	call	puts@PLT
+
+	mov	eax, 0
+	leave
+	ret
+```
+
+We need 21 bytes so 32 are reserved on stack.
+
+Let's have a look at stack layout.
+
+```asciidoc
+                       rbp
+                    *---------*
+-04, -03, -02, -01  | num 88  |
+                    *---------*
+-08, -07, -06, -05, | Empty   |
+                    | Padding |
+                    *---------*
+-16, -15, -14, -13, | P.memo  | -16[rbp] (8-byte)
+-12, -11, -10, -09  *---------*
+                    *---------*
+-24, -23, -22, -21, | P.gen   | -24[rbp] (1-byte + 7-byte for padding)
+-20, -19, -18, -17  *---------*
+                    *---------*
+-28, -27, -26, -25  | P.y     | -28[rbp] (4-byte)
+                    *---------*
+-32, -31, -30, -29  | P.x     | -32[rbp] (4-byte)
+                    *---------*
+```
+
+If we print the size of struct, it is 24 bytes.
+
+* 4 (x), 4(y), 8(memo) and 8 (gen).
+* The padding within the struct is measured according to the biggest type member. Here, it is pointer, which requires 8-bytes of space. x and y together keeps it 8-byte aligned but gen breaks that so 7-bytes of padding is given to it.
 
 
 
