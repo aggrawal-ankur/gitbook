@@ -16,7 +16,7 @@ For example:
 #include <stdio.h>
 
 int square(int n){
-  return n*n
+  return n*n;
 }
 
 int main(){
@@ -26,28 +26,26 @@ int main(){
 
 * Here, `n` is parameter and `5` is the argument.
 
-## Passing Methods
+## Parameter Passing
 
-Parameters can be passed in two ways:
+Functions can receive arguments from the caller. These arguments can be passed in two ways.
 
-1. A copy of the actual value.
-2. The value directly.
-
-This is what call by value and call by reference is.
+1. A copy of the actual value -> call by value.
+2. A direct reference of the actual value -> call by reference.
 
 Let's take an example. We have a number and we want to increment it by 10.
 
 ```c
 #include <stdio.h>
 
-int inc1(int n){
+void inc1(int n){
   printf("Inside inc1\n");
   printf("  Before increment: %d\n", n);
   n += 10;
   printf("  After increment: %d\n", n);
 }
 
-int inc2(int *m){
+void inc2(int *m){
   printf("Inside inc2\n");
   printf("  Before increment: %d\n", *m);
   *m += 10;
@@ -75,13 +73,11 @@ int main(){
 
 When we normally pass a value, a copy of it is passed. When we pass the reference of a value, the memory address at which it is stored is passed, which is why the change persist after function call.
 
-* Swapping two numbers problem is very famous in this space.
+* **Swapping two numbers** is very famous in this space.
 
-## Distinction
+## Assembly Comparison
 
-Lets see how the assembly differs for both the methods.
-
-This is call by value, the one we have been exploring all this time.
+This is call by value.
 
 ```c
 #include <stdio.h>
@@ -145,9 +141,7 @@ main:
 	ret
 ```
 
-As you can see, nothing new. We are copying the value and passing it to the procedure.
-
-Lets talk about reference now.
+This is call by reference.
 
 ```c
 #include <stdio.h>
@@ -175,7 +169,7 @@ sq:
 	mov	rbp, rsp
 	sub	rsp, 16
 
-	mov	QWORD PTR -8[rbp], rdi          ; reference of 5
+	mov	QWORD PTR -8[rbp], rdi          ; address of num passed from main
 	mov	rax, QWORD PTR -8[rbp]
 	mov	edx, DWORD PTR [rax]
 	mov	rax, QWORD PTR -8[rbp]
@@ -227,13 +221,13 @@ And the fun begins here. Let's start with the `main` symbol.
     mov eax, DWORD PTR -4[rbp]
     ```
 
-    In call by reference, we are computing the address where 5 is loaded:
+    In call by reference, we are computing the address where 5 is in the stack memory:
 
     ```nasm
     lea rax, -4[rbp]
     ```
-* Since integers are interpreted as 4-bytes here, call by value assembly uses 32-bit registers. Although we can say that compiler optimized it but the call by value one used 64-bit registers and no optimization is possible by default as pointers are 8-bytes in size in 64-bit Linux.
-* The rest is the same in both.
+* In call by reference, the compiler uses 64-bit registers for the pointer, because addresses on a 64-bit system are 8 bytes. The integer itself is 4 bytes, so we still use 32-bit registers for arithmetic.
+* The rest is the same.
 
 ***
 
@@ -259,13 +253,13 @@ Let's shift our focus on the `sq` symbol now.
     ```
 
     This is quite complicated for the call by reference program.
-*   First we are loading 8-bytes starting from `-8[rbp]`.
+*   First we load 8-bytes starting from `-8[rbp]`.
 
     ```nasm
     mov   rax, QWORD PTR -8[rbp]
     ```
 
-    Now we are dereferencing the address to obtain the actual value (5). Since it is a 32-bit value, we are using `DWORD` to move it in `edx` .
+    Now we dereference the address to obtain the actual value (5). Since it is a 32-bit value, we are using `DWORD` to move it in `edx` .
 
     ```nasm
     mov   edx, DWORD PTR [rax]
@@ -277,7 +271,7 @@ Let's shift our focus on the `sq` symbol now.
     mov   rax, QWORD PTR -8[rbp]
     mov   eax, DWORD PTR [rax]
     ```
-* By the way, why we have to use separate registers here when we have used the same previously?
+* We are using different registers here to avoid overwriting values that are still required for computation.
 *   Now we have to update the existing instance of stack with 25. In call by value, it was again quite simple.
 
     ```nasm
