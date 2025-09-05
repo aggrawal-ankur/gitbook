@@ -200,7 +200,7 @@ main:
 	ret
 ```
 
-## Padding
+## Internal Padding In Structs
 
 Padding and alignment is very important to understand in structures.
 
@@ -284,8 +284,64 @@ Let's have a look at stack layout.
 
 If we print the size of struct, it is 24 bytes.
 
-* 4 (x), 4(y), 8(memo) and 8 (gen).
+* 4 (x), 4(y), 8(memo) and 8(gen).
 * The padding within the struct is measured according to the biggest type member. Here, it is pointer, which requires 8-bytes of space. x and y together keeps it 8-byte aligned but gen breaks that so 7-bytes of padding is given to it.
 
+## Struct In Function Arguments
 
+Just like arrays, a struct also decays into a pointer when passed to a function. Take this:
 
+```c
+#include <stdio.h>
+
+struct Point {
+  int x;
+  int y;
+};
+
+void takePointPtr(struct Point *p){}
+
+void takePoint(struct Point p){}
+
+int main() {
+  struct Point p = {10, 20};
+  printPoint(p);
+  printPointPtr(&p);
+}
+```
+
+This is the assembly, which is same for both the functions.
+
+```nasm
+takePointPtr:
+	push	rbp
+	mov	rbp, rsp
+	mov	QWORD PTR -8[rbp], rdi
+	nop
+	pop	rbp
+	ret
+
+takePoint:
+	push	rbp
+	mov	rbp, rsp
+	mov	QWORD PTR -8[rbp], rdi
+	nop
+	pop	rbp
+	ret
+
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 16
+	mov	DWORD PTR -8[rbp], 10
+	mov	DWORD PTR -4[rbp], 20
+	mov	rax, QWORD PTR -8[rbp]
+	mov	rdi, rax
+	call	takePoint
+	lea	rax, -8[rbp]
+	mov	rdi, rax
+	call	takePointPtr
+	mov	eax, 0
+	leave
+	ret
+```

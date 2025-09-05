@@ -26,7 +26,6 @@
     * [Functions && Stack](x64-assembly/functions/stack.md)
     * [Recursion (Recursive Function)](x64-assembly/functions/recursion.md)
     * [Parameter Passing](x64-assembly/functions/parameter-passing.md)
-    * [Function Arguments](x64-assembly/functions/function-arguments.md)
     * [How returns are managed?](x64-assembly/functions/return.md)
   * [How Type Casting Works?](x64-assembly/type-casting.md)
   * [The World Of Floats](x64-assembly/floats.md)
