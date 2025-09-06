@@ -288,3 +288,9 @@ Let's shift our focus on the `sq` symbol now.
 * After this we print the value.
 
 And that's how call by reference works.
+
+## But what is the utility of call by reference?
+
+That's the only way stack frames can interact.
+
+That's the only way stack frames can manage complex data.
