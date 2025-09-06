@@ -31,6 +31,8 @@
   * [The World Of Floats](x64-assembly/floats.md)
   * [SIMD Instructions](x64-assembly/simd.md)
   * [Type Qualifiers](x64-assembly/type-qualifiers.md)
+  * [Format Specifier](x64-assembly/format-specifier.md)
+* [Inline Assembly](inline-assembly.md)
 * [Understanding \`Hello, World!\`](understanding-hello-world/README.md)
   * [A High Level Overview Of Build Process In C](understanding-hello-world/a-high-level-overview-of-build-process-in-c.md)
   * [What is \`gcc\` ?](understanding-hello-world/lets-talk-about-gcc.md)
