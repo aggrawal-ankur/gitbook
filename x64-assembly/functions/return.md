@@ -376,13 +376,125 @@ Now we are smart enough to recognize that export two 8-byte pointers and unpack 
 
 Time for final boss, structs ≥ 16 bytes.
 
+## Returning Structs/Unions > 16 Bytes
 
+For structs greater than 16 bytes in size, the caller must allocate space for the return object and pass a hidden pointer to it as the first argument.
 
+The callee writes the struct into that space and returns (with `rax` typically holding that pointer back again).
 
+Basically, we came back to square one. The caller has to pass a pointer, either pass it directly or indirectly.
 
+***
 
+Like every single time, the caller would reserve space on stack, what changes is that this time, the caller will pass address to the start of memory reserve for stack in caller's stack frame. The callee will use that pointer to populate the caller's stack frame directly. And the callee returns the same address again. That's it.
 
+This is the source:
 
+```c
+#include <stdio.h>
+#include <stdint.h>
 
+struct Point { int x; int y; int z; int r; int s;};
 
+struct Point make_pair(int a, int b, int c, int d, int e) {
+  struct Point p;
+  p.x = a;
+  p.y = b;
+  p.z = c;
+  p.r = d;
+  p.s = e;
+  return p;
+}
 
+int main() {
+  struct Point p = make_pair(2, 3, 4, 5, 6);
+
+  printf("sizeof struct `p`: %d\n", sizeof(p));
+}
+```
+
+And the assembly:
+
+```nasm
+make_pair:
+	push	rbp
+	mov	rbp, rsp
+
+	; local copy of arguments (2, 3, 4, 5, 6)
+	mov	QWORD PTR -40[rbp], rdi
+	mov	DWORD PTR -44[rbp], esi
+	mov	DWORD PTR -48[rbp], edx
+	mov	DWORD PTR -52[rbp], ecx
+	mov	DWORD PTR -56[rbp], r8d
+	mov	DWORD PTR -60[rbp], r9d
+
+	; another copy for return mgmt
+	mov	eax, DWORD PTR -44[rbp]
+	mov	DWORD PTR -32[rbp], eax
+	mov	eax, DWORD PTR -48[rbp]
+	mov	DWORD PTR -28[rbp], eax
+	mov	eax, DWORD PTR -52[rbp]
+	mov	DWORD PTR -24[rbp], eax
+	mov	eax, DWORD PTR -56[rbp]
+	mov	DWORD PTR -20[rbp], eax
+	mov	eax, DWORD PTR -60[rbp]
+	mov	DWORD PTR -16[rbp], eax
+
+	; Updating the memory in main's stack frame (via rdi)
+	mov	rcx, QWORD PTR -40[rbp]			; save the address in caller's stack in rcx for easy access
+	mov	rax, QWORD PTR -32[rbp]			; load 8-bit pointers to 2 and 4
+	mov	rdx, QWORD PTR -24[rbp]			; load 8-bit pointers to 2 and 4
+	mov	QWORD PTR [rcx], rax 			; dereference and populate
+	mov	QWORD PTR 8[rcx], rdx			; dereference and populate
+	mov	eax, DWORD PTR -16[rbp]			; load 6
+	mov	DWORD PTR 16[rcx], eax			; copy 6
+
+	mov	rax, QWORD PTR -40[rbp]			; prepare rax for return
+	pop	rbp
+	ret
+
+.LC0:
+	.string	"sizeof struct `p`: %d\n"
+
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 32
+
+	lea	rax, -32[rbp]		; address of struct on main's stack frame
+
+	mov	r9d, 6
+	mov	r8d, 5
+	mov	ecx, 4
+	mov	edx, 3
+	mov	esi, 2
+	mov	rdi, rax            	; the address is passed in rdi as the 1st arg
+	call	make_pair
+
+	; printf
+	mov	esi, 20
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+
+	mov	eax, 0
+	leave
+	ret
+
+```
+
+Simple.
+
+## Conclusion
+
+What did we learn?
+
+1. `-O0` is best to study the fundamentals, the bookish behavior. It is not for shipping the final product. In any of the cases, just change `-O0` to 1 or 2 and you'll start to notice how dangerous the assembly gets. Dangerous in terms of optimization. It shows that a group of assembly instructions can be replaced by one single assembly instruction as well.
+2. A lot of times, the most "complex looking things" boils down to simple hacks.
+
+***
+
+<table><thead><tr><th width="200">Struct Size / Type</th><th width="233">Registers Used</th><th>Notes / ABI Behavior</th></tr></thead><tbody><tr><td>Scalar / int / pointer</td><td><code>rax</code></td><td>Single value returned directly.</td></tr><tr><td>2×int / 8-byte struct</td><td><code>rax</code></td><td>Packed into <code>rax</code>.</td></tr><tr><td>3×int / 12-byte struct</td><td><code>rax</code> + <code>rdx</code></td><td>First 8 bytes → <code>rax</code>, last 4 bytes → <code>rdx</code>.</td></tr><tr><td>4×int / 16-byte struct</td><td><code>rax</code> + <code>rdx</code></td><td>Two 8-byte halves → <code>rax</code>/<code>rdx</code>.</td></tr><tr><td>>16 bytes</td><td>Caller allocates storage; pointer passed in <code>rdi</code> (sret)</td><td>Callee fills struct in caller-provided memory. <code>rax</code> may return the pointer.</td></tr></tbody></table>
+
+And we are done with returning complex data.
