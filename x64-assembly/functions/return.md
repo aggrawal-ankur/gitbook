@@ -12,7 +12,7 @@ Returns can be classified into 3 types:
 2. **Arrays**: they can't be returned. Period. You pass a reference to a modifiable memory from the caller itself. To return a local declaration, you make it block static.
 3. **Structures/Unions**: this is where the problem is.
 
-## Returning Structures/Unions
+## Returning Structures/Unions <= 16 Bytes
 
 System V ABI decides return strategy based on size and fields.
 
@@ -21,7 +21,7 @@ System V ABI decides return strategy based on size and fields.
 
 ***
 
-Take this:
+### 8-byte Struct
 
 ```c
 #include <stdio.h>
@@ -89,7 +89,7 @@ main:
 	ret
 ```
 
-This would be the state of stack:
+This would be the state of `make_pair` stack frame:
 
 ```asciidoc
     rbp
@@ -178,6 +178,205 @@ q.x = 2, q.y = 3
 ```
 
 This is the proof that the compiler packed both the members of the struct in `rax` only.
+
+### 12-byte Struct
+
+```c
+#include <stdio.h>
+#include <stdint.h>
+
+struct Point { int x; int y; int z;};
+
+struct Point make_pair(int a, int b, int c) {
+  struct Point p;
+  p.x = a;
+  p.y = b;
+  p.z = c;
+  return p;
+}
+
+int main() {
+  struct Point p = make_pair(2, 3, 4);
+
+  printf("sizeof struct `p`: %d\n", sizeof(p));
+}
+```
+
+This is the assembly.
+
+```nasm
+make_pair:
+	push	rbp
+	mov	rbp, rsp
+
+	; make a local copy of args (2, 3, 4)
+	mov	DWORD PTR -36[rbp], edi
+	mov	DWORD PTR -40[rbp], esi
+	mov	DWORD PTR -44[rbp], edx
+
+	; Copy them again
+	mov	eax, DWORD PTR -36[rbp]
+	mov	DWORD PTR -24[rbp], eax
+
+	mov	eax, DWORD PTR -40[rbp]
+	mov	DWORD PTR -20[rbp], eax
+
+	mov	eax, DWORD PTR -44[rbp]
+	mov	DWORD PTR -16[rbp], eax
+
+	; Copy them again which is used in return
+	mov	rax, QWORD PTR -24[rbp]
+	mov	QWORD PTR -12[rbp], rax
+
+	mov	eax, DWORD PTR -16[rbp]
+	mov	DWORD PTR -4[rbp], eax
+
+	mov	rax, QWORD PTR -12[rbp]          ; (2, 3) in rax
+	mov	ecx, DWORD PTR -4[rbp]           ; 4 in rdx
+	mov	rdx, rcx
+
+	pop	rbp
+	ret
+
+.LC0:
+	.string	"sizeof struct `p`: %d\n"
+
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 16
+
+	mov	edx, 4
+	mov	esi, 3
+	mov	edi, 2
+	call	make_pair
+
+	; Unpack
+	mov	QWORD PTR -12[rbp], rax
+	mov	eax, DWORD PTR -4[rbp]
+	and	eax, 0
+	or	eax, edx
+	mov	DWORD PTR -4[rbp], eax
+
+	mov	esi, 12
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+	mov	eax, 0
+	leave
+	ret
+```
+
+This time, `rax` alone can't help as it has already contained the two ints. So we use `rdx` to return the third int. The extra copying behavior is due to `-00`.
+
+This would be the state of `make_pair` stack frame.
+
+```
+    rbp
+ -4[rbp]  <-> 4
+ -8[rbp]  <->
+-12[rbp]  <-> 2, 3
+
+-16[rbp]  <-> 4
+-20[rbp]  <-> 3
+-24[rbp]  <-> 2
+-28[rbp]  <->
+-32[rbp]  <->
+-36[rbp]  <-> 2
+-40[rbp]  <-> 3
+-44[rbp]  <-> 4
+```
+
+### 16-byte Struct
+
+```c
+#include <stdio.h>
+#include <stdint.h>
+
+struct Point { int x; int y; int z; int s;};
+
+struct Point make_pair(int a, int b, int c, int d) {
+  struct Point p;
+  p.x = a;
+  p.y = b;
+  p.z = c;
+  p.s = d;
+  return p;
+}
+
+int main() {
+  struct Point p = make_pair(2, 3, 4, 5);
+
+  printf("sizeof struct `p`: %d\n", sizeof(p));
+}
+```
+
+This is the assembly:
+
+```nasm
+make_pair:
+	push	rbp
+	mov	rbp, rsp
+
+	; local copy of args (2, 3, 4, 5)
+	mov	DWORD PTR -20[rbp], edi
+	mov	DWORD PTR -24[rbp], esi
+	mov	DWORD PTR -28[rbp], edx
+	mov	DWORD PTR -32[rbp], ecx
+
+	; copy them for return
+	mov	eax, DWORD PTR -20[rbp]
+	mov	DWORD PTR -16[rbp], eax
+	mov	eax, DWORD PTR -24[rbp]
+	mov	DWORD PTR -12[rbp], eax
+	mov	eax, DWORD PTR -28[rbp]
+	mov	DWORD PTR -8[rbp], eax
+	mov	eax, DWORD PTR -32[rbp]
+	mov	DWORD PTR -4[rbp], eax
+
+	; export two 8-byte pointers
+	mov	rax, QWORD PTR -16[rbp]
+	mov	rdx, QWORD PTR -8[rbp]
+
+	pop	rbp
+	ret
+
+.LC0:
+	.string	"sizeof struct `p`: %d\n"
+
+main:
+	push	rbp
+	mov	rbp, rsp
+	sub	rsp, 16
+
+	mov	ecx, 5
+	mov	edx, 4
+	mov	esi, 3
+	mov	edi, 2
+	call	make_pair
+
+	mov	QWORD PTR -16[rbp], rax
+	mov	QWORD PTR -8[rbp], rdx
+
+	mov	esi, 16
+	lea	rax, .LC0[rip]
+	mov	rdi, rax
+	mov	eax, 0
+	call	printf@PLT
+
+	mov	eax, 0
+	leave
+	ret
+```
+
+Now we are smart enough to recognize that export two 8-byte pointers and unpack them in main is the strategy for 16-byte structs. Perfect.
+
+***
+
+Time for final boss, structs ≥ 16 bytes.
+
+
 
 
 
