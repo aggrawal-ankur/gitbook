@@ -294,3 +294,5 @@ And that's how call by reference works.
 That's the only way stack frames can interact.
 
 That's the only way stack frames can manage complex data.
+
+Pointers are the _**only**_**&#x20;mechanism** that lets a function access memory outside its own frame
