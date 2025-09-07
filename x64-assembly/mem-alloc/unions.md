@@ -2,6 +2,8 @@
 
 _**September 06, 2025**_
 
+***
+
 ## Introduction
 
 Unions are like structures syntactically but they differ in terms of memory allocation.
