@@ -79,3 +79,5 @@
 * [Extras](extras/README.md)
   * [What Is Garbage Collection?](extras/garbage-collection.md)
   * [Introduction To Processes In Linux](extras/processes.md)
+  * [How Package Management Works?](extras/how-package-management-works.md)
+  * [Virtualization](extras/virtualization.md)
