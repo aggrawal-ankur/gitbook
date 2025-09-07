@@ -17,7 +17,7 @@ layout:
 
 # Numbers In Computer Science
 
-_**06 September 2025**_
+_**Polished on 06 September 2025 (written in May 2025)**_
 
 ***
 
@@ -55,7 +55,7 @@ For example: `0101` ; to obtain it decimal equivalent, we have to multiply each 
 
 * `0101` = `0* 2^3 + 1* 2^2 + 0* 2^1 + 1* 2^0` = `0 + 4 + 0 + 1` = 5.
 
-Simple.
+If you have any problem, it is discussed **in detail** below.
 
 ***
 
@@ -105,16 +105,13 @@ Thus, a group of 8-bits can represent -128 to +127. Their representation is as f
 
 In binary number system, + and - holds no meaning. Complements are how we represent negative numbers here.
 
-Complements are mathematical transformations of binary numbers, specifically designed for how binary arithmetic works in computers.
+* _Complements are mathematical transformations of binary numbers, specifically designed for how binary arithmetic works in computers._
 
-The most common ones are:
-
-1. 1's Complement, and
-2. 2's Complement
+The most common ones are: 1's and 2's complement.
 
 ### Types Of Bits
 
-Primarily, there are two types of bits.
+Primarily there are two types of bits.
 
 1. Least Significant Bit (LSB) : It is the rightmost bit in the binary representation of an integer. It is called **least** because setting this ON/OFF has the least impact on the magnitude of the value.
 2. Most Significant Bit (MSB) : It is the leftmost bit in the binary representation of an integer. It is called **most** because setting this ON/OFF has the largest possible impact on the magnitude of the value.
@@ -229,11 +226,7 @@ But 16 as a combination is not possible using 4-bits.
 
 ## Binary Arithmetic
 
-
-
-CONTINUE FROM HERE
-
-
+Take out your elementary mathematics notes because we are going to need them
 
 ### Unsigned Arithmetic
 
@@ -241,7 +234,9 @@ Just like normal addition, except that carrying and borrowing rules are differen
 
 #### Addition
 
-Carry, once the sum exceeds 1.
+**Carry** once the sum exceeds 1. And dispose than 1 only when the result of a sum is 0.
+
+Basically, if the digits in sum are more than 1, you have to carry.
 
 Example:
 
@@ -258,72 +253,92 @@ We have to add a new bit because the result exceeded the bit-limit.
 
 #### Subtraction
 
-We know that `10 - 8 = 2`. And we can do the same for any operands. But the problem is, this process has become so automatic that we know it subconsciously but we have forget it consciously.
+_Take out you subtraction notes now. We are gonna need them. Just joking. If you don't remember, you'll._
 
-To understand binary subtraction, we have to revisit how subtraction actually work.
+***
 
-All of use are using decimal number system since elementary school. And we know that every digit in a number has a _**position**_ attached to it.
+We know that `10 - 8 = 2`. And we can do the same for any operands. But this process has become so automatic that we have internalize the theory subconsciously and forget it consciously.
 
-For example: 49521
+To understand binary subtraction, we have to revisit how subtraction works.
 
-* Moving from right to left,
+In decimal number system, every digit in a number has a _**position**_ attached to it. For example, take `49521` . Moving from right to left,
+
 * 1 is the ones digit,
 * 2 is the tens digit,
 * 5 is the hundreds digit,
 * 9 is the thousands digit, and
 * 4 is the ten-thousands digit.
 
-These positions aren't NPCs, they have a purpose.
+These positions aren't NPCs, they have a purpose. And this _purpose_ is the whole **purpose of our revisit.**
 
-We also know that decimal system is a base-10 system. But what does that actually mean?
+We know that decimal system is a base-10 system. But what does that actually mean?
 
-Every position has a _**weight**_ attached to it. _**Weights**_ are indices raised to the power of base.
+* _It means that every position has a **weight** attached to it, where **weights** are indices raised to the power of base and **indices**_ refers to a numerical identity, given to a position. _These **indices** start from 0 and go till (number of digits - 1)._
 
-_**Indices**_ refers to a numerical identity, given to a position. These **indices** start from 0 and go till (number of digits - 1).
+Therefore,
 
 * The ones position carries a weight of 10^0 = 1.
 * The tens position carries a weight of 10^1 = 10
-* The hundreds position carries a weight of 10^2 = 10
-* The thousands position carries a weight of 10^3 = 10000
+* The hundreds position carries a weight of 10^2 = 100
+* The thousands position carries a weight of 10^3 = 1000
 * The ten-thousands position carries a weight of 10^4 = 10000
 
-In division, we use the terms dividend and divisor, which, in simple terms, dissolve to numerator and denominator, respectively. In subtraction, we have _**minuend**_ and _**subtrahend**_. I can't remember if I have heard these words before. I also read them first when I had this task. Anyways.
+***
 
-To keep things simple, if we have `op1 - op2` operation, op1 is the _**minuend**_ while op2 is the _**subtrahend**_.
+In division, we have dividend (numerator) and divisor (denominator). In subtraction, we have _**minuend**_ and _**subtrahend**_.
+
+* _Even I can't remember if I have heard these words before._
+
+To keep things simple, if we have `op1 - op2` operation, op1 is the _**minuend**_ and op2 is the _**subtrahend**_.
+
+***
 
 There are multiple techniques to do subtraction.
 
-* In school, we have learned _**column-based subtraction**_, which involves borrwoing from the left digits.
-* We can add equal numbers to both the minuend and subtrahend and make the subtrahend end with zero. Visually, it realives a lot of strain.
-* Subtraction by complement. A quite easy way to do subtraction. Computers use 2's complement.
-* Most simplest way, counting.
-* One way that I like and find myself using quite often is decomposition, where we break numbers in pairs of 10s. Like 4215 can be broken into 4200 + 15. 2307 can be broken into 2300 + 7. 4200 - 2300 is simple, 1900. So as 15 - 7, 8. Add at last, 1900 + 8, result = 1908.
-* And yes, I didn't forget calculator!
+1. In school, we have learned _**column-based subtraction**_, which involves borrowing from the left digits.
+2. We can **add equal** numbers to both minuend and subtrahend and make the subtrahend end with zero. It helps visually, that's it.
+3. **Subtraction** by complement. A quite easy way to do subtraction, and computers this.
+4. Most simplest way, **counting**, _even though I confuse that as well, sometimes_.
+5. **Decomposition**. I love this one and use it quite often, when I don't have calculator. We break numbers in pairs of 10s. Like 4215 can be broken into 4200 + 15. 2307 can be broken into 2300 + 7. 4200 - 2300 is simple, 1900. So as 15 - 7, 8. Add at last, 1900 + 8, result = 1908. I use this in addition as well.
+6. And yes, I didn't forget calculator!
+
+***
+
+We have to study column-based subtraction for binary bits.
 
 When doing column-based subtraction, we subtract digits at corresponding positions in minuend and subtrahend. For example: 4215 and 2307. The digit at ones position (7) will be subtracted from the digit at ones position (5) only.
 
-Sometimes, we get stuck when the corresponding minuend is lesser than the subtrahend. In that case, we _**borrow**_ from the left side. That's where things get intersting.
+Sometimes, we get stuck when the corresponding minuend is lesser than the subtrahend. In that case, we _**borrow**_ from the left side. This is where the problem is.
 
-When we do `10 - 4`, borrowing is inevitable here.
+Let's take `10 - 4` as borrowing is inevitable here.
 
-We are taught that when we borrow, reduce the one from the lender and add 10 to the borrower. 0 borrowing from 1 and it becomes 10. Now it can subtract. Similariy, in `20 - 4`, we just need 10, not the entire 20, but it is 20. Upon looking closely, 20 is just 10+10. Problem solved. Take out one 10 and give it to 0.
+We are taught that when we borrow, we reduce the one from the lender and add 10 to the borrower. So, 0 borrowing from 1 becomes 10. Now it can subtract.
 
-But why 10 only? Why not 5? The answer is weight.
+* _You may ask, it was 10 before as well. And seriously, I also want to know the "commonsense" behind this. But anyways._
 
-* Treat positions like containers, where every container has a limit on how much it can accomodate.
-* The ones position has a weight 10^0 or 1. It can't accomodate more than that. And 1 here represents the base value, which is 10.
-* That is why we have never borrowed more than 10.
+Similarly, in `20 - 4`, we just need 10, not the entire 20. Upon looking closely, 20 is just 10+10. Problem solved. Take out one 10 and give it to 0.
 
-I think that all we need to remember about subtraction.
+* But why 10 only? Why not any arbitrary number? And the answer is **weight**.
 
-Lets tackle binary subtraction now.......
+Treat positions like containers, where every container has a limit on how much it can contain.
 
-There are 4 rules, 3 of them are simple and straightforward. And one is the rebel.
+* The ones position has a weight 10^0 or 1. It can't contain more than that. And 1 here represents the base value, which is 10, not the literal 1.
+* That is why we have never borrowed more than 10. Because it can't hold more. And to keep thing consistent, we borrow the max value, not any arbitrary digit.
 
-* `0 - 0 = 0`
-* `1 - 1 = 0`
-* `1 - 0 = 1`
-* `0 - 1 = 1`, this is where the problem is.
+***
+
+That's all we need to know. _Looks easy huh?_
+
+Lets tackle binary subtraction now.
+
+There are 4 rules, 3 of them are straightforward. And one is the rebel.
+
+```asciidoc
+0 - 0 = 0
+1 - 1 = 0
+1 - 0 = 1
+0 - 1 = 1        # the problem
+```
 
 Take this:
 
@@ -333,7 +348,7 @@ _ 0110 (6)
 = 0010 (2)
 ```
 
-> Simple.
+* Simple.
 
 And these?
 
@@ -342,7 +357,6 @@ _ 0100 (4)
   0001 (1)
 = 0011
 
-
 _ 1010 (10)
   0011 (3)
 = 0111
@@ -350,21 +364,32 @@ _ 1010 (10)
 
 If you are questioning _what and how_, then we are on the same page. I have also wasted hours figuring out the same.
 
-Anyone who has spend time with binary knows about "8 4 2 1". Some might know it by name, others use it as is. I fall in the others category. My search brought me to this YouTube video: [Binary Addition and Subtraction Explained (with Examples)](https://www.youtube.com/watch?v=AE-27BSbkJ4\&t=629s\&pp=ygUSYmluYXJ5IHN1YnRyYWN0aW9u). And the first time, I got introduced to the term weights.
+Anyone who has spend time with binary knows about "8 4 2 1". Some might know it by name, others use it as is. I fall in the others category.
 
-Therefore, 8 4 2 1 are basically weights in binary number system.
+My search brought me to this YouTube video: [Binary Addition and Subtraction Explained (with Examples)](https://www.youtube.com/watch?v=AE-27BSbkJ4\&t=629s\&pp=ygUSYmluYXJ5IHN1YnRyYWN0aW9u). And the first time, I got introduced to the term **weights**.
 
-General Formula: `Weight For Position i = (base)^i`
+* These 8 4 2 1 are the weights in binary number system.
+*   To obtain weight for any given position, we use this formula:&#x20;
 
-Lets look at the minuend, 1010. The weights attached to each digit are: \[2^3:1, 2^2:0, 2^1:1, 2^0:0]
+    ```
+    Weight For Position i = (base)^i
+    ```
+
+Lets look at the minuend, `1010`. The weights attached to each digit are: `[2^3:1, 2^2:0, 2^1:1, 2^0:0]`
 
 To convert binary representation into decimal, we have to multiply the digit with its weight and sum-up the result. For example, 1010. The weights are 8421. We get `8 + 2 = 10`.
 
-From this, we can say that a 1 at 0th bit position represents 2^0? A 1 at position 3 represents 2^3? And a 1 at position _i_ represents _2^i_.A bit at index 3 is basically inside a container which can hold upto "2^3 size in decimals", in binary it is still only about 0 and 1.
+From this, can we say that,
+
+* 1 at 0th bit position represents `2^0`?
+* 1 at 3rd bit represents `2^3`?
+* And a 1 at position `i` represents `2^i`?
+
+A bit at index 3 is basically inside a container which can hold a maximum value of `2^3` (size in decimals). But in binary, it is still about 0 and 1.
 
 I think `10 - 3` is a really complex binary subtraction primarily because of how borrowing works.
 
-To visualise borrowing, lets take a simple example.
+To visualize borrowing, lets take a simple example.
 
 ```
 8 - 3 = 5
@@ -393,18 +418,18 @@ Now lets understand _**borrowing**_.
 * bit-2 also needs borrowing. It goes to bit-3.
 * bit-3 is 1, so it can lend. The weight attached to bit 3 is 8.
 * bit-2 has come to ask for lending from bit-3. But the maximum that bit-2 can contain is 2^2. But bit-3 can lend 2^3 only. Because in binary, either you have 0 or you have 1.
-* So bit-3 breaks itself as 4+4, which is same as 2 units of 2^2. And notice, 2^2 is exactly what bit-2 can hold at max. But there are two units. Lets not go any further and assume it can hold it. Lending successful.
+* So bit-3 breaks itself as 4+4, which is same as 2 units of 2^2. And notice, 2^2 is exactly what bit-2 can hold at max. But there are two units. _Lets not go any further and assume it can hold it_. Lending successful.
 * Status:
   * bit-3 = 0
   * bit-2 = something that 2\*(2^2) might refer to.
 * Now bit-2 lends to bit-1. It has got two units of 2^2.
-* But again, bit-1 can hold upto 2^1 only. So bit-2 breaks one of its units 2^2 as 2 \* (2^1). And lends it to bit-1. Lending successful.
+* But again, bit-1 can hold up to 2^1 only. So bit-2 breaks one of its units 2^2 as 2 \* (2^1). And lends it to bit-1. Lending successful.
 * Status:
   * bit-3: 0
   * bit-2: something that 2^2 might refer to. One unit is now given to bit-1.
   * bit-1: something that 2\*(2^1) might refer to.
-* Now bit-1 lends to bit-0. It has got two units of 2^1.
-* But once again, bit-0 can only hold upto 2^0. So bit-1 breaks one of its units 2^1 as 2 \* (2^0), And lends it to bit-0. Lending successful.
+* Now bit-1 lends to bit-0. It has two units of 2^1.
+* But once again, bit-0 can only hold up to 2^0. So bit-1 breaks one of its units 2^1 as 2 \* (2^0), And lends it to bit-0. Lending successful.
 * Status:
   * bit-3: 0
   * bit-2: something that 2^2 might refer to.
@@ -416,12 +441,12 @@ Now, no more lending or borrowing.
 What is this "something that \_\_ might refer to"? What do they actually refer to?
 
 * Just look at them, you'll find your answer.
-* bit-3 is already zerod, so no confusion.
+* bit-3 is already zeroed, so no confusion.
 * bit-2 is 2^2, from the table above, it is exactly the weight it can contain, that means, a 1.
 * bit-1 is 2^1, from the table above, it is exactly the weight it can contain, that means, a 1.
 * bit-0 is 2 units of 2^0 or better, 2 units of 1.
 
-Now lets do the subtraction.
+Now, lets do the subtraction.
 
 ```
 _ 1 0 0 0
@@ -431,12 +456,13 @@ can be written as
 
 _ 0 1 1 (1+1)
   0 0 1  1
+```
 
-I don't think its tough anymore.
-The answer is 0101, precisely what we needed.
+I don't think its tough anymore. The answer is 0101, precisely what we needed.
 
-Lets tackle the boss now, which spiraled me to understand subtraction from its roots.
+Lets tackle the final boss now, which spiraled me to understand subtraction from its roots.
 
+```
 _ 1 0 1 0 (10)
   0 0 1 1 (3)
 
@@ -450,13 +476,13 @@ _ 0 1 (1+1) (1+1)
 
 _**And, we are done!**_
 
-It was damnn confusing and frustrating, but this is the best I can do. I have employed multiple ways to understand the whole system of borrowing and this is the best I can comprehend. Hopefully it helps.
+In the end, binary subtraction is mysterious because of the fundamentals not being right.
 
-I have used ChatGPT to understand borrowing, but I stuck at the last bit. Then I opened a Youtube video, which introduced to weights. I have used them a lot, but never knew they are such significant. Also they said that borrowing is in terms of base, which is something so important. Subconsciously we do it but never realise it. But still it remain mysterious, I kept wondering the same thing and one new item added to it, why 2!. Then later next day I watched another video and it said two 1's are borrowed, [video](https://www.youtube.com/watch?v=h_fY-zSiMtY). One more mysterious object dropped into my mind. And after that I decided to go into the depths of my mind again and here we are.
+Most of the people advising "_Your fundamentals have to be really strong_" might not even realize the depth of their statement. It can easily turn into a rabbit hole because of our incomplete understanding and things becoming automatic (subconscious).
 
-I still accept it myself that it might not be the best explanation in terms of how terminologies and analogies are used, but it is from a beginner to a beginner.
+**But don't assume this was the final boss.**
 
-In the end, binary subtraction is mysterious because of the fundamentals not being right. Most of the people who says "Your fundamentals have to be extremely strong and grounded" might not even understand the depth of their statement. It can easily turn into a rabbit hole because of our incomplete understanding and things becoming automatic (subconscious).
+***
 
 ### Signed Arithmetic
 
@@ -490,10 +516,16 @@ A - B = A + (-B)
 
 ## Bit-wise Operations
 
-Added so that I don't forget it.
+
+
+CONTINUE
+
+
+
+
 
 ## Conclusion
 
 It is no black magic, first of all.
 
-Second, signed numbers and floats is where the problem starts.
+Second, signed numbers and floats is where the problem is.
