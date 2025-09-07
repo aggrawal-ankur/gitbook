@@ -15,7 +15,11 @@ layout:
     visible: true
 ---
 
-# Binary Number System
+# Numbers In Computer Science
+
+_**06 September 2025**_
+
+***
 
 ## Number System Refresher
 
@@ -23,7 +27,7 @@ Primarily we have 4 number systems. They are: binary, octal, decimal and hexadec
 
 Normally we use the decimal number system.
 
-<table><thead><tr><th width="136">Property</th><th width="129">Binary System</th><th width="143">Octal System</th><th>Decimal System</th><th>Hexadecimal System</th></tr></thead><tbody><tr><td>Base</td><td>2 (<code>2^1</code>)</td><td>8 (<code>2^3</code>)</td><td>10</td><td>16 (<code>2^4</code>)</td></tr><tr><td>Allowed Digits</td><td>0, 1 <br>(called bits)</td><td>0, 1, 2, 3, 4, 5, 6, 7</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9, A, B, C, D, E, F</td></tr><tr><td>Bits Required To Represent (derived from base)</td><td>1</td><td>3</td><td></td><td>4</td></tr><tr><td>Prefix</td><td>0b</td><td>0o</td><td>0d</td><td>0x</td></tr><tr><td>Example (11)</td><td>0b00001011</td><td>13</td><td>11</td><td>0xb</td></tr></tbody></table>
+<table><thead><tr><th width="158">Property</th><th width="139">Binary System</th><th width="137">Octal System</th><th width="148">Decimal System</th><th>Hexadecimal System</th></tr></thead><tbody><tr><td>Base</td><td>2 (<code>2^1</code>)</td><td>8 (<code>2^3</code>)</td><td>10</td><td>16 (<code>2^4</code>)</td></tr><tr><td>Allowed Digits</td><td>0, 1 <br>(called bits)</td><td>0, 1, 2, 3, 4, 5, 6, 7</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9, A, B, C, D, E, F</td></tr><tr><td>Bits Required To Represent (derived from base)</td><td>1</td><td>3</td><td></td><td>4</td></tr><tr><td>Prefix</td><td>0b</td><td>0o</td><td>0d</td><td>0x</td></tr><tr><td>Example (11)</td><td>0b00001011</td><td>13</td><td>11</td><td>0xb</td></tr></tbody></table>
 
 1 Byte = 8 Bits
 
@@ -41,107 +45,88 @@ A whole number (-infinity to +infinity) with no fractional part is called an int
 
 ***
 
-In computer science, these numbers are called differently.
-
-* Positive Integers -> Unsigned Integers
-* Positive & Negative Integers together -> Signed Integers
-
-Sadly, there is no name for negative integers in computer science.
-
-Fractions are popularly known as **floating point integers**.
-
-***
-
-## Binary To Decimal System
+## Binary To Decimal Conversion
 
 Before we dive any further, it is important to understand how bits relate with decimals.
 
+To obtain the decimal equivalent of a group of bits, we just have to multiply each bit with a power of 2.&#x20;
 
+For example: `0101` ; to obtain it decimal equivalent, we have to multiply each digit right to left with a power of 2. The power starts from 0 and goes up to `digit - 1`.
 
+* `0101` = `0* 2^3 + 1* 2^2 + 0* 2^1 + 1* 2^0` = `0 + 4 + 0 + 1` = 5.
 
-
-CONTINUE FROM HERE
-
-
+Simple.
 
 ***
 
-In binary number system, there are 3 category of numbers that we have to understand.
+## Types Of Numbers
 
-1. Unsigned integers
-2. Signed integers
-3. Floating point values
+In computer science, there are 3 types of numbers, or, better is, 3 levels of difficulty with numbers.
 
-### Unsigned Integers
+1. Unsigned integers are positive integers.
+2. Signed integers are "positive and negative Integers" _together._
+3. Floating point values.
 
-All the positive integers are unsigned integers, and that includes 0 as well.
+There is no name for "negative integers only" in computer science.
 
-They start from 0 and go up to the maximum possible value based on the number of bits.
+Fractions are popularly known as **floating point integers**.
 
-How bits relate to decimals is necessary
+<table><thead><tr><th width="211">Property</th><th width="270">Unsigned Integer</th><th>Signed Integer</th></tr></thead><tbody><tr><td>Definition</td><td>All positive integers including 0.</td><td>Both positive and negative integers.</td></tr><tr><td>Range</td><td>0 to total combinations possible with the number of bits - 1.<br><br><code>[0, -1 + 2^n]</code></td><td><code>[(-2)^(n-1), -1 + 2^(n-1)]</code></td></tr><tr><td>Example<br>(1-Byte can represent 256 combinations)</td><td><code>[0, 255]</code></td><td><code>[-128, +127]</code></td></tr></tbody></table>
 
-For instance:
+In unsigned integers, it is simple.
 
-* 1 byte is composed of 8-bits.
+* When all the bits are 0, `0b00000000`, it is 0.
+* When all the bits are 1, `0b11111111`, it is 255.
 
-To obtain the unsigned range for n-bits, `[0, 2^n - 1]`
+With signed integers comes problems.
 
-A 8-bit number can range from 0 to 255. Their representation is as follows:
+Signed integers are implemented using two's complement.
 
-```
-0 => 0b00000000
-255 => 0b11111111
-```
+* _What is 2's complement? Discussed below._
 
-### Signed Integers
-
-Signed integers can be both positive and negative.
-
-They are implemented using two's complement.
-
-The most significant bit (MSB) is used as the sign bit:
+To represent signed integers, we use the most significant bit as the sign bit. It is how we keep tracks of positivity and negativity.
 
 * 0 = positive
 * 1 = negative
 
-A 8-bit number can range from -128 to +127. Their representation is as follows:
+_What is this most significant bit? Discussed below._
 
-```
+Thus, a group of 8-bits can represent -128 to +127. Their representation is as follows:
+
+```asciidoc
 0 => 0b00000000
 +127 => 0b01111111
+
 -128 => 0b10000000
 -1 => 0b11111111
 ```
 
-### The standard rule to find the signed range of possible integers in n-bits is: `[(-2)^(n-1), 2^(n-1)-1]`
-
 ## Representing Negative Integers
 
-In binary number system, + and - holds no meaning. Complements are how we represent negative numbers in binary system.
+In binary number system, + and - holds no meaning. Complements are how we represent negative numbers here.
 
-Complements mathematical transformations of binary numbers, specifically designed for how binary arithmetic works in computers
+Complements are mathematical transformations of binary numbers, specifically designed for how binary arithmetic works in computers.
 
 The most common ones are:
 
-1. 1's Complement
+1. 1's Complement, and
 2. 2's Complement
-
-***
 
 ### Types Of Bits
 
 Primarily, there are two types of bits.
 
-1. Least Significant Bit (LSB) : It is the rightmost bit in the binary representation of the integer.
-   * It is called least because setting this ON or OFF has the least impact on the magnitude of the value.
-   * Ex: 15 is represented by 1111 in 4-bits. If you set the last bit (or LSB) to 0, we get 1110, which is 14. The magnitude is lowered by 1 only.
-2. Most Significant Bit (MSB) : It is the leftmost bit in the binary representation of the integer.
-   * It is called most because setting this ON or OFF has the largest possible impact on the magnitude of the value.
-   * Ex: Take 15 again. If you set the leftmost bit (or MSB) to 0, we get 0111, which is 7. The magnitude is lowered by 8.
+1. Least Significant Bit (LSB) : It is the rightmost bit in the binary representation of an integer. It is called **least** because setting this ON/OFF has the least impact on the magnitude of the value.
+2. Most Significant Bit (MSB) : It is the leftmost bit in the binary representation of an integer. It is called **most** because setting this ON/OFF has the largest possible impact on the magnitude of the value.
+
+15 is represented by `1111` in 4-bits.
+
+* If you set LSB to 0, we get `1110` which is 14. The magnitude is lowered by 1 only.
+* If you set MSB to 0, we get `0111`, which is 7. The magnitude is lowered by 8.
 
 ### 1's Complement
 
-The value you must add to a number so the result is a string of 1s or the result is the maximum representable value.
+The value you must add to a number so the result is a string of 1s or the result is the maximum value that you can represent with the number of bits.
 
 To get the 1's complement of a binary number: Flip all bits (change 0s to 1s and 1s to 0s).
 
@@ -159,15 +144,14 @@ But 0 is one digit. + and - are insignificant for it.
 
 ### 2's Complement
 
-Two's complement takes a different approach to manage -ve integers, which ensures that there is no opportunity for 2 representations of zero to exist.
-
 In 2's complement, the number of possible combinations are divided into two halves.
 
-The lower halve represents +ve integers while the upper halve represents -ve integers. The word "represents" is especially important here because at the end of the day, these are just pair of bits. They don't represent anything. We ourselves assign meaning to them.
+* Lowe halve: positive integers
+* Upper halve: negative integers
 
-So, to get the 2's complement of a number:
+To obtain 2's complement of a number:
 
-1. Start with the binary representation of the +ve number.
+1. Start with a binary representation.
 2. Get 1's complement.
 3. Add 1 (0001) to the result.
 
@@ -177,43 +161,79 @@ Example:
 * 1's complement of 5: `0b11111010`
 * Add 1: `0b11111010` + `0b00000001` = `0b11111011`
 * We get -5 in 2's complement as `0b11111011`
-* (+5) + (-5) = `0b00000101` - `0b11111011` = `0b00000000`, Hence proved!
+* `0b00000101` - `0b11111011` = `0b00000000`, Hence proved!
 
-#### But how does this solves the problem?
+#### But how does this solves the problem of 0?
 
-Lets take an example using 4-bits, because combinations here are not too less, not too more.
+Lets take an example using 4-bits, because combinations here are neither too less, nor too more.
 
-* By default, 4-bits are meant to represent a total of 16 combinations of bits. Meaning, 16 integers in total, or better, **16 unsigned integers**.
-* Total possible combinations = 2^n = 2^4 = 16, where n is the number of bits.
-* These combinations are: 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111
-* Now 2's complement divides these into two halves. Therefore, both of them will get 8-8 values.
-* The lower halve or the left portion will represent +ve integers while the upper halve or right portion will represent -ve integers.
-* Visually, \[0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111] will represent +ve integers and \[1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111] will represent equivalent -ve integers.
-* The question is how! Let's look at that.
-* By using the formula mentioned above, we get the possible integers in a 4-bit setting. \[(-2)^(4-1), 2^(4-1)-1] = \[(-2)^3, (2^3)-1] = \[-8, +7]
-* Now mathematically, we know that the possible +ve integers in a 4-bit setting are \[0, 7] while the set of -ve integers is \[-8, -1]. Both contains 8 combinations in total.
-* And clearly, there seems to have no place for two representations of 0.
-* But how the upper halve will get mapped to the lower halve? Let's see.
-* If you notice the upper halve, you'll find that all the combinations have the most significant bit (MSB) set to 1. And its obvious. To obtains integers from 8-15, you need the 4th bit, or the MSB here, to be 1.
-* But this is not true with the lower halve. Lower halve has MSB set to 0 for all combinations.
-* And this forms the distinction.
-* In 2's complement, all the +ve integers have their "**MOST SIGNIFICANT BIT (MSB)**", set to 0. And the -ve integers have this bit set to 1.
-*   To map them, take out the upper halve, and put it in the left of the lower halve. We'll get something like this:
+4-bits can represent 16 combinations, or better, **16 unsigned integers** from 0 to 15. These combinations are:&#x20;
 
-    1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111, 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111
+```
+0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111
+```
 
-    -8 -7 -6 -5 -4 -3 -2 -1 0 +1 +2 +3 +4 +5 +6 +7
-* To obtain the -ve representations of 0, we need all the bits to be 0 while the MSB set to 1, right? This brings us to 1000. But this is -8.
-* But this is just visually, isn't it? What about proving it mathemtically? Also, if there is -8, where is +8? Great, let's do that.
-  * If you see the grid above, you can note that every -ve equivalent is of the form `-(2^n) + (+ve integer)`
-  * Ex: -8 => -(2^4) + (+8) = -16 + 8 = -8 (1000)
-  * Ex: -1 => -(2^4) + (+1) = -16 + 1 = -15 (1111)
-  * lets do this for 0:
-    * -0 => -(2^4) + (+0) = -16 + 0 = -16
-    * But 16 as a combination is not possible using 4-bits.
-    * I think, this is enough to prove that 2's complement by design has got no room for two representations of zero. And it is more accurate mathematically as well.
+2's complement divides these into two halves. Both of them gets 8 values each.
+
+```
+Lower Half :: 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111, 
+
+Upper Half :: 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111
+```
+
+We can use the range formula mentioned above to verify this:
+
+```
+=> [(-2)^(4-1), 2^(4-1)-1] 
+
+=> [(-2)^3, (2^3)-1]
+
+=> [-8, +7]
+```
+
+Let's see how the upper halve maps to negative integers.
+
+First of all, If you notice, all the combination in the upper half have the most significant bit set to 1.
+
+Second, to obtain integers from 8-15, 4th bit must be set to 1. But it is not required with 0-7. This is the distinction.
+
+* In 2's complement, positive integers have their MSB set to 0 and negative integers have this bit set to 1.
+
+Now take the upper half and put it in the left of the lower halve. We'll get something like this:
+
+```
+1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111, 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111
+ -8    -7    -6    -5    -4    -3    -2    -1     0    +1    +2    +3    +4    +5    +6    +7
+```
+
+To obtain the negative representation of 0, we need the MSB as 1 and rest of the bits as 0, which brings us to 1000, which represents -8.
+
+We can notice a pattern from the grid above. Every negative integer is of the form `-(2^n) + (+ve integer)` . For example:
+
+```
+-8 => -(2^4) + (+8) = -16 + 8 = -8 (1000)
+-1 => -(2^4) + (+1) = -16 + 1 = -15 (1111)
+```
+
+If we try the same for 0, we get
+
+```
+-0 => -(2^4) + (+0) = -16 + 0 = -16
+```
+
+But 16 as a combination is not possible using 4-bits.
+
+* This proves that 2's complement by design has no room for two representations of zero.
+
+***
 
 ## Binary Arithmetic
+
+
+
+CONTINUE FROM HERE
+
+
 
 ### Unsigned Arithmetic
 
@@ -467,6 +487,10 @@ A - B = A + (-B)
       = 2
       Hence Proved
 ```
+
+## Bit-wise Operations
+
+Added so that I don't forget it.
 
 ## Conclusion
 

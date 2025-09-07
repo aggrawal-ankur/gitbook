@@ -21,7 +21,7 @@
     * [Unions](x64-assembly/mem-alloc/unions.md)
     * [Type Definition](x64-assembly/mem-alloc/type-definition.md)
   * [User Input In Assembly](x64-assembly/user-input.md)
-  * [Binary Number System](x64-assembly/binary-number-system.md)
+  * [Numbers In Computer Science](x64-assembly/binary-number-system.md)
   * [Control Flow](x64-assembly/control-flow.md)
   * [Functions And Stack](x64-assembly/functions/README.md)
     * [Introduction](x64-assembly/functions/stack.md)
