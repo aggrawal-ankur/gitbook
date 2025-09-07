@@ -1,58 +1,88 @@
+---
+layout:
+  width: default
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: true
+  pagination:
+    visible: true
+  metadata:
+    visible: true
+---
+
 # Binary Number System
 
 ## Number System Refresher
 
-Primarily we have 4 number systems. They are: binary, octal, decimal and hexadecimal
+Primarily we have 4 number systems. They are: binary, octal, decimal and hexadecimal.
 
-### Binary Number System
+Normally we use the decimal number system.
 
-* It is a base-2 (2^1) system.
-* It contains only 0 and 1. They are called bits.
-* 0 means OFF/FALSE
-* 1 means ON/TRUE
-* Prefixed with `0b`. Ex: `0b00001111`
+<table><thead><tr><th width="136">Property</th><th width="129">Binary System</th><th width="143">Octal System</th><th>Decimal System</th><th>Hexadecimal System</th></tr></thead><tbody><tr><td>Base</td><td>2 (<code>2^1</code>)</td><td>8 (<code>2^3</code>)</td><td>10</td><td>16 (<code>2^4</code>)</td></tr><tr><td>Allowed Digits</td><td>0, 1 <br>(called bits)</td><td>0, 1, 2, 3, 4, 5, 6, 7</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9, A, B, C, D, E, F</td></tr><tr><td>Bits Required To Represent (derived from base)</td><td>1</td><td>3</td><td></td><td>4</td></tr><tr><td>Prefix</td><td>0b</td><td>0o</td><td>0d</td><td>0x</td></tr><tr><td>Example (11)</td><td>0b00001011</td><td>13</td><td>11</td><td>0xb</td></tr></tbody></table>
 
-### Octal Number System
+1 Byte = 8 Bits
 
-* It is base-8 (2^3) system.
-* It contains digits between 0-7.
-* It takes 3-bits to be represented.
-* Prefixed with `0o`
+Now it's time to dive into binary number system.
 
-### Decimal Number System
+## Revision
 
-* It is base-10 system.
-* It contains digits between 0-9.
+Everyone learns number lines in elementary school.
 
-### Hexadecimal Number System
+* _A pictorial representation of numbers on a straight line._
 
-* It is base-16 (2^4) system.
-* It contains digits between 0-9 and A-F.
-* It takes 4-bits to be represented.
-* Prefixed with `0x`. Ex: `0x35`
+That number line has a zero which separates negative numbers from positive numbers.
 
-### Bit, Byte Havoc
-
-* Bits include 0, 1.
-* 1 Byte = 8-bits
-* 1 Byte can represent numbers between 0-255.
-* "Zero" by 00000001 and "One" 255 by 11111111.
-* 2 Bytes can represent numbers between 0-65535.
-* 4 Bytes can represent numbers between 0-4.29b
+A whole number (-infinity to +infinity) with no fractional part is called an integer. A whole number with fractional part is a decimal.
 
 ***
 
-## Types Of Integers
+In computer science, these numbers are called differently.
+
+* Positive Integers -> Unsigned Integers
+* Positive & Negative Integers together -> Signed Integers
+
+Sadly, there is no name for negative integers in computer science.
+
+Fractions are popularly known as **floating point integers**.
+
+***
+
+## Binary To Decimal System
+
+Before we dive any further, it is important to understand how bits relate with decimals.
+
+
+
+
+
+CONTINUE FROM HERE
+
+
+
+***
+
+In binary number system, there are 3 category of numbers that we have to understand.
+
+1. Unsigned integers
+2. Signed integers
+3. Floating point values
 
 ### Unsigned Integers
 
-Simply put, all the positive integers are called unsigned integers. And it includes 0 as well.
+All the positive integers are unsigned integers, and that includes 0 as well.
 
-More accurately, Unsigned integers are integers that cannot be negative. They start from 0 and go up to the maximum possible value based on the number of bits.
+They start from 0 and go up to the maximum possible value based on the number of bits.
 
-Signed Integers =: Numbers >=0
+How bits relate to decimals is necessary
 
-Since there is no problem for signs (+ and -), they use all of their 8-bits to store the magnitude of the number.
+For instance:
+
+* 1 byte is composed of 8-bits.
 
 To obtain the unsigned range for n-bits, `[0, 2^n - 1]`
 
@@ -437,3 +467,9 @@ A - B = A + (-B)
       = 2
       Hence Proved
 ```
+
+## Conclusion
+
+It is no black magic, first of all.
+
+Second, signed numbers and floats is where the problem starts.
