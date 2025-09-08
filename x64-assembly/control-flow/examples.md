@@ -1,6 +1,8 @@
 # Examples
 
-Lets talk practically how if, else if and else exist.
+
+
+Lets talk practically how if, else if and else, for loop, while loop and do while loop exist.
 
 ## Example 1: if-else
 

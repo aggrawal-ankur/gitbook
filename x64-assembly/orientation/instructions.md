@@ -86,36 +86,17 @@ cmp a, b
 
 which is evaluated as  `a - b`.
 
-When we do `cmp 4, 2`, `cmp` does `4-2`, and the result is 2. This result is not stored. Instead, certain CPU flags are changed based on the result. If the result is:
-
-* `0`, ZERO FLAG (`ZF`) flag is set to 1, from 0.
-* `non-zero`, remains unchanged.
-* `>0`, SIGN FLAG (`SF`) remains unchanged. It is 0 by default, complying with +ve result.
-* `<0`, SIGN FLAG (`SF`) is set to 1.
-
-Jump statements use these flags to decide what to do next.
+When we do `cmp 4, 2`, `cmp` does `4-2`, and the result is 2. This result is not stored. Instead, certain CPU flags are changed based on the result. Jump statements use these flags to decide what to do next.
 
 ### Jump Statements
 
-They change the flow of execution. Instead of executing the next line, they send the CPU to another part of the code based on some condition.
-
-This is what `if-else` stands on.
+They change the flow of execution. Instead of executing the next line, they send the CPU to another part of the code based on some condition. This is what `if-else` stands on.
 
 There are two types of jumps, conditional and unconditional.
 
 An unconditional jump always goes to some label, no matter what. `jmp some_label` is an unconditional jump.
 
 A conditional jump is based on the flags set by `cmp`.
-
-Some conditional jumps include:
-
-<table><thead><tr><th width="194">Mnemonic</th><th>Meaning</th><th>Triggered When...</th></tr></thead><tbody><tr><td><code>je</code></td><td>Jump if Equal (==)</td><td>Zero Flag (ZF = 1)</td></tr><tr><td><code>jne</code></td><td>Jump if Not Equal (!=)</td><td>Zero Flag (ZF = 0)</td></tr><tr><td><code>jl</code></td><td>Jump if Less Than (&#x3C;)</td><td>Sign Flag (SF ≠ OF)*</td></tr><tr><td><code>jg</code></td><td>Jump if Greater (>)</td><td>ZF = 0 and SF = OF</td></tr><tr><td><code>jle</code></td><td>Jump if less than equal to (&#x3C;=)</td><td></td></tr><tr><td><code>jge</code></td><td>Jump if greater than equal to (>=)</td><td></td></tr></tbody></table>
-
-Syntax:
-
-```
-jump_instruction label_to_jump_to
-```
 
 ## Type Specifier
 

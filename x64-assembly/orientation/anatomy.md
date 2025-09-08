@@ -84,7 +84,7 @@ Linux supports hundreds of syscalls. Here are a few common ones:
 | Map memory       | `mmap`  | 9              |
 | Exit the program | `exit`  | 60             |
 
-_This is enough about syscalls. But if you want to learn more, checkout the memory management series,_ [_link_](../all-roads-to-memory/)_. But I wouldn't suggest that._
+_This is enough about syscalls. But if you want to learn more, checkout the memory management series,_ [_link_](../../all-roads-to-memory/)_. But I wouldn't suggest that._
 
 ## Variables v/s Labels
 

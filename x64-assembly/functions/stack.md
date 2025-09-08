@@ -1,4 +1,4 @@
-# Functions && Stack
+# Introduction
 
 _**August 15 and 16, 2025**_
 
@@ -192,7 +192,7 @@ This is the general layout of a stack frame.
 *---------------------* <-- rsp
 ```
 
-_The first 6 arguments go in registers, we know that. Checkout_ [calling-conventions.md](../calling-conventions.md "mention")
+_The first 6 arguments go in registers, we know that. Checkout_ [calling-conventions.md](../orientation/calling-conventions.md "mention")
 
 ***
 

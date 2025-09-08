@@ -1,3 +1,7 @@
+---
+hidden: true
+---
+
 # User Input In Assembly
 
 To take user input, we use `read` syscall.

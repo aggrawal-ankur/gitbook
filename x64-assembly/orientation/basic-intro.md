@@ -119,7 +119,7 @@ Take this, there are handful of firms that research on semiconductor chips, but 
 
 ## Assembly-Time vs Run-Time
 
-Assembler directives mean nothing to the CPU. They exist to streamline development. Assembler resolves them into machine understandable things while assembling the code. This is called assembly-time management. (Checkout [a-high-level-overview-of-build-process-in-c.md](../understanding-hello-world/a-high-level-overview-of-build-process-in-c.md "mention"))
+Assembler directives mean nothing to the CPU. They exist to streamline development. Assembler resolves them into machine understandable things while assembling the code. This is called assembly-time management. (Checkout [a-high-level-overview-of-build-process-in-c.md](../../understanding-hello-world/a-high-level-overview-of-build-process-in-c.md "mention"))
 
 There are things that are consistent across all the assemblers because the CPU directly understand them. These are runtime managed things.
 
