@@ -35,7 +35,7 @@ The result is used to set certain CPU flags. There is a special purpose register
 * Note: `cmp` is just one instruction that changed `RFLAGS`; there are other operations that set them as well.
 * Although `RFLAGS` is a 64-bit wide register, the total CPU flags aren't 64. Most of the bits are reserved by the CPU for internal things. The most common ones include: `CF ZF OF PF AF SF TF` .
 
-<table><thead><tr><th width="119">Flag</th><th width="97">Bit Place</th><th width="190">Meaning (Set When)</th><th>How it’s Set</th><th>Assumption</th></tr></thead><tbody><tr><td><strong>CF</strong> (Carry Flag)</td><td>0</td><td>Unsigned overflow (carry/borrow out of MSB)</td><td>From final carry out of the adder/subtractor</td><td></td></tr><tr><td><strong>PF</strong> (Parity Flag)</td><td>2</td><td>Result has even parity in low 8 bits</td><td>1 if least-significant byte of result has even number of 1s</td><td></td></tr><tr><td><strong>AF</strong> (Auxiliary Carry)</td><td>4</td><td>Carry out from bit 3 → bit 4</td><td>Set if lower nibble overflowed</td><td></td></tr><tr><td><strong>ZF</strong> (Zero Flag)</td><td>6</td><td>Result is zero</td><td>Set if result == 0</td><td>Both the operands are same.</td></tr><tr><td><strong>SF</strong> (Sign Flag)</td><td>7</td><td>Sign of result (MSB)</td><td>Set to MSB of result</td><td></td></tr><tr><td><strong>OF</strong> (Overflow Flag)</td><td>11</td><td>Signed overflow occurred</td><td>Set if (carry into MSB) ≠ (carry out of MSB)</td><td></td></tr></tbody></table>
+<table><thead><tr><th width="119">Flag</th><th width="97">Bit Place</th><th width="163">Meaning (Set When)</th><th width="182">How it’s Set</th><th>Assumption</th></tr></thead><tbody><tr><td><strong>CF</strong> (Carry Flag)</td><td>0</td><td>Unsigned overflow (carry/borrow out of MSB)</td><td>From final carry out of the adder/subtractor</td><td></td></tr><tr><td><strong>PF</strong> (Parity Flag)</td><td>2</td><td>Result has even parity in low 8 bits</td><td>1 if least-significant byte of result has even number of 1s</td><td></td></tr><tr><td><strong>AF</strong> (Auxiliary Carry)</td><td>4</td><td>Carry out from bit 3 → bit 4</td><td>Set if lower nibble overflowed</td><td></td></tr><tr><td><strong>ZF</strong> (Zero Flag)</td><td>6</td><td>Result is zero</td><td>Set if result == 0</td><td>Both the operands are same.</td></tr><tr><td><strong>SF</strong> (Sign Flag)</td><td>7</td><td>Sign of result (MSB)</td><td>Set to MSB of result</td><td></td></tr><tr><td><strong>OF</strong> (Overflow Flag)</td><td>11</td><td>Signed overflow occurred</td><td>Set if (carry into MSB) ≠ (carry out of MSB)</td><td></td></tr></tbody></table>
 
 Based on these CPU flags the conditional jump statements make an assumption about the result of comparison.
 
@@ -43,47 +43,23 @@ Based on these CPU flags the conditional jump statements make an assumption abou
 
 ### Unsigned Comparison
 
-In unsigned comparison, we are only concerned with CF and OF.
+<table><thead><tr><th width="138">Instruction</th><th width="131">High-level Equivalent</th><th width="163">Meaning</th><th width="119">Flags Tested</th><th>Condition (Flag State)</th></tr></thead><tbody><tr><td>JE / JZ</td><td><code>==</code></td><td>Jump if equal / zero</td><td>ZF</td><td>ZF = 1</td></tr><tr><td>JNE / JNZ</td><td><code>!=</code></td><td>Jump if not equal / not zero</td><td>ZF</td><td>ZF = 0</td></tr><tr><td>JB / JC / JNAE</td><td><code>&#x3C;</code></td><td>Jump if below / carry / not above or equal</td><td>CF</td><td>CF = 1</td></tr><tr><td>JAE / JNB / JNC</td><td><code>>=</code></td><td>Jump if above or equal / not below / not carry</td><td>CF</td><td>CF = 0</td></tr><tr><td>JA</td><td><code>></code></td><td>Jump if above (strictly greater, unsigned)</td><td>CF, ZF</td><td>(CF = 0) AND (ZF = 0)</td></tr><tr><td>JBE</td><td><code>&#x3C;=</code></td><td>Jump if below or equal (unsigned)</td><td>CF, ZF</td><td>(CF = 1) OR (ZF = 1)</td></tr></tbody></table>
 
-1. If both the operands are equal, i.e `op1 == op2`, ZF will be 1.
-2. If `op1 > op2`, ZF will remain 0.
-3. If `op1 < op2`, CF will be set to 1 and ZF will continue to be 0.
+_Since unsigned integers uses full set of bits available to store the magnitude of the value, we don't require other flags._
 
-Since unsigned integers uses full set of bits available to store the magnitude of the value, we don't require other flags.
+### Signed Comparison
+
+<table><thead><tr><th width="118">Instruction</th><th width="132">High-level Equivalent</th><th width="171">Meaning</th><th width="123">Flags Tested</th><th>Condition (Flag State)</th></tr></thead><tbody><tr><td>JE / JZ</td><td><code>==</code></td><td>Jump if equal / zero</td><td>ZF</td><td>ZF = 1</td></tr><tr><td>JNE / JNZ</td><td><code>!=</code></td><td>Jump if not equal / not zero</td><td>ZF</td><td>ZF = 0</td></tr><tr><td>JL / JNGE</td><td><code>&#x3C;</code></td><td>Jump if less (signed)</td><td>SF, OF</td><td>SF ≠ OF</td></tr><tr><td>JGE / JNL</td><td><code>>=</code></td><td>Jump if greater or equal (signed)</td><td>SF, OF</td><td>SF = OF</td></tr><tr><td>JG / JNLE</td><td><code>></code></td><td>Jump if greater (signed)</td><td>ZF, SF, OF</td><td>(ZF = 0) AND (SF = OF)</td></tr><tr><td>JLE / JNG</td><td><code>&#x3C;=</code></td><td>Jump if less or equal (signed)</td><td>ZF, SF, OF</td><td>(ZF = 1) OR (SF ≠ OF)</td></tr></tbody></table>
+
+***
+
+### Which flag is set when?
 
 
 
 CONTINUE FROM HERE
 
 
-
-Common Unsigned Jump Mnemonics:
-
-| **Jump** | **High-Level Equivalent** | **Condition**    | **Meaning**            |
-| -------- | ------------------------- | ---------------- | ---------------------- |
-| `ja`     | `>`                       | CF = 0, ZF = 0   | Jump if Above          |
-| `jae`    | `>=`                      | CF = 0, ZF = 1   | Jump if Above or Equal |
-| `jb`     | `<`                       | CF = 1           | Jump if Below          |
-| `jbe`    | `<=`                      | CF = 1 or ZF = 1 | Jump if Below or Equal |
-| `je`     | `==`                      | ZF = 1           | Jump if Equal          |
-| `jne`    | `!=`                      | ZF = 0           | Jump if Not Equal      |
-
-### Signed Comparison
-
-Except CF, all the three flags, ZF, OF and SF are significant here.
-
-Common Signed Jump Mnemonics:
-
-| **Mnemonic**  | **High-Level**    | **Flag Logic**           | **Meaning**                 |
-| ------------- | ----------------- | ------------------------ | --------------------------- |
-| `je` / `jz`   | `a == b`          | `ZF == 1`                | Equal                       |
-| `jne` / `jnz` | `a != b`          | `ZF == 0`                | Not equal                   |
-| `jg` / `jnle` | `a > b` (signed)  | `ZF == 0` and `SF == OF` | Greater (signed)            |
-| `jge` / `jnl` | `a >= b` (signed) | `SF == OF`               | Greater or equal (signed)   |
-| `jl` / `jnge` | `a < b` (signed)  | `SF != OF`               | Less than (signed)          |
-| `jle` / `jng` | `a <= b` (signed) | `ZF == 1` or `SF != OF`  | Less than or equal (signed) |
-
-Understanding signed comparisons is a cakewalk if you understand SF and OF. Lets make it cakewalk then.
 
 #### SF && OF Settlement
 
@@ -153,39 +129,3 @@ If you notice,
 | `a <= b`   | `jle` | `ZF = 1` and`SF ≠ OF`  |
 
 OF flag becomes a necessity when an arithmetic operation, not just subtraction, leads to results which overflow the range.
-
-***
-
-### Silly Questions Roundup
-
-So far, if you are paying attention, you might notice there are two mnemonics for the same operation. Why?
-
-* If you notice, `a < b` and `b > a` are fundamentally the same thing. Only they are represented differently.
-* So the answer is simple. To support both perspectives.
-
-Why use different mnemonics for signed and unsigned dealings, when the operation is the same.
-
-* Nothing is simple for CPU.
-* They use different flags to denote these conditions and that's why condensing them in one mnemonic is not possible.
-
-***
-
-### Future Point Of Confusion
-
-Fundamentally, a `sub` operation and a `cmp` operation are the same.
-
-They both compute `op1 - op2`.
-
-The difference lies in result management.
-
-`sub` stores the result in accumulator, by default. But `cmp` never stores the result.
-
-Both of them change CPU flags, based on the result.
-
-## Important Note
-
-Labels don't have context of where you have left.
-
-If you try to return back to a label which called the current label, the return would be absolute. Meaning, the instruction pointer will point to the start of the label, not where you have left.
-
-Keep control flow in forward direction only, to avoid potential undefined behavior, **for now**.
