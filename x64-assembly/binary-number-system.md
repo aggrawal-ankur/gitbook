@@ -17,7 +17,7 @@ layout:
 
 # Numbers In Computer Science
 
-_**Polished on 06 September 2025 (written in May 2025)**_
+_**Polished on 07 September 2025 (written in May 2025)**_
 
 ***
 
@@ -513,16 +513,6 @@ A - B = A + (-B)
       = 2
       Hence Proved
 ```
-
-## Bit-wise Operations
-
-
-
-CONTINUE
-
-
-
-
 
 ## Conclusion
 
