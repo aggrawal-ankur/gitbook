@@ -1,9 +1,3 @@
 # The World Of Floats
 
-Why floats are a problem?
-
-How the problem is solved?
-
-
-
-changed the name because story is very short for the scope of floats.
+The history of floats, the issues, the solutions, historical solutions and modern solutions, x87 FPU stack, SSE/AVX, ymm, zmm regs&#x20;
