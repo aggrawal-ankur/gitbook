@@ -1,2 +1,8 @@
-# Dynamic Memory Allocation
+# Dynamic Memory Allocation (Heap)
+
+<table><thead><tr><th width="113">Function</th><th width="124">Purpose</th><th width="116">Inputs</th><th width="114">Output</th><th>Notes / Gotchas</th></tr></thead><tbody><tr><td><code>malloc(size)</code></td><td>Allocate uninitialized block</td><td><code>size</code> (bytes)</td><td>Pointer or <code>NULL</code></td><td>Contents uninitialized → using before writing = <strong>bug</strong> (may leak old data).<br>On failure: <code>NULL</code>, <code>errno=ENOMEM</code>.</td></tr><tr><td><code>calloc(nmemb, size)</code></td><td>Allocate zeroed array</td><td><code>nmemb</code>, <code>size</code></td><td>Pointer or <code>NULL</code></td><td>Safe against multiplication overflow (<code>nmemb*size</code>). <br>Always initialized to zero. Slightly slower than <code>malloc</code>.</td></tr><tr><td><code>realloc(ptr, size)</code></td><td>Resize block</td><td><code>ptr</code> (old block), <code>size</code></td><td>New pointer or <code>NULL</code></td><td>If moved, old block freed automatically.<br>If fail: returns <code>NULL</code> but old block still valid → <strong>must not lose the old pointer</strong>.<br>If <code>ptr=NULL</code>, acts like <code>malloc</code>. <br>If <code>size=0</code> with non-NULL ptr, frees block.</td></tr><tr><td><code>reallocarray(ptr, nmemb, size)</code></td><td>Resize array safely</td><td><code>nmemb</code>, <code>size</code></td><td>Pointer or <code>NULL</code></td><td>Same as <code>realloc</code>, but prevents integer overflow in <code>nmemb*size</code>.</td></tr><tr><td><code>free(ptr)</code></td><td>Release block</td><td><code>ptr</code> (malloc-family result)</td><td>None</td><td>If <code>ptr=NULL</code>, no-op. Otherwise → block is invalid afterwards.<br>Double free or use-after-free = <strong>undefined behavior</strong> (can crash or be exploited).</td></tr></tbody></table>
+
+
+
+Returned pointer is suitably aligned for any built-in type.
 
