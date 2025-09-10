@@ -1,6 +1,12 @@
 # C -> Assembly
 
-The source can be compiled into assembly using `gcc -S -masm=intel hello.c -o hello_asm.s` .
+Let's start our journey with the output of compilation.
+
+The source can be compiled into assembly using&#x20;
+
+```
+gcc -S -masm=intel hello.c -o hello_asm.s
+```
 
 Previously, we've learned that `void main();` is a wrong signature for main function. But if we compile the code with `void main();` signature, we get an almost similar assembly.
 
@@ -106,25 +112,22 @@ Lets understand this assembly now.
 
 If you are not learning passively, you are definitely wondering what about `.cfi_*` directives?
 
-* It stands for **call frame information** directives.
-* The compiler generates them and they are primarily used by debuggers (like `gdb`) and exception handlers.
-* I have seen glimpses of `gdb` and it feels like magic. But the basis of that magic comes from here.
-* Later on, when we'll use `gdb`, we will revisit them.
+* It stands for **call frame information** directives. And we don't have to worry about them.
 
 ***
 
-There is something that is missing here. Can you spot it?
+There is something that is missing here. Can you spot it? There is no exit syscall. There is nothing like
 
-*   There is no exit syscall. There is nothing like
+```nasm
+mov rax, 60
+xor rdi, rdi
+syscall
+```
 
-    ```armasm
-    mov rax, 60
-    xor rdi, rdi
-    syscall
-    ```
-* Exit is never controlled by our source code.&#x20;
-  * When we write raw assembly, we manage exit ourselves. When we use shared libraries, we are using a complete infrastructure to run something. Now it is the duty of the infrastructure (or engine you can say) to take care of all this.
-  * In the upcoming articles, we will find that there is so much that goes before our source code gets executed and there is so much that comes after it is executed, we'll understand how tiny our source code really is.
+Exit is never controlled by our source code.&#x20;
+
+* When we write raw assembly, we manage exit ourselves. When we use shared libraries, we are using a complete infrastructure to run something. Now it is the duty of the infrastructure to take care of this.
+* In the upcoming articles, we will find that there is so much that goes before our source code gets executed and there is so much that comes after it is executed, we'll understand how tiny our source code really is.
 
 ***
 
@@ -149,13 +152,12 @@ In the right section, where the assembly part is displayed, you can find a click
 
 * It is the result of those compiler options that we see such a simple and stripped away assembly.
 
-By default, there is no optimization done on the code, which is why it is lengthy and readable. Shortening (optimizing) the code would result in less readability, which is not good for us, who are trying to understand things.
+By default, there is no optimization done on the code, which is why it is lengthy and readable. Shortening (optimizing) the code would result in less readability, which is not good for us as are trying to understand things.
 
-* And we will stick to no optimization, at least for this binary.
+* And we will stick to no optimization.
 
 ***
 
 And we have walked the first step. This marks the end of understanding assembly.
 
 Now we will move to object code.
-

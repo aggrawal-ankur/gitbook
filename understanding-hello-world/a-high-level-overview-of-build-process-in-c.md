@@ -1,12 +1,8 @@
----
-description: How does `gcc main.c -o main` works? That's what we are going to explore here.
----
+# Build Process In C
 
-# A High Level Overview Of Build Process In C
+This article explores the C build process which is abstracted by compiler programs.
 
-This article explores the C build process which is abstracted by the GNU C Compiler (or `gcc`) in one line, which is `gcc main.c -o main`.
-
-This is a simple C program \~
+To compile this source, we can use a variety of compilers.
 
 {% code title="hello.c" %}
 ```c
@@ -19,7 +15,7 @@ int main(){
 ```
 {% endcode %}
 
-which we can compile using GNU C Compiler or `gcc` with the following command
+Here we are using `gcc`.
 
 ```bash
 $ gcc hello.c -o hello_executable
@@ -39,26 +35,30 @@ A source code becomes an executable file after following these 4 steps -
 
 Lets dive into each.
 
-### Preprocessing
+## Preprocessing
 
-Every C code at least includes this one line, #include \<stdio.h>, where #include is a preprocessing directive.
+Every C code at least includes this one line, `#include <stdio.h>`, where `#include` is a preprocessing directive.
 
-These directives are needed to be processed (or extended) before we can move any further.
+These directives are needed to be processed (or extended) before we can move further.
 
-This preprocessing is carried out using `gcc -E hello.c -o hello.i`.
+This preprocessing is carried out using
+
+```bash
+gcc -E hello.c -o hello.i
+```
 
 The file obtained here is an intermediate file with `.i` extension, which is a raw-c file with all the preprocessing directives resolved into actual references.
 
-**Note:** If you look at `hello.i` and `stdio.h` simultaneously, you will find that it is not exactly copied. It is because the header file itself has got various macros. And the extension is based on those macros.
+**Note:** If you look at `hello.i` and `stdio.h` simultaneously, you will find that it is not exactly copied. It is because the header file itself has got various macros. And extension happens until there is no more directive.
 
-### Compilation
+## Compilation
 
 The intermediate C code is compiled into assembly instructions, which is the closest we can get to CPU yet retaining some readability.
 
 The flavor of assembly (Intel or AT\&T) depends upon the assembler program used to compile the source code. For example,
 
-* If GNU Assembler (or`as`) is used, it generates AT\&T assembly by default. Although it can be configured to generate Intel assembly as well. Same is followed by `gcc`.
-* If netwide assembler (or`nasm`) is used, it generates Intel assembly.
+* If GNU Assembler (or `as`) is used, it generates AT\&T assembly by default. Although it can be configured to generate Intel assembly as well. Same is followed by `gcc`.
+* If netwide assembler (or `nasm`) is used, it generates Intel assembly.
 
 The architecture specific things (x86 and x86\_64) are taken care by the assembler itself.
 
@@ -68,7 +68,7 @@ To compile intermediate C code into assembly code, we can run the following comm
 gcc -S masm=intel hello.i -o hello.s
 ```
 
-### Assembling
+## Assembling
 
 The assembly code undergoes a transformation process, which lay down a foundation for **linking** to work. Various steps are taken in this process. Some of them include:
 
@@ -77,7 +77,7 @@ The assembly code undergoes a transformation process, which lay down a foundatio
 * Sections are created.
 * Labels within the file are resolved.
 * Symbol table is generated.
-* Relocation entries are created for unresolved foreign references.
+* Relocation entries are created for unresolved references.
 * ELF headers are constructed.
 
 The object code can be obtained as:
@@ -94,11 +94,11 @@ Object files are strict in their structure. They follow a format known as **Exec
 
 But this object file is not an executable yet. It needs to be linked.
 
-### Linking
+## Linking
 
 To give an object code execution power, we need to link it with specific libraries.
 
-```
+```bash
 gcc hello.o -o hello_elf
 ```
 
@@ -112,13 +112,20 @@ An object code has unresolved references to various library functions. Until the
 
 Linking can be static or dynamic. Both have their use cases.
 
-Dynamic linking is the preferred linking mechanism by a compiler. But it can be used to statically link as well.
+Dynamic linking is the preferred linking mechanism by a compiler. But we can tell it to statically link as well.
 
 Now we are ready to execute our binary.
 
-```
+```bash
 $ ./hello_elf
 
 Hello, World!
 ```
 
+## A Misconception About GCC
+
+`gcc` is not a compiler, it's a toolchain. If it is a compiler, how it is able to assemble and link the code?
+
+If you search on internet, you will find that `gcc` stands for "GNU COMPILER COLLECTION", which is the right explanation about `gcc`.
+
+You can watch this video [https://www.youtube.com/watch?v=XJC5WB2Bwrc](https://www.youtube.com/watch?v=XJC5WB2Bwrc). It explains it.

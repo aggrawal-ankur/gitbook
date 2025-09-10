@@ -6,26 +6,22 @@ description: >-
 
 # A Brief Introduction To ELF
 
-An executable file is a type of computer file, containing instructions that the computer's processor can directly execute.
+An executable file is a type of computer file containing instructions that the computer's processor can directly execute.
 
 Executable files differ greatly on Windows and Linux. The reason is that both the environments are designed differently.
 
-| Property                   | Windows                                      | Linux                                   |
+| Property                   | Linux                                        | Windows                                 |
 | -------------------------- | -------------------------------------------- | --------------------------------------- |
 | Binary File Format         | Executable and Linkable File Format (or ELF) | Portable Executable File Format (or PE) |
 | File Extension             | No extension required                        | `.exe`, `.dll`                          |
 | System Call Interface      | Linux System Calls (`syscall`)               | Windows NT syscall layer or WinAPI      |
-| Dynamic Linker/Loader      | ld-linux.so                                  | Windows Loader                          |
+| Dynamic Linker/Loader      | `ld-linux.so`                                | Windows Loader                          |
 | C Runtime Library          | GNU C Library (or `glibc`)                   | Microsoft C Runtime (`MSVCRT`)          |
 | Linker                     | `ld`                                         | `link.exe`                              |
 | Calling Convention         | System V AMD64 ABI                           | Microsoft x64 ABI                       |
 | Format For Dynamic Linking | Shared objects (`.so`)                       | Dynamic Link Library (`.dll`)           |
 
-This time, we are learning about Linux environment.
-
 ### Brief History
-
-It is a common standard file format for executable files, object code, shared libraries, and core dumps on Linux.
 
 It was first released in "_System V ABI, Release 4_".
 
@@ -37,7 +33,7 @@ ELF is a general-purpose file format in Linux ecosystem, which defines the struc
 
 It is used throughout the build and execution pipeline.
 
-* Different "types" of ELF files (relocatable, executable, shared object, core) exist to serve different roles in this pipeline.
+* Different "types" of ELF files (relocatable, executable, shared object) exist to serve different roles in this pipeline.
 * These are typically created during specific phases.
 
 ### Structure Of An ELF File
@@ -46,9 +42,9 @@ Regardless of the type of ELF, the structure of an ELF file remains mostly the s
 
 An ELF file can be divided into 4 parts.
 
-<table><thead><tr><th width="222">Part</th><th>Importance</th></tr></thead><tbody><tr><td>ELF Header</td><td>Identifies the file as ELF and file metadata.</td></tr><tr><td>Program Header Table</td><td>Used by the dynamic loader at runtime.</td></tr><tr><td>Section Header Table</td><td>Used by the linker at build time.</td></tr><tr><td>Data (segments/sections)</td><td>Includes things which are referred by the above 2 tables, such as, text (code), data (globals), bss (uninitialized data), and others.</td></tr></tbody></table>
+<table><thead><tr><th width="222">Part</th><th>Importance</th></tr></thead><tbody><tr><td>ELF Header</td><td>Identifies the file as ELF and file metadata.</td></tr><tr><td>Program Header Table</td><td>Used by the dynamic loader at runtime.</td></tr><tr><td>Section Header Table</td><td>Used by the linker at build time.</td></tr><tr><td>Data (segments/sections)</td><td>Includes things which are referred by the above 2 tables, such as code/data/bss and others.</td></tr></tbody></table>
 
-Lets take an example to understand ELF.
+If you assembly this code and stop before linking, you'll get an object file.
 
 {% code title="hello.c" %}
 ```c
@@ -60,17 +56,15 @@ int main(void){
 ```
 {% endcode %}
 
-The object code can be obtained by
-
 ```bash
 gcc -c hello.c hello_object.o
 ```
 
-Object files are binary representations of a program's source code, intended to be executed directly on a processor, which is why they are required to follow a consistent structure.
+Object files are binary representations of a program's source code.
 
 ELF is not reserved for executable files only. It is used by a variety of other files of the same genre, and object code (.o) & shared object (.so) libraries are two of them.
 
-ELF files aren't readable by a text editor. Therefore, we use some command line utilities. The two most widely used and versatile utilities are `objdump` and `readelf`.
+ELF files aren't readable by a text editor. Therefore, we use some command line utilities. The two most versatile utilities are `objdump` and `readelf`.
 
 ### Understanding The Result Of \`file\`
 
@@ -84,17 +78,17 @@ hello_object.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripp
 
 * `LSB` tells that the binary is structured in `little-endian` format, which means that the the least significant bit (or LSB) comes first.
   * It is different from `big-endian` where the MSB comes first.
-  * In simple words, normal arithmetic is big-endian based and cpu arithmetic is little-endian based.
-* `relocatable` means that the file is ready to be linked with shared libraries but not for execution.
+  * In simple words, normal arithmetic is big-endian based and CPU arithmetic is little-endian based.
+* `relocatable` means the file is ready to be linked with shared libraries but not for execution.
   * A relocatable ELF is one which has unresolved references to symbols whose definition lies in shared libraries.
   * For example, `printf` comes from `glibc`.
-* `not stripped` means that file still contains items which are not necessary and the code will still function the same if they are removed.
+* `not stripped` means that the file still contains items which are not necessary and the code will still function the same if they are removed.
 * `version 1 (SYSV)` means it uses System V AMD64 ABI (for conventions).
 * `x86-64` tells we are on 64-bit Linux.
 
 ***
 
-A binary file also follows the same structure. The above object file can be linked like this:
+A linked binary file also follows the same structure. The above object file can be linked like this:
 
 ```bash
 gcc hello_object.o -o hello_elf
@@ -113,6 +107,4 @@ hello_elf: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically 
 
 ***
 
-Here comes the end of _a brief introduction to ELF._
-
-It was designed to serve this purpose exactly. Very soon we are going to study a binary **in-detail**, which is where we'll explore this in **full-depth**.
+Here comes the end of _a brief introduction to ELF._ Very soon we will explore it in depth.
