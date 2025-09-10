@@ -197,7 +197,8 @@ Second, the kernel has data structures which keep every allocation in control an
 
 How the allocator decides whether to use `sbrk()` or `mmap()` ?
 
-
+* Although the exact implementation can vary, the concept remains the same.
+* Small allocations via `sbrk()` and large allocations via `mmap()`. The definition of small and large can be allocator specific which we will explore later.
 
 
 

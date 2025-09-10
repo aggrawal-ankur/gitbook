@@ -78,6 +78,7 @@
   * [Address Translation](all-roads-to-memory/address-translation.md)
   * [Dynamic Memory Allocation](all-roads-to-memory/dynamic-memory-allocation/README.md)
     * [Linux Syscalls For DMA](all-roads-to-memory/dynamic-memory-allocation/linux-syscalls-for-dma.md)
+    * [Deallocation](all-roads-to-memory/dynamic-memory-allocation/deallocation.md)
     * [Doug Lea's Memory Model](all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model.md)
 * [Extras](extras/README.md)
   * [What Is Garbage Collection?](extras/garbage-collection.md)
