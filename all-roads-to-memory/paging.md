@@ -4,7 +4,7 @@ _**August 11 and 12, 2025**_
 
 ## Why Pages?
 
-Memory is **byte-addressable**. In 2025, most laptops at least comes with 8 GiB RAM. How many bytes does 8 GiB have?
+Memory is **byte-addressable**. In 2025, most laptops comes with 8 GiB RAM at least. How many bytes does 8 GiB have?
 
 * 1 GiB = 1024 MiB
 * 1 MiB = 1024 KiB

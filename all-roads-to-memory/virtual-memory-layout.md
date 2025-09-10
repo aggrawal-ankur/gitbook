@@ -1,10 +1,10 @@
-# General Process Layout In Virtual Memory
+# Virtual Memory Layout
 
 _**August 12, 2025**_
 
 ***
 
-## A Big Picture Layout Of The Virtual Address Space
+## Big Picture
 
 ```
 High Address
@@ -40,7 +40,7 @@ High Address
 Low Address
 ```
 
-### User Space Layout
+## User Space Layout
 
 ```
 0x0000800000000000 *-----------------------------* End of User Space ↓
@@ -58,15 +58,13 @@ Low Address
 0x0000000000400000 *-----------------------------* Start Of User Space ↑
 ```
 
-* `.bss` and `.data` lives together because they are functionally the same thing, they just differ in initialization.
+`.data` and `.bss` are packed together because they are functionally the same thing, just differ in initialization.
 
-## What are stack and heap really?
+### What are stack and heap really?
 
-In simple words, stack and heap are two approaches to manage memory. There are no specialized regions either in the virtual memory or physical memory which refer to stack or heap. They are just two ways to manage the same flat memory.
+In simple words, stack and heap are two approaches to manage memory. There are no specialized regions either in the physical memory which refer to stack or heap. They are just two ways to manage the same flat memory.
 
-These approaches are very dense and exceeds the scope of this series, not just the write up. So, if you want to read more about them, you can visit [here](https://ankuragrawal.gitbook.io/home/~/revisions/9oCulmOXQVthvPHUANsQ/approaches-to-memory-management).
-
-## Why the stack grows downward?
+### Why the stack grows downward?
 
 When we learn stack as a data structure, we imagine it as a stack of plates. A stack of anything starts from bottom and approaches sky as the top.
 
@@ -80,15 +78,21 @@ There is a simple solution to this problem. **Reverse the address space.**
 
 ***
 
-Apart from this, there is a genuine question that why stack was put at the top of the user space. The reasoning that they shouldn't collide is not applicable here as the memory-mapped region will always come in-between. While I don't have any answer to that, but if I find anything, I will update this block.
+Apart from this, there is a genuine question that why stack was put at the top of the user space. The reason that they shouldn't collide is not applicable as the memory-mapped region will always come in-between.
+
+As of now, I don't have any answer, but if I find anything interesting, I will update this block.
 
 ***
 
-## Why the stack is fast and heap is slow?
+### Why the stack is fast and heap is slow?
 
-Right now this question is not completely answerable because it is based on comparison. We can explore why stack is fast because we are familiar with it and we already know the answer unconsciously, that stack is based on sequential allocation. But we don't know what heap is.
+This question is not completely answerable as it is based on comparison.
 
-I pointed this out so that I don't forget to answer it. Later when we will explore heap allocation, it will itself clear why stack is fast and heap is slow.
+We can explore why stack is fast because we are familiar with it. But we don't know what heap is.
+
+Although we know why stack is fast because it is based on sequential allocation. But what makes heap slow is not known.
+
+When we will explore dynamic memory allocation, it will become clear why stack is fast and heap is slow.
 
 ***
 
