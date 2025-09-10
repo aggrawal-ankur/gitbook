@@ -87,7 +87,90 @@ If any function from `malloc` family is called, the `brk()` is executed to exten
 
 So in practice, we use `sbrk()` not `brk()`. Although the use of both is not recommended today; instead we should use functions from `malloc` family.
 
-`sbrk(n)` guarantees at least `n` bytes, but the **address it returns may be page-aligned, not exactly contiguous to the previous break**.
+A key thing about `sbrk(n)` is that it extends heap contiguously. And we can prove this by a simple example:
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+  void *initial_break = sbrk(0);  // get current break
+  
+  // Allocate 32 bytes using sbrk
+  void *new_mem = sbrk(32);
+  if (new_mem == (void*) -1) {
+    perror("sbrk failed");
+    return 1;
+  }
+
+  // New program break
+  void *after_alloc = sbrk(0);
+
+  printf("Initial program break: %p\n", initial_break);
+  printf("Allocated 32 bytes at: %p\n", new_mem);
+  printf("Program break after sbrk: %p\n", after_alloc);
+
+  return 0;
+}
+```
+
+The output is:
+
+```bash
+$ gcc main.c
+$ ./a.out
+
+Initial program break: 0x55bc200da000
+Allocated 32 bytes at: 0x55bc200da000
+Program break after sbrk: 0x55bc200da020
+```
+
+0x55bc200da000 = 0d94266479976448
+
+0x55bc200da020 = 0d94266479976480
+
+The difference is exactly 32 bytes.
+
+***
+
+But, if you do this:
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+  void *initial_break = sbrk(0);  // get current break
+  printf("Initial program break: %p\n", initial_break);
+  
+  // Allocate 32 bytes using sbrk
+  void *new_mem = sbrk(32);
+  if (new_mem == (void*) -1) {
+    perror("sbrk failed");
+    return 1;
+  }
+  printf("Allocated 32 bytes at: %p\n", new_mem);
+
+  // New program break
+  void *after_alloc = sbrk(0);
+  printf("Program break after sbrk: %p\n", after_alloc);
+
+  return 0;
+}
+```
+
+the output changes significantly.
+
+```bash
+$ gcc main.c
+$ ./a.out  
+ 
+Initial program break: 0x559b4fc4b000
+Allocated 32 bytes at: 0x559b4fc6c000
+Program break after sbrk: 0x559b4fc6c020
+```
+
+Just by the output we can see that the jump in address is way too much. This behavior might be attributed to `printf` calling `malloc` internally for its requirements. **Never mix the two**.
 
 ### mmap()
 
