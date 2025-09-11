@@ -1,6 +1,6 @@
 # Dynamic Memory Allocation
 
-_**10 September 2025**_
+9, _**10 September 2025**_
 
 ***
 

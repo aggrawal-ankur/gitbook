@@ -1,5 +1,9 @@
 # Deallocation
 
+_**10 September 2025**_
+
+***
+
 Deallocation as a process can be divided into two parts.
 
 1. Making the memory inaccessible.
