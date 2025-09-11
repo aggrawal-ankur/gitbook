@@ -127,11 +127,8 @@ It refers to how the allocator chooses a free chunk from bins when multiple coul
 
 This hybrid gives both speed and decent fragmentation control.
 
+## Trimming
 
+Releasing memory from the top chunk back to the kernel (lowering program break).
 
-
-
-
-
-
-
+Prevents unbounded growth.
