@@ -6,7 +6,7 @@ _**August 11, 2025**_
 
 ## Premise
 
-It's complicated, so dive in directly is foolish. Therefore, here is a tasting of each concept.
+It's complicated, so diving in directly is foolish. Therefore, here is a tasting of each concept.
 
 ## Physical Memory
 
@@ -26,22 +26,16 @@ It's complicated, so dive in directly is foolish. Therefore, here is a tasting o
 6. Virtual memory is divided into pages of 4 KiB (other configs also available, but 4 KiB is the most widely used).
 7. Each page in virtual memory maps to a page in physical memory.
 
-## Address Space (or Virtual Address Space)
+## Virtual Address Space
 
 Address space is the set of all addresses available for a program to use.
 
 MMU with the OS manages to translate these addresses to physical memory.
 
-### Spaces
-
 Virtual address space is split into _user space_ and _kernel space_.
 
 1. User space is where the program runs.
 2. Kernel space is where the OS runs.
-
-This provides isolation and privilege control.
-
-It prevents accidental or malicious modification of memory.
 
 ## Page
 
@@ -61,9 +55,9 @@ Paging solves three problems:
 
 ***
 
-**Page** is a chunk of memory in virtual space. **Page frame** is the chunk of memory in the physical space that maps to a page in virtual space. Same size.
+A **Page** is a portion of memory in the virtual address space. A **Page frame** is the portion of memory in the physical space that maps to a page in virtual space.
 
-* Basically, page is a virtual memory term and page frame is a physical memory term.
+* Basically, **page** is a virtual memory term and **page frame** is a physical memory term.
 
 ***
 

@@ -1,6 +1,6 @@
 # Dynamic Memory Allocation
 
-9, _**10 September 2025**_
+_**9, 10 September 2025**_
 
 ***
 
@@ -28,4 +28,4 @@ But the father of all allocators, not the first memory allocator, but definitely
 
 * He is a professor of CS at State University of New York at Oswego.
 
-Before diving into `dlmalloc`, we have to understand some dynamic memory concepts.
+Before diving into `dlmalloc`, we have to understand some dynamic concepts.
