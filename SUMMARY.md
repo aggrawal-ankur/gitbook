@@ -80,6 +80,7 @@
     * [Linux Syscalls For DMA](all-roads-to-memory/dynamic-memory-allocation/linux-syscalls-for-dma.md)
     * [Deallocation](all-roads-to-memory/dynamic-memory-allocation/deallocation.md)
     * [Doug Lea's Memory Model](all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model.md)
+    * [Chunk Management](all-roads-to-memory/dynamic-memory-allocation/chunk-management.md)
 * [Extras](extras/README.md)
   * [What Is Garbage Collection?](extras/garbage-collection.md)
   * [Introduction To Processes In Linux](extras/processes.md)
