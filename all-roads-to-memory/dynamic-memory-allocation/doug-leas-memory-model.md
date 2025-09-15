@@ -1,10 +1,20 @@
 # Doug Lea's Memory Model
 
-_**11 September 2025**_
+_**11, 15 September 2025**_
 
 ***
 
 Now we will explore Doug Lea's memory model.
+
+## Allocator Instance
+
+Every process gets an instance of the allocator program, `dlmalloc` in this case.
+
+The allocator instance is like the manager of dynamic memory for that process. It ensures that the process's ask for dynamic memory gets fulfilled the right way.
+
+## Arena
+
+The entire pool of memory managed by the `dlmalloc` instance for a process is called arena.
 
 ## Chunks
 
@@ -29,6 +39,8 @@ The minimum size of a chunk is equal to enough for metadata and alignment.
 
 `dlmalloc` requests memory in multiple of pages and carves those into chunks for fine-grained allocations.
 
+The last chunk near the end of the heap (near the program break) is called the **top chunk**. When bins can't satisfy an allocation, dlmalloc extends the top chunk using `sbrk` .
+
 ## Bins
 
 Free chunks or the chunks available to the allocator for allocation are organized into bins.
@@ -45,8 +57,6 @@ Singly-linked LIFO (push/pop).
 
 No coalescing on free (fast, but can cause short-term fragmentation).
 
-***
-
 ### Small Bins
 
 Exact size classes (multiples of alignment up to some threshold, e.g., 512 bytes).
@@ -54,8 +64,6 @@ Exact size classes (multiples of alignment up to some threshold, e.g., 512 bytes
 Implemented using doubly-linked circular lists.
 
 Coalescing is supported.
-
-***
 
 ### Large Bins
 
@@ -75,42 +83,24 @@ Helps with quick reuse and reduces bin searching overhead.
 
 Implemented using doubly-linked circular lists.
 
-## Coalescing
-
-When the process uses `free(ptr)` , it makes the chunk available for reuse to the allocator. When such chunks are present adjacent to each other, they can be merged into one large free chunk. This is called coalescing.
-
-## Top Chunk
-
-It is the last chunk near the end of the heap (near the program break).
-
-When bins can't satisfy an allocation, dlmalloc extends the top chunk using `sbrk` .
-
 ## Mmap'd Chunks
 
-Large requests bypass bins/top chunk and directly use `mmap`.
+Large requests are allocated with `mmap` and released with `munmap`.
 
-They are released using `munmap`.
-
-dlmalloc uses a threshold to decide when to use mmap and heap.
+`dlmalloc` uses a threshold to decide when to use mmap and heap.
 
 ## Split and Merge
 
-When a big chunk is available but a small chunk is requested, carve the requested size out of the big chunk and leave the rest in bins. This is called splitting.
+When a big chunk is available but a small chunk is requested, the allocator carves the requested size out of the big chunk and leave the rest in bins. This is called **splitting**.
 
-Too many small chunks, which can't be allocated alone are merged together to form a big chunk. This is called merging or coalescing.
-
-## Arena
-
-The entire heap managed by the a `dlmalloc` instance is called arena.
-
-Every process gets an instance of `dlmalloc` along with some memory in heap by the kernel.
+When the process frees an allocation, `free(ptr)` , it makes the chunk available for reuse to the allocator. When such chunks are present adjacent to each other, they can be merged into one large free chunk. This is called **coalescing**.
 
 ## Fragmentation
 
 Fragmentation is wasted memory that can’t be used efficiently:
 
 1. **External fragmentation**: free memory exists, but in pieces too small or scattered to satisfy a request. Example: you have three 1 KB holes but need 3 KB contiguous.
-2. **Internal fragmentation**: memory inside an allocated chunk that the program doesn’t use. Example: program asks for 13 bytes, allocator rounds up to 16 (3 wasted).
+2. **Internal fragmentation**: memory inside an allocated chunk that the program doesn’t use. Example: program asked for 13 bytes, allocator rounds up to 16 (3 wasted). 3 bytes wasted in padding.
 
 ## Fits Strategy
 
@@ -129,6 +119,6 @@ This hybrid gives both speed and decent fragmentation control.
 
 ## Trimming
 
-Releasing memory from the top chunk back to the kernel (lowering program break).
+Releasing memory from the top chunk back to the kernel (lowering program break) is called **trimming**.
 
-Prevents unbounded growth.
+It prevents unbounded growth.
