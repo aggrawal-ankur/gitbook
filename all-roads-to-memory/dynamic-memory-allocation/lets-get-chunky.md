@@ -59,7 +59,48 @@ malloc(35);
 malloc(30);         goes in the first group from cache bins
 ```
 
-To understand this better, let's create a small ASCII drawing representing byte-addressable memory.
+To understand this better, let's draw byte-addressable memory in ASCII.
+
+```
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+|    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+```
+
+* Looks pretty, isn't it? I want a complement on this. Just kidding.
+* If anyone is wondering how i obtained these upper scores (macron) and angles, checkout this article on Wikipedia, [Box-drawing characters](https://en.wikipedia.org/wiki/Box-drawing_characters). I first saw these characters in VS Code's terminal specifically in Kali Linux and ever since I can't get how great they look.
+* Anyways, back to the topic. Such diversions are healthy so yeah.
+
+
+
+
 
 
 
