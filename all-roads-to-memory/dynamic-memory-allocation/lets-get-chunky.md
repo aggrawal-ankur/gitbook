@@ -32,7 +32,7 @@ We are asking for 20 bytes but memory is managed in terms of pages.
 
 Since 20 bytes were requested, a chunk of 20 bytes will be carved out from the arena and will be allocated to the process.
 
-* In this operation, the program break would be increased by 20 bytes.
+* In this operation, the program break would be increased by 20 bytes. (_Remember, sbrk is page-granular not per malloc. So, this is just a simplification of the idea._)
 
 Now we have 4076 bytes of unallocated memory and one **in-use chunk** of 20 bytes.
 
@@ -121,7 +121,7 @@ To visualize this, we can use an ASCII drawing which represents byte addressable
 
 We know that kernel releases memory in terms of pages and the allocator manages them in chunks.
 
-But drawing 4096 boxes is neither easy nor fruitful. So, we will assume that our first request to `malloc` got 100 bytes from the kernel and this would be our arena.
+But drawing 4096 boxes is neither easy nor fruitful. So, we will assume that our first request to `malloc` got 100 bytes from the kernel and this would be our **arena**.
 
 Let's start visualizing.
 
