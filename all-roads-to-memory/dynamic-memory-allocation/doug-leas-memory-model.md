@@ -16,24 +16,17 @@ The entire pool of memory managed by the `dlmalloc` instance for a process is ca
 
 ## Chunks
 
-A chunk is the fundamental unit of memory in `dlmalloc`.
-
-Every allocation is backed by a **chunk**, not just raw bytes.
+A chunk is the fundamental unit of memory in `dlmalloc`. Every allocation is backed by a **chunk**, not just raw bytes.
 
 A chunk is made up of a header and payload.
 
 * Header contains metadata about the chunk.
-* Payload refers to the place where user data would go after allocation.
+* Payload is where the user data goes after allocation.
 
 A chunk can be divided into two types based on its availability.
 
-1. **In-use chunks** refers to chunks which are allocated to the process.
-2. **Free-chunks** refers to chunks which are available to the allocator for allocation.
-
-The minimum size of a chunk is equal to enough for metadata and alignment.
-
-* On 64-bit: typically **16 or 24 bytes** minimum.
-* Chunk sizes are **multiples of alignment** (8 or 16 bytes).
+1. **In-use chunks** are allocated to the process.
+2. **Free-chunks** are available to the allocator for reallocation.
 
 `dlmalloc` requests memory in multiple of pages and carves those into chunks for fine-grained allocations.
 
