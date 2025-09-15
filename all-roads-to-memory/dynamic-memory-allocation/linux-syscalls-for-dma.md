@@ -15,7 +15,7 @@ This is the virtual address space layout for user space memory. For more informa
 |  *-----------------*     |
 |  |    Stack (↓)    |     |
 |  *-----------------*     |
-|  |   mmap region   |     |
+|  |   Mmap region   |     |
 |  *-----------------*     |
 |  |    Free Space   |     |
 |  *-----------------*     |

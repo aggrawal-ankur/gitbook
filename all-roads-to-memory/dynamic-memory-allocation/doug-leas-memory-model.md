@@ -4,8 +4,6 @@ _**11, 15 September 2025**_
 
 ***
 
-Now we will explore Doug Lea's memory model.
-
 ## Allocator Instance
 
 Every process gets an instance of the allocator program, `dlmalloc` in this case.
