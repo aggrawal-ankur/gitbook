@@ -391,9 +391,60 @@ At last, we have to allocate 12 bytes for `u`.
 * If you notice, the total size of free/unallocated memory is 12 bytes, precisely what we need, but it is "**fragmented**".
 * This is what external fragmentation looks like. It wastes memory.
 
+## External Fragmentation
 
+This is a 15X16 grid, so 240 byte-addressable blocks in heap.
 
-Since we are assuming from so long, the C-Assembly connection and memory stuff, just visualize this at scale now.
+```
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| .. | .. | .. | .. | .. | .. | .. | .. |    |    |    |    | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| .. | .. | .. | .. |    |    |    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    |    |    |    |    |    | .. | .. | .. | .. | .. | .. | .. | .. |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    | .. | .. |    |    |    |    | .. | .. | .. | .. |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    |    |    |    |    |    | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    |    |    |    | .. | .. | .. | .. | .. | .. |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    | .. | .. | .. | .. | .. | .. |    |    |    |    | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    |    |    |    |    |    | .. | .. | .. | .. | .. | .. |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    |    |    |    |    | .. | .. | .. | .. | .. | .. | .. |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    |    |    |    |    | .. | .. | .. | .. | .. | .. |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+|    | .. | .. | .. | .. | .. | .. |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| .. | .. | .. | .. | .. | .. |    |    |    |    |    |    |    |    |    |    |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+```
 
-* 1000 blocks of byte-addressable heap memory, of which 400 blocks (not chunks) are free to use and still you can't allocate 100 bytes in that arena because there is no one contiguous block of 100 bytes.
-* And we have not even crossed 1 page. That's why, fragmentation is a real challenge for an allocator. And this was just external, there is internal as well but we can't see it until we factor in some rules.
+The dotted blocks are reserved while the rest are free. Roughly 108 bytes are lying freely. This is almost half of the total available bytes, 45%. Yet if I want 50 bytes contiguously, that's not possible.
+
+Now scale it to 8 GiB of RAM or more. This is how memory is wasted
+
+This is external fragmentation in miniature.
+
+And there are mechanisms to deal with it and this is what we are going to explore next.
+
+## Conclusion
+
+Use memory responsibly.
+
+We saw memory allocation on surface and tried to picture it so that we can feel confident. And I am sure we are.
+
+But how that allocation is actually managed by dlmalloc is still unknown. And to answer that, we have to get more chunky.
+
+Basically, now we have to explore the real structure of a in-use and free chunks, as perceived by `dlmalloc` and how the concept of bins is applied to manage chunks efficiently.
+
+Until then, bye bye.
