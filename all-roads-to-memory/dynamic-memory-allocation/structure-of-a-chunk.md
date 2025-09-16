@@ -36,9 +36,7 @@ mallocWin32(); mallocWin64()
 mallocUnix32(); mallocUnix64() and so on.
 ```
 
-`size_t` is just an alias for the word size on a computer architecture. We'd not appreciate if we have to mention the word size with every malloc request. We'd not appreciate any inconvenience that makes malloc complicated.
-
-So, we hide all that complication programmatically. The system toolchain decides which system we are in and based on that it adjusts the value of `size_t` so that we as programmers have no difficulty working across different systems.
+So, we hide all that complication programmatically. The toolchain decides the most appropriate value and make it `size_t` so that we as programmers have no difficulty working across different systems.
 
 That's why when we are at 32-bit system, the size of a chunk becomes 16 bytes. And when we are at 64-bit system, it becomes 32 bytes automatically without any extra lines.
 
@@ -60,8 +58,7 @@ You might be wondering where is the actual memory location. And it's right to fe
     | pf | he | fd | bk | p. |    |    |    |    |    | .p | // | // | // | // | // |
     └────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
     ```
-
-    Obviously this is very loosely represented and later we will try to manage this with more realism.
+* Remember, pointer `p` is not a part of the struct. And this is very loosely represented which we will try to manage with more realism later.
 
 ***
 
@@ -128,8 +125,8 @@ If something still feels off, remember that rule, _memory interpretation is cont
 
 Remember the `pinuse` bit?
 
-* When it is 0, `prev_foot` is not managed.
-* When it is 1, `prev_foot` stores the size of the previous free chunk.
+* When it is 0, `prev_foot` stores the size of the previous free chunk.
+* When it is 1, `prev_foot` is not managed.
 
 ## \*fd and \*bd
 
@@ -137,12 +134,12 @@ These are only used by free chunks. They help us traverse forward and backward i
 
 ## Final Looks
 
-### Free Chunk
+### In-use Chunk
 
 ```c
 struct malloc_chunk {
   size_t prev_foot = "DEPENDS ON PINUSE BIT";
-  size_t head = "16/32 + REQUESTED_BYTES + DWORD_PADDING";
+  size_t head = "REQUESTED_BYTES + overhead(8)";
     CINUSE=1;
     PINUSE="DEPENDS";
   struct malloc_chunk* fd = GARBAGE;
@@ -150,12 +147,12 @@ struct malloc_chunk {
 };
 ```
 
-### In-use Chunk
+### Free Chunk
 
 ```c
 struct malloc_chunk {
   size_t prev_foot = "DEPENDS ON PINUSE BIT";
-  size_t head = "16/32 + REQUESTED_BYTES + DWORD_PADDING";
+  size_t head = "REQUESTED_BYTES + overhead(16)";
     CINUSE=0;
     PINUSE="DEPENDS";
   struct malloc_chunk* fd = "NEXT FREE CHUNK IN THE BIN";
