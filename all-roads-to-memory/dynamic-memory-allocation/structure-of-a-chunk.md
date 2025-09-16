@@ -139,7 +139,7 @@ These are only used by free chunks. They help us traverse forward and backward i
 ```c
 struct malloc_chunk {
   size_t prev_foot = "DEPENDS ON PINUSE BIT";
-  size_t head = "REQUESTED_BYTES + overhead(8)";
+  size_t head = "8/16 + REQUESTED_BYTES + DWORD_PADDING";
     CINUSE=1;
     PINUSE="DEPENDS";
   struct malloc_chunk* fd = GARBAGE;
@@ -152,7 +152,7 @@ struct malloc_chunk {
 ```c
 struct malloc_chunk {
   size_t prev_foot = "DEPENDS ON PINUSE BIT";
-  size_t head = "REQUESTED_BYTES + overhead(16)";
+  size_t head = "8/16 + REQUESTED_BYTES + DWORD_PADDING";
     CINUSE=0;
     PINUSE="DEPENDS";
   struct malloc_chunk* fd = "NEXT FREE CHUNK IN THE BIN";
