@@ -1,4 +1,4 @@
-# Chunk Management
+# Structure Of A Chunk
 
 _**16 September 2025**_
 
@@ -124,6 +124,56 @@ size_field & ~0x7
 
 If something still feels off, remember that rule, _memory interpretation is context dependent. The same group of 8 bits can be interpreted as an unsigned int, a signed int, an ASCII character, or maybe an emoji. So, bit masking doesn't looses the original size. It just utilizes the bits which have become null function under the "alignment rule" situation._
 
-## In-use chunk
+## size\_t prev\_foot
 
-An chunk allocated to the process is an in-use.
+Remember the `pinuse` bit?
+
+* When it is 0, `prev_foot` is not managed.
+* When it is 1, `prev_foot` stores the size of the previous free chunk.
+
+## \*fd and \*bd
+
+These are only used by free chunks. They help us traverse forward and backward in the bin they are associated with.
+
+## Final Looks
+
+### Free Chunk
+
+```c
+struct malloc_chunk {
+  size_t prev_foot = "DEPENDS ON PINUSE BIT";
+  size_t head = "16/32 + REQUESTED_BYTES + DWORD_PADDING";
+    CINUSE=1;
+    PINUSE="DEPENDS";
+  struct malloc_chunk* fd = GARBAGE;
+  struct malloc_chunk* bk = GARBAGE;
+};
+```
+
+### In-use Chunk
+
+```c
+struct malloc_chunk {
+  size_t prev_foot = "DEPENDS ON PINUSE BIT";
+  size_t head = "16/32 + REQUESTED_BYTES + DWORD_PADDING";
+    CINUSE=0;
+    PINUSE="DEPENDS";
+  struct malloc_chunk* fd = "NEXT FREE CHUNK IN THE BIN";
+  struct malloc_chunk* bk = "PREVIOUS FREE CHUNK IN THE BIN";
+};
+```
+
+## Conclusion
+
+`size_t` is the real MVP as it helps in making your code platform independent.
+
+Everything is confusing until you don't understand it. Chunks is one of those things.
+
+Next we have to understand binning and how chunks are managed. Questions like:
+
+1. How a free chunk is associated to a bin?
+2. What about coalesced free chunks?
+
+can be answered only when we understand binning. And that's going to be our next exploration.
+
+Until then, goodbye.
