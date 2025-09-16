@@ -160,6 +160,8 @@ struct malloc_chunk {
 };
 ```
 
+The allocator world considers this 8/16 math in head as "**overhead**". But I don't like to complicate that much so I didn't use that.
+
 ## Conclusion
 
 `size_t` is the real MVP as it helps in making your code platform independent.
