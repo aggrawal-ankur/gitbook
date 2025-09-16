@@ -6,18 +6,26 @@ _**16 September 2025**_
 
 We'll start by understanding the structure of a chunk.
 
-## Structure Of A Chunk
+This is how a chunk looks like:
 
-In-use chunk and free chunk both have a different structure because of different needs. But the idea remains the same.
+```c
+struct malloc_chunk {
+  size_t prev_foot;
+  size_t head;
+  struct malloc_chunk* fd;
+  struct malloc_chunk* bk;
+};
+```
 
-A chunk is made up of a header and a payload.
+A chunk is just a piece of metadata that comes before raw memory.
 
-* The header stores metadata about the chunk.
-* Payload is where the actual data goes to.
+## What is size\_t?
 
-Depending on the type of chunk, these header and payloads take different shapes.
+`size_t` is an unsigned integer type defined by the C standard, which is guaranteed to be able to hold the size (in bytes) of the largest possible object in the architecture you are in.
 
-### Size Field
+***
+
+## Size Field
 
 The first thing that goes in the header is the size of the whole chunk, which includes both the header and the payload.
 
@@ -105,4 +113,22 @@ size_field & ~0x7
 ```
 
 If something still feels off, remember that rule, _memory interpretation is context dependent. The same group of 8 bits can be interpreted as an unsigned int, a signed int, an ASCII character, maybe an emoji. So, bit masking doesn't looses the original size. It just utilizes the bits which have become null function under the "alignment rule" situation._
+
+## In-use chunk
+
+An chunk allocated to the process is an in-use.
+
+An in-use chunk has 3 fields.
+
+1. The size of the previous chunk if it was free. It is managed under `prev_foot` field . It is managed only when the `pinuse=0` .
+2. A size field called `head`. It is bit masked to store both the size of the chunk and the `pinuse` and `cinuse` flags. Note: The size includes both the header and the payload.
+3. The payload section, where the allocation goes.
+
+So, what would be the minimum size of an in-use chunk?
+
+* If an in-use chunk is surrounded by in-use chunks only, the `prev_foot` field will not be significant.
+* Only the `head` and payload would be important.
+* The lowest we can go in payload is 1 bytes and head is required to be 4/8 bytes.
+* On 32-bit, `4 + 1 = 5`, but 5 is not word aligned, so a padding of 3 bytes would be added to round up the allocation to 8 bytes.
+* On 64-bit, `8 + 1 = 9`, but 9 is not word aligned, so a padding of 7 bytes would be added to round up the allocation to 16 bytes.
 

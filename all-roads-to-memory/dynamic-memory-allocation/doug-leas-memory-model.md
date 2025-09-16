@@ -16,12 +16,7 @@ The entire pool of memory managed by the `dlmalloc` instance for a process is ca
 
 ## Chunks
 
-A chunk is the fundamental unit of memory in `dlmalloc`. Every allocation is backed by a **chunk**, not just raw bytes.
-
-A chunk is made up of a header and payload.
-
-* Header contains metadata about the chunk.
-* Payload is where the user data goes after allocation.
+A chunk is the fundamental unit of memory in `dlmalloc`.
 
 A chunk can be divided into two types based on its availability.
 
