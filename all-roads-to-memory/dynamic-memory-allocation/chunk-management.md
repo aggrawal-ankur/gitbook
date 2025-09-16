@@ -4,9 +4,7 @@ _**16 September 2025**_
 
 ***
 
-We'll start by understanding the structure of a chunk.
-
-This is how a chunk looks like:
+We'll start by understanding the structure of a chunk. This is how a chunk looks like:
 
 ```c
 struct malloc_chunk {
@@ -17,56 +15,70 @@ struct malloc_chunk {
 };
 ```
 
-A chunk is just a piece of metadata that comes before raw memory.
+A chunk is just a piece of metadata.
 
 ## What is size\_t?
 
-`size_t` is an unsigned integer type defined by the C standard, which is guaranteed to be able to hold the size (in bytes) of the largest possible object in the architecture you are in.
+`size_t` is an unsigned integer type defined by the C standard, which is guaranteed to be able to hold the size (in bytes) of the largest possible object (word size) in the architecture we are in.
+
+At the end of the day, `size_t` is just a type definition alias for some unsigned integer type. In that case, why don't we just use that instead? What's the need for `size_t` ?
+
+Every major kernel like Windows, Unix and Linux has a different ABI. Then there are platform specific ABIs. What looks easy outside is not really that simple inside.
+
+Leave the topic of ABIs for a second. We have multiple implementations of integer itself. Just open `stdint.h` . But when you malloc for any kind, it just works.
+
+Despite all these differences which we can't comprehend as beginners, we still use the same `malloc()` on Windows, Linux and anywhere else. How is that made possible?
+
+We use the same frontend but beneath that lies the complexity to keep malloc as one single frontend instead of
+
+```
+mallocWin32(); mallocWin64()
+mallocUnix32(); mallocUnix64() and so on.
+```
+
+`size_t` is just an alias for the word size on a computer architecture. We'd not appreciate if we have to mention the word size with every malloc request. We'd not appreciate any inconvenience that makes malloc complicated.
+
+So, we hide all that complication programmatically. The system toolchain decides which system we are in and based on that it adjusts the value of `size_t` so that we as programmers have no difficulty working across different systems.
+
+That's why when we are at 32-bit system, the size of a chunk becomes 16 bytes. And when we are at 64-bit system, it becomes 32 bytes automatically without any extra lines.
 
 ***
 
-## Size Field
+## The Confusion Of Size
 
-The first thing that goes in the header is the size of the whole chunk, which includes both the header and the payload.
+When we see a chunk as a struct, it's literal size is always going to 16/32 bytes on 32-bit/64-bit. But when we talk about chunk as an allocation medium, it includes the size of both the chunk (as a metadata keeper) and the raw memory location to which a pointer is returned to the process.
 
-The size of the header is dependent on the size of its contents, and the size of its contents is architecture-dependent.
+And this size is stored within the `head` declaration in the chunk itself.
 
-dlmalloc doesn't use unsigned ints, it uses `size_t`, which refers to the largest size the architecture can manage. Internally it is an unsigned int of some kind.
+You might be wondering where is the actual memory location. And it's right to feel perplexed about it.
 
-If you run this simple program:
+* What happens is that for every allocation, first comes a metadata chunk, followed by the actual memory location to which a pointer is returned to the process.
+*   So for every allocation, it is more like:
 
-```c
-#include<stdio.h>
-#include<stddef.h>
+    ```
+    ┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+    | pf | he | fd | bk | p. |    |    |    |    |    | .p | // | // | // | // | // |
+    └────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+    ```
 
-int main(void){
-  int x = (sizeof(size_t));
-  printf("Bytes = %d\n", x);
-  printf("Bits = %d\n", x << 3);
-}
-```
-
-You will get 8 as bytes and 64 as bits by default as every system is 64-bit today.
-
-However, if you compile this program for a 32-bit system, which you can do that by installing libraries for 32-bit, you'll have a different output. For example, on Debian you can do this:
-
-```bash
-sudo dpkg --add-architecture i386
-sudo apt-get update
-sudo apt-get install build-essential gcc-multilib g++-multilib
-```
-
-and compile using the `-m32` option, you will have 4 and 32 in output.
-
-Therefore, on 32-bit systems, the size of the `size` field is 4 bytes and on 64-bit systems, it is 8 bytes. However, the whole size field is not used to represent size. Why? Explained below.
+    Obviously this is very loosely represented and later we will try to manage this with more realism.
 
 ***
 
-We know that a free chunk must be surrounded by in-use chunks only. This is only possible when you coalesce adjacent free chunk. To coalesce adjacent free chunks, you need to know whether the adjacent chunk is free or in-use.
+That means, every malloc request creates a chunk, where a chunk literally is just a metadata struct followed by the actual raw memory, but logically we consider them together.
 
-We also need to identify whether the current chunk is free or in-use.
+## size\_t head
 
-For these two purposes, we use flags bits. These are `PINUSE` and `CINUSE` bits.
+Let's talk about this declaration within the struct first because this probably the only declaration which is present both in free chunks and in-use chunks.
+
+As `head` is of type `size_t` it will be 4 bytes on 32-bit and 8 bytes on 64-bit. So, size is sorted, I guess.
+
+We need to do 2 things.
+
+1. We know that a free chunk must be surrounded by in-use chunks only. This is only possible when you coalesce adjacent free chunks. To do that, we need to know whether the adjacent chunk is free or in-use.
+2. We also need to identify whether the current chunk is free or in-use.
+
+And we do that using flags bits. These are `PINUSE` and `CINUSE` bits.
 
 The `PINUSE` bit is for "_previous chunk type_".
 
@@ -84,15 +96,13 @@ You may ask, _wouldn't that mess with the original size?_ No it won't.
 
 * Remember the stack pointer has to be double word aligned (16 for 64-bits and 8 for 32-bits) because there are SIMD instructions which expects that? A similar story is repeated here as well.
 * _**The total size of the chunk has to be double-word aligned.**_
-* The largest primitive data type in any architecture is double, which basically means a double-word type. Integer is considered word aligned in the default case.
-* If the chunk is only word-aligned, any double word request would mess up the whole calculation of the CPU. To keep things consistent and ensure that memory access for every type is managed efficiently, dlmalloc uses double-word aligned chunks.
+* The largest primitive data type in any architecture is double, which basically means a double-word type. If the chunk is only word-aligned, any double word request would mess up the whole calculation of the CPU.
+* To keep things consistent and ensure that memory access for every type is managed efficiently, dlmalloc uses double-word aligned chunks.
 
 Double-word aligned means 8 bytes on 32-bit and 16-bytes on 64-bit.
 
-* Anything that stands on a base of 8 is going to be a multiple of 8. Take 24 and 96.
-* Anything that stands on a base of 16 is going to be a multiple of 16. Take 32 and 48.
-* Any number that is a multiple of 8 or 16 is not going to use the lower 3 bits, i.e 0, 1, 2. These bits are always going to be free.
-* So, why don't we use them to mask `pinuse` and `cinuse`? The third bit is not used by dlmalloc but ptmalloc uses it. It might be used for indicating whether the chunk belongs to mmap or heap. But it doesn't concern us for the time being.
+* Any number which is a multiple of 8 or 16 is not going to use the lower 3 bits, i.e 0, 1, 2. These bits are always going to be free. _You can do the math if unsure._
+* So, why don't we use them to mask `pinuse` and `cinuse`? The third bit is not used by dlmalloc but ptmalloc uses it.
 
 To retrieve the `cinuse` bit:
 
@@ -112,23 +122,8 @@ To retrieve the size, clear the lower 3 bits.
 size_field & ~0x7
 ```
 
-If something still feels off, remember that rule, _memory interpretation is context dependent. The same group of 8 bits can be interpreted as an unsigned int, a signed int, an ASCII character, maybe an emoji. So, bit masking doesn't looses the original size. It just utilizes the bits which have become null function under the "alignment rule" situation._
+If something still feels off, remember that rule, _memory interpretation is context dependent. The same group of 8 bits can be interpreted as an unsigned int, a signed int, an ASCII character, or maybe an emoji. So, bit masking doesn't looses the original size. It just utilizes the bits which have become null function under the "alignment rule" situation._
 
 ## In-use chunk
 
 An chunk allocated to the process is an in-use.
-
-An in-use chunk has 3 fields.
-
-1. The size of the previous chunk if it was free. It is managed under `prev_foot` field . It is managed only when the `pinuse=0` .
-2. A size field called `head`. It is bit masked to store both the size of the chunk and the `pinuse` and `cinuse` flags. Note: The size includes both the header and the payload.
-3. The payload section, where the allocation goes.
-
-So, what would be the minimum size of an in-use chunk?
-
-* If an in-use chunk is surrounded by in-use chunks only, the `prev_foot` field will not be significant.
-* Only the `head` and payload would be important.
-* The lowest we can go in payload is 1 bytes and head is required to be 4/8 bytes.
-* On 32-bit, `4 + 1 = 5`, but 5 is not word aligned, so a padding of 3 bytes would be added to round up the allocation to 8 bytes.
-* On 64-bit, `8 + 1 = 9`, but 9 is not word aligned, so a padding of 7 bytes would be added to round up the allocation to 16 bytes.
-
