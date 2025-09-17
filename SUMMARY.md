@@ -1,6 +1,7 @@
 # Table of contents
 
 * [Welcome To The World Of Low Level Systems](README.md)
+* [Learning Process Optimization](learning-process-optimization.md)
 * [Understanding x64 Assembly](x64-assembly/README.md)
   * [Orientation](x64-assembly/orientation/README.md)
     * [Historical Introduction](x64-assembly/orientation/history.md)
