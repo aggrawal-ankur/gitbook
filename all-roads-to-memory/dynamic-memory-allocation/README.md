@@ -32,5 +32,5 @@ But the father of all allocators, not the first memory allocator, but definitely
 
 * He is a professor of CS at State University of New York at Oswego.
 * [This repository](https://github.com/DenizThatMenace/dlmalloc) has every version of dlmalloc.
-* [This repository](https://app.gitbook.com/u/1r9qBTGddSZoho2NrgzNzl3E15I2) has a clear version of dlmalloc as the the original version uses a strange dialect of C which is not beginner friendly.
+* [This repository](https://github.com/aradzie/dlmalloc) has a clear version of dlmalloc as the the original version uses a strange dialect of C which is not beginner friendly.
 * [This repository](https://github.com/emeryberger/Malloc-Implementations) has multiple allocator implementations under one roof.
