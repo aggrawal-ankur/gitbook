@@ -21,7 +21,7 @@ Bins are implemented using two data structures:
 
 Bins are categorized as following:
 
-<table><thead><tr><th width="131">Name</th><th>Use</th></tr></thead><tbody><tr><td>Small Bins</td><td>For exact size classes (which are in multiple of alignment, up to some threshold).<br>Implemented using circular doubly-linked list.<br>Coalescing is allowed.</td></tr><tr><td>Unsorted Bins<br>(Cache Bins)</td><td>Acts as a temporary holding for newly freed chunks.<br>Helps in quick reuse and reduces bin searching overhead.<br>Implemented using doubly-linked circular lists.</td></tr><tr><td>Tree Bins<br>(Large bins)</td><td>Implemented using bitwise digital trees.<br>Used for managing very large size free chunks.</td></tr></tbody></table>
+<table><thead><tr><th width="155">Name</th><th>Use</th></tr></thead><tbody><tr><td>Small Bins</td><td>For exact size classes (multiples of 8, up to 256 bytes).<br>Implemented using circular doubly-linked list.<br>Coalescing is allowed.</td></tr><tr><td>Unsorted Bins<br>(Cache Bins)</td><td>Acts as a temporary holding for newly freed chunks.<br>Helps in quick reuse and reduces bin searching overhead.<br>Implemented using doubly-linked circular lists.</td></tr><tr><td>Tree Bins<br>(Large bins)</td><td>Implemented using bitwise digital trees.<br>Used for managing very large size free chunks (typically > 256 bytes).</td></tr></tbody></table>
 
 This categorization of bins helps balancing rapid allocation, memory usage and fragmentation.
 
@@ -191,6 +191,12 @@ If the next malloc request finds nothing in the unsorted bin, every chunk is pop
 
 
 
+
+## Rules For Carving
+
+when is it needed
+
+## Rules For Coalescing
 
 ## Fits Strategy
 
