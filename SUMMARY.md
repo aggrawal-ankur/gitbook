@@ -83,7 +83,7 @@
     * [Doug Lea's Memory Model](all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model.md)
     * [Lets Get Chunky](all-roads-to-memory/dynamic-memory-allocation/lets-get-chunky.md)
     * [Structure Of A Chunk](all-roads-to-memory/dynamic-memory-allocation/structure-of-a-chunk.md)
-    * [Chunk Management](all-roads-to-memory/dynamic-memory-allocation/chunk-management.md)
+    * [Free Chunk Management](all-roads-to-memory/dynamic-memory-allocation/free-chunk-management.md)
 * [Extras](extras/README.md)
   * [What Is Garbage Collection?](extras/garbage-collection.md)
   * [Introduction To Processes In Linux](extras/processes.md)
