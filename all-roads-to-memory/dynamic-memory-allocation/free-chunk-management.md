@@ -1,14 +1,12 @@
 # Free Chunk Management
 
-_**17, 18 September 2025 (definitions taken out from a previous**_ [_**write up**_](https://ankuragrawal.gitbook.io/home/~/revisions/0fLrDsjrcXzDo0NctRkY/all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model)_**, written on 11, 15, 16 September 2025, optimized)**_
+_**17, 18, 19 September 2025 (definitions taken out from a previous**_ [_**write up**_](https://ankuragrawal.gitbook.io/home/~/revisions/0fLrDsjrcXzDo0NctRkY/all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model)_**, written on 11, 15, 16 September 2025, optimized)**_
 
 ***
 
+In-use chunks are self-owned. Their bookkeeping lives in the chunk header itself and no external registry maintains them. Free chunks, on the other hand, required management.
+
 Let's explore how free chunks are managed by the allocator.
-
-First of all, in-use chunks are self-owned. Their bookkeeping lives in the chunk header itself and no external registry maintains them.
-
-Linked List and Trees are the two major data structures that dlmalloc uses to manage free chunks efficiently. When chunks are not in use, they are treated as nodes of either of these.
 
 ## Bins
 
@@ -19,9 +17,11 @@ Bins are implemented using two data structures:
 1. Linked Lists (Singly and Circular Doubly)
 2. Bitwise Digital Trees
 
+When chunks are not in use, they are treated as nodes of either of these.
+
 Bins are categorized as following:
 
-<table><thead><tr><th width="155">Name</th><th>Use</th></tr></thead><tbody><tr><td>Small Bins</td><td>For exact size classes (multiples of 8, up to 256 bytes).<br>Implemented using circular doubly-linked list.<br>Coalescing is allowed.</td></tr><tr><td>Unsorted Bins<br>(Cache Bins)</td><td>Acts as a temporary holding for newly freed chunks.<br>Helps in quick reuse and reduces bin searching overhead.<br>Implemented using doubly-linked circular lists.</td></tr><tr><td>Tree Bins<br>(Large bins)</td><td>Implemented using bitwise digital trees.<br>Used for managing very large size free chunks (typically > 256 bytes).</td></tr></tbody></table>
+<table><thead><tr><th width="155">Name</th><th>Use</th></tr></thead><tbody><tr><td>Small Bins</td><td>For exact size classes (multiples of 8, up to 256 bytes).<br>Implemented using doubly-linked circular list.</td></tr><tr><td>Unsorted Bins<br>(Cache Bins)</td><td>Acts as a temporary holding for newly freed chunks. Helps in quick reuse and reduces bin searching overhead.<br>Implemented using doubly-linked circular lists.</td></tr><tr><td>Tree Bins<br>(Large bins)</td><td>Implemented using bitwise digital trees.<br>Used for managing very large size free chunks (typically > 256 bytes).</td></tr></tbody></table>
 
 This categorization of bins helps balancing rapid allocation, memory usage and fragmentation.
 
@@ -29,9 +29,9 @@ This categorization of bins helps balancing rapid allocation, memory usage and f
 
 ## Structures In Account
 
-Primarily we have 3 structures that are involved in all the heavy lifting. And we have different aliases to them for different use cases. The structs remains the same, only the naming changes so that it fits the context, that's it.
+Primarily we have 3 structs and some aliases to them for different use cases. The structs remains the same, only the naming changes so that it fits the context, that's it.
 
-First we have `malloc_chunk`, which is used in managing free chunks via small bins.
+1. `malloc_chunk`: used for small size free chunks (in small bins).
 
 ```c
 struct malloc_chunk {
@@ -46,15 +46,17 @@ typedef struct malloc_chunk* mchunkptr;
 typedef struct malloc_chunk* sbinptr;
 ```
 
-Second we have `malloc_tree_chunk`, which is used in managing free chunks via tree bins.
+2. `malloc_tree_chunk`: used for large size free chunks (in tree bins).
 
 ```c
 struct malloc_tree_chunk {
+  // Usual metadata from ll-chunks
   size_t prev_foot;
   size_t head;
   struct malloc_tree_chunk* fd;
   struct malloc_tree_chunk* bk;
 
+  // Bookkeeping for trees
   struct malloc_tree_chunk* child[2];
   struct malloc_tree_chunk* parent;
   bindex_t index;
@@ -65,7 +67,7 @@ typedef struct malloc_tree_chunk* tchunkptr;
 typedef struct malloc_tree_chunk* tbinptr;
 ```
 
-Third we have the master record which manages everything for an allocator instance, it is called `malloc_state`.
+3. `malloc_state`: The master record which manages everything for an allocator instance.
 
 ```c
 struct malloc_state {
@@ -108,22 +110,21 @@ At last, we have a few macros which define some constant values.
 
 * `32U` means, take the value 32 as an unsigned integer.
 
-That's all we need to understand the process.
+That's all we need to understand the process. Let's start with `malloc_state` .
 
-***
+## malloc\_state
 
-Using `malloc_state` and the two macros, we can confirm the lengths of both the bins, i.e `smallbins[66]` and `treebins[32]`.
+The actual bins that manage free chunks are `smallbins[]` and `treebins[]` .
 
-Since small bins are implemented using circular doubly-linked list, we have to maintain two pointers, i.e `fd` and `bd` for each bin. Therefore, 32\*2 = 64 elements in `smallbins`. But we still have two extra elements.
+Using the two macros above, we can find the lengths of both the bins, i.e `smallbins[66]` and `treebins[32]`.
 
-* The 0th element in `smallbins` is sentinel and is there for alignment purposes. It is not used.
-* The 1st element in `smallbins` is the unsorted bin.
+### Small Bins
 
-And there are 32 tree bins in total.
+Since small bins are implemented using circular doubly-linked list, we have to maintain two pointers, i.e `fd` and `bd` for each bin.
 
-***
+The small bin at 1-index is for unsorted bin. So, there will be 32 small bins and 1 unsorted bin.
 
-## Small Bins
+Since array indices start from zero and we are counting bins from 1, for alignment purposes, the 0th element is sentinel and is not used.
 
 Small bins manage fixed size chunks. Each small bin, `smallbin_1` to `smallbin_32` manage sizes in multiple of 8. Therefore, the `smallbins` array look something like this:
 
@@ -143,9 +144,9 @@ smallbins = [
 
 What do these entries mean?
 
-* Small bins are maintained using linked lists, so `fd_8` represents the first node in a linked list that links all the free chunks of exactly 8 bytes together. And `bd_8` represents the end of that same linked list.
+* Small bins are maintained using doubly-linked circular lists, so `fd_8` represents the first node in a linked list that links all the free chunks of size 8 bytes together. And `bd_8` represents the end of that same linked list.
 
-If you remember, the `malloc_chunk` struct has 4 `size_t` elements, which weigh 16/32 bytes on 32-bit/64-bit systems. Also, the least memory you can request is 1 bytes, which would be rounded up to 24/48 bytes on 32-bit/64-bit system, the small bins linking chunks of 8 and 16 bytes makes no sense.
+If you remember, the `malloc_chunk` struct has 4 `size_t` elements, which weigh 16/32 bytes on 32-bit/64-bit systems. Also, the least memory you can request is 1 bytes, which would round up the chunk size to 24/48 bytes on 32-bit/64-bit system. That means, the small bins linking chunks of 8 and 16 bytes makes no sense?
 
 * Yeah, that is right. But dlmalloc keeps that overhead for clarity and alignment purposes.
 * Those bins are empty. And we will see this practically very soon.
@@ -176,7 +177,114 @@ free(d);
 
 If the next malloc request finds nothing in the unsorted bin, every chunk is popped out and linked in the respective bins.
 
-## Tree Bins
+### Tree Bins
+
+There are 32 tree bins in total.&#x20;
+
+Small bins used to manage fixed size free chunks and tree bins manage chunks falling in a specific range of bytes. This range is obtained as a power of 2.
+
+We know that small bins manage size < 256 bytes. Everything after that is managed by tree bins.
+
+256 is 2^8. So, the first range is 257-512 bytes (where 512 is 2^9). Similarly, we have 513-1024, 1025 - 2048 bytes and so on.
+
+Any chunk of size 257-512 bytes directly falls in the first tree bin.
+
+***
+
+Linked list is a fairly popular and beginner data structure so everyone knows it. But bitwise digital trees is not. But to understand tree bins, we have to understand how a bitwise digital tree is implemented. And theory here sounds absolutely garbage here, so let's take a lively example and explore theory through it.
+
+We will take 257-512 bytes range, that's `treebins[0]`. And free chunk sizes as 512, 512, 264, 296, 344, 352, 328, 464, 472, 488, 408. And we will talk about 32-bit system only as these sizes are 8-bytes aligned.
+
+_**Order of sizes is very important here. We will move from left to right strictly, not in any sorted form.**_
+
+We assume that all the chunks are surrounded by in-use chunks so prev\_foot would be always zero.
+
+Since we are still gaining familiarity with the structs, we will keep element types intact, but keep this in mind that _a struct's definition can't have values defined in it._
+
+***
+
+`treebins[0]` started empty.
+
+A free chunk of size 512 bytes arrived.
+
+* Remember, every element in `treebins[0..31]` is a pointer to the root node of the bitwise digital tree.
+*   This is how our 512 bytes chunk would look like:
+
+    ```c
+    struct malloc_tree_chunk{
+      size_t prev_foot = 0;
+      size_t head = 512;
+      struct malloc_chunk* fd = NULL;
+      struct malloc_chunk* bd = NULL;
+
+      struct malloc_tree_chunk* child[2];
+      child[0] = NULL;
+      child[1] = NULL;
+
+      struct malloc_tree_chunk* parent = NULL;
+      bindex_t index = 0;
+    };
+    ```
+
+    `fd` and `bd` will be populated only when a free chunk of the same size comes. Otherwise they are left `NULL`. And `index` refers to the level we are in the tree. `root` is at 0 level.
+
+This is how the tree looks like now:
+
+```
+                                512
+```
+
+Next is another 512 bytes chunk. Since the root chunk is also 512 bytes, the `fd` pointer of the previous chunk is set to this chunk and the new 512 bytes chunk is put next to it.
+
+```
+                            512 -- 512
+```
+
+Although both the chunks are at the same level, only the first chunk is treated as the root node. The next 512 bytes chunk is just connected to it via fd, bk pointers.
+
+That's how our root node would look like now:
+
+```c
+struct malloc_tree_chunk{
+  // 512_root
+  size_t prev_foot = 0;
+  size_t head = 512;
+  struct malloc_chunk* fd = "next512_chunk";
+  struct malloc_chunk* bd = NULL;
+
+  struct malloc_tree_chunk* child[2];
+  child[0] = NULL;
+  child[1] = NULL;
+
+  struct malloc_tree_chunk* parent = NULL;
+  bindex_t index = 0;
+};
+```
+
+And the next 512 bytes chunk:
+
+```c
+struct malloc_tree_chunk{
+  // fd_512
+  size_t prev_foot = 0;
+  size_t head = 512;
+  struct malloc_chunk* fd = NULL;
+  struct malloc_chunk* bd = "prev512_chunk_at_root";
+
+  struct malloc_tree_chunk* child[2];
+  child[0] = NULL;
+  child[1] = NULL;
+
+  struct malloc_tree_chunk* parent = NULL;
+  bindex_t index = 0;
+};
+```
+
+For clarity, we will call the root node as `512_root` and the other node as `fd_512`.
+
+***
+
+
 
 
 
