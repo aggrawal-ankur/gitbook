@@ -71,7 +71,6 @@
   * [Magic Verification](elf-parser/magic-verification.md)
   * [Available APIs](elf-parser/what-are-the-available-apis.md)
 * [All Roads To Memory](all-roads-to-memory/README.md)
-  * [The Ultimate Story](all-roads-to-memory/the-ultimate-story.md)
   * [Orientation](all-roads-to-memory/introduction.md)
   * [Paging](all-roads-to-memory/paging.md)
   * [Virtual Addressing System](all-roads-to-memory/virtual-addressing-system.md)
