@@ -203,86 +203,11 @@ Since we are still gaining familiarity with the structs, we will keep element ty
 
 ***
 
-`treebins[0]` started empty.
+Every element in `treebins[0..31]` is a pointer to the root node of the bitwise digital tree.
 
-A free chunk of size 512 bytes arrived.
 
-* Remember, every element in `treebins[0..31]` is a pointer to the root node of the bitwise digital tree.
-*   This is how our 512 bytes chunk would look like:
 
-    ```c
-    struct malloc_tree_chunk{
-      size_t prev_foot = 0;
-      size_t head = 512;
-      struct malloc_chunk* fd = NULL;
-      struct malloc_chunk* bd = NULL;
 
-      struct malloc_tree_chunk* child[2];
-      child[0] = NULL;
-      child[1] = NULL;
-
-      struct malloc_tree_chunk* parent = NULL;
-      bindex_t index = 0;
-    };
-    ```
-
-    `fd` and `bd` will be populated only when a free chunk of the same size comes. Otherwise they are left `NULL`. And `index` refers to the level we are in the tree. `root` is at 0 level.
-
-This is how the tree looks like now:
-
-```
-                                512
-```
-
-Next is another 512 bytes chunk. Since the root chunk is also 512 bytes, the `fd` pointer of the previous chunk is set to this chunk and the new 512 bytes chunk is put next to it.
-
-```
-                            512 -- 512
-```
-
-Although both the chunks are at the same level, only the first chunk is treated as the root node. The next 512 bytes chunk is just connected to it via fd, bk pointers.
-
-That's how our root node would look like now:
-
-```c
-struct malloc_tree_chunk{
-  // 512_root
-  size_t prev_foot = 0;
-  size_t head = 512;
-  struct malloc_chunk* fd = "next512_chunk";
-  struct malloc_chunk* bd = NULL;
-
-  struct malloc_tree_chunk* child[2];
-  child[0] = NULL;
-  child[1] = NULL;
-
-  struct malloc_tree_chunk* parent = NULL;
-  bindex_t index = 0;
-};
-```
-
-And the next 512 bytes chunk:
-
-```c
-struct malloc_tree_chunk{
-  // fd_512
-  size_t prev_foot = 0;
-  size_t head = 512;
-  struct malloc_chunk* fd = NULL;
-  struct malloc_chunk* bd = "prev512_chunk_at_root";
-
-  struct malloc_tree_chunk* child[2];
-  child[0] = NULL;
-  child[1] = NULL;
-
-  struct malloc_tree_chunk* parent = NULL;
-  bindex_t index = 0;
-};
-```
-
-For clarity, we will call the root node as `512_root` and the other node as `fd_512`.
-
-***
 
 
 
