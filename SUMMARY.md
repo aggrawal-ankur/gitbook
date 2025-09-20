@@ -83,6 +83,7 @@
     * [Lets Get Chunky](all-roads-to-memory/dynamic-memory-allocation/lets-get-chunky.md)
     * [Structure Of A Chunk](all-roads-to-memory/dynamic-memory-allocation/structure-of-a-chunk.md)
     * [Free Chunk Management](all-roads-to-memory/dynamic-memory-allocation/free-chunk-management.md)
+    * [Inspecting dlmalloc Using GDB](all-roads-to-memory/dynamic-memory-allocation/inspecting-dlmalloc-using-gdb.md)
 * [Extras](extras/README.md)
   * [What Is Garbage Collection?](extras/garbage-collection.md)
   * [Introduction To Processes In Linux](extras/processes.md)
