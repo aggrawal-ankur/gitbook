@@ -27,36 +27,11 @@ This categorization of bins helps balancing rapid allocation, memory usage and f
 
 **Note: v2.7.0 of dlmalloc used fast bins, but they were removed in v2.8.0. The last version of dlmalloc is v2.8.6, as per this repository on** [**GitHub**](https://github.com/DenizThatMenace/dlmalloc)**.**
 
-## When are bins populated?
-
-We know that the first malloc request sets up the arena.
-
-Let's say we requested 10 bytes. The allocator is guaranteed to receive at least one page. On Linux, 4 KiB pages are more popular. So, the allocator is guaranteed to setup an arena of at least 4096 bytes in in the first request.&#x20;
-
-Depending on the system (32-bit/64-bit), the allocator will carve a chunk of size 24/48 bytes because of double-word alignment rule. So a minimum of 4072/4048 bytes will be left unused in the arena.
-
-These \~4k bytes are unallocated. Where do they live?
-
-* Remember program break we read about in syscalls section? [Link](linux-syscalls-for-dma.md).
-* The program break is just after the data segment. When we extend the heap, the kernel releases more memory than requested, and that memory is not used all at once, but it is allocated to the allocator.
-* The program break is the partition between used arena and unallocated arena.
-* When 24 bytes are used in the arena, the program break would be at the 25th bit.
-
-The program break is a pointer to the next free byte in the arena. When there is no space left in the arena for the requested allocation, the allocator requests more memory from the kernel.
-
-The `topsize` entry in `malloc_state` stores the size of the top chunk, which means the amount of unallocated space in the arena. `top` is a pointer to the first byte in the unallocated arena.
-
-The allocator keeps requesting memory from the kernel when it runs out, the total memory ever requested by the allocator instance is recorded by the `max_footprint` declaration.
-
-The `least_addr` declaration points to the lowest memory address in the arena.
-
-`footprint_limit` is the user-defined ceiling on how much memory the allocator may request.
-
 ## Structures In Account
 
-Primarily we have 3 structs and some aliases to them for different use cases. The structs remains the same, only the naming changes so that it fits the context, that's it.
+We have 3 structs and some aliases to them for different use cases. The structs remains the same, only the naming changes so that it fits the context, that's it.
 
-1. `malloc_chunk`: used for small size free chunks (in small bins).
+1. `malloc_chunk`: used for small size free chunks (by small bins).
 
 ```c
 struct malloc_chunk {
@@ -71,7 +46,7 @@ typedef struct malloc_chunk* mchunkptr;
 typedef struct malloc_chunk* sbinptr;
 ```
 
-2. `malloc_tree_chunk`: used for large size free chunks (in tree bins).
+2. `malloc_tree_chunk`: used for large size free chunks (by tree bins).
 
 ```c
 struct malloc_tree_chunk {
@@ -135,8 +110,6 @@ At last, we have a few macros which define some constant values.
 
 * `32U` means, take the value 32 as an unsigned integer.
 
-That's all we need to understand the process. Let's start with `malloc_state` .
-
 ## malloc\_state
 
 The actual bins that manage free chunks are `smallbins[]` and `treebins[]` .
@@ -145,9 +118,9 @@ Using the two macros above, we can find the lengths of both the bins, i.e `small
 
 ### Small Bins
 
-Since small bins are implemented using circular doubly-linked list, we have to maintain two pointers, i.e `fd` and `bd` for each bin.
+Since small bins are implemented using circular doubly-linked list. We have to maintain two pointers, i.e `fd` and `bd` for each bin.
 
-The small bin at 1-index is for unsorted bin. So, there will be 32 small bins and 1 unsorted bin.
+The small bin at 1-index is used for unsorted bin. So there will be 32 small bins and 1 unsorted bin.
 
 Since array indices start from zero and we are counting bins from 1, for alignment purposes, the 0th element is sentinel and is not used.
 
@@ -171,16 +144,14 @@ What do these entries mean?
 
 * Small bins are maintained using doubly-linked circular lists, so `fd_8` represents the first node in a linked list that links all the free chunks of size 8 bytes together. And `bd_8` represents the end of that same linked list.
 
-If you remember, the `malloc_chunk` struct has 4 `size_t` elements, which weigh 16/32 bytes on 32-bit/64-bit systems. Also, the least memory you can request is 1 bytes, which would round up the chunk size to 24/48 bytes on 32-bit/64-bit system. That means, the small bins linking chunks of 8 and 16 bytes makes no sense?
+The `malloc_chunk` struct has 4 `size_t` elements, which weigh 16/32 bytes on 32-bit/64-bit systems. The least memory you can request is 1 bytes, which would round up the chunk size to 24/48 bytes on 32-bit/64-bit system. That means, the small bins linking chunks of 8 and 16 bytes makes no sense?
 
-* Yeah, that is right. But dlmalloc keeps that overhead for clarity and alignment purposes.
+* Yeah, that's right. But dlmalloc keeps that overhead for clarity and alignment purposes.
 * Those bins are empty. And we will see this practically very soon.
 
 ***
 
-When a chunk is freed, it goes into unsorted small bin.
-
-When multiple chunks are freed together, or there is no malloc request in between multiple frees, like this:
+When a chunk is freed, it goes into unsorted small bin. When multiple chunks are freed together, or there is no malloc request in between multiple frees, like this:
 
 ```
 free(p);
@@ -204,19 +175,40 @@ If the next malloc request finds nothing in the unsorted bin, every chunk is pop
 
 ### Tree Bins
 
-There are 32 tree bins in total.
+There are 32 tree bins in total. They manage chunks falling in a specific range of bytes. This range is obtained using power of 2.
 
-Tree bins manage chunks falling in a specific range of bytes. This range is obtained as power of 2.
-
-We know that small bins manage size < 256 bytes. Everything after that is managed by tree bins.
+Small bins manage size < 256 bytes. Everything after that is managed by tree bins.
 
 256 is 2^8. So, the first range is 257-512 bytes (512 is 2^9). Similarly we have 513-1024, 1025-2048 bytes and so on.
-
-Any chunk of size 257-512 bytes directly falls in the first tree bin.
 
 Tree bins are implemented using bitwise digital trees. Every element in a tree bin is a pointer to the root node of the bitwise digital tree.
 
 Linked List are fairly simple but bitwise digital trees are not. To understand them and visualize them, we have to practically see how a tree bin is managed by dlmalloc, which we will do very soon.
+
+## Arena
+
+The first malloc request sets up the arena.
+
+Let's say we requested 10 bytes. The allocator is guaranteed to receive at least one page. On Linux, 4 KiB pages are more popular. So the allocator is guaranteed to setup an arena of at least 4096 bytes in in the first request.
+
+Depending on the system (32-bit/64-bit), the allocator will carve a chunk of size 24/48 bytes because of double-word alignment rule. So a minimum of 4072/4048 bytes will be left unused in the arena.
+
+These \~4k bytes are unallocated. Where do they live?
+
+* Remember program break we read about in syscalls section? [Link](linux-syscalls-for-dma.md).
+* The program break is just after the data segment. When we extend the heap, the kernel releases more memory than requested, and that memory is not used all at once, but it is allocated to the allocator.
+* The program break is the partition between the used arena and the unallocated arena.
+* When 24 bytes are used in the arena, the program break would be at the 25th bit.
+
+The program break is a pointer to the next free byte in the arena. When there is no space left in the arena for the requested allocation, the allocator requests more memory from the kernel.
+
+The `topsize` entry in `malloc_state` stores the size of the top chunk, which means the amount of unallocated space in the arena. `top` is a pointer to the first byte in the unallocated arena.
+
+The allocator keeps requesting memory from the kernel when it runs out, the total memory ever requested by the allocator instance is recorded by the `max_footprint` declaration.
+
+The `least_addr` declaration points to the lowest memory address in the arena.
+
+`footprint_limit` is the user-defined ceiling on how much memory the allocator may request.
 
 ### Designated Victim
 
