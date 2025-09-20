@@ -1,16 +1,16 @@
 # Free Chunk Management
 
-_**17, 18, 19 September 2025 (definitions taken out from a previous**_ [_**write up**_](https://ankuragrawal.gitbook.io/home/~/revisions/0fLrDsjrcXzDo0NctRkY/all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model)_**, written on 11, 15, 16 September 2025, optimized)**_
+_**17, 18, 19, 20 September 2025 (definitions taken out from a previous**_ [_**write up**_](https://ankuragrawal.gitbook.io/home/~/revisions/0fLrDsjrcXzDo0NctRkY/all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model)_**, written on 11, 15, 16 September 2025, optimized)**_
 
 ***
 
-In-use chunks are self-owned. Their bookkeeping lives in the chunk header itself and no external registry maintains them. Free chunks, on the other hand, required management.
+In-use chunks are self-owned. Their bookkeeping lives in the chunk header itself and no external registry maintains them. Free chunks require management.
 
 Let's explore how free chunks are managed by the allocator.
 
 ## Bins
 
-A bin is a bucket for storing free chunks. Different buckets exist for different chunks.
+A bin is a bucket for storing free chunks. Different buckets exist for different chunk size.
 
 Bins are implemented using two data structures:
 
@@ -26,6 +26,31 @@ Bins are categorized as following:
 This categorization of bins helps balancing rapid allocation, memory usage and fragmentation.
 
 **Note: v2.7.0 of dlmalloc used fast bins, but they were removed in v2.8.0. The last version of dlmalloc is v2.8.6, as per this repository on** [**GitHub**](https://github.com/DenizThatMenace/dlmalloc)**.**
+
+## When are bins populated?
+
+We know that the first malloc request sets up the arena.
+
+Let's say we requested 10 bytes. The allocator is guaranteed to receive at least one page. On Linux, 4 KiB pages are more popular. So, the allocator is guaranteed to setup an arena of at least 4096 bytes in in the first request.&#x20;
+
+Depending on the system (32-bit/64-bit), the allocator will carve a chunk of size 24/48 bytes because of double-word alignment rule. So a minimum of 4072/4048 bytes will be left unused in the arena.
+
+These \~4k bytes are unallocated. Where do they live?
+
+* Remember program break we read about in syscalls section? [Link](linux-syscalls-for-dma.md).
+* The program break is just after the data segment. When we extend the heap, the kernel releases more memory than requested, and that memory is not used all at once, but it is allocated to the allocator.
+* The program break is the partition between used arena and unallocated arena.
+* When 24 bytes are used in the arena, the program break would be at the 25th bit.
+
+The program break is a pointer to the next free byte in the arena. When there is no space left in the arena for the requested allocation, the allocator requests more memory from the kernel.
+
+The `topsize` entry in `malloc_state` stores the size of the top chunk, which means the amount of unallocated space in the arena. `top` is a pointer to the first byte in the unallocated arena.
+
+The allocator keeps requesting memory from the kernel when it runs out, the total memory ever requested by the allocator instance is recorded by the `max_footprint` declaration.
+
+The `least_addr` declaration points to the lowest memory address in the arena.
+
+`footprint_limit` is the user-defined ceiling on how much memory the allocator may request.
 
 ## Structures In Account
 
@@ -179,57 +204,39 @@ If the next malloc request finds nothing in the unsorted bin, every chunk is pop
 
 ### Tree Bins
 
-There are 32 tree bins in total.&#x20;
+There are 32 tree bins in total.
 
-Small bins used to manage fixed size free chunks and tree bins manage chunks falling in a specific range of bytes. This range is obtained as a power of 2.
+Tree bins manage chunks falling in a specific range of bytes. This range is obtained as power of 2.
 
 We know that small bins manage size < 256 bytes. Everything after that is managed by tree bins.
 
-256 is 2^8. So, the first range is 257-512 bytes (where 512 is 2^9). Similarly, we have 513-1024, 1025 - 2048 bytes and so on.
+256 is 2^8. So, the first range is 257-512 bytes (512 is 2^9). Similarly we have 513-1024, 1025-2048 bytes and so on.
 
 Any chunk of size 257-512 bytes directly falls in the first tree bin.
 
-***
+Tree bins are implemented using bitwise digital trees. Every element in a tree bin is a pointer to the root node of the bitwise digital tree.
 
-Linked list is a fairly popular and beginner data structure so everyone knows it. But bitwise digital trees is not. But to understand tree bins, we have to understand how a bitwise digital tree is implemented. And theory here sounds absolutely garbage here, so let's take a lively example and explore theory through it.
+Linked List are fairly simple but bitwise digital trees are not. To understand them and visualize them, we have to practically see how a tree bin is managed by dlmalloc, which we will do very soon.
 
-We will take 257-512 bytes range, that's `treebins[0]`. And free chunk sizes as 512, 512, 264, 296, 344, 352, 328, 464, 472, 488, 408. And we will talk about 32-bit system only as these sizes are 8-bytes aligned.
+### Designated Victim
 
-_**Order of sizes is very important here. We will move from left to right strictly, not in any sorted form.**_
+Many programs do repeated allocations of the same similar sizes. Designated victim is a recently freed chunk which is a part of small-medium size.
 
-We assume that all the chunks are surrounded by in-use chunks so prev\_foot would be always zero.
-
-Since we are still gaining familiarity with the structs, we will keep element types intact, but keep this in mind that _a struct's definition can't have values defined in it._
+If a malloc request matches the the size of designated victim (`dvsize`), it saves the allocator some work by reusing the chunk pointer by `dv`.&#x20;
 
 ***
 
-Every element in `treebins[0..31]` is a pointer to the root node of the bitwise digital tree.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Rules For Carving
-
-when is it needed
+<table><thead><tr><th width="278">Declaration (in malloc_state)</th><th>Meaning</th></tr></thead><tbody><tr><td>binmap_t smallmap, treemap</td><td>An <code>unsigned int</code> (32-bit) value whose bits are masked to represent the state of small/tree bins. It is like a heat map for for bins, telling which one is free and which on has nodes in it.</td></tr></tbody></table>
 
 ## Rules For Coalescing
+
+1. If the previous chunk is free, merge it with the current chunk. Use `prev_foot` to find the previous chunk’s size and adjust pointers.
+2. If the next chunk is free (top chunk excluded), merge it with the current chunk. Remove the next chunk from its bin before merging.
+3. If the next chunk is the **top chunk**, just extend the top chunk’s size instead of placing the chunk in bins.
+
+If coalescing has happened, update the size field of the resulting chunk and insert it in appropriate bin.
+
+If the coalesced chunk is larger than `dvsize`, may replace the designated victim.
 
 ## Fits Strategy
 
