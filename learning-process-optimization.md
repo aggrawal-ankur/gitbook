@@ -68,3 +68,32 @@ That's why if there is a possibility to explain something using a table, I am al
 
 * [Doug Lea's memory model](https://ankuragrawal.gitbook.io/home/all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model)
 * [Types of bins](https://ankuragrawal.gitbook.io/home/all-roads-to-memory/dynamic-memory-allocation/chunk-management#types-of-bins)
+
+***
+
+_**September 21, 2025**_
+
+How to ensure that my approach positions me better in the future?
+
+There can be multiple answers to this question but almost all of them boils down to one thing — **prioritize long term over short term, my short term must align with my long term goals.**
+
+And a few moments before, I found a way to implement it.
+
+Recently I finished the theoretical part of understanding dlmalloc, which itself is a part of understand dynamic memory allocation. Now I want to verify all the theory I was learning since 2 weeks.
+
+* For this I have to use dlmalloc as the memory allocator for my experimental programs and inspect the process as a sentinel being.
+* I already got dlmalloc setup and running inside a VM, I didn't expect a 13 years code to run without any compilation errors, so a big thank you to Professor Doug Lea for maintaining the code quality to such a level.
+
+Now this inspection can only be done via debugger. GDB is quite popular on Linux so that's my choice. Now there are two ways to approach this.
+
+1. I just use and memorize gdb commands and do the inspection. That ensures speed.
+2. Or I take a long road to understand the "fundamentals of debugging" and then learn how gdb implements them.
+
+As you have guessed, I am more of type 2. And this is exactly what I did with dynamic memory allocation. I didn't read some articles on heap exploitation which touched dlmalloc on surface, I chose to explore dlmalloc myself. And there is a long way to go before I can say "I am done with dynamic memory for the time being."
+
+Why the 2nd approach?
+
+* The second approach maximizes learning the fundamental concepts on which everything is built.
+* It is like maximizing for transferable skills, which remain consistent across different systems and architectures.
+
+This approach ensures that I understand what the debugger is actually doing and it doesn't seem like black magic.
