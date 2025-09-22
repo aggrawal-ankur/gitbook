@@ -90,4 +90,5 @@
   * [How Package Management Works?](extras/how-package-management-works.md)
   * [Virtualization](extras/virtualization.md)
   * [User Input In Assembly](extras/user-input.md)
-* [The Mechanics Of Debugging](debugging.md)
+* [The Mechanics Of Debugging](debugging/README.md)
+  * [Introduction To Debugging](debugging/introduction-to-debugging.md)

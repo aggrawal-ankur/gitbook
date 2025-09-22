@@ -195,7 +195,7 @@ Depending on the system (32-bit/64-bit), the allocator will carve a chunk of siz
 
 These \~4k bytes are unallocated. Where do they live?
 
-* Remember program break we read about in syscalls section? [Link](linux-syscalls-for-dma.md).
+* Remember program break we read about in syscalls section? [Link](dma-syscalls.md).
 * The program break is just after the data segment. When we extend the heap, the kernel releases more memory than requested, and that memory is not used all at once, but it is allocated to the allocator.
 * The program break is the partition between the used arena and the unallocated arena.
 * When 24 bytes are used in the arena, the program break would be at the 25th bit.
