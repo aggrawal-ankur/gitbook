@@ -1,6 +1,6 @@
 # Structures
 
-_**2,3, 5 September 2025**_
+_**2,3, 5, 6 September 2025**_
 
 ***
 
@@ -289,7 +289,7 @@ If we print the size of struct, it is 24 bytes.
 
 ## Struct In Function Arguments
 
-Just like arrays, a struct also decays into a pointer when passed to a function. Take this:
+Unlike arrays, a struct doesn't decay into a pointer when passed to a function. Take this:
 
 ```c
 #include <stdio.h>
@@ -299,7 +299,7 @@ struct Point {
   int y;
 };
 
-void takePointPtr(struct Point *p){}
+void taketPointPtr(struct Point *p){}
 
 void takePoint(struct Point p){}
 
@@ -335,12 +335,15 @@ main:
 	sub	rsp, 16
 	mov	DWORD PTR -8[rbp], 10
 	mov	DWORD PTR -4[rbp], 20
-	mov	rax, QWORD PTR -8[rbp]
+
+	mov	rax, QWORD PTR -8[rbp]		; loading a QWORD value
 	mov	rdi, rax
 	call	takePoint
-	lea	rax, -8[rbp]
+
+	lea	rax, -8[rbp]			; loading an address
 	mov	rdi, rax
 	call	takePointPtr
+
 	mov	eax, 0
 	leave
 	ret
@@ -467,6 +470,36 @@ mov DWORD PTR 4[rax], 40
     ```
 
 And we are done.
+
+## Struct Types As Functions
+
+A struct definition like this:
+
+```c
+struct Point{
+  int x;
+  int y;
+};
+```
+
+can be used to create a function of its type like this:
+
+```c
+struct Point takePoint(struct Point P){}
+```
+
+If you want to avoid writing `struct` every time, use a type definition instead.
+
+```c
+typedef struct{
+  int x;
+  int y;
+} Point;
+
+Point takePoint(Point P);
+```
+
+The reason is simple, a type definition helps you create user defined types, on the other hand, normal struct declarations are just variables, so they can't be used in place of types.&#x20;
 
 ## Conclusion
 
