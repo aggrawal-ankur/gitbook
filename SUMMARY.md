@@ -92,4 +92,5 @@
   * [User Input In Assembly](extras/user-input.md)
 * [The Mechanics Of Debugging](debugging/README.md)
   * [Introduction To Debugging](debugging/introduction-to-debugging.md)
-  * [What Powers Debuggers?](debugging/what-powers-debuggers.md)
+  * [What Powers Debuggers? — 1](debugging/what-powers-debuggers-1.md)
+  * [What Powers Debuggers? — 2](debugging/what-powers-debuggers-2.md)
