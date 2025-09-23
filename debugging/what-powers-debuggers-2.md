@@ -14,7 +14,7 @@ _Note: We are going to stick to the debugger/debugee terminology._
 
 Since we have to bypass a lot of restrictions to do debugging, all the requests of the debugger process are mediated by the kernel. The arm of the kernel that does all of it is called `ptrace`.
 
-`ptrace` is a syscall interface that lets one process (the tracer) observe and control another process (the tracee).
+`ptrace` is a syscall interface that lets one process (the debugger) observe and control another process (the debugee).
 
 ***
 
@@ -32,7 +32,7 @@ So far, we have read about breakpoint `#BP` and single-step `#DB`. But there is 
 
 * For example: syscall entry/exit
 
-When the kernel detects that event, it suspends the tracee process.
+When the kernel detects that event, it suspends the debugee process.
 
 ### 2. Notification To The Debugger
 
@@ -50,7 +50,7 @@ Everything is mediated by the kernel.
 
 When the debugger process is done with its work, it can notify the kernel about resuming the debugee process.
 
-The debugee is now resumed and the control is given back to the kernel until another event triggers.
+The debugee is now resumed by the kernel until another event triggers.
 
 ### Where do signals fit?
 
@@ -74,9 +74,9 @@ Process context refers to the state of a process at any given instance. Process 
 6. Signals
 7. Process metadata (pid, ppid, uid, gid)
 
-Based on these things, a debugger can perform a range of tasks.
-
 ## What can a debugger do?
+
+Based on the process context, a debugger can inspect, modify, and control the execution flow of the debugee.
 
 A debugger can do a lot of things, most of which might be beyond the scope of this exploration, but here are the most important ones, which a debugger does almost all the times.
 
@@ -86,7 +86,7 @@ General purpose registers can reveal the state of current execution context.
 
 Calling convention like System V ABI on Linux 64-bit have syscall convention which mandates certain registers to be used in a specific way for cross-compatibility.
 
-* Inspecting `rax` for example can tell us which syscall the tracee is preparing for.
+* Inspecting `rax` for example can tell us which syscall the debugee is preparing for.
 * Inspecting `rsi`, `rdi` can tell us what are the arguments to that syscall.
 
 Inspecting `rip` can inform about the next instruction.
@@ -103,7 +103,7 @@ We also have trap flag on 8th-bit which can be modified to raise debug exception
 
 A debugger needs access to the debugee’s memory to set breakpoints and modify instructions.
 
-This temporarily violates memory protection rights, but the kernel mediates it via ptrace.
+This temporarily bypasses normal memory protections, but all access is mediated by the kernel via ptrace.
 
 ### Event Monitoring
 
@@ -131,7 +131,7 @@ This prevents arbitrary processes from attaching to random programs.
 
 A child is always traceable by its parent. This is why we usually use gdb to execute the program, so that gdb can have the privilege to do debugging.
 
-A process can voluntarily call `ptrace(PTRACE_TRACEME)` to allow its parent to debug it. If it doesn’t, a child cannot be traced unless `PTRACE_ATTACH` is used by a permitted tracer (and the kernel verifies the security policies).
+A process can voluntarily call `ptrace(PTRACE_TRACEME)` to allow its parent to debug it. If it doesn’t, a child cannot be traced unless `PTRACE_ATTACH` is used by a permitted debugger (and the kernel verifies the security policies).
 
 ***
 
