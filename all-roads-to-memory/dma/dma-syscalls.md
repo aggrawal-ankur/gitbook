@@ -6,7 +6,7 @@ _**10 September 2025**_
 
 ## User Space Layout
 
-This is the virtual address space layout for user space memory. For more information, checkout [virtual-memory-layout.md](../virtual-memory-layout.md "mention")
+This is the virtual address space layout for user space memory. For more information, checkout [virtual-memory-layout.md](../introduction/virtual-memory-layout.md "mention")
 
 ```
   User Space Memory Layout

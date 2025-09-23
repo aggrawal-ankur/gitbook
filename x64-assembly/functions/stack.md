@@ -22,7 +22,7 @@ You may question that a stack of plates grow upwards while the stack in memory g
 
 * Actually, the addresses grow downwards with each push on stack.
 * This feels counterintuitive because we don't know how memory is structured.
-* _Checkout the_ [_process memory layout_](../../all-roads-to-memory/virtual-memory-layout.md) _article for more information. It explains it the best._
+* _Checkout the_ [_process memory layout_](../../all-roads-to-memory/introduction/virtual-memory-layout.md) _article for more information. It explains it the best._
 
 ***
 
@@ -149,7 +149,7 @@ While the upper stack frame exists, the lower one can't execute itself. Once the
 
 ### How is a stack frame structured?
 
-Lets revise how user space memory is laid out. _For more information, checkout_ [virtual-memory-layout.md](../../all-roads-to-memory/virtual-memory-layout.md "mention")
+Lets revise how user space memory is laid out. _For more information, checkout_ [virtual-memory-layout.md](../../all-roads-to-memory/introduction/virtual-memory-layout.md "mention")
 
 ```
   User Space Memory Layout
