@@ -16,8 +16,6 @@ Since we have to bypass a lot of restrictions to do debugging, all the requests 
 
 `ptrace` is a syscall interface that lets one process (the debugger) observe and control another process (the debugee).
 
-***
-
 ## The Mental Model
 
 There are 4 steps in the debugging model.
@@ -136,3 +134,9 @@ A process can voluntarily call `ptrace(PTRACE_TRACEME)` to allow its parent to d
 ***
 
 These are some of the rules that protects `ptrace` from abuse.
+
+## Conclusion
+
+This is what that enables debugging.
+
+Now we are primed to understand how the GNU Debugger works.
