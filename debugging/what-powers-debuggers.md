@@ -1,6 +1,6 @@
 # What Powers Debuggers?
 
-_**23 September 2025**_
+_**22, 23 September 2025**_
 
 ***
 
@@ -72,7 +72,7 @@ When this bit is set to 1, the CPU raises a debug exception (`#DB`) after every 
 
 A debugger program sets up either an `INT3` instruction to create a breakpoint at an address or it sets up the `RFLAGS.TF` bit to 1 to stop after each instruction.
 
-When a breakpoint is set after an instruction an `INT3` instruction executes immediately after it, which raises a `#BP` exception. The kernel responds to this by sending a `SIGTRAP` , which the debugger program catches via `ptrace`. The rest is taken care by `ptrace`.
+When a breakpoint is set on an instruction, an `INT3` instruction executes immediately, which raises a `#BP` exception. The kernel responds to this by sending a `SIGTRAP` , which the debugger program catches via `ptrace`. The rest is taken care by `ptrace`.
 
 When `RFLAGS.TF=1` , a `#DB` exception is raised after every instruction in the process. The kernel responds similarly by sending a `SIGTRAP`, which the debugger program catches via `ptrace`. The rest is taken care by `ptrace` itself.
 
