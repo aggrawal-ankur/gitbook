@@ -87,6 +87,7 @@
   * [Introduction To Debugging](debugging/introduction.md)
   * [What Powers Debuggers? — 1](debugging/wpd-1.md)
   * [What Powers Debuggers? — 2](debugging/wpd-2.md)
+  * [The GNU Debugger](debugging/the-gnu-debugger.md)
 * [Extras](extras/README.md)
   * [What Is Garbage Collection?](extras/garbage-collection.md)
   * [Introduction To Processes In Linux](extras/processes.md)
