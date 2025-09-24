@@ -118,7 +118,7 @@ For example - If we created a watchpoint on a variable and updated it later in t
 
 A catchpoint observes for an event and when that happens, the execution is halted.
 
-The event can be anything like syscall entry/exit, a function execution etc.
+GDB supports many events like exec, fork, shared libraries (load/unload), signal, syscalls (entry/exit), vfork, throw and rethrow (c++).
 
 ### 6. Source Line
 
@@ -152,13 +152,29 @@ We can organize gdb commands based on category.
 
 <table><thead><tr><th width="349">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>break &#x3C;source_line></code></td><td>Creates a breakpoint at a memory location.</td></tr><tr><td><code>watch &#x3C;var></code></td><td>Creates a watchpoint at a memory location.</td></tr><tr><td><code>catch &#x3C;event></code></td><td>Creates a catchpoint for an event.</td></tr></tbody></table>
 
-### Execution State Information
-
-Requirement: An inferior which has been stopped for inspection.
-
-<table><thead><tr><th width="242">Command</th><th width="501">Description</th></tr></thead><tbody><tr><td><code>info registers</code></td><td>State of registers at that point of time.</td></tr><tr><td><code>info all-registers</code></td><td>State of all the registers at that point of time.<br><br>Quite extensive so not required as a beginner.</td></tr><tr><td><code>info breakpoints</code></td><td>Lists all the breakpoints.</td></tr><tr><td><code>info checkpoints</code></td><td>Lists all the checkpoints.</td></tr><tr><td><code>info watchpoints</code></td><td>Lists all the watchpoints</td></tr><tr><td><code>info files</code></td><td>All the files gdb is using in this session.</td></tr><tr><td><code>info frame</code></td><td>Information for the current stack frame.</td></tr><tr><td><code>info locals</code></td><td>State of local variables at that instant of time.</td></tr><tr><td><code>info sharedlibrary</code></td><td>All the shared libraries in use.</td></tr><tr><td><code>info source</code></td><td>Information of the source binary.</td></tr><tr><td><code>info inferiors</code></td><td>GDB can debug multiple sources at once, to see all the programs loaded in the current gdb session, we use this.</td></tr></tbody></table>
-
 ### Accessing The Source Code
 
-<table><thead><tr><th width="308">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>list</code></td><td>The original C source code.</td></tr><tr><td><code>disassemble</code></td><td>Dumps the assembler code for <code>main</code> symbol.</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td></tr></tbody></table>
+<table><thead><tr><th width="308">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>list</code></td><td>Lists 10 lines after or around the original C source code.</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td></tr><tr><td><code>disassemble /s &#x3C;symbol></code></td><td>Dumps assembly along with the C source it belongs to.</td></tr></tbody></table>
+
+### Stack Management
+
+As you already know, and if you don't, I will make you remember, _**you can't escape stack, anywhere.**_
+
+A **frame** is one function call activation on the call stack.
+
+Frames are numbered from 0 to n.
+
+The frame at which the execution is halted right now is **frame 0**.
+
+The frame which called the **frame 0** is **frame 1**. And so on.... up to the bottom of the stack, which is usually `main` or `_start`.
+
+<table><thead><tr><th width="307">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>backtrace</code> or <code>bt</code></td><td>Tells which stack frame we are in.</td></tr><tr><td><code>bt full</code></td><td>The complete stack frame with arguments and values.</td></tr><tr><td><code>info frame</code></td><td>Information for the current stack frame.</td></tr><tr><td><code>info args</code></td><td>Arguments passed to this function frame.</td></tr><tr><td><code>info locals</code></td><td>Local variables on the stack frame.</td></tr><tr><td><code>info frame &#x3C;></code></td><td>Information for the selected stack frame.</td></tr><tr><td><code>up</code></td><td>To change stack frame away from <code>main</code></td></tr><tr><td><code>down</code></td><td>To change stack frame towards <code>main</code>.</td></tr></tbody></table>
+
+### Execution State Information
+
+**Requirement**: An inferior which has been stopped for inspection.
+
+**Note:** All the commands are applicable to the current stack frame. When you mess with the current stack frame, the values will change. So remember that and save headaches.
+
+<table><thead><tr><th width="242">Command</th><th width="501">Description</th></tr></thead><tbody><tr><td><code>info registers</code></td><td>State of registers or the selected stack frame at that point of time.</td></tr><tr><td><code>info registers &#x3C;reg></code></td><td>To inspect a specific register.</td></tr><tr><td><code>info all-registers</code></td><td>State of all the registers at that point of time.<br><br>Quite extensive so not required as a beginner.</td></tr><tr><td><code>info breakpoints</code></td><td>Lists all the breakpoints, catchpoints and watchpoints.</td></tr><tr><td><code>info checkpoints</code></td><td>Lists all the checkpoints.</td></tr><tr><td><code>info watchpoints</code></td><td>Lists all the watchpoints.</td></tr><tr><td><code>info files</code></td><td>All the target files gdb is debugging in this session.</td></tr><tr><td><code>info sharedlibrary</code></td><td>All the shared libraries in use.</td></tr><tr><td><code>info source</code></td><td>Information of the source binary.</td></tr><tr><td><code>info inferiors</code></td><td>GDB can debug multiple sources at once, to see all the programs loaded in the current gdb session, we use this.</td></tr></tbody></table>
 
