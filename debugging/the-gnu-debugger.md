@@ -150,7 +150,7 @@ Few things before the exciting part.
 
 ### Accessing The Source Code
 
-<table><thead><tr><th width="308">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>list</code></td><td>Lists 10 lines after or around the original C source code.</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td></tr><tr><td><code>disassemble /s &#x3C;symbol></code></td><td>Dumps assembly along with the C source it belongs to.</td></tr></tbody></table>
+<table><thead><tr><th width="228">Command</th><th width="302">Description</th><th>Dependency (if any)</th></tr></thead><tbody><tr><td><code>list</code></td><td>Lists 10 lines after or around the original C source code.</td><td>Debug information</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td><td>No dependency</td></tr><tr><td><code>disassemble /s &#x3C;symbol></code></td><td>Dumps assembly along with the C source it belongs to.</td><td>Debug information</td></tr></tbody></table>
 
 ### Stack Management
 
