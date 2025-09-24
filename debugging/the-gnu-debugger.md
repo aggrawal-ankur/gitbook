@@ -8,6 +8,37 @@ _**24 September 2025**_
 
 ***
 
+## Starting A GDB Session
+
+There are two ways to start gdb.
+
+1. We provide the source (binary/core) to be debugged while starting gdb.
+2. We attach a running process or provide gdb a core or even a binary after the gdb session is started.
+
+When we do this:
+
+```
+$ gdb ./source-binary
+```
+
+We get a message along with a `gdb` prompt.
+
+```
+GNU gdb ......
+.
+.
+For help, type "help".
+Type "apropos word" to search for commands related to "word".
+
+(gdb)
+```
+
+This means we are in a gdb session. But the source binary has not become a process yet.
+
+Passing the source binary name ensures that the source binary can be run as a child process for gdb so that there are no problems on the permission side, as discussed in the previous write up [wpd-2.md](wpd-2.md "mention")
+
+We will learn attaching to a running process later.
+
 ## Premise
 
 There is a lot that can be done with GDB. But using a bunch of commands and memorizing them is not my cup of tea. There are awesome reference cards on the internet, take this one: [https://users.ece.utexas.edu/\~adnan/gdb-refcard.pdf](https://users.ece.utexas.edu/~adnan/gdb-refcard.pdf) but memorization is not the point.
@@ -20,75 +51,63 @@ The debugee process is divided into three parts.
 
 ### 1. Memory Image
 
-The process is seen as a set of mapped regions in the virtual address space.
-
-It includes all the sections we have studied in ELF specification.
-
-1. Text
-2. Data/Bss
-3. Heap
-4. Stack
-5. Shared libraries
+The process is seen as a set of mapped regions in the virtual address space. It includes everything we have studied in the ELF specification: text, data/bss, heap, stack, and shared libraries.
 
 ### 2. Execution State
 
 The execution state is what the CPU is doing at any point of time. It includes the state of registers, the syscall it is preparing for, flags, instruction pointer, frame information etc.
 
-GDB can walk thru all of that and give us an in-detail, low level overview of what's happening in the process at any instance.
+GDB can walk thru all of that and give us an in-detail, low level overview of what's happening in the process at any instant.
 
-Most of the time, execution state is tied to a specific call stack. When you change that call stack, the execution state changes as well.
+The execution state is often tied to a specific call stack. When you change the call stack, the execution state changes as well.
 
-_We have already explored process state in detail in the previous article, checkout_ [wpd-2.md](wpd-2.md "mention")
+_We have already explored process state in detail in the previous article,_ [wpd-2.md](wpd-2.md "mention")
 
 ### 3. Debug Information
 
 As mentioned in previous articles, debug information is semantic information which aids the debugging process. It's not necessary if you are great with raw assembly and memory addresses.
 
-If the source was compiled with `-g` option in `gcc`, we can observe exact source lines, function names, local variables, their types etc.
-
-This comes very handy in debugging, otherwise you'll be seeing raw memory addresses and you yourself have to resolve them into actual names as used in the program source probably.
+If the source was compiled with `-g` option in `gcc`, we can observe exact source lines, function names, local variables etc.
 
 ***
 
-This is how a debugee process is perceived by gdb. Now we have to prime ourselves with GDB's mental model.
+This is how a debugee process is perceived by gdb.
 
-## GDB's Mental Model
+If we hurry up and run commands randomly, we are not going to get anything useful because gdb  expects us to behave in a certain way so that it can help us to the best of its capabilities.
 
-If you run commands randomly, you are not going to get anything useful. GDB expects the user to behave in a certain way so that GDB can help the user to the best of its capabilities.
+To understand what gdb expects us, we have to map how gdb functions at high level.
 
-To understand what gdb expects from ME, or YOU, we have to understand the execution model of GDB.
+## Mapping GDB
+
+Mapping gdb is about priming ourselves with gdb's terminology.
 
 ### 1. Inferior
 
-Normally, inferior means _lower in rank or quality_. Here, an inferior is the target that gdb works on. It can be a
+Normally, inferior means _lower in rank or quality_. Here, inferior is the target that gdb works on. It can be
 
-1. live process started by gdb or attached later.
-2. core dump.
-3. executable file (only static information).
+1. A live process started by gdb or attached later.
+2. A core dump.
+3. An executable file (only static information).
+
+GDB can debug multiple processes in a single session, so there can be multiple inferiors.
 
 If you don't have an inferior, there is nothing for gdb to process.
 
-* If you run `info registers`, gdb should give the state of registers, right?
-* When there is no context, how gdb is supposed to give you the state of the registers?
+* If you run `info registers`, gdb should give the state of the registers, but where there is no debugee process, how gdb is supposed to give the register state?
 
-That is why, an inferior is the first and foremost thing we should provide gdb with.
+That is why, an inferior is the first thing we should provide to gdb.
 
 The inferior must be stopped to allow meaningful inspection of the execution state.
 
 If the source is not compiled with debug symbols, gdb can't give any semantic information about the source.
 
-***
-
-Although we have not studied the commands yet, I'll leave this note. Passing the source binary name to gdb doesn't start the binary as a process.
-
-* It just tells gdb that "this is the binary we are going to be inspecting, so execute it as a child process when I say".
-* We have to run that binary before we start asking gdb about its state.
+_**From now on wards, we will refer the debugee process as inferior.**_
 
 ### 2. Frame
 
-A single function activation in the **call stack**.
+A single function activation in the **call stack**. Frames are numbered from 0 to n.
 
-The current function is represented by **frame 0**. The caller function for this frame is represented by **frame 1**.
+The frame at which the execution is halted right now is **frame 0**. The frame which called the **frame 0** is **frame 1**. And so on.... up to the bottom of the stack, which is usually `main` or `_start`.
 
 ### 3. Breakpoint
 
@@ -144,21 +163,15 @@ Few things before the exciting part.
 
 ### Stopping The Debugee
 
-<table><thead><tr><th width="349">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>break &#x3C;source_line></code></td><td>Creates a breakpoint at a memory location.</td></tr><tr><td><code>watch &#x3C;var></code></td><td>Creates a watchpoint at a memory location.</td></tr><tr><td><code>catch &#x3C;event></code></td><td>Creates a catchpoint for an event.</td></tr></tbody></table>
-
-`break` and `watch` are best used when the binary is compiled with debug information because only then you can use names instead of addresses. They still work without debug information, but then you have to use raw memory addresses.
+<table><thead><tr><th width="188">Command</th><th>Description</th><th>Debug Information Required?</th></tr></thead><tbody><tr><td><code>break &#x3C;source_line></code></td><td>Creates a breakpoint at a memory location.</td><td>Not required strictly but works best when provided.</td></tr><tr><td><code>watch &#x3C;var></code></td><td>Creates a watchpoint at a memory location.</td><td>Not required strictly but works best when provided.</td></tr><tr><td><code>catch &#x3C;event></code></td><td>Creates a catchpoint for an event.</td><td>No</td></tr></tbody></table>
 
 ### Accessing The Source Code
 
-<table><thead><tr><th width="228">Command</th><th width="302">Description</th><th>Dependency (if any)</th></tr></thead><tbody><tr><td><code>list</code></td><td>Lists 10 lines after or around the original C source code.</td><td>Debug information</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td><td>No dependency</td></tr><tr><td><code>disassemble /s &#x3C;symbol></code></td><td>Dumps assembly along with the C source it belongs to.</td><td>Debug information</td></tr></tbody></table>
+<table><thead><tr><th width="212">Command</th><th width="276">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>list</code></td><td>Lists 10 lines after or around the original C source code.</td><td>Yes</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td><td>No</td></tr><tr><td><code>disassemble /s &#x3C;symbol></code></td><td>Dumps assembly along with the C source it belongs to.</td><td>Yes</td></tr></tbody></table>
 
 ### Stack Management
 
-A **frame** is one function call activation on the call stack. Frames are numbered from 0 to n.
-
-The frame at which the execution is halted right now is **frame 0**. The frame which called the **frame 0** is **frame 1**. And so on.... up to the bottom of the stack, which is usually `main` or `_start`.
-
-<table><thead><tr><th width="191">Command</th><th width="287">Description</th><th>Dependency (if any)</th></tr></thead><tbody><tr><td><code>backtrace</code> or <code>bt</code></td><td>Tells which stack frame we are in.</td><td></td></tr><tr><td><code>bt full</code></td><td>The complete stack frame with arguments and values.</td><td></td></tr><tr><td><code>info frame</code></td><td>Information for the current stack frame.</td><td></td></tr><tr><td><code>info args</code></td><td>Arguments passed to this function frame.</td><td></td></tr><tr><td><code>info locals</code></td><td>Local variables on the stack frame.</td><td>Debug information</td></tr><tr><td><code>info frame &#x3C;></code></td><td>Information for the selected stack frame.</td><td></td></tr><tr><td><code>up</code></td><td>To change stack frame away from <code>main</code></td><td></td></tr><tr><td><code>down</code></td><td>To change stack frame towards <code>main</code>.</td><td></td></tr></tbody></table>
+<table><thead><tr><th width="157">Command</th><th width="335">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>backtrace</code> or <code>bt</code></td><td>Tells which stack frame we are in.</td><td></td></tr><tr><td><code>bt full</code></td><td>The complete stack frame with arguments and values.</td><td></td></tr><tr><td><code>info frame</code></td><td>Information for the current stack frame.</td><td></td></tr><tr><td><code>info args</code></td><td>Arguments passed to this function frame.</td><td></td></tr><tr><td><code>info locals</code></td><td>Local variables on the stack frame.</td><td></td></tr><tr><td><code>info frame &#x3C;></code></td><td>Information for the selected stack frame.</td><td></td></tr><tr><td><code>up</code></td><td>To change stack frame away from <code>main</code></td><td></td></tr><tr><td><code>down</code></td><td>To change stack frame towards <code>main</code>.</td><td></td></tr></tbody></table>
 
 ### Execution State Information
 
@@ -166,9 +179,11 @@ The frame at which the execution is halted right now is **frame 0**. The frame w
 
 **Note:** All the commands here are frame-specific. When you change the current stack frame, the values will change. So remember that and save yourself headaches.
 
-<table><thead><tr><th width="288">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>info registers</code></td><td>State of registers or the selected stack frame at that point of time.</td></tr><tr><td><code>info registers &#x3C;reg></code></td><td>To inspect a specific register.</td></tr><tr><td><code>info all-registers</code></td><td>State of all the registers at that point of time.<br><br>Quite extensive so not required as a beginner.</td></tr><tr><td><code>info breakpoints</code></td><td>Lists all the breakpoints, catchpoints and watchpoints.</td></tr><tr><td><code>info checkpoints</code></td><td>Lists all the checkpoints.</td></tr><tr><td><code>info watchpoints</code></td><td>Lists all the watchpoints.</td></tr><tr><td><code>info files</code></td><td>All the target files gdb is debugging in this session.</td></tr><tr><td><code>info sharedlibrary</code></td><td>All the shared libraries in use.</td></tr><tr><td><code>info source</code></td><td>Information of the source binary.</td></tr><tr><td><code>info inferiors</code></td><td>GDB can debug multiple sources at once, to see all the programs loaded in the current gdb session, we use this.</td></tr></tbody></table>
+<table><thead><tr><th width="194">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>info registers</code></td><td>State of registers or the selected stack frame at that point of time.</td></tr><tr><td><code>info registers &#x3C;reg></code></td><td>To inspect a specific register.</td></tr><tr><td><code>info all-registers</code></td><td>State of all the registers at that point of time.<br><br>Quite extensive so not required as a beginner.</td></tr><tr><td><code>info breakpoints</code></td><td>Lists all the breakpoints, catchpoints and watchpoints.</td></tr><tr><td><code>info checkpoints</code></td><td>Lists all the checkpoints.</td></tr><tr><td><code>info watchpoints</code></td><td>Lists all the watchpoints.</td></tr><tr><td><code>info files</code></td><td>All the target files gdb is debugging in this session.</td></tr><tr><td><code>info sharedlibrary</code></td><td>All the shared libraries in use.</td></tr><tr><td><code>info source</code></td><td>Information of the source binary.</td></tr><tr><td><code>info inferiors</code></td><td>GDB can debug multiple sources at once, to see all the programs loaded in the current gdb session, we use this.</td></tr></tbody></table>
 
 ### Managerial Commands
 
-<table><thead><tr><th width="195">Command</th><th width="322">Description</th><th>Dependency (if any)</th></tr></thead><tbody><tr><td><code>advance &#x3C;location></code></td><td>Continues the program up to the specified location.<br>Can be used to execute multiple instructions together.</td><td>Debug information is required when using symbols.<br>Raw addresses don't need it.</td></tr><tr><td><code>attach pid</code></td><td>Used to attach gdb to a running process (inferior); ensure proper permissions.</td><td>NA</td></tr><tr><td><code>detach pid</code></td><td>Used to detach an already attached inferior if no longer debugged.</td><td>NA</td></tr><tr><td><code>continue, fg, c</code></td><td>Continues the debugee process after a breakpoint.</td><td>NA</td></tr><tr><td><code>finish</code></td><td>Execute the process until the selected frame returns.</td><td>NA</td></tr><tr><td><code>kill</code></td><td>To kill the inferior being debugged.</td><td>NA</td></tr><tr><td><code>next</code></td><td>Executes the next line in the source (C) and stop.<br>If the next line is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td><td>Debug information</td></tr><tr><td><code>nexti</code></td><td>Executes the next machine instruction.<br>If the next instruction is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td><td>No dependency</td></tr><tr><td><code>step</code></td><td>Executes the next line in the source (C) and stop.<br>If the next line is a function call, it steps into it. The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td><td>Debug information</td></tr><tr><td><code>stepi</code></td><td>Executes the next machine instruction.<br>If the next line is a function call, it steps into it. The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td><td>No dependency</td></tr><tr><td><code>run</code> , <code>r</code></td><td>To start the debugee process inside gdb.<br>Starting gdb as <code>gdb ./binary</code> is just front loading the executable binary. It is not a process yet. So, <code>run</code> is necessary to start the debugee process as a child process of gdb.<br><code>run</code> alone is not enough as it will just execute the whole program, so we have to manually create a breakpoint before using <code>run</code>.</td><td>NA</td></tr><tr><td><code>start</code></td><td>It is like <code>run</code> but creates a <em>temporary breakpoint</em> at the <code>main</code> function/symbol itself.</td><td>Debug information</td></tr><tr><td><code>starti</code></td><td>Works even without debug info.</td><td>No dependency</td></tr></tbody></table>
+All the i-suffixed commands operate on machine instruction. Their equivalent with no `i` in them operates on C source lines.
+
+<table><thead><tr><th width="133">Command</th><th width="427">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>attach pid</code></td><td>Attach gdb to a running process (inferior).<br>Make sure the security policies allow it.</td><td>NA</td></tr><tr><td><code>detach pid</code></td><td>Used to detach an already attached inferior.</td><td>NA</td></tr><tr><td><code>run</code> , <code>r</code> </td><td>To start the debugee process inside gdb.<br><code>run</code> alone is not enough as it will just execute the whole binary, so we have to manually create a breakpoint before using <code>run</code>.</td><td>NA</td></tr><tr><td><code>start</code></td><td>With <code>run</code> we need to create a breakpoint manually, but <code>start</code> creates a <em>temporary breakpoint</em> at the <code>main</code> function/symbol itself and completes the execution until that break.</td><td>Yes</td></tr><tr><td><code>starti</code></td><td>Starts the inferior and stops at the first machine instruction.</td><td>No</td></tr><tr><td><code>advance &#x3C;loc></code></td><td>Continues the program up to the specified location.<br>Can be used to execute multiple instructions together.</td><td>Not required strictly.</td></tr><tr><td><code>continue</code><br><code>fg</code>, <code>c</code></td><td>Continues the debugee process after a breakpoint is debugged.</td><td>NA</td></tr><tr><td><code>next</code></td><td>Executes the next line in the C source and stop.<br>If the next line is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td><td>Yes</td></tr><tr><td><code>step</code></td><td>Executes the next line in the source (C) and stop.<br>If the next line is a function call, it steps into it.<br>The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td><td>Yes</td></tr><tr><td><code>nexti</code></td><td>Executes the next machine instruction.<br>If the next instruction is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td><td>No</td></tr><tr><td><code>stepi</code></td><td>Executes the next machine instruction.<br>If the next line is a function call, it steps into it.<br>The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td><td>No</td></tr><tr><td><code>finish</code></td><td>Execute the process until the selected frame returns.</td><td>NA</td></tr><tr><td><code>kill</code></td><td>Kill the inferior being debugged.</td><td>NA</td></tr></tbody></table>
 
