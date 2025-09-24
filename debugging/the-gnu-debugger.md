@@ -136,13 +136,17 @@ Now we can explore the actual commands.
 
 ## GDB Commands
 
-GDB is very extensive. It can do a lot of things, so sticking to our purpose is very important. Otherwise, it's a recipe for time and energy wastage.
+Few things before the exciting part.
 
-We can organize gdb commands based on category.
+1. GDB is very extensive. It can do a lot of things, so sticking to our purpose is very important. Otherwise, it's a recipe for time and energy wastage.
+2. We can organize gdb commands based on some high level categories.
+3. Under these "high level categories", we can further divide the commands based on their usability factor. The usability factor is simple. Some commands completely rely on debug information, other don't. Later we'll find the importance of this categorization.
 
 ### Stopping The Debugee
 
 <table><thead><tr><th width="349">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>break &#x3C;source_line></code></td><td>Creates a breakpoint at a memory location.</td></tr><tr><td><code>watch &#x3C;var></code></td><td>Creates a watchpoint at a memory location.</td></tr><tr><td><code>catch &#x3C;event></code></td><td>Creates a catchpoint for an event.</td></tr></tbody></table>
+
+`break` and `watch` are best used when the binary is compiled with debug information because only then you can use names instead of addresses. They still work without debug information, but then you have to use raw memory addresses.
 
 ### Accessing The Source Code
 
@@ -166,4 +170,13 @@ The frame at which the execution is halted right now is **frame 0**. The frame w
 
 ### Managerial Commands
 
-run, step, next, continue
+<table><thead><tr><th width="246">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>advance &#x3C;location></code></td><td>Continues the program up to the specified location.<br>Can be used to execute multiple instructions together.</td></tr><tr><td><code>attach pid</code></td><td>Used to attach gdb to a running process (inferior); make sure the permissions are set up.</td></tr><tr><td><code>detach pid</code></td><td>Used to detach an already attached inferior if no longer debugged.</td></tr><tr><td><code>continue, fg, c</code></td><td>Continues the debugee process after a breakpoint.</td></tr><tr><td><code>finish</code></td><td>Execute the process until the selected frame returns.</td></tr><tr><td><code>kill</code></td><td>To kill the inferior being debugged.</td></tr><tr><td><code>next</code></td><td>Executes the next line in the source (C) and stop.<br>If the next line is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td></tr><tr><td><code>nexti</code></td><td>Executes the next machine instruction.<br>If the next instruction is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td></tr><tr><td><code>step</code></td><td>Executes the next line in the source (C) and stop.<br>If the next line is a function call, it steps into it. The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td></tr><tr><td><code>stepi</code></td><td>Executes the next machine instruction.<br>If the next line is a function call, it steps into it. The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td></tr><tr><td><code>run</code> , <code>r</code></td><td>To start the debugee process inside gdb.<br>Starting gdb as <code>gdb ./binary</code> is just front loading the executable binary. It is not a process yet. So, <code>run</code> is necessary to start the debugee process as a child process of gdb.<br><code>run</code> alone is not enough as it will just execute the whole program, so we have to manually create a breakpoint before using <code>run</code>.</td></tr><tr><td><code>start</code></td><td>It is like <code>run</code> but creates a <em>temporary breakpoint</em> at the <code>main</code> function/symbol itself.<br>Requires debug info.</td></tr><tr><td><code>starti</code></td><td><p></p><p>Works even without debug info.</p></td></tr></tbody></table>
+
+
+
+
+
+
+
+
+

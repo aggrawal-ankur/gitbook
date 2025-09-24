@@ -97,3 +97,37 @@ Why the 2nd approach?
 * It is like maximizing for transferable skills, which remain consistent across different systems and architectures.
 
 This approach ensures that I understand what the debugger is actually doing and it doesn't seem like black magic.
+
+***
+
+_**September 24, 2025**_
+
+Never ever disrespect theory. If you disrespect theory, you will pay for it, in hefty sums.
+
+Right now I am learning GDB so that I can verify all the theory I have understood about dlmalloc. As usual, before learning the main thing, I learn the peripherals. But now I am at the commands.
+
+For everyone, these commands are just another commands. But the way I am seeing them is a treasure.
+
+I have been diving into theory since May 2025. I started with x64 assembly, then hello world exploration for 35 days, ELF internals, more assembly, C to assembly mapping, virtual memory, dynamic memory allocation and then dlmalloc.
+
+Up until this time, there was no way for me to testify my understanding. But now, I feel like I have found a cave full of treasure. It's like I have found they key to Ali Baba and the Forty Thieves cave.
+
+I am not even doing any practical work here, I am just exploring what is all that can be done with gdb and while learning stack management, I found that local variables are present exactly the same way I learned about them. Registers are managed the same way I understood.
+
+I am so excited that my own internal instruction pointer is lost right now. I am not able to understand which theory I should verify first.
+
+If you have asked me this in August itself, I was literally going through agitation, frustration, and anger. There was no day when I would say "I am done with this." Now, you can feel how happy I am.
+
+That's why I am telling YOU, don't ever escape theory, never ever despise it. It's brutal, it's boring, it's non-interesting, everything bad that you can think about; but it is the only thing that makes the future interesting and incredibly rewarding.
+
+I feel proud of myself that in all those days of anger, frustration, agitation, I didn't chose to quit.
+
+* I did stopped a lot. But I can't prove much of it. Only my mother can prove that because she has seen me packing my laptop and keyboard and putting them aside in another room and sitting alone at my place for multiple days doing nothing, just because he's so tired of doing it.
+* And she has also seen days when I go to her and say "today I learned for 8 hours".
+
+And now, I don't need anyone to rely on for this, because I myself am the proof that I did that, and the universe rewarded me later.
+
+**So, never ever think about skipping theory.**
+
+***
+
