@@ -137,3 +137,18 @@ Breakpoints/watchpoints are always attached to a location.
 A memory snapshot from a crashed process.
 
 It is used extensively in analysis purposes.
+
+***
+
+Now we can explore gdb commands.
+
+## GDB Commands
+
+GDB is very extensive. It can do a lot of things, so sticking to our purpose is very important. Otherwise, it's a recipe for time and energy wastage.
+
+We can organize gdb commands based on category.
+
+### Execution State Information
+
+<table><thead><tr><th width="190">Commands</th><th width="293">Description</th><th>Requirement</th></tr></thead><tbody><tr><td><code>info registers</code></td><td>State of registers at that point of time.</td><td>An inferior which has been stopped for inspection.</td></tr><tr><td><code>info all-registers</code></td><td>State of all the registers at that point of time.<br><br>Quite extensive so not required as a beginner.</td><td>An inferior which has been stopped for inspection.</td></tr><tr><td><code>info breakpoints</code></td><td>Lists all the breakpoints.</td><td></td></tr><tr><td><code>info checkpoints</code></td><td>Lists all the checkpoints.</td><td></td></tr><tr><td><code>info watchpoints</code></td><td>Lists all the watchpoints</td><td></td></tr><tr><td><code>info files</code></td><td>All the files gdb is using in this session.</td><td></td></tr><tr><td><code>info frame</code></td><td>Information for the current stack frame.</td><td></td></tr><tr><td><code>info locals</code></td><td>State of local variables at that instant of time.</td><td></td></tr><tr><td><code>info sharedlibrary</code></td><td>All the shared libraries in use.</td><td></td></tr><tr><td><code>info source</code></td><td>Information of the source binary.</td><td></td></tr></tbody></table>
+
