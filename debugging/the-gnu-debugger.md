@@ -4,7 +4,7 @@ description: We know what a debugger is, so we will skip that.
 
 # The GNU Debugger
 
-_**24 September 2025**_
+_**24, 25 September 2025**_
 
 ***
 
@@ -17,7 +17,7 @@ There are two ways to start gdb.
 
 When we do this:
 
-```
+```bash
 $ gdb ./source-binary
 ```
 
