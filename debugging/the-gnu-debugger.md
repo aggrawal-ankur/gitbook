@@ -177,6 +177,12 @@ Few things before the exciting part.
 
 <table><thead><tr><th width="196">Command</th><th width="349">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>list</code></td><td>Lists 10 lines after or around the original C source code.</td><td>Yes</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td><td>No</td></tr><tr><td><code>disassemble /s &#x3C;sym></code></td><td>Dumps assembly along with the C source it belongs to.</td><td>Yes</td></tr></tbody></table>
 
+Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we can tell gdb to use intel syntax as well.
+
+```bash
+(gdb) set disassembly-flavor intel
+```
+
 ### Stack Management
 
 <table><thead><tr><th width="148">Command</th><th width="410">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>backtrace</code> or <code>bt</code></td><td>Tells which stack frame we are in.</td><td></td></tr><tr><td><code>bt full</code></td><td>The complete stack frame with arguments and values.</td><td></td></tr><tr><td><code>info frame</code></td><td>Information for the current stack frame.</td><td></td></tr><tr><td><code>info args</code></td><td>Arguments passed to this function frame.</td><td></td></tr><tr><td><code>info locals</code></td><td>Local variables on the stack frame.</td><td></td></tr><tr><td><code>info frame &#x3C;></code></td><td>Information for the selected stack frame.</td><td></td></tr><tr><td><code>up</code></td><td>To change stack frame away from <code>main</code></td><td></td></tr><tr><td><code>down</code></td><td>To change stack frame towards <code>main</code>.</td><td></td></tr></tbody></table>

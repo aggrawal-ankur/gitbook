@@ -2,15 +2,13 @@
 
 ## Premise
 
-While analyzing the object code, we have checked out full disassembly of the compiled file. We can do it here as well.
+While analyzing the object code, we have checked out full disassembly of the compiled file. We can do that here as well.
 
 ```bash
 objdump linked_elf -D -M intel
 ```
 
-The full disassembly can be found at [GitHub](https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/full_disasm_from_bin).
-
-Shocked, right! The generated assembly is 800 lines long. The first and the immediate question is **WHERE ALL THIS ASSEMBLY IS COMING FROM?**
+Shocked, right! The disassembly is 800 lines long. The first and the immediate question is **WHERE ALL THIS ASSEMBLY IS COMING FROM?**
 
 ## The Big Picture
 
@@ -43,4 +41,4 @@ Although I could have avoid it now because we are going to visit it anyway, but 
 * It is possible that someone had visited it earlier, it would mess with their mind. This is the reason why I decided to left an explanation before it consumes that learner.
 * Throughout the process, we are going to use the **full disassembly**. It's an incredible tool at our disposal.
 
-With that in mind, we can move.
+With that in mind, we can move now.

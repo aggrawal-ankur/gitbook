@@ -4,9 +4,9 @@
 
 Memory for storage can be divided into 3:
 
-1. Stack: the most straightforward thing you'll ever come across
+1. Stack: the most straightforward thing you'll ever come across.
 2. Static: `.data/.bss`
-3. Heap: for dynamic allocation
+3. Heap: for dynamic allocation.
 
 As long as we are talking about **stack** and **static** memory, we have to consult **storage classes** to find the appropriate place for allocation.
 
