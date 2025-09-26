@@ -1,0 +1,402 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level – Debugging In Depth</title><link>https://hi-anki.github.io/gitbook/docs/debugging/</link><description>Recent content in Debugging In Depth on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/debugging/index.xml" rel="self" type="application/rss+xml"/><item><title>Introduction To Debugging</title><link>https://hi-anki.github.io/gitbook/docs/debugging/introduction/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/debugging/introduction/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;22, 23 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;At its core, &lt;em&gt;&lt;strong&gt;debugging&lt;/strong&gt;&lt;/em&gt; can be defined as a process of actively observing and controlling a program to understand what it’s doing, why it’s doing it, and how to manipulate it.&lt;/p&gt;
+&lt;p&gt;A &lt;strong&gt;debugger&lt;/strong&gt; is like a sentinel being who can observe everything about a process and change it against its will. It&amp;rsquo;s like &lt;em&gt;S2 Loki (A Marvel Studious TV Series)&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Any debugger primarily does these three things:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Stop execution at a known point (breakpoints, signals, traps)&lt;/li&gt;
+&lt;li&gt;Inspect program state (memory, registers, stack, variables)&lt;/li&gt;
+&lt;li&gt;Modify execution if needed (change variable values, registers, or program counter)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To understand debuggers, we have to understand what enables debugging. Otherwise, gdb will feel black magic.&lt;/p&gt;</description></item><item><title>What Powers Debuggers? — 1</title><link>https://hi-anki.github.io/gitbook/docs/debugging/wpd-1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/debugging/wpd-1/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;22, 23 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It looks like debuggers are doing some sort of black magic, which is not the case. To remove that black magic, we have to understand what powers debuggers.&lt;/p&gt;
+&lt;p&gt;Primarily there are 2 things that power a debugging program.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Trap instructions, CPU flags, signals and exceptions are the basis of this &lt;strong&gt;black magic&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ptrace&lt;/code&gt; syscall is the dedicated API that allows a debugger to act as a sentinel being and observe other processes. It allows the debugger to make use of traps and signals to do the black magic.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;But there is one more thing, called &lt;strong&gt;symbol and debug information&lt;/strong&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This is not strictly required but it makes debugging intuitive and less mentally draining. Without debug information, you&amp;rsquo;d just have raw assembly and memory addresses.&lt;/li&gt;
+&lt;li&gt;If you have no problem seeing raw assembly and memory addresses, this part is just add-on for you. But to make the process easier, debug information is a necessary thing.&lt;/li&gt;
+&lt;li&gt;By the way, this is a part of ELF and DWARF specs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Exceptions&lt;span class="hx:absolute hx:-mt-20" id="exceptions"&gt;&lt;/span&gt;
+&lt;a href="#exceptions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;An &lt;strong&gt;exception&lt;/strong&gt; is a synchronous event that is generated when the processor detects one or more &amp;ldquo;predefined special conditions&amp;rdquo; while executing an instruction.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Take &lt;code&gt;4/0&lt;/code&gt;, that&amp;rsquo;s going to raise divide by zero exception. This is only going to be raised when the CPU reaches that instruction, this is what synchronous means. The exception is not going to be raised arbitrarily but systematically.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Exceptions is how the CPU &lt;em&gt;stops normal execution&lt;/em&gt; and transfers control to the OS.&lt;/p&gt;
+&lt;p&gt;There are 3 classes of exceptions: faults, traps, and aborts.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A synchronous exception detected before the instruction completes is called a &lt;strong&gt;fault&lt;/strong&gt;. Ex: divide by zero and page fault.&lt;/li&gt;
+&lt;li&gt;A synchronous exception after the instruction completes is called a &lt;strong&gt;trap&lt;/strong&gt;. Ex: Breakpoint, overflow and single-step via trap flag (TF).&lt;/li&gt;
+&lt;li&gt;An &lt;strong&gt;abort&lt;/strong&gt; is a catastrophic exception, which typically &lt;strong&gt;cannot be handled normally&lt;/strong&gt;. Usually indicates hardware failure or an unrecoverable condition.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Interrupts&lt;span class="hx:absolute hx:-mt-20" id="interrupts"&gt;&lt;/span&gt;
+&lt;a href="#interrupts" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;An &lt;strong&gt;interrupt&lt;/strong&gt; is an asynchronous event that is typically triggered by an I/O device. For example:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CTRL + C&lt;/code&gt; to exit an infinite loop or a hanged terminal process.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CTRL + D&lt;/code&gt; to exit python shell.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;When an interrupt or an exception is signaled, the processor halts the execution of the program and switches to a handler procedure that has been written specifically to handle the interrupt or exception condition.&lt;/p&gt;
+&lt;p&gt;The processor accesses the handler procedure through an entry in the &lt;strong&gt;interrupt descriptor table&lt;/strong&gt; (IDT). When the handler has completed handling the interrupt or exception, program control is returned to the interrupted program.&lt;/p&gt;
+&lt;p&gt;The IA-32 Architecture defines 18 predefined interrupts and exceptions and 224 user defined interrupts.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;When the trap flag in &lt;code&gt;RFLAGS&lt;/code&gt; is set, which is the 8th bit, the CPU generates a debug exception (#DB) after every instruction. This is the hardware single-step mode.&lt;/p&gt;
+&lt;h3&gt;Breakpoint&lt;span class="hx:absolute hx:-mt-20" id="breakpoint"&gt;&lt;/span&gt;
+&lt;a href="#breakpoint" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;code&gt;INT3&lt;/code&gt; is a one-byte (&lt;code&gt;0xCC&lt;/code&gt;) instruction inserted by the debugger, which when executed CPU raises a breakpoint exception (&lt;code&gt;#BP&lt;/code&gt;). The kernel delivers a &lt;code&gt;SIGTRAP&lt;/code&gt; to the process.&lt;/p&gt;
+&lt;p&gt;To insert a breakpoint at an address, the debugger modifies the first byte of that instruction to &lt;code&gt;0xCC&lt;/code&gt;. When the CPU reaches that instruction, a break point exception is triggered.&lt;/p&gt;
+&lt;p&gt;To resume execution, the debugger restores the original byte at that instruction’s address. Since &lt;code&gt;RIP&lt;/code&gt; has advanced by one (past the &lt;code&gt;0xCC&lt;/code&gt;), the debugger decrements &lt;code&gt;RIP&lt;/code&gt; by 1 so that it points back to the intended instruction.&lt;/p&gt;
+&lt;p&gt;It is used to stop execution at a certain address in the process.&lt;/p&gt;
+&lt;h3&gt;Trap Flag&lt;span class="hx:absolute hx:-mt-20" id="trap-flag"&gt;&lt;/span&gt;
+&lt;a href="#trap-flag" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Trap flag or &lt;code&gt;RFLAGS.TF&lt;/code&gt; is the 8th bit in the CPU flags register.&lt;/p&gt;
+&lt;p&gt;When this bit is set to 1, the CPU raises a debug exception (&lt;code&gt;#DB&lt;/code&gt;) after every instruction in the process. Kernel delivers &lt;code&gt;SIGTRAP&lt;/code&gt; to the debugger.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Single-step&lt;/strong&gt; means execute one instruction and then stop. It is achieved by setting &lt;code&gt;RFLAGS.TF=1&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A debugger program sets up either an &lt;code&gt;INT3&lt;/code&gt; instruction to create a breakpoint at an address or it sets up the &lt;code&gt;RFLAGS.TF&lt;/code&gt; bit to 1 to stop after each instruction.&lt;/p&gt;
+&lt;p&gt;When a breakpoint is set on an instruction, an &lt;code&gt;INT3&lt;/code&gt; instruction executes immediately, which raises a &lt;code&gt;#BP&lt;/code&gt; exception. The kernel responds to this by sending a &lt;code&gt;SIGTRAP&lt;/code&gt; , which the debugger program catches via &lt;code&gt;ptrace&lt;/code&gt;. The rest is taken care by &lt;code&gt;ptrace&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;When &lt;code&gt;RFLAGS.TF=1&lt;/code&gt; , a &lt;code&gt;#DB&lt;/code&gt; exception is raised after every instruction in the process. The kernel responds similarly by sending a &lt;code&gt;SIGTRAP&lt;/code&gt;, which the debugger program catches via &lt;code&gt;ptrace&lt;/code&gt;. The rest is taken care by &lt;code&gt;ptrace&lt;/code&gt; itself.&lt;/p&gt;
+&lt;h2&gt;References&lt;span class="hx:absolute hx:-mt-20" id="references"&gt;&lt;/span&gt;
+&lt;a href="#references" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href="https://cdrdv2.intel.com/v1/dl/getContent/671200"target="_blank" rel="noopener"&gt;Intel 64 and 32 bit Manual&lt;/a&gt;&lt;/p&gt;</description></item><item><title>What Powers Debuggers? — 2</title><link>https://hi-anki.github.io/gitbook/docs/debugging/wpd-2/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/debugging/wpd-2/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;23 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We have a process that we want to debug/trace. We call it debugee/tracee process.&lt;/p&gt;
+&lt;p&gt;To debug a process, we have a program called debugger, which itself becomes a process upon running, which is called, debugger/tracer process.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Note: We are going to stick to the debugger/debugee terminology.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Since we have to bypass a lot of restrictions to do debugging, all the requests of the debugger process are mediated by the kernel. The arm of the kernel that does all of it is called &lt;code&gt;ptrace&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ptrace&lt;/code&gt; is a syscall interface that lets one process (the debugger) observe and control another process (the debugee).&lt;/p&gt;
+&lt;h2&gt;The Mental Model&lt;span class="hx:absolute hx:-mt-20" id="the-mental-model"&gt;&lt;/span&gt;
+&lt;a href="#the-mental-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are 4 steps in the debugging model.&lt;/p&gt;
+&lt;h3&gt;1. Triggering Event&lt;span class="hx:absolute hx:-mt-20" id="1-triggering-event"&gt;&lt;/span&gt;
+&lt;a href="#1-triggering-event" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The debugee is running fine and there is no need for a debugger to intervene. But for a debugger to intervene in a process, it needs to stop the process. To stop the debugee, the debugger needs a triggering event.&lt;/p&gt;
+&lt;p&gt;Triggering event is anything that signals the kernel to halt the execution of the debugee process.&lt;/p&gt;
+&lt;p&gt;So far, we have read about breakpoint &lt;code&gt;#BP&lt;/code&gt; and single-step &lt;code&gt;#DB&lt;/code&gt;. But there is more to it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;For example: syscall entry/exit&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;When the kernel detects that event, it suspends the debugee process.&lt;/p&gt;
+&lt;h3&gt;2. Notification To The Debugger&lt;span class="hx:absolute hx:-mt-20" id="2-notification-to-the-debugger"&gt;&lt;/span&gt;
+&lt;a href="#2-notification-to-the-debugger" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;When the debugee is suspended, the debugger is notified about the activation of the event that the debugger told the kernel to stop at.&lt;/p&gt;
+&lt;p&gt;The debugger process is notified via &lt;code&gt;waitpid()&lt;/code&gt;/&lt;code&gt;waitid()&lt;/code&gt; that the debugee has stopped and the reason behind it.&lt;/p&gt;
+&lt;h3&gt;3. Transfer Of Control&lt;span class="hx:absolute hx:-mt-20" id="3-transfer-of-control"&gt;&lt;/span&gt;
+&lt;a href="#3-transfer-of-control" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;After notifying the debugger, the debugger process gains the ability to inspect/modify the state of the debugee process via &lt;code&gt;ptrace&lt;/code&gt;. This state is often referred to as &lt;strong&gt;process/execution context&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Everything is mediated by the kernel.&lt;/p&gt;
+&lt;h3&gt;4. Resuming The Debugee Process&lt;span class="hx:absolute hx:-mt-20" id="4-resuming-the-debugee-process"&gt;&lt;/span&gt;
+&lt;a href="#4-resuming-the-debugee-process" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;When the debugger process is done with its work, it can notify the kernel about resuming the debugee process.&lt;/p&gt;
+&lt;p&gt;The debugee is now resumed by the kernel until another event triggers.&lt;/p&gt;
+&lt;h3&gt;Where do signals fit?&lt;span class="hx:absolute hx:-mt-20" id="where-do-signals-fit"&gt;&lt;/span&gt;
+&lt;a href="#where-do-signals-fit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Suppose our process accessed an invalid memory location. A page fault occurs as there is no page mapping between the physical and virtual memory. That&amp;rsquo;s basically a segfault and the kernel has to send the process a &lt;code&gt;SIGSEGV&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;When there is no debugger, the kernel directly sends the &lt;code&gt;SIGSEGV&lt;/code&gt; signal to the process and the process handles it.&lt;/p&gt;
+&lt;p&gt;When there is a debugger process waiting for a segfault event, the debugee is suspended when it occurs and the debugger is notified using &lt;code&gt;waitpid()/waitid()&lt;/code&gt; that &amp;ldquo;the debugee has been suspended because this event occurred&amp;rdquo;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Since the debugee is suspended, it can&amp;rsquo;t receive the signal until the debugger resumes it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Process Context&lt;span class="hx:absolute hx:-mt-20" id="process-context"&gt;&lt;/span&gt;
+&lt;a href="#process-context" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Process context refers to the state of a process at any given instance. Process context includes multiple things, some important ones are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;General purpose registers&lt;/li&gt;
+&lt;li&gt;Flags register&lt;/li&gt;
+&lt;li&gt;Segment registers (read-only)&lt;/li&gt;
+&lt;li&gt;Floating point registers (SSE/AVX)&lt;/li&gt;
+&lt;li&gt;Virtual address space (.text/.data/.bss/heap/stack)&lt;/li&gt;
+&lt;li&gt;Signals&lt;/li&gt;
+&lt;li&gt;Process metadata (pid, ppid, uid, gid)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;What can a debugger do?&lt;span class="hx:absolute hx:-mt-20" id="what-can-a-debugger-do"&gt;&lt;/span&gt;
+&lt;a href="#what-can-a-debugger-do" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Based on the process context, a debugger can inspect, modify, and control the execution flow of the debugee.&lt;/p&gt;
+&lt;p&gt;A debugger can do a lot of things, most of which might be beyond the scope of this exploration, but here are the most important ones, which a debugger does almost all the times.&lt;/p&gt;
+&lt;h3&gt;Inspecting the state of registers&lt;span class="hx:absolute hx:-mt-20" id="inspecting-the-state-of-registers"&gt;&lt;/span&gt;
+&lt;a href="#inspecting-the-state-of-registers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;General purpose registers can reveal the state of current execution context.&lt;/p&gt;
+&lt;p&gt;Calling convention like System V ABI on Linux 64-bit have syscall convention which mandates certain registers to be used in a specific way for cross-compatibility.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Inspecting &lt;code&gt;rax&lt;/code&gt; for example can tell us which syscall the debugee is preparing for.&lt;/li&gt;
+&lt;li&gt;Inspecting &lt;code&gt;rsi&lt;/code&gt;, &lt;code&gt;rdi&lt;/code&gt; can tell us what are the arguments to that syscall.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Inspecting &lt;code&gt;rip&lt;/code&gt; can inform about the next instruction.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;rsp&lt;/code&gt; can be used to inspect local variables and overall stack state.&lt;/p&gt;
+&lt;h3&gt;Modifying registers&lt;span class="hx:absolute hx:-mt-20" id="modifying-registers"&gt;&lt;/span&gt;
+&lt;a href="#modifying-registers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Flags register is great to inspect the result of various computations like &lt;code&gt;OF ZF SF PF&lt;/code&gt; etc.&lt;/p&gt;
+&lt;p&gt;We also have trap flag on 8th-bit which can be modified to raise debug exception &lt;code&gt;#DB&lt;/code&gt; after each instruction.&lt;/p&gt;
+&lt;h3&gt;Execution Control&lt;span class="hx:absolute hx:-mt-20" id="execution-control"&gt;&lt;/span&gt;
+&lt;a href="#execution-control" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A debugger needs access to the debugee’s memory to set breakpoints and modify instructions.&lt;/p&gt;
+&lt;p&gt;This temporarily bypasses normal memory protections, but all access is mediated by the kernel via ptrace.&lt;/p&gt;
+&lt;h3&gt;Event Monitoring&lt;span class="hx:absolute hx:-mt-20" id="event-monitoring"&gt;&lt;/span&gt;
+&lt;a href="#event-monitoring" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Breakpoints and Debug exceptions are just two events. There are multiple events like fork, execve, syscall entry/exit, which the debugger can monitor.&lt;/p&gt;
+&lt;p&gt;The kernel mediates all reads/writes, so the debugger cannot bypass protections directly.&lt;/p&gt;
+&lt;p&gt;This event monitoring is what tools like &lt;code&gt;strace&lt;/code&gt; do.&lt;/p&gt;
+&lt;h2&gt;Rules For Debugging&lt;span class="hx:absolute hx:-mt-20" id="rules-for-debugging"&gt;&lt;/span&gt;
+&lt;a href="#rules-for-debugging" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A process can deny to be debugged.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Only the processes with the same user ID (&lt;code&gt;UID&lt;/code&gt;) can trace each other.&lt;/strong&gt; If you try to attach to a process owned by another user, the kernel denies it.&lt;/p&gt;
+&lt;p&gt;Root can trace any process.&lt;/p&gt;
+&lt;p&gt;Modern Linux restricts tracing even further using the Linux Security Module &lt;code&gt;YAMA&lt;/code&gt;: &lt;code&gt;/proc/sys/kernel/yama/ptrace_scope&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;0&lt;/code&gt; → trace anything allowed by UID.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;1&lt;/code&gt; → only direct parent can trace.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;2&lt;/code&gt; → no tracing allowed (even by parent).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This prevents arbitrary processes from attaching to random programs.&lt;/p&gt;
+&lt;p&gt;A child is always traceable by its parent. This is why we usually use gdb to execute the program, so that gdb can have the privilege to do debugging.&lt;/p&gt;
+&lt;p&gt;A process can voluntarily call &lt;code&gt;ptrace(PTRACE_TRACEME)&lt;/code&gt; to allow its parent to debug it. If it doesn’t, a child cannot be traced unless &lt;code&gt;PTRACE_ATTACH&lt;/code&gt; is used by a permitted debugger (and the kernel verifies the security policies).&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;These are some of the rules that protects &lt;code&gt;ptrace&lt;/code&gt; from abuse.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is what that enables debugging.&lt;/p&gt;
+&lt;p&gt;Now we are primed to understand how the GNU Debugger works.&lt;/p&gt;</description></item><item><title>The GNU Debugger</title><link>https://hi-anki.github.io/gitbook/docs/debugging/the-gnu-debugger/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/debugging/the-gnu-debugger/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;24, 25 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Starting A GDB Session&lt;span class="hx:absolute hx:-mt-20" id="starting-a-gdb-session"&gt;&lt;/span&gt;
+&lt;a href="#starting-a-gdb-session" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are two ways to start gdb.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;We provide the source (binary/core) to be debugged while starting gdb.&lt;/li&gt;
+&lt;li&gt;We attach a running process or provide gdb a core or even a binary after the gdb session is started.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;When we do this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ gdb ./source-binary&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;We get a message along with a &lt;code&gt;gdb&lt;/code&gt; prompt.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;GNU gdb ......
+.
+.
+For help, type &amp;#34;help&amp;#34;.
+Type &amp;#34;apropos word&amp;#34; to search for commands related to &amp;#34;word&amp;#34;.
+(gdb)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This means we are in a gdb session. But the source binary has not become a process yet.&lt;/p&gt;
+&lt;p&gt;Passing the source binary name ensures that the source binary can be run as a child process for gdb so that there are no problems on the permission side, as discussed in the previous write up &lt;a href="wpd-2.md"title="mention"&gt;wpd-2.md&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;We will learn attaching to a running process later.&lt;/p&gt;
+&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There is a lot that can be done with GDB. But using a bunch of commands and memorizing them is not my cup of tea. There are awesome reference cards on the internet, take this one: &lt;a href="https://users.ece.utexas.edu/~adnan/gdb-refcard.pdf"target="_blank" rel="noopener"&gt;https://users.ece.utexas.edu/~adnan/gdb-refcard.pdf&lt;/a&gt; but memorization is not the point.&lt;/p&gt;
+&lt;p&gt;To really understand gdb, we have to understand how gdb perceives everything, what is gdb&amp;rsquo;s mental model.&lt;/p&gt;
+&lt;h2&gt;GDB&amp;rsquo;s View Of The Debugee&lt;span class="hx:absolute hx:-mt-20" id="gdbs-view-of-the-debugee"&gt;&lt;/span&gt;
+&lt;a href="#gdbs-view-of-the-debugee" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The debugee process is divided into three parts.&lt;/p&gt;
+&lt;h3&gt;1. Memory Image&lt;span class="hx:absolute hx:-mt-20" id="1-memory-image"&gt;&lt;/span&gt;
+&lt;a href="#1-memory-image" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The process is seen as a set of mapped regions in the virtual address space. It includes everything we have studied in the ELF specification: text, data/bss, heap, stack, and shared libraries (as memory mapped regions).&lt;/p&gt;
+&lt;h3&gt;2. Execution State&lt;span class="hx:absolute hx:-mt-20" id="2-execution-state"&gt;&lt;/span&gt;
+&lt;a href="#2-execution-state" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The execution state is what the CPU is doing at any point in time. It includes the state of registers, the syscall it is preparing for, flags, instruction pointer, frame information etc.&lt;/p&gt;
+&lt;p&gt;GDB can walk thru all of that and give us an in-detail, low level overview of what&amp;rsquo;s happening in the process at any instant.&lt;/p&gt;
+&lt;p&gt;GDB can modify the execution state as well to test how arbitrary or even precision-guided changes in the execution state drives the debugee in a different direction.&lt;/p&gt;
+&lt;p&gt;The execution state is often tied to a specific call stack. When you change the call stack, the execution state changes as well.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;We have already explored process state in detail in the previous article,&lt;/em&gt; &lt;a href="wpd-2.md"title="mention"&gt;wpd-2.md&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;3. Debug Information&lt;span class="hx:absolute hx:-mt-20" id="3-debug-information"&gt;&lt;/span&gt;
+&lt;a href="#3-debug-information" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;As mentioned in previous articles, debug information is semantic information which aids the debugging process. It&amp;rsquo;s not necessary if you are great with raw assembly and memory addresses.&lt;/p&gt;
+&lt;p&gt;If the source was compiled with &lt;code&gt;-g&lt;/code&gt; option in &lt;code&gt;gcc&lt;/code&gt;, we can observe exact source lines, function names, local variables etc.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;This is how a debugee process is perceived by gdb.&lt;/p&gt;
+&lt;p&gt;If we hurry up and run commands randomly, we are not going to get anything useful because gdb expects us to behave in a certain way so that it can help us to the best of its capabilities.&lt;/p&gt;
+&lt;p&gt;To understand what gdb expects us, we have to map how gdb functions at high level.&lt;/p&gt;
+&lt;h2&gt;Mapping GDB&lt;span class="hx:absolute hx:-mt-20" id="mapping-gdb"&gt;&lt;/span&gt;
+&lt;a href="#mapping-gdb" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Mapping gdb is about priming ourselves with gdb&amp;rsquo;s terminology.&lt;/p&gt;
+&lt;h3&gt;1. Inferior&lt;span class="hx:absolute hx:-mt-20" id="1-inferior"&gt;&lt;/span&gt;
+&lt;a href="#1-inferior" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Normally, inferior means &lt;em&gt;lower in rank or quality&lt;/em&gt;. Here, inferior refers to the debugee that gdb works on. It can be&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;A live process started by gdb or attached later.&lt;/li&gt;
+&lt;li&gt;A core dump.&lt;/li&gt;
+&lt;li&gt;An executable file (only static information).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;GDB can debug multiple processes in a single session, so there can be multiple inferiors.&lt;/p&gt;
+&lt;p&gt;If you don&amp;rsquo;t have an inferior, there is nothing for gdb to process.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you run &lt;code&gt;info registers&lt;/code&gt;, gdb should give the state of the registers, but where there is no debugee process, how gdb is supposed to give the register state?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;That is why, an inferior is the first thing we should provide to gdb.&lt;/p&gt;
+&lt;p&gt;The inferior must be stopped to allow meaningful inspection of the execution state.&lt;/p&gt;
+&lt;p&gt;If the source is not compiled with debug symbols, gdb can&amp;rsquo;t give any semantic information about the source.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;From now on, we will refer the debugee process as inferior.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;2. Frame&lt;span class="hx:absolute hx:-mt-20" id="2-frame"&gt;&lt;/span&gt;
+&lt;a href="#2-frame" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A single function activation in the &lt;strong&gt;call stack&lt;/strong&gt;. Frames are numbered from 0 to n.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;frame 0: currently_executing()
+frame 1: called the currently_executing frame
+frame 2: called frame 1
+.
+.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;3. Breakpoint&lt;span class="hx:absolute hx:-mt-20" id="3-breakpoint"&gt;&lt;/span&gt;
+&lt;a href="#3-breakpoint" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A &amp;ldquo;stop here&amp;rdquo; marker.&lt;/p&gt;
+&lt;p&gt;We can set a breakpoint on a source line and on an address.&lt;/p&gt;
+&lt;p&gt;We can set breakpoints directly or based on a condition.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;GDB processes that condition and decides when to set the breakpoint.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;4. Watchpoint&lt;span class="hx:absolute hx:-mt-20" id="4-watchpoint"&gt;&lt;/span&gt;
+&lt;a href="#4-watchpoint" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A watchpoint observes for a change in the specified memory location and stops when the change happens.&lt;/p&gt;
+&lt;p&gt;For example - If we created a watchpoint on a variable and updated it later in the process, the moment it is updated, the execution would be halted.&lt;/p&gt;
+&lt;h3&gt;5. Catchpoint&lt;span class="hx:absolute hx:-mt-20" id="5-catchpoint"&gt;&lt;/span&gt;
+&lt;a href="#5-catchpoint" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A catchpoint observes for an event and when that happens, the execution is halted.&lt;/p&gt;
+&lt;p&gt;GDB supports many events like exec, fork, shared libraries (load/unload), signal, syscalls (entry/exit), vfork, throw and rethrow (c++).&lt;/p&gt;
+&lt;h3&gt;6. Source Line&lt;span class="hx:absolute hx:-mt-20" id="6-source-line"&gt;&lt;/span&gt;
+&lt;a href="#6-source-line" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;It refers to a human-friendly view that maps back to machine addresses.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Remember, it is possible only when the source is compiled with debug information.&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;7. Location&lt;span class="hx:absolute hx:-mt-20" id="7-location"&gt;&lt;/span&gt;
+&lt;a href="#7-location" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Location is any place you can stop the execution at. A line, an address, or a function.&lt;/p&gt;
+&lt;p&gt;Breakpoints/watchpoints are always attached to a location.&lt;/p&gt;
+&lt;h3&gt;8. Core Dump&lt;span class="hx:absolute hx:-mt-20" id="8-core-dump"&gt;&lt;/span&gt;
+&lt;a href="#8-core-dump" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A memory snapshot from a crashed process.&lt;/p&gt;
+&lt;p&gt;It is used extensively in memory analysis.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Now we can explore the actual commands.&lt;/p&gt;
+&lt;h2&gt;GDB Commands&lt;span class="hx:absolute hx:-mt-20" id="gdb-commands"&gt;&lt;/span&gt;
+&lt;a href="#gdb-commands" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Few things before the exciting part.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;GDB is very extensive. It can do a lot of things, so sticking to our purpose is very important. Otherwise, it&amp;rsquo;s a recipe for time and energy wastage.&lt;/li&gt;
+&lt;li&gt;We can organize gdb commands based on some high level categories.&lt;/li&gt;
+&lt;li&gt;Under these &amp;ldquo;high level categories&amp;rdquo;, we can further divide the commands based on their usability factor. The usability factor is simple. Some commands completely rely on debug information, other don&amp;rsquo;t. Later we&amp;rsquo;ll find the importance of this categorization.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;Stopping The Debugee&lt;span class="hx:absolute hx:-mt-20" id="stopping-the-debugee"&gt;&lt;/span&gt;
+&lt;a href="#stopping-the-debugee" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;h3&gt;Accessing The Source Code&lt;span class="hx:absolute hx:-mt-20" id="accessing-the-source-code"&gt;&lt;/span&gt;
+&lt;a href="#accessing-the-source-code" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Since GDB is a GNU software, it defaults to AT&amp;amp;T syntax for assembly. But we can tell gdb to use intel syntax as well.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;(&lt;/span&gt;gdb&lt;span style="color:#f92672"&gt;)&lt;/span&gt; set disassembly-flavor intel&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Stack Management&lt;span class="hx:absolute hx:-mt-20" id="stack-management"&gt;&lt;/span&gt;
+&lt;a href="#stack-management" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;h3&gt;Execution State Information&lt;span class="hx:absolute hx:-mt-20" id="execution-state-information"&gt;&lt;/span&gt;
+&lt;a href="#execution-state-information" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Requirement&lt;/strong&gt;: An inferior which has been stopped for inspection.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; All the commands here are frame-specific. When you change the current stack frame, the values will change. So remember that and save yourself headaches.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h3&gt;Managerial Commands&lt;span class="hx:absolute hx:-mt-20" id="managerial-commands"&gt;&lt;/span&gt;
+&lt;a href="#managerial-commands" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;All the i-suffixed commands operate on machine instruction. Their equivalent with no &lt;code&gt;i&lt;/code&gt; in them operates on C source lines.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Therefore, the i-suffixed ones work even when there are no debug symbols, because they don&amp;rsquo;t rely on them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;This write up is already quite dense so we&amp;rsquo;ll leave it as is. In the next one, we will explore gdb fully practically, no theory.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;I mentioned this earlier as well that GDB is very extensive. It can do so much. Therefore, understanding how gdb does all of that is quite important because it primes you for future explorations.&lt;/p&gt;
+&lt;p&gt;If you have read my previous write ups, you might remember it, but if you don&amp;rsquo;t, this is for you.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;No one is born with knowledge and understanding. You do the work and you build it. That&amp;rsquo;s the recipe.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;In 2025, you have a proper&lt;/strong&gt;&lt;/em&gt; &lt;a href="https://sourceware.org/gdb/current/onlinedocs/gdb.pdf"target="_blank" rel="noopener"&gt;&lt;em&gt;&lt;strong&gt;GDB manual&lt;/strong&gt;&lt;/em&gt;&lt;/a&gt;&lt;em&gt;&lt;strong&gt;, spread across 994 pages. You have awesome reference cards. GDB itself comes with a built-in &lt;code&gt;help&lt;/code&gt; .Make use of these resources.&lt;/strong&gt;&lt;/em&gt; &lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;This is the age of AI, ask AI chatbots what is this?, why it is like this? They will help you.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;That is how I have understood all of this. It&amp;rsquo;s not magic, it&amp;rsquo;s just work. So explore yourself, there is so much out there. The horizon expands as long as you want to see it.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;</description></item><item><title>Practical GDB</title><link>https://hi-anki.github.io/gitbook/docs/debugging/practical-gdb/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/debugging/practical-gdb/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;25 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Without wasting time, let&amp;rsquo;s jump right into experiments.&lt;/p&gt;
+&lt;h2&gt;Setup&lt;span class="hx:absolute hx:-mt-20" id="setup"&gt;&lt;/span&gt;
+&lt;a href="#setup" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;I started my low level journey on May 01, 2025. Today, it is September 25, 2025. Almost 5 months are about to complete. In these 5 months, I have understood lot of theoretical concepts. I tried to visualize them using ASCII and other mechanisms but I have not seen them practically.&lt;/p&gt;
+&lt;p&gt;So the idea is to make a list of all the concepts I have studied so far, write small programs to implement them, load them inside gdb and examine how that theory is implemented practically, to verify if what I read was right or not.&lt;/p&gt;
+&lt;p&gt;The list below includes everything.&lt;/p&gt;</description></item><item><title>Memory Is Byte Addressable</title><link>https://hi-anki.github.io/gitbook/docs/debugging/memory-is-byte-addressable/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/debugging/memory-is-byte-addressable/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;26 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;The first idea that we are going to verify is:&lt;/p&gt;
+&lt;p&gt; &amp;ldquo;&lt;em&gt;memory is a flat array of byte addressable blocks&lt;/em&gt;&amp;rdquo;.&lt;/p&gt;
+&lt;h2&gt;Setup&lt;span class="hx:absolute hx:-mt-20" id="setup"&gt;&lt;/span&gt;
+&lt;a href="#setup" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Take this program.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; x &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0x12345678&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Compile with debug information:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc -g main.c -o binary&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Open inside gdb.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;$ gdb ./binary
+(gdb)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Clear the window with &lt;code&gt;CTRL+L&lt;/code&gt; .&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Exploration Begins&lt;span class="hx:absolute hx:-mt-20" id="exploration-begins"&gt;&lt;/span&gt;
+&lt;a href="#exploration-begins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;Command Background&lt;span class="hx:absolute hx:-mt-20" id="command-background"&gt;&lt;/span&gt;
+&lt;a href="#command-background" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;GDB allows us to inspect individual memory locations via the examine command.&lt;/p&gt;
+&lt;p&gt;We can open its help page by doing:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;(gdb) help x&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The examine command has the following syntax:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;(gdb) x/FORMAT ADDRESS&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;FORMAT specifies how we want to inspect memory.&lt;/li&gt;
+&lt;li&gt;ADDRESS refers to the memory location we want to inspect.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;FORMAT is made up of three arguments.&lt;/p&gt;
+&lt;p&gt;The third argument specifies how much memory we want to inspect.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;</description></item></channel></rss>

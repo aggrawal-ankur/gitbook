@@ -1,0 +1,368 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level – Virtual Memory</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/</link><description>Recent content in Virtual Memory on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/index.xml" rel="self" type="application/rss+xml"/><item><title>Paging</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/paging/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/paging/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;August 11 and 12, 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;Why Pages?&lt;span class="hx:absolute hx:-mt-20" id="why-pages"&gt;&lt;/span&gt;
+&lt;a href="#why-pages" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Memory is &lt;strong&gt;byte-addressable&lt;/strong&gt;. In 2025, most laptops comes with 8 GiB RAM at least. How many bytes does 8 GiB have?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1 GiB = 1024 MiB&lt;/li&gt;
+&lt;li&gt;1 MiB = 1024 KiB&lt;/li&gt;
+&lt;li&gt;1 KiB = 1024 bytes&lt;/li&gt;
+&lt;li&gt;Therefore, 1 GiB = 1024 * 1024 * 1024 bytes = 1073741824 bytes.&lt;/li&gt;
+&lt;li&gt;And, 8 GiB would be 8 * 1073741824 = 8589934592 bytes or, ~8.6 billion bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If we have to keep track of every byte in a flat table, it would have ~8.6 billion entries. And this is for 8 GiB RAM stick. The number would become crazy for higher valued RAMs.&lt;/p&gt;
+&lt;p&gt;So, the solution? Group these bytes. And the group of these bytes is came to known as a &lt;strong&gt;page&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Generally, a page is sized 4 KiB in modern Linux systems, though Linux supports huge pages as well. But we need not to worry about them yet. Plus, if you ask why a page is 4 KiB only? Its historical and technical as well. But we can avoid that for now.&lt;/p&gt;
+&lt;p&gt;4 KiB means 4 * 1024 bytes or 4096 bytes. That means, a page is a gateway to 4096 unique byte-addressable locations.&lt;/p&gt;
+&lt;p&gt;Remember, the concept of pages exist in virtual memory only. The equivalent concept in physical memory is page frame, which we will talk about later.&lt;/p&gt;
+&lt;h2&gt;Page Table&lt;span class="hx:absolute hx:-mt-20" id="page-table"&gt;&lt;/span&gt;
+&lt;a href="#page-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A page table is a data structure that manages pages. That&amp;rsquo;s it.&lt;/p&gt;
+&lt;p&gt;These page tables are then used by the memory management unit to translate virtual addresses to physical addresses.&lt;/p&gt;
+&lt;p&gt;Modern systems are based on 64-bit architecture, which have 64-bit wide addressable length.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Virtual Addresses are large and if a single flat page table was used, it would be huge.&lt;/li&gt;
+&lt;li&gt;Managing such a page table would be a nightmare.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To solve this problem, a hierarchical approach was implemented, which ensures that each access reduces the sample space of possibilities.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The closest example that explains this problem is linear search.&lt;/li&gt;
+&lt;li&gt;If there is a sorted array of 1,000 elements, and our element lies at index 762, we have to traverse 763 entries before we find our match.&lt;/li&gt;
+&lt;li&gt;But binary search reduces this exponentially. In just 9 iterations, we will find our match. Roughly 1% of linear search. That&amp;rsquo;s the same level of reduction we are talking about through paging.&lt;/li&gt;
+&lt;li&gt;If you are wondering how binary search works, you can google it. In simple words, we divide the sample space in half and take the value at mid index. If the value at mid index is lesser than the target value, we have to search the upper half, otherwise, the lower half. We do this until the value at mid index becomes the target.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This hierarchical approach is what we call as 4-level paging.&lt;/p&gt;
+&lt;h2&gt;4-Level Paging&lt;span class="hx:absolute hx:-mt-20" id="4-level-paging"&gt;&lt;/span&gt;
+&lt;a href="#4-level-paging" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In simple words, there are 4 levels and each level has a version of page table. These are structured in a way that as you move through these tables, you are reducing the sample space by multiple folds. Lets zero in and find out how it actually happens.&lt;/p&gt;
+&lt;p&gt;We will move from low to high because that is more logical and comprehensible.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Plain page table.&lt;/li&gt;
+&lt;li&gt;Page directory index table.&lt;/li&gt;
+&lt;li&gt;Page directory pointer table.&lt;/li&gt;
+&lt;li&gt;Page map level 4 table.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;Plain Page Table&lt;span class="hx:absolute hx:-mt-20" id="plain-page-table"&gt;&lt;/span&gt;
+&lt;a href="#plain-page-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A page is a collection of individual bytes. At basic, we are dealing with 4 KiB pages. So, a page is a collection of 4096 addressable bytes in virtual memory.&lt;/p&gt;
+&lt;p&gt;As named, a page table should be a collection of pages, right? Not really.&lt;/p&gt;
+&lt;p&gt;Page is just a conceptual term. It exist in theory only. What we really deal with is page frame in the physical memory. And, a page table is a collection of page frames. How many page frames, to be exact? The number is 512.&lt;/p&gt;
+&lt;p&gt;This number is obtained by dividing the page size by size of each entry, where size of each entry is given by the register width, which is 8 bytes on x64. So, we get, &lt;code&gt;4096/8&lt;/code&gt;, giving us 512 entries. And this mathematics is applicable to rest of the tables as well.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Therefore, a plain page table is a collection of 512 page frames, or, each entry in a page table is a gateway to a page frame in the physical memory.&lt;/p&gt;
+&lt;p&gt;A page is sized 4096 bytes, so, a plain page table manages a total of &lt;code&gt;512 * 4096&lt;/code&gt; bytes, which is &lt;code&gt;2097152&lt;/code&gt; bytes.&lt;/p&gt;
+&lt;h3&gt;Page Directory Index Table (PDIT)&lt;span class="hx:absolute hx:-mt-20" id="page-directory-index-table-pdit"&gt;&lt;/span&gt;
+&lt;a href="#page-directory-index-table-pdit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Each entry in this table is of type &lt;strong&gt;page table&lt;/strong&gt;. Therefore, a page directory index table is a collection of 512 page tables, or, each entry in a page directory index table is a gateway to a page table.&lt;/p&gt;
+&lt;p&gt;A single page table manages a total of &lt;code&gt;2097152&lt;/code&gt; bytes, so, a page directory index table would manage a total of &lt;code&gt;512 * 2097152&lt;/code&gt; bytes, which is &lt;code&gt;1073741824&lt;/code&gt; bytes.&lt;/p&gt;
+&lt;h3&gt;Page Directory Pointer Table (PDPT)&lt;span class="hx:absolute hx:-mt-20" id="page-directory-pointer-table-pdpt"&gt;&lt;/span&gt;
+&lt;a href="#page-directory-pointer-table-pdpt" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Each entry in this table is of type &lt;strong&gt;page directory&lt;/strong&gt;. Therefore, a page directory pointer table is a collection of page directories.&lt;/p&gt;
+&lt;p&gt;It has 512 entries, each pointing to a separate page directory.&lt;/p&gt;
+&lt;p&gt;A page directory manages &lt;code&gt;1073741824&lt;/code&gt; bytes. So, a page directory pointer table would manage a total of &lt;code&gt;512 * 1073741824&lt;/code&gt; bytes, which is &lt;code&gt;549755813888&lt;/code&gt; bytes.&lt;/p&gt;
+&lt;h3&gt;Page Map Level 4 (PML4) Table&lt;span class="hx:absolute hx:-mt-20" id="page-map-level-4-pml4-table"&gt;&lt;/span&gt;
+&lt;a href="#page-map-level-4-pml4-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Each entry in this table is of type PDPT.&lt;/p&gt;
+&lt;p&gt;A PDPT manages &lt;code&gt;549755813888&lt;/code&gt; bytes. So, a page map level 4 table would manage a total of &lt;code&gt;512 * 549755813888&lt;/code&gt; bytes, which is &lt;code&gt;281474976710656&lt;/code&gt; bytes.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;So these bytes look daunting. Lets simplify them.&lt;/p&gt;
+&lt;p&gt;1 KiB = 1024 bytes&lt;/p&gt;
+&lt;p&gt;1 MiB = 1024 KiB = 1024 * 1024 bytes = 1048576 bytes&lt;/p&gt;
+&lt;p&gt;2 MiB = (2 * 1048576) bytes = 2097152 bytes&lt;/p&gt;
+&lt;p&gt;1 GiB = 1024 MiB = (1024*1024) KiB = (1024*1024*1024) bytes = 1073741824 bytes.&lt;/p&gt;
+&lt;p&gt;549755813888/1073741824 = 512 GiB&lt;/p&gt;
+&lt;p&gt;1 TiB = 1024 GiB = (1024*1024) MiB = (1024*1024*1024) KiB = (1024*1024*1024*1024) bytes = 1099511627776&lt;/p&gt;
+&lt;p&gt;281474976710656/1099511627776 = 256 TiB&lt;/p&gt;
+&lt;p&gt;Therefore:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Page Tables&lt;/th&gt;
+&lt;th&gt;Bytes Managed&lt;/th&gt;
+&lt;th&gt;Simplified Size&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Plain Page Table&lt;/td&gt;
+&lt;td&gt;2097152 bytes&lt;/td&gt;
+&lt;td&gt;2 MiB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Page Directory Table&lt;/td&gt;
+&lt;td&gt;1073741824 bytes&lt;/td&gt;
+&lt;td&gt;1 GiB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Page Directory Index Table&lt;/td&gt;
+&lt;td&gt;549755813888 bytes&lt;/td&gt;
+&lt;td&gt;512 GiB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Page Map Level 4 Table&lt;/td&gt;
+&lt;td&gt;281474976710656 bytes&lt;/td&gt;
+&lt;td&gt;256 TiB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;p&gt;That&amp;rsquo;s enough for paging. Lets talk about virtual addresses.&lt;/p&gt;
+&lt;h3&gt;But what really exist in these tables?&lt;span class="hx:absolute hx:-mt-20" id="but-what-really-exist-in-these-tables"&gt;&lt;/span&gt;
+&lt;a href="#but-what-really-exist-in-these-tables" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;What we just had was a conceptual view of these page tables. But what do these page tables actually contain? That is important to understand, especially for the plain page table. Otherwise, it would lead to mental ruckus.&lt;/p&gt;
+&lt;p&gt;In simple words, all of them are pointer tables. And each address (pointer) is 64-bit, obviously.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The PML4 table contains 512 pointers to page directory pointer tables.&lt;/li&gt;
+&lt;li&gt;The page directory pointer table contains 512 pointers to page directory index/offset tables.&lt;/li&gt;
+&lt;li&gt;The page directory index table contains 512 pointers to plain page tables.&lt;/li&gt;
+&lt;li&gt;A plain page table contains 512 pointers to physical page frames.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The only important thing to understand here is the entries in the plain page tables.&lt;/p&gt;
+&lt;p&gt;A page table is a gateway to physical page frames. A page table entry looks like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;*--------* *----------* *-------------* *-------------------* *---------------------*
+| NX-bit | | CPU bits | | OS-Reserved | | Page Frame Number | Flags &amp;amp;&amp;amp; Control Bits |
+*--------* *----------* *-------------* *-------------------* *---------------------*
+63 62 59 58 52 51 12 11 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If you are deep into the trenches, and constantly thinking, you will spot that something is missing. Let me tell you that something. &lt;em&gt;&lt;strong&gt;How everything fits in the bigger picture?&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;A Note&lt;span class="hx:absolute hx:-mt-20" id="a-note"&gt;&lt;/span&gt;
+&lt;a href="#a-note" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Before you start to wonder how these 4 page tables work together and stuff, I want to say, sit tight and enjoy the journey. Right now we don&amp;rsquo;t know virtual addresses in-depth, which are essential to understand how all of this fits in.&lt;/p&gt;
+&lt;p&gt;Once we understand the virtual addressing system, we can hop on a process called &lt;strong&gt;page walk&lt;/strong&gt;, which would piece everything we have understood so far together.&lt;/p&gt;
+&lt;p&gt;And the next thing we are going to study is exactly that.&lt;/p&gt;</description></item><item><title>Virtual Addressing System</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/virtual-addressing-system/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/virtual-addressing-system/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;August 11 and 12, 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;A Virtual Address&lt;span class="hx:absolute hx:-mt-20" id="a-virtual-address"&gt;&lt;/span&gt;
+&lt;a href="#a-virtual-address" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Total number of bits we have are 64. But not all the 64-bits are required to manage addresses now. It would be huge to manage 2^64 addresses.&lt;/p&gt;
+&lt;p&gt;So, we stick to 48-bit virtual addresses. The rest of the 16-bits are sign extension of the 47th bit. We&amp;rsquo;ll explore what that means in a while.&lt;/p&gt;
+&lt;p&gt;A virtual address is divided into several pieces. More precisely, the bits in the a virtual address are grouped together to represent different parts of the 4-level paging system that we have discussed previously.&lt;/p&gt;
+&lt;p&gt;At high level, a virtual address is structured like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;&amp;#43;--------------&amp;#43; &amp;#43;--------------&amp;#43; &amp;#43;--------------&amp;#43; &amp;#43;------------&amp;#43; &amp;#43;----------------------&amp;#43;
+| PML4: 9-bits | | PDPT: 9-bits | | PDIT: 9-bits | | PT: 9-bits | | Page Offset: 12-bits |
+&amp;#43;--------------&amp;#43; &amp;#43;--------------&amp;#43; &amp;#43;--------------&amp;#43; &amp;#43;------------&amp;#43; &amp;#43;----------------------&amp;#43;
+47 39 38 30 29 21 20 12 11 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Why like this?&lt;span class="hx:absolute hx:-mt-20" id="why-like-this"&gt;&lt;/span&gt;
+&lt;a href="#why-like-this" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;All the 4 page tables have 512 entries, which require a minimum of 9-bits to represent. So, 9-bits are reserved for them.&lt;/p&gt;
+&lt;p&gt;Page offset is the actual byte being addressed within the page. Since there are 4096 bytes in total, 12-bit are required at minimum to represent them.&lt;/p&gt;
+&lt;h3&gt;Some Good-To-Know Things&lt;span class="hx:absolute hx:-mt-20" id="some-good-to-know-things"&gt;&lt;/span&gt;
+&lt;a href="#some-good-to-know-things" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A virtual address is in big endian notation, so most significant bits are in left and least significant bits in the right.&lt;/p&gt;
+&lt;p&gt;As long as we are dealing with pen paper math, there is no need for bit shifts. But with programming, bit shifting becomes important for extracting values the right way and avoiding falling at edge cases.&lt;/p&gt;
+&lt;p&gt;Each process gets a virtual address space, which has 256 TiB worth of addressable space, most of which is empty. Yes, the calculation we have done previously is applied individually to every single process.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The program never runs out of virtual address spaces. It only runs out of mappings in the physical memory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Note: Addressable space ≠ Usable space.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Address Range Split&lt;span class="hx:absolute hx:-mt-20" id="address-range-split"&gt;&lt;/span&gt;
+&lt;a href="#address-range-split" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The virtual address space is split into two halves for user space and kernel space.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;0x0000000000000000 → 0x00007FFFFFFFFFFF (Lower half, ~128 TiB) → User space
+0xFFFF800000000000 → 0xFFFFFFFFFFFFFFFF (Upper half, ~128 TiB) → Kernel space&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;The middle region (&lt;code&gt;x00007FFFFFFFFFFF to 0xFFFF800000000000&lt;/code&gt;) is unused guard space.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Note: The split is logical and exist only in virtual memory, except the hardware enforced rules.&lt;/strong&gt;&lt;/p&gt;
+&lt;h3&gt;What are user space and kernel space really?&lt;span class="hx:absolute hx:-mt-20" id="what-are-user-space-and-kernel-space-really"&gt;&lt;/span&gt;
+&lt;a href="#what-are-user-space-and-kernel-space-really" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;In simple words, user space and kernel space are two logical distinctions within the virtual memory layout.&lt;/p&gt;
+&lt;p&gt;This logical distinction is achieved by access control (privileges) and protection rights, which are enforced both at the hardware level (CPU) and the software level (OS).&lt;/p&gt;
+&lt;p&gt;User space is the portion where unprivileged jobs are managed and kernel space is where privileged jobs are managed.&lt;/p&gt;
+&lt;p&gt;A definition which is quite popular is that user space is where &lt;strong&gt;user mode&lt;/strong&gt; applications run and kernel space is where the &lt;strong&gt;OS Kernel&lt;/strong&gt; runs or privileged tasks are executed. This doesn&amp;rsquo;t sound accurate to me for one reason.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A task is usually made up of multiple atomic jobs. And we can verify this with assembly. An action as simple as printing something to standard output can involve multiple steps.&lt;/li&gt;
+&lt;li&gt;A task itself can&amp;rsquo;t be tagged as privileged or unprivileged. The atomic jobs that actually do something are the ones that can be actually tagged.&lt;/li&gt;
+&lt;li&gt;For example, running &lt;em&gt;VS Code&lt;/em&gt; is a user space action but within that are several thousands of actions, many of which aren&amp;rsquo;t possible without privileged access. Like writing code, which is an I/O operation inside a file, which is a privileged job.&lt;/li&gt;
+&lt;li&gt;Therefore, it is a little ambiguous to say that &amp;ldquo;&lt;em&gt;user space runs user mode applications and kernel space runs elevated tasks&lt;/em&gt;&amp;rdquo; or something like that. Saying that &amp;ldquo;&lt;em&gt;user space executes unprivileged jobs and kerne space executes privileged jobs&lt;/em&gt;&amp;rdquo; is far more accurate in my opinion.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Why this distinction exist?&lt;span class="hx:absolute hx:-mt-20" id="why-this-distinction-exist"&gt;&lt;/span&gt;
+&lt;a href="#why-this-distinction-exist" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;There is no limit on what you can execute, which creates problems. There malwares and other program threatening the functioning of the hardware.&lt;/p&gt;
+&lt;p&gt;This distinction ensures that programs can be contained by default. Its a version of &lt;em&gt;&lt;strong&gt;deny by default, allow by exception&lt;/strong&gt;&lt;/em&gt; strategy. Anything is considered unsafe before it passes the kernel&amp;rsquo;s checks.&lt;/p&gt;
+&lt;p&gt;And any attempt to access privileged area doesn&amp;rsquo;t get unnoticed. And if it is inappropriate, the system denies it.&lt;/p&gt;
+&lt;p&gt;There is a proper mechanism through which the execution mode switches from user space to kernel space, when required.&lt;/p&gt;
+&lt;h3&gt;Analogy&lt;span class="hx:absolute hx:-mt-20" id="analogy"&gt;&lt;/span&gt;
+&lt;a href="#analogy" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Consider an office space with employees of different kinds. And there is a room for the boos.&lt;/p&gt;
+&lt;p&gt;The boss&amp;rsquo;s room is what kernel space is really is. Only privileged access is allowed and rest has to undergo a process to come there.&lt;/p&gt;
+&lt;p&gt;Then there is general area which is accessible to everyone as long as they are an employee in the company. This is out user space.&lt;/p&gt;
+&lt;p&gt;When you need to something that requires permission from the boss, you go through a standard process, which is exactly how the execution context changes from user space to kernel space when required.&lt;/p&gt;
+&lt;h3&gt;Hardware Enforced Privilege Levels&lt;span class="hx:absolute hx:-mt-20" id="hardware-enforced-privilege-levels"&gt;&lt;/span&gt;
+&lt;a href="#hardware-enforced-privilege-levels" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Rings&lt;/strong&gt; are hardware-enforced CPU privilege levels, which forms a core part of how modern processors (like x64) separates trusted code (kernel) from untrusted (user) code.&lt;/p&gt;
+&lt;p&gt;CPUs implement multiple &lt;strong&gt;protection rings&lt;/strong&gt; numbered 0 to 3, with:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Ring 0 = highest privilege (kernel mode)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ring 3 = lowest privilege (user mode)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Rings 1 and 2&lt;/strong&gt; exist but are rarely used in mainstream Linux.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;System calls cause a CPU privilege level switch from Ring 3 → Ring 0.&lt;/p&gt;</description></item><item><title>Virtual Memory Layout</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/virtual-memory-layout/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/virtual-memory-layout/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;August 12, 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Big Picture&lt;span class="hx:absolute hx:-mt-20" id="big-picture"&gt;&lt;/span&gt;
+&lt;a href="#big-picture" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;High Address
+Top Of Virtual Address Space
+0xFFFFFFFFFFFFFFFF *-----------------------------* End Of Kernel Space ↓
+| |
+| Kernel Space |
+| |
+| Size: ~128 TiB |
+| |
+| Upper Half |
+| |
+0xFFFF800000000000 *-----------------------------* Start Of Kernel Space ↑
+| |
+| Unused / Guard Space |
+| |
+0x0000800000000000 *-----------------------------* End of User Space ↓
+| |
+| User Space |
+| |
+| Size: ~128 TiB |
+| |
+| Lower Half |
+| |
+0x0000000000400000 *-----------------------------* Start Of User Space ↑
+| |
+| Reserved / Unmapped |
+| |
+0x0000000000000000 *-----------------------------*
+Bottom Of Virtual Address Space
+Low Address&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;User Space Layout&lt;span class="hx:absolute hx:-mt-20" id="user-space-layout"&gt;&lt;/span&gt;
+&lt;a href="#user-space-layout" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;0x0000800000000000 *-----------------------------* End of User Space ↓
+| Stack (grows downward) |
+*-----------------------------*
+| Memory-Mapped Region |
+| (shared libs, mmap, ....) |
+*-----------------------------*
+| Heap (grows upward) |
+*-----------------------------*
+| Static &amp;amp;&amp;amp; Global Variables |
+| (.bss / .data) |
+*-----------------------------*
+| .text |
+0x0000000000400000 *-----------------------------* Start Of User Space ↑&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;.data&lt;/code&gt; and &lt;code&gt;.bss&lt;/code&gt; are packed together because they are functionally the same thing, just differ in initialization.&lt;/p&gt;
+&lt;h3&gt;What are stack and heap really?&lt;span class="hx:absolute hx:-mt-20" id="what-are-stack-and-heap-really"&gt;&lt;/span&gt;
+&lt;a href="#what-are-stack-and-heap-really" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;In simple words, stack and heap are two approaches to manage memory. There are no specialized regions either in the physical memory which refer to stack or heap. They are just two ways to manage the same flat memory.&lt;/p&gt;
+&lt;h3&gt;Why the stack grows downward?&lt;span class="hx:absolute hx:-mt-20" id="why-the-stack-grows-downward"&gt;&lt;/span&gt;
+&lt;a href="#why-the-stack-grows-downward" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;When we learn stack as a data structure, we imagine it as a stack of plates. A stack of anything starts from bottom and approaches sky as the top.&lt;/p&gt;
+&lt;p&gt;But, when you learn assembly, you find that stack grows downward. And you keep scratching your head. I was no different.&lt;/p&gt;
+&lt;p&gt;There is a simple solution to this problem. &lt;strong&gt;Reverse the address space.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Right now we are looking from top to bottom or higher addresses to lower addresses.&lt;/li&gt;
+&lt;li&gt;Just flip the structure and you get an upward growing stack.&lt;/li&gt;
+&lt;li&gt;Just remember that this doesn&amp;rsquo;t change the address management of stack. A push would still reduce the memory address mathematically and a pop would increase it. But, at least it solves the mental overhead of imagining stack growing downwards.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Apart from this, there is a genuine question that why stack was put at the top of the user space. The reason that they shouldn&amp;rsquo;t collide is not applicable as the memory-mapped region will always come in-between.&lt;/p&gt;
+&lt;p&gt;As of now, I don&amp;rsquo;t have any answer, but if I find anything interesting, I will update this block.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Why the stack is fast and heap is slow?&lt;span class="hx:absolute hx:-mt-20" id="why-the-stack-is-fast-and-heap-is-slow"&gt;&lt;/span&gt;
+&lt;a href="#why-the-stack-is-fast-and-heap-is-slow" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;This question is not completely answerable as it is based on comparison.&lt;/p&gt;
+&lt;p&gt;We can explore why stack is fast because we are familiar with it. But we don&amp;rsquo;t know what heap is.&lt;/p&gt;
+&lt;p&gt;Although we know why stack is fast because it is based on sequential allocation. But what makes heap slow is not known.&lt;/p&gt;
+&lt;p&gt;When we will explore dynamic memory allocation, it will become clear why stack is fast and heap is slow.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Until then, we are now prepared to understand how all of this fits in the grand scheme of memory management with MMU.&lt;/p&gt;</description></item><item><title>Address Translation</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/address-translation/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/virtual-memory/address-translation/</guid><description>
+&lt;p&gt;This is the exact moment we were preparing for.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;August 12, 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;What Is MMU?&lt;span class="hx:absolute hx:-mt-20" id="what-is-mmu"&gt;&lt;/span&gt;
+&lt;a href="#what-is-mmu" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;MMU stands for memory management unit, which is a hardware component in the CPU, that sits between.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;strong&gt;core&lt;/strong&gt; executing instructions (which always works in virtual addresses), and&lt;/li&gt;
+&lt;li&gt;The &lt;strong&gt;memory bus&lt;/strong&gt; (which only understands physical addresses).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Its entire reason to exist is to intercept every memory access and translate it from a virtual address to a physical address in real time, applying protection checks along the way.&lt;/p&gt;
+&lt;p&gt;So, MMU exists for one purpose, &lt;strong&gt;address translation&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Before we hop on address translation, we have to understand translation lookaside buffer.&lt;/p&gt;
+&lt;h2&gt;Translation Lookaside Buffer (TLB)&lt;span class="hx:absolute hx:-mt-20" id="translation-lookaside-buffer-tlb"&gt;&lt;/span&gt;
+&lt;a href="#translation-lookaside-buffer-tlb" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Translation Lookaside Buffer (TLB) is a specialized cache used by the CPU to speed up the process of translating virtual memory addresses to physical memory addresses.&lt;/p&gt;
+&lt;p&gt;It stores recently used address translations, allowing for quicker access if the same translation is needed again. Basically, it&amp;rsquo;s a cache for page table entries.&lt;/p&gt;
+&lt;p&gt;Its primary function is to reduce the time it takes to access memory. A full 4-level page table walk would be very slow and come costly for every memory access.&lt;/p&gt;
+&lt;p&gt;For the time being, there is no need to dive further into it.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Lets understand address translation now.&lt;/p&gt;
+&lt;h2&gt;Address Translation&lt;span class="hx:absolute hx:-mt-20" id="address-translation"&gt;&lt;/span&gt;
+&lt;a href="#address-translation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This process can be divided into an if-else chart.&lt;/p&gt;
+&lt;p&gt;When MMU receives a virtual address, first it checks the translation lookaside buffer.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If it finds an entry which maps the input with a physical address, it is considered &lt;strong&gt;TLB Hit&lt;/strong&gt; and translation is done instantly.&lt;/li&gt;
+&lt;li&gt;If no mapping is found, it is a &lt;strong&gt;TLB Miss.&lt;/strong&gt; The CPU has to do a page walk to find the mapping and possibly cache it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now the thing we were waiting for, page walk.&lt;/p&gt;
+&lt;h3&gt;Page Walk&lt;span class="hx:absolute hx:-mt-20" id="page-walk"&gt;&lt;/span&gt;
+&lt;a href="#page-walk" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;There is a special purpose register called &lt;code&gt;CR3&lt;/code&gt;. This register keeps the base address of PML4 table.&lt;/p&gt;
+&lt;p&gt;The OS loads CR3 with the &lt;strong&gt;physical address&lt;/strong&gt; of the PML4 for that process. When the MMU needs to translate a virtual address, it reads &lt;code&gt;CR3&lt;/code&gt; and gets the PML4 base physical address.&lt;/p&gt;
+&lt;p&gt;Side by side, the virtual address is parsed to obtain the first 9-bits (from MSB) which represent the PML4 entry this virtual address belongs to.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The value obtained from these 9-bits is added to the base address of PML4 and the desired entry within the PML4 table is found.&lt;/li&gt;
+&lt;li&gt;The desired entry is pointer to the PDPT table. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now we are at the base address of PDPT table.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The next 9-bits of the virtual address are parsed to obtain the right index/offset in the PDPT table.&lt;/li&gt;
+&lt;li&gt;This value is added to the base address and we are at the correct entry now. This entry is a pointer to PDIT table.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now we are at the PDIT table.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The next 9-bits of the virtual address are parsed to obtain the right index/offset in the PDIT table.&lt;/li&gt;
+&lt;li&gt;The value is added to the base address and we are at the correct entry now. This entry is a pointer to the plain page table this address belongs to.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now we are at the plain page table.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The next 9-bits of the virtual address are parsed to obtain the right index/offset in the page table.&lt;/li&gt;
+&lt;li&gt;The value is added to the base address and we are at the correct entry now. This entry is the address to the actual physical frame this address is mapped to.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The PTE entry is parsed and the bits 51 to 12 are extracted, which forms the page frame number.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The page frame number is the base address of the 4 KiB physical frame.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Next, the last 12-bits of the virtual address are parsed to obtain the page offset.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The page offset is the actual byte in the group of 4096 bytes (4 KiB frame) that the virtual address is mapped to.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The PFN and page offset are added to form the final &lt;strong&gt;physical address&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;And the page walk is done.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;After a successful page walk, the translation lookaside buffer is updated to contain this mapping for faster lookup.&lt;/p&gt;
+&lt;p&gt;What if the page walk failed?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A page fault;&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

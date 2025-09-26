@@ -1,0 +1,226 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level – Low Level Architecture</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/</link><description>Recent content in Low Level Architecture on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/low-level-architecture/index.xml" rel="self" type="application/rss+xml"/><item><title>Orientation</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/</guid><description>
+&lt;h1&gt;The Rules The Make Assembly Slightly Easier&lt;/h1&gt;&lt;p&gt;Assembly is not a high-level language, therefore, the usual mental models of learning a programming language will not help. Below are a few rules that I have learned throughout this journey.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;C is not spared of abstractions. Its abstractions are revealed when you look at assembly.&lt;/li&gt;
+&lt;li&gt;Context and Interpretation are paramount while managing data in memory.&lt;/li&gt;
+&lt;li&gt;Assembly is bare-metal. It knows no bounds. At one moment, your program might run perfectly. And the next moment, it might run into an issue.&lt;/li&gt;
+&lt;li&gt;The most straightforward way to improve your understanding of assembly is by doing. You do, you fail, you understand, you don&amp;rsquo;t repeat. That&amp;rsquo;s it.&lt;/li&gt;
+&lt;li&gt;Your code is just one step away from &amp;ldquo;undefined behavior&amp;rdquo; territory.
+&lt;ol&gt;
+&lt;li&gt;Sometimes, swapping two lines and bringing them at their original position changes the result. And I am not joking.&lt;/li&gt;
+&lt;li&gt;Just writing a character and then backspacing it changes the outcome. And I am not joking.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;Progressive learning is the key. As long as you don&amp;rsquo;t hurry and move progressively, you will live a happy life.&lt;/li&gt;
+&lt;li&gt;Intent is more important than learning every single way of doing something. Understand what you want to achieve, then map how the generated assembly does that.&lt;/li&gt;
+&lt;li&gt;What seems like an overwhelming incomprehensible black magic is just logic and compiler optimizations, where the logic becomes primitive as you go deep into trenches &amp;amp; understand what we are trying to do and the compiler optimizations, which are just decades of work done by intelligent beings to make code efficient stops haunting you because you understand that an &lt;strong&gt;intent can be fulfilled in &lt;code&gt;n&lt;/code&gt; number of ways&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;Tools like Compiler explorer at &lt;a href="https://godbolt.org"target="_blank" rel="noopener"&gt;godbolt.org&lt;/a&gt; are excellent to understand the different manifestations of the same principles.&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title>Memory Allocation</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/mem-alloc/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/mem-alloc/</guid><description>
+&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Memory for storage can be divided into 3:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Stack: the most straightforward thing you&amp;rsquo;ll ever come across.&lt;/li&gt;
+&lt;li&gt;Static: &lt;code&gt;.data/.bss&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Heap: for dynamic allocation.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;As long as we are talking about &lt;strong&gt;stack&lt;/strong&gt; and &lt;strong&gt;static&lt;/strong&gt; memory, we have to consult &lt;strong&gt;storage classes&lt;/strong&gt; to find the appropriate place for allocation.&lt;/p&gt;
+&lt;h2&gt;Storage Classes&lt;span class="hx:absolute hx:-mt-20" id="storage-classes"&gt;&lt;/span&gt;
+&lt;a href="#storage-classes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;em&gt;&lt;strong&gt;Storage classes&lt;/strong&gt; guide the compiler to manage static memory allocation.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Primarily there are 4 things associated with a variable.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Location:&lt;/strong&gt; Where in the memory the variable would be stored? Our options: stack, registers, &lt;code&gt;.data&lt;/code&gt; and &lt;code&gt;.bss&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Lifetime:&lt;/strong&gt; How long the variable should exist (or be accessible)?&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Scope:&lt;/strong&gt; Where that variable can be accessed from?&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Default State:&lt;/strong&gt; Whether the variable has a default initial value when uninitialized or a garbage value?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Storage class answers all of this.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Every variable has a storage class associated with it, but usually it is not visible.&lt;/p&gt;
+&lt;h2&gt;The Concept Of Scope&lt;span class="hx:absolute hx:-mt-20" id="the-concept-of-scope"&gt;&lt;/span&gt;
+&lt;a href="#the-concept-of-scope" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Local and global scopes are too shallow to understand scope.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;In simple words, scope defines where a declaration of an identifier can be referenced from (used).&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Primarily there are 3 scopes.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Block Scope&lt;/li&gt;
+&lt;li&gt;File Scope&lt;/li&gt;
+&lt;li&gt;Global scope&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;Block Scope&lt;span class="hx:absolute hx:-mt-20" id="block-scope"&gt;&lt;/span&gt;
+&lt;a href="#block-scope" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Any declaration inside a &lt;code&gt;{ }&lt;/code&gt; block is block scoped. Example: functions, if-else and loops.&lt;/p&gt;
+&lt;p&gt;The default storage class for block scoped declarations is &lt;code&gt;auto&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;It kinda resembles with &lt;strong&gt;local scope&lt;/strong&gt; but that is too shallow because a block itself can contain other blocks. Examples:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A function is a block that can contain an if block, which can contain another series of conditional blocks.&lt;/li&gt;
+&lt;li&gt;A function can contain a for loop, which may contain nested if-else blocks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;All in all, local scope is not a resilient mental model for low level work. &lt;strong&gt;That&amp;rsquo;s my opinion.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;&lt;strong&gt;File Scope&lt;/strong&gt;&lt;span class="hx:absolute hx:-mt-20" id="file-scope"&gt;&lt;/span&gt;
+&lt;a href="#file-scope" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;em&gt;A declaration which is globally accessible within one translation unit only is considered to be a file scoped declaration.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;From build process, we know that the first step in processing a C source code is to expand preprocessing directives, where the toolchain (gcc, clang etc) just copies the headers files recursively until there is none.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;The result of this process is what a translation unit is.&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Therefore, a TU is not something magical, just a sugar coating.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For example, &lt;code&gt;pie&lt;/code&gt; is a file scoped declaration.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;static&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;float&lt;/span&gt; pie &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;3.14&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Note: Don&amp;rsquo;t think about this code. The next write up would explore it in enough depth.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Program Scope&lt;span class="hx:absolute hx:-mt-20" id="program-scope"&gt;&lt;/span&gt;
+&lt;a href="#program-scope" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;em&gt;When a declaration exist until the program exist in memory and is available to be referenced by every translation unit, the declaration is program scoped.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;float&lt;/span&gt; pie &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;3.14&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Note: Again, don&amp;rsquo;t focus on the code.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;The concept of scope is language enforced, which is why you will find different implementations of &amp;ldquo;scope&amp;rdquo;. What scope implies in C isn&amp;rsquo;t the same with Python because both the languages work differently.&lt;/p&gt;
+&lt;p&gt;How scopes behave in C is largely limited to C only and when you cross that boundary, the scenario changes. And we will see this practically as well.&lt;/p&gt;
+&lt;p&gt;At assembly level, the &amp;ldquo;concept of linkage&amp;rdquo; seems to be more prominent. Lets explore that.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;The Concept Of Linkage&lt;span class="hx:absolute hx:-mt-20" id="the-concept-of-linkage"&gt;&lt;/span&gt;
+&lt;a href="#the-concept-of-linkage" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;em&gt;If I use the same identifier name in multiple scopes or translation units, do they refer to the same object, or different ones?&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This is defined by linkage.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;External Linkage&lt;span class="hx:absolute hx:-mt-20" id="external-linkage"&gt;&lt;/span&gt;
+&lt;a href="#external-linkage" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The name refers to the same object across all the translation units.&lt;/p&gt;
+&lt;p&gt;When a declaration is placed outside of any function, by default, it has the &lt;code&gt;extern&lt;/code&gt; storage class, which makes a declaration accessible to the entire project (all the .c files).&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; PI &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;3.14&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;circumference&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; r) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; PI &lt;span style="color:#f92672"&gt;*&lt;/span&gt; r;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Internal Linkage&lt;span class="hx:absolute hx:-mt-20" id="internal-linkage"&gt;&lt;/span&gt;
+&lt;a href="#internal-linkage" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;In this translation unit, anyone referring to &lt;strong&gt;X&lt;/strong&gt; would be referring to the &lt;strong&gt;X&lt;/strong&gt; declared in file scope.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;static&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; PI &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;3.14&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;circumference&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; r) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt; PI &lt;span style="color:#f92672"&gt;*&lt;/span&gt; r;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;area&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; r){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; PI&lt;span style="color:#f92672"&gt;*&lt;/span&gt;r&lt;span style="color:#f92672"&gt;*&lt;/span&gt;r;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Here, &lt;code&gt;PI&lt;/code&gt; has internal linkage. Both the functions access the same object when referencing &lt;code&gt;PI&lt;/code&gt;.&lt;/p&gt;
+&lt;h3&gt;No Linkage?&lt;span class="hx:absolute hx:-mt-20" id="no-linkage"&gt;&lt;/span&gt;
+&lt;a href="#no-linkage" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The name refers to an entity &lt;strong&gt;only in its scope&lt;/strong&gt;. Example: any declaration inside a function scope.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;If you use &lt;code&gt;readelf&lt;/code&gt; and inspect the ELF structure of a binary, either you are going to find &lt;code&gt;GLOBAL&lt;/code&gt; linkage or &lt;code&gt;LOCAL&lt;/code&gt; linkage, which are external and internal linkages respectively. There is nothing as &lt;code&gt;NO LINKAGE&lt;/code&gt;. And this is the reason why understanding a block scope static is so confusing. We are going to explore that in the next write up.&lt;/p&gt;
+&lt;h3&gt;Final Mental Model&lt;span class="hx:absolute hx:-mt-20" id="final-mental-model"&gt;&lt;/span&gt;
+&lt;a href="#final-mental-model" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;</description></item><item><title>Control Flow</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/control-flow/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/control-flow/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Polished on 8 September 2025 (First written in May 2025)&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Introduction&lt;span class="hx:absolute hx:-mt-20" id="introduction"&gt;&lt;/span&gt;
+&lt;a href="#introduction" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Control flow helps in breaking the linearity of execution in assembly.&lt;/p&gt;
+&lt;p&gt;These three high level constructs in C are all implemented using jump statements.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;If else ladder&lt;/strong&gt;: if, else if and else.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Iteration&lt;/strong&gt;: for, while and do-while loops.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Switch case&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Synopsis&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Unconditional jumps&lt;/strong&gt; are the jumps that are certain to happen. Nothing can stop them. &lt;code&gt;jmp&lt;/code&gt; mnemonic is used for this.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Conditional jumps&lt;/strong&gt; are based on a conditions. The &lt;code&gt;cmp&lt;/code&gt; mnemonic helps in comparing two entities.&lt;/li&gt;
+&lt;li&gt;The comparison instruction affects certain &lt;strong&gt;CPU Flags&lt;/strong&gt; which the jump statements use to make their decision of jumping.&lt;/li&gt;
+&lt;li&gt;The jump is made to a &lt;strong&gt;code symbol&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Comparison&lt;span class="hx:absolute hx:-mt-20" id="comparison"&gt;&lt;/span&gt;
+&lt;a href="#comparison" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;cmp&lt;/code&gt; compares two operands by subtracting the second operand from the first operand.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-asm" data-lang="asm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;cmp&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;op1&lt;/span&gt;, &lt;span style="color:#66d9ef"&gt;op2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#960050;background-color:#1e0010"&gt;=&amp;gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;op1&lt;/span&gt; - &lt;span style="color:#66d9ef"&gt;op2&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The result is used to set certain CPU flags. There is a special purpose register called &lt;code&gt;RFLAGS&lt;/code&gt; in x64 and &lt;code&gt;EFLAGS&lt;/code&gt; in x86 which holds these flags. And other architectures have similar mechanisms.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Note: &lt;code&gt;cmp&lt;/code&gt; is just one instruction that changed &lt;code&gt;RFLAGS&lt;/code&gt;; there are other operations that set them as well.&lt;/li&gt;
+&lt;li&gt;Although &lt;code&gt;RFLAGS&lt;/code&gt; is a 64-bit wide register, the total CPU flags aren&amp;rsquo;t 64. Most of the bits are reserved by the CPU for internal things. The most common ones include: &lt;code&gt;CF ZF OF PF AF SF TF&lt;/code&gt; .&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Based on these CPU flags the conditional jump statements make an assumption about the result of comparison.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Unsigned Comparison&lt;span class="hx:absolute hx:-mt-20" id="unsigned-comparison"&gt;&lt;/span&gt;
+&lt;a href="#unsigned-comparison" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;em&gt;Since unsigned integers uses full set of bits available to store the magnitude of the value, we don&amp;rsquo;t require other flags.&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;Signed Comparison&lt;span class="hx:absolute hx:-mt-20" id="signed-comparison"&gt;&lt;/span&gt;
+&lt;a href="#signed-comparison" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;hr&gt;</description></item><item><title>Functions And Stack</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/functions/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/functions/</guid><description>
+&lt;p&gt;Function and stack might seem unrelated when you work at high level. At low level, these are in a very inseparable relationship. You can&amp;rsquo;t study one without other.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If stack is an idea, function is its best implementation.&lt;/li&gt;
+&lt;li&gt;If function is an idea, it can&amp;rsquo;t exist in its best form without stack.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;To understand their relationship, we have to move slow enough that we don&amp;rsquo;t gloss over anything and fast enough that we don&amp;rsquo;t dry ourselves up. Here is the progression:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="stack.md"&gt;Introduction&lt;/a&gt; introduces to the idea of functions and stack at assembly level. Although it dives deep into theory, it will not feel like that because I have included real-life examples, interactive questions, gradual flow and introduction, ASCII art and a small &amp;ldquo;theoretical-practical&amp;rdquo; in the end.&lt;/li&gt;
+&lt;li&gt;&lt;a href="recursion.md"&gt;Recursion&lt;/a&gt;: introduces us to stack discipline and how stack frames are actually stacked. Here we implement the theory we have studied so far. &lt;strong&gt;Fully practical.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="parameter-passing.md"&gt;Parameter Passing&lt;/a&gt; improves our understanding of reference and returns by one step. It lays the foundation without which you can&amp;rsquo;t understand how complex value are returned. &lt;strong&gt;Fully practical.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="return.md"&gt;How returns are managed?&lt;/a&gt; is the final boss. &lt;strong&gt;Fully practical.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;For the time being, practical means that we are going to study an implementation of a set of concepts that feel superficial. We can definitely use &lt;code&gt;GDB&lt;/code&gt; to inspect the real stack in the memory but to me, it is not the right way to understand.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;To me, the right approach is that you study the theory, you implement it on paper (in terms of loose ideas) and then you move towards ultimate practicality.&lt;/li&gt;
+&lt;li&gt;Right now, we are exploring the first two parts in this process. But very soon we will explore the third one as well.&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Type Casting</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/type-casting/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/type-casting/</guid><description>
+&lt;p&gt;Implicit, explicit and pointer type casting&lt;/p&gt;</description></item><item><title>The World Of Floats</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/floats/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/floats/</guid><description>
+&lt;p&gt;The history of floats, the issues, the solutions, historical solutions and modern solutions, x87 FPU stack, SSE/AVX, ymm, zmm regs &lt;/p&gt;</description></item><item><title>SIMD Instructions</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/simd/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/simd/</guid><description>
+&lt;p&gt;Why rsp is 16 bytes aligned when we are on 8-byte arch?&lt;/p&gt;</description></item><item><title>Type Qualifiers</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/type-qualifiers/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/type-qualifiers/</guid><description/></item><item><title>Format Specifier</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/format-specifier/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/format-specifier/</guid><description>
+&lt;p&gt;what they mean to c and asm.&lt;/p&gt;
+&lt;p&gt;syntax of writing a format specifier: like &lt;code&gt;0x%016llx&lt;/code&gt; &lt;/p&gt;</description></item><item><title>Preprocessing Directives</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/preprocessing-directives/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/preprocessing-directives/</guid><description/></item></channel></rss>

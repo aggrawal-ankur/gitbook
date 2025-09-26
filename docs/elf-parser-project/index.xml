@@ -1,0 +1,300 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level – ELF Parser Project</title><link>https://hi-anki.github.io/gitbook/docs/elf-parser-project/</link><description>Recent content in ELF Parser Project on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/elf-parser-project/index.xml" rel="self" type="application/rss+xml"/><item><title>Idea &amp; Structure</title><link>https://hi-anki.github.io/gitbook/docs/elf-parser-project/idea-and-structure/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/elf-parser-project/idea-and-structure/</guid><description>
+&lt;h2&gt;Project Design&lt;span class="hx:absolute hx:-mt-20" id="project-design"&gt;&lt;/span&gt;
+&lt;a href="#project-design" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The whole project can be divided into two parts.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Extracting raw bytes from the ELF.&lt;/li&gt;
+&lt;li&gt;Interpreting those raw bytes and creating a c-style dump of it.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Structure&lt;span class="hx:absolute hx:-mt-20" id="structure"&gt;&lt;/span&gt;
+&lt;a href="#structure" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;elf_parser
+└─ build-steps
+...
+...
+└─ core_api
+└─ parser.c
+└─ parser.h
+└─ dump_structure
+└─ dump.c
+└─ dump.h
+└─ mappings.c
+└─ mappings.h
+└─ reference
+└─ hello_elf
+└─ hello_world.c
+└─ readelf_output
+└─ elf_spec.h
+└─ main.c&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Few Things About The Project&lt;span class="hx:absolute hx:-mt-20" id="few-things-about-the-project"&gt;&lt;/span&gt;
+&lt;a href="#few-things-about-the-project" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;It is not perfect.&lt;/li&gt;
+&lt;li&gt;I am not trying to compete with projects like &lt;code&gt;binutils&lt;/code&gt; , which hosts &lt;code&gt;readelf&lt;/code&gt; or &lt;code&gt;pax-utils&lt;/code&gt; , which hosts &lt;code&gt;dumpelf&lt;/code&gt; or any other project. It is purely to understand the elf specification not by reading docs but by implementing something myself.&lt;/li&gt;
+&lt;li&gt;It is verbose by design because I am not familiar with things that reduce code but at the cost of readability. I wanted something straightforward.&lt;/li&gt;
+&lt;li&gt;It is great for educational purposes, where beginners can read the code and understand it themselves, where things obscure to them are not used to do the thing.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Timeline&lt;span class="hx:absolute hx:-mt-20" id="timeline"&gt;&lt;/span&gt;
+&lt;a href="#timeline" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Started on &lt;em&gt;July 24, 2025&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Finished writing core API on &lt;em&gt;July 31, 2025&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Finished writing c-style dumps on &lt;em&gt;August 02, 2025&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Starting documentation on &lt;em&gt;August 03, 2025&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Improvements ahead.&lt;/strong&gt;&lt;/p&gt;</description></item><item><title>What are .h files?</title><link>https://hi-anki.github.io/gitbook/docs/elf-parser-project/header-files/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/elf-parser-project/header-files/</guid><description>
+&lt;h2&gt;Why?&lt;span class="hx:absolute hx:-mt-20" id="why"&gt;&lt;/span&gt;
+&lt;a href="#why" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;.c&lt;/code&gt; files are source files and &lt;code&gt;.h&lt;/code&gt; files are header files.&lt;/p&gt;
+&lt;p&gt;The idea is to keep declarations and definitions separate. Why? For a variety of reasons.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Cleanliness and Directness&lt;/strong&gt;. When something is used by multiple files, it is better to keep it in one file and reference that file instead of duplicating it, &lt;strong&gt;reducing chaos and redundancy&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Modular code&lt;/strong&gt;. The files which require those definitions just have to include the header file, avoiding the need to include the complete source file.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Compiler efficiency&lt;/strong&gt;. The most important one.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;We know that when multiple files are passed to &lt;code&gt;gcc&lt;/code&gt; , it generates object files for each source file and the &lt;code&gt;linker&lt;/code&gt; program joins them together to form the final binary.&lt;/p&gt;
+&lt;p&gt;If the source file changes in the future, that&amp;rsquo;s where this system shines.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If the other files have included the declaration file only, they are not required to be recompiled. Only the corresponding source file needs recompilation. This leads to compiler efficiency.&lt;/li&gt;
+&lt;li&gt;If the other files have included the source (full definition) itself, every other such file needs to be recompiled before linking.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You may ask why including header files doesn&amp;rsquo;t demand full recompilation but including source files does. And the answer to this question lies in the build process.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;include&lt;/code&gt; preprocessing directive copies the file as it is, in the file it is called.&lt;/li&gt;
+&lt;li&gt;Header files themselves don&amp;rsquo;t generate any object code. They are an interface to how we access &lt;code&gt;glibc&lt;/code&gt;, the standard C library, which is one-file that becomes &lt;code&gt;libc.so&lt;/code&gt; .&lt;/li&gt;
+&lt;li&gt;All these different header files are used to categorize the declarations used for different purposes. And they are expanded into the source file. The linker joins the object files with the shared object library and we are done.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Have a look at the &lt;code&gt;/build-steps&lt;/code&gt; directory.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you open the &lt;code&gt;elfdump-mappings.i&lt;/code&gt; file, along with &lt;code&gt;dump_structure/mappings.c&lt;/code&gt; and &lt;code&gt;dump_structure/mappings.h&lt;/code&gt;, you will find that it includes both of these files along with the the declarations from the &lt;code&gt;inttypes.h&lt;/code&gt; file. Line 296 on wards.&lt;/li&gt;
+&lt;li&gt;And these extended files are then compiled to object codes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Its a simple way to reduce redundancy and organize the code. That&amp;rsquo;s it.&lt;/p&gt;</description></item><item><title>Magic Verification</title><link>https://hi-anki.github.io/gitbook/docs/elf-parser-project/magic-verification/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/elf-parser-project/magic-verification/</guid><description>
+&lt;h2&gt;Problem Statement&lt;span class="hx:absolute hx:-mt-20" id="problem-statement"&gt;&lt;/span&gt;
+&lt;a href="#problem-statement" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The first step in parsing an ELF is to verify if the file passed in the argument is an ELF or not.&lt;/p&gt;
+&lt;p&gt;This is done by verifying the magic bytes (or numbers) present as the first thing in all kinds of binary files.&lt;/p&gt;
+&lt;h2&gt;What are magic numbers?&lt;span class="hx:absolute hx:-mt-20" id="what-are-magic-numbers"&gt;&lt;/span&gt;
+&lt;a href="#what-are-magic-numbers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Magic numbers can take multiple forms in computer programming. In our case, it is a constant stream of characters, used to identify a file format.&lt;/p&gt;
+&lt;p&gt;From the static analysis of the hello world binary, we know that file headers are the first thing in an ELF. The output for readelf started like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;ELF Header:
+Magic: 7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The first 4 hexadecimal numbers represent the magic number.&lt;/p&gt;
+&lt;p&gt;But &lt;code&gt;readelf&lt;/code&gt; refers all the pairs as magic?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Only the first 4 pairs of hexadecimal values form the magic number. Rest are the values in the &lt;code&gt;e_ident[]&lt;/code&gt; array, which is a part of the file headers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;em&gt;Remember, each pair is hexadecimal so they are 1 byte in size.&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;Does this magic number hold any meaning?&lt;span class="hx:absolute hx:-mt-20" id="does-this-magic-number-hold-any-meaning"&gt;&lt;/span&gt;
+&lt;a href="#does-this-magic-number-hold-any-meaning" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Yes. &lt;code&gt;0x7f&lt;/code&gt; = DEL, &lt;code&gt;0x45&lt;/code&gt; = E, &lt;code&gt;0x4c&lt;/code&gt; = L and &lt;code&gt;0x46&lt;/code&gt; = F&lt;/p&gt;
+&lt;h3&gt;Why `0x7f` ?&lt;span class="hx:absolute hx:-mt-20" id="why-0x7f-"&gt;&lt;/span&gt;
+&lt;a href="#why-0x7f-" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A random text file may start with &lt;code&gt;45 4c 46&lt;/code&gt; bytes, but it is very unlikely for a text file to start with &lt;code&gt;7f 45 4c 46&lt;/code&gt; . That is why a random character is used.&lt;/p&gt;
+&lt;h2&gt;Reading The Magic&lt;span class="hx:absolute hx:-mt-20" id="reading-the-magic"&gt;&lt;/span&gt;
+&lt;a href="#reading-the-magic" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;To mark a file as a valid ELF, the first 4 bytes must be &lt;code&gt;0x7F 0x45 0x4C 0x46&lt;/code&gt; . We will use &lt;code&gt;fread()&lt;/code&gt; to read those bytes.&lt;/p&gt;
+&lt;p&gt;It is provided by the C standard I/O library (&lt;code&gt;stdio.h&lt;/code&gt;). The signature of &lt;code&gt;fread()&lt;/code&gt; is as follows.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// General Signature
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#a6e22e"&gt;fread&lt;/span&gt;(dest_ptr, size_each_element, n_ele, file_ptr);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;fread&lt;/code&gt; requires 4 arguments.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;dest_ptr&lt;/code&gt; is where the raw bytes would be stored after extraction.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;n_elements&lt;/code&gt; is the total number of elements we are extracting.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;size_each_element&lt;/code&gt; is self-explanatory.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;file_ptr&lt;/code&gt; has access to the file&amp;rsquo;s raw bytes. This is how we are going to read the file.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In simple words, &lt;em&gt;read N number of elements, each of size S, from the file pointer and store them in the destination pointer.&lt;/em&gt;&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// From Manual Entry
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fread&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; ptr[&lt;span style="color:#66d9ef"&gt;restrict&lt;/span&gt; .size &lt;span style="color:#f92672"&gt;*&lt;/span&gt; .nmemb], &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; size, &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; nmemb, FILE &lt;span style="color:#f92672"&gt;*&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;restrict&lt;/span&gt; stream);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;Lets discuss what &lt;code&gt;void ptr[restrict .size * .nmemb]&lt;/code&gt; means.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;nmemb&lt;/code&gt; represents number of memory blocks to read.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;size&lt;/code&gt; represents the size of each memory block.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;void *restrict stream&lt;/code&gt; means the pointer can point to data of any type.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;restrict&lt;/code&gt; is a type qualifier introduced in the C99 standard. It tells the compiler that, &lt;em&gt;for the lifetime of this pointer, no other pointer will be used to access the object it points to.&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ptr[restrict .size * .nmemb]&lt;/code&gt; indicates that &lt;code&gt;ptr&lt;/code&gt; is a pointer to a block of memory with a minimum size of &lt;code&gt;size * nmemb&lt;/code&gt; bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Those who have taken C tutorials can spot something here. So, its worth addressing.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Depending on the time you have watched the &lt;strong&gt;File I/O tutorials&lt;/strong&gt;, you may have seen a variety of functions to read a file. They may include &lt;code&gt;fscanf&lt;/code&gt;, &lt;code&gt;fgets&lt;/code&gt; etc.&lt;/li&gt;
+&lt;li&gt;Those tutorials focused on text files. We are dealing with binary files, which need different handling.&lt;/li&gt;
+&lt;li&gt;If you are known to assembly, you know that memory is a flat-array of bytes at low level. We have to interpret those bytes the right way to obtain the intended meaning. Either we do it ourselves or outsource it to some API. &lt;code&gt;fread&lt;/code&gt; is that API.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Return Value&lt;span class="hx:absolute hx:-mt-20" id="return-value"&gt;&lt;/span&gt;
+&lt;a href="#return-value" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;If successful, it returns the number of items read. And this forms the basis for error handling.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;If you wonder why &lt;code&gt;fread&lt;/code&gt; needs size and count of entries, instead of just byte count, remember, C is statically-typed and &lt;code&gt;fread&lt;/code&gt; allows you to abstract away the complexity of parsing and interpreting raw bytes according to some data type. If you want to deal with raw bytes directly, use the UNIX system call API &lt;code&gt;read&lt;/code&gt; .&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;If you are still unsure about it, and want to dive deep into it, I&amp;rsquo;ve written a short detour&lt;/em&gt; &lt;a href="https://ankuragrawal.gitbook.io/home/~/revisions/lowdzHlD13Xe1P8sFUmd/low-level-detours/why-c-is-statically-typed"target="_blank" rel="noopener"&gt;&lt;em&gt;here&lt;/em&gt;&lt;/a&gt;&lt;em&gt;.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;For more information on &lt;code&gt;fread&lt;/code&gt;, visit its man page.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;man fread&lt;/code&gt; &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://man7.org/linux/man-pages/man3/fread.3.html"target="_blank" rel="noopener"&gt;man7 online&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;Verifying The Magic Bytes&lt;span class="hx:absolute hx:-mt-20" id="verifying-the-magic-bytes"&gt;&lt;/span&gt;
+&lt;a href="#verifying-the-magic-bytes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;{% code title=&amp;ldquo;parser.c&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;verify_elf&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;unsigned&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; magic_bytes[&lt;span style="color:#ae81ff"&gt;4&lt;/span&gt;];
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;fread&lt;/span&gt;(&lt;span style="color:#f92672"&gt;&amp;amp;&lt;/span&gt;magic_bytes, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt;, f_obj) &lt;span style="color:#f92672"&gt;!=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;fprintf&lt;/span&gt;(stderr, &lt;span style="color:#e6db74"&gt;&amp;#34;Error: `fread()`: Unable to read ELF magic bytes.&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;fclose&lt;/span&gt;(f_obj);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (magic_bytes[&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;] &lt;span style="color:#f92672"&gt;!=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0x7f&lt;/span&gt; &lt;span style="color:#f92672"&gt;||&lt;/span&gt; magic_bytes[&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;] &lt;span style="color:#f92672"&gt;!=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;E&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;||&lt;/span&gt; magic_bytes[&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;] &lt;span style="color:#f92672"&gt;!=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;L&amp;#39;&lt;/span&gt; &lt;span style="color:#f92672"&gt;||&lt;/span&gt; magic_bytes[&lt;span style="color:#ae81ff"&gt;3&lt;/span&gt;] &lt;span style="color:#f92672"&gt;!=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#39;F&amp;#39;&lt;/span&gt;){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;fprintf&lt;/span&gt;(stderr, &lt;span style="color:#e6db74"&gt;&amp;#34;Error: Unexpected magic bytes returned.&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt; Expected: `0x7F, E, L, F`&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt; Found: %02X, %02X, %02X, %02X&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, magic_bytes[&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;], magic_bytes[&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;], magic_bytes[&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;], magic_bytes[&lt;span style="color:#ae81ff"&gt;3&lt;/span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;fclose&lt;/span&gt;(f_obj);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;h3&gt;Why unsigned char?&lt;span class="hx:absolute hx:-mt-20" id="why-unsigned-char"&gt;&lt;/span&gt;
+&lt;a href="#why-unsigned-char" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;code&gt;char&lt;/code&gt; is 1-byte, so it is appropriate to store magic bytes.&lt;/p&gt;
+&lt;p&gt;But &lt;code&gt;char&lt;/code&gt; can be signed (-128 to 127) or unsigned (0-255). We have to make sure that it is unsigned because the magic bytes for an ELF are unsigned.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Why `fprintf` not `printf`?&lt;span class="hx:absolute hx:-mt-20" id="why-fprintf-not-printf"&gt;&lt;/span&gt;
+&lt;a href="#why-fprintf-not-printf" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Lets make it clear. C does have abstraction. But those abstractions are usually a collection of very low level stuff.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;printf&lt;/code&gt; defaults to printing at standard out (&lt;code&gt;stdout&lt;/code&gt;). &lt;code&gt;fprintf&lt;/code&gt; allows you to set the direction for the output stream. Therefore, the below two are the same.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Hi&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;fprintf&lt;/span&gt;(stdout, &lt;span style="color:#e6db74"&gt;&amp;#34;Hi&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Even these are just wrapper APIs. The actual heavy lifters are &lt;code&gt;v*&lt;/code&gt; prefixed printfs. Checkout the library functions manual for &lt;code&gt;printf&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;man 3 printf&lt;/code&gt; &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://man7.org/linux/man-pages/man3/printf.3.html"target="_blank" rel="noopener"&gt;man7 online&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;fprintf&lt;/code&gt; lets us send error messages to &lt;code&gt;stderr&lt;/code&gt; instead of mixing them with normal output.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;We are passing a reference of the &lt;code&gt;magic_number&lt;/code&gt; array as &lt;code&gt;fread&lt;/code&gt; expects a pointer.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;And we have checked if the file passed to our program is an ELF or not.&lt;/p&gt;
+&lt;p&gt;Next we will parse the file headers.&lt;/p&gt;</description></item><item><title>What are the available APIs?</title><link>https://hi-anki.github.io/gitbook/docs/elf-parser-project/what-are-the-available-apis/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/elf-parser-project/what-are-the-available-apis/</guid><description>
+&lt;p&gt;This file includes all the internal APIs that does the heavy lifting.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div class="hextra-code-filename not-prose" dir="auto"&gt;core_api/parser.h&lt;/div&gt;&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#ifndef PARSER_H
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#define PARSER_H
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;elf.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Elf64_Ehdr&lt;span style="color:#f92672"&gt;*&lt;/span&gt; ehdr; &lt;span style="color:#75715e"&gt;// File Header
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; Elf64_Phdr&lt;span style="color:#f92672"&gt;*&lt;/span&gt; phdrs; &lt;span style="color:#75715e"&gt;// Program Headers
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; Elf64_Shdr&lt;span style="color:#f92672"&gt;*&lt;/span&gt; shdrs; &lt;span style="color:#75715e"&gt;// Section Headers
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt;&lt;span style="color:#f92672"&gt;*&lt;/span&gt; r_shstrtab; &lt;span style="color:#75715e"&gt;// flat section header string table dump
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; r_shstr_count; &lt;span style="color:#75715e"&gt;// └─ count of total bytes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt;&lt;span style="color:#f92672"&gt;**&lt;/span&gt; f_shstrtab; &lt;span style="color:#75715e"&gt;// formatted dump of section header string table
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; f_shstr_count; &lt;span style="color:#75715e"&gt;// └─ count of total individual entries
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt;&lt;span style="color:#f92672"&gt;*&lt;/span&gt; r_strtab; &lt;span style="color:#75715e"&gt;// flat string table dump
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; r_str_count; &lt;span style="color:#75715e"&gt;// └─ count of total bytes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt;&lt;span style="color:#f92672"&gt;**&lt;/span&gt; f_strtab; &lt;span style="color:#75715e"&gt;// formatted dump of string table
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; f_str_count; &lt;span style="color:#75715e"&gt;// └─ count of total individual entries
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Elf64_Sym&lt;span style="color:#f92672"&gt;*&lt;/span&gt; symtab; &lt;span style="color:#75715e"&gt;// Symbol Table
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; symtab_count; &lt;span style="color:#75715e"&gt;// └─ entry count
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Elf64_Sym&lt;span style="color:#f92672"&gt;*&lt;/span&gt; dynsym; &lt;span style="color:#75715e"&gt;// Dynamic Symbol Table
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; dynsym_count; &lt;span style="color:#75715e"&gt;// └─ entry count
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Elf64_Rela&lt;span style="color:#f92672"&gt;*&lt;/span&gt; reladyn; &lt;span style="color:#75715e"&gt;// .rela.dyn Table
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; reladyn_count; &lt;span style="color:#75715e"&gt;// └─ entry count
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Elf64_Rela&lt;span style="color:#f92672"&gt;*&lt;/span&gt; relaplt; &lt;span style="color:#75715e"&gt;// .rela.plt Table
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; relaplt_count; &lt;span style="color:#75715e"&gt;// └─ entry count
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt;&lt;span style="color:#f92672"&gt;*&lt;/span&gt; r_dynstr; &lt;span style="color:#75715e"&gt;// flat .dynstr dump
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; r_dstr_count; &lt;span style="color:#75715e"&gt;// └─ count of total bytes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt;&lt;span style="color:#f92672"&gt;**&lt;/span&gt; f_dynstr; &lt;span style="color:#75715e"&gt;// formatted dump of .dynstr table
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; f_dstr_count; &lt;span style="color:#75715e"&gt;// └─ count of total individual entries
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Elf64_Dyn&lt;span style="color:#f92672"&gt;*&lt;/span&gt; dynamic; &lt;span style="color:#75715e"&gt;// Dynamic Section
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; dyn_ent; &lt;span style="color:#75715e"&gt;// └─ entry count
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;} ElfFile;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;verify_elf&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_ehdr&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessFile);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_phdrs&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessFile);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_shdrs&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessFile);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_shstrtab&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessFile);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_strtab&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessFile);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_symtab&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessFile);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_dynsym&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessELF);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_relocations&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessELF);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_dynstr&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessELF);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;parse_dynamic&lt;/span&gt;(FILE&lt;span style="color:#f92672"&gt;*&lt;/span&gt; f_obj, ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessELF);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;deallocator&lt;/span&gt;(ElfFile&lt;span style="color:#f92672"&gt;*&lt;/span&gt; AccessELF);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#endif&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-8"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The data type structs, like &lt;code&gt;Elf64_Ehdr&lt;/code&gt; are borrowed from &lt;code&gt;elf.h&lt;/code&gt; header file.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;ElfFile&lt;/code&gt; is the actual API that would be out for external use.&lt;/p&gt;
+&lt;p&gt;The idea is that the main controller would open the ELF file to be parsed and it will pass the file pointer to each of these APIs, along with a &lt;code&gt;ElfFile&lt;/code&gt; struct. Every API will populate its pointer and it can be used later.&lt;/p&gt;
+&lt;p&gt;The idea behind &lt;code&gt;ElfFile&lt;/code&gt; struct is that it will be the one stop solution for all the extracted parts from the ELF. It really simplifies the access to different parts of the ELF just by one &lt;code&gt;struct&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;In the end, &lt;code&gt;deallocator&lt;/code&gt; is called to free up the memory.&lt;/p&gt;</description></item></channel></rss>

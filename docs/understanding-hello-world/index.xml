@@ -1,0 +1,764 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level – Understanding Hello World</title><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/</link><description>Recent content in Understanding Hello World on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/understanding-hello-world/index.xml" rel="self" type="application/rss+xml"/><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/a-brief-introduction-to-elf/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/a-brief-introduction-to-elf/</guid><description>
+&lt;h1&gt;A Brief Introduction To ELF&lt;/h1&gt;&lt;p&gt;An executable file is a type of computer file containing instructions that the computer&amp;rsquo;s processor can directly execute.&lt;/p&gt;
+&lt;p&gt;Executable files differ greatly on Windows and Linux. The reason is that both the environments are designed differently.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Property&lt;/th&gt;
+&lt;th&gt;Linux&lt;/th&gt;
+&lt;th&gt;Windows&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Binary File Format&lt;/td&gt;
+&lt;td&gt;Executable and Linkable File Format (or ELF)&lt;/td&gt;
+&lt;td&gt;Portable Executable File Format (or PE)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;File Extension&lt;/td&gt;
+&lt;td&gt;No extension required&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;.exe&lt;/code&gt;, &lt;code&gt;.dll&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;System Call Interface&lt;/td&gt;
+&lt;td&gt;Linux System Calls (&lt;code&gt;syscall&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;Windows NT syscall layer or WinAPI&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Dynamic Linker/Loader&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;ld-linux.so&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Windows Loader&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;C Runtime Library&lt;/td&gt;
+&lt;td&gt;GNU C Library (or &lt;code&gt;glibc&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;Microsoft C Runtime (&lt;code&gt;MSVCRT&lt;/code&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Linker&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;ld&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;link.exe&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Calling Convention&lt;/td&gt;
+&lt;td&gt;System V AMD64 ABI&lt;/td&gt;
+&lt;td&gt;Microsoft x64 ABI&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Format For Dynamic Linking&lt;/td&gt;
+&lt;td&gt;Shared objects (&lt;code&gt;.so&lt;/code&gt;)&lt;/td&gt;
+&lt;td&gt;Dynamic Link Library (&lt;code&gt;.dll&lt;/code&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3&gt;Brief History&lt;span class="hx:absolute hx:-mt-20" id="brief-history"&gt;&lt;/span&gt;
+&lt;a href="#brief-history" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;It was first released in &amp;ldquo;&lt;em&gt;System V ABI, Release 4&lt;/em&gt;&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;In 1999, it was chosen as the standard binary file format for Unix and Unix-like systems on x86 processors by the 86open project.&lt;/p&gt;
+&lt;h3&gt;Modern ELF&lt;span class="hx:absolute hx:-mt-20" id="modern-elf"&gt;&lt;/span&gt;
+&lt;a href="#modern-elf" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;ELF is a general-purpose file format in Linux ecosystem, which defines the structure for binaries, libraries, and core files.&lt;/p&gt;
+&lt;p&gt;It is used throughout the build and execution pipeline.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Different &amp;ldquo;types&amp;rdquo; of ELF files (relocatable, executable, shared object) exist to serve different roles in this pipeline.&lt;/li&gt;
+&lt;li&gt;These are typically created during specific phases.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Structure Of An ELF File&lt;span class="hx:absolute hx:-mt-20" id="structure-of-an-elf-file"&gt;&lt;/span&gt;
+&lt;a href="#structure-of-an-elf-file" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Regardless of the type of ELF, the structure of an ELF file remains mostly the same.&lt;/p&gt;
+&lt;p&gt;An ELF file can be divided into 4 parts.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;If you assembly this code and stop before linking, you&amp;rsquo;ll get an object file.&lt;/p&gt;
+&lt;p&gt;{% code title=&amp;ldquo;hello.c&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#960050;background-color:#1e0010"&gt;​&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Hello, World!&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc -c hello.c hello_object.o&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Object files are binary representations of a program&amp;rsquo;s source code.&lt;/p&gt;
+&lt;p&gt;ELF is not reserved for executable files only. It is used by a variety of other files of the same genre, and object code (.o) &amp;amp; shared object (.so) libraries are two of them.&lt;/p&gt;
+&lt;p&gt;ELF files aren&amp;rsquo;t readable by a text editor. Therefore, we use some command line utilities. The two most versatile utilities are &lt;code&gt;objdump&lt;/code&gt; and &lt;code&gt;readelf&lt;/code&gt;.&lt;/p&gt;
+&lt;h3&gt;Understanding The Result Of `file`&lt;span class="hx:absolute hx:-mt-20" id="understanding-the-result-of-file"&gt;&lt;/span&gt;
+&lt;a href="#understanding-the-result-of-file" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;We can check the type of this object file using the &lt;code&gt;file&lt;/code&gt; utility. It is designed to read certain bytes in a file to find the type of it.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ file hello_object.o
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;hello_object.o: ELF 64-bit LSB relocatable, x86-64, version &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;SYSV&lt;span style="color:#f92672"&gt;)&lt;/span&gt;, not stripped&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;LSB&lt;/code&gt; tells that the binary is structured in &lt;code&gt;little-endian&lt;/code&gt; format, which means that the the least significant bit (or LSB) comes first.
+&lt;ul&gt;
+&lt;li&gt;It is different from &lt;code&gt;big-endian&lt;/code&gt; where the MSB comes first.&lt;/li&gt;
+&lt;li&gt;In simple words, normal arithmetic is big-endian based and CPU arithmetic is little-endian based.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;relocatable&lt;/code&gt; means the file is ready to be linked with shared libraries but not for execution.
+&lt;ul&gt;
+&lt;li&gt;A relocatable ELF is one which has unresolved references to symbols whose definition lies in shared libraries.&lt;/li&gt;
+&lt;li&gt;For example, &lt;code&gt;printf&lt;/code&gt; comes from &lt;code&gt;glibc&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;not stripped&lt;/code&gt; means that the file still contains items which are not necessary and the code will still function the same if they are removed.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;version 1 (SYSV)&lt;/code&gt; means it uses System V AMD64 ABI (for conventions).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;x86-64&lt;/code&gt; tells we are on 64-bit Linux.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;A linked binary file also follows the same structure. The above object file can be linked like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc hello_object.o -o hello_elf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Lets check this one.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ file hello_elf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;hello_elf: ELF 64-bit LSB pie executable, x86-64, version &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;SYSV&lt;span style="color:#f92672"&gt;)&lt;/span&gt;, dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, &lt;span style="color:#66d9ef"&gt;for&lt;/span&gt; GNU/Linux 3.2.0, not stripped&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;pie executable&lt;/code&gt; means position independent executable. No static locations are required.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;dynamically linked&lt;/code&gt; means the binary resolves references during runtime via an &lt;code&gt;interpreter&lt;/code&gt; called &lt;code&gt;ld-linux.so&lt;/code&gt; (can be different though).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Here comes the end of &lt;em&gt;a brief introduction to ELF.&lt;/em&gt; Very soon we will explore it in depth.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/a-brief-introduction-to-processes-in-linux/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/a-brief-introduction-to-processes-in-linux/</guid><description>
+&lt;h1&gt;A Brief Introduction To Processes In Linux&lt;/h1&gt;&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When we execute a program, what really happens?&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ whoami
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;my_username_is_amazing&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That&amp;rsquo;s what we are going to find now.&lt;/p&gt;
+&lt;h2&gt;A Wedding Ceremony&lt;span class="hx:absolute hx:-mt-20" id="a-wedding-ceremony"&gt;&lt;/span&gt;
+&lt;a href="#a-wedding-ceremony" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Everyone is familiar with wedding ceremonies. It is a high chance that you have witnessed a marriage in your own family.&lt;/p&gt;
+&lt;p&gt;Although marriages vary a lot based on culture and traditions, but a few things are consistent across everything.&lt;/p&gt;
+&lt;p&gt;You have to decide the venue where everyone in your family would come together and the act of marriage would happen. It might be an open garden, a banquet hall or something else.&lt;/p&gt;
+&lt;p&gt;Next you have to decide what kind of decoration you want to have at the venue. Flower decoration, color choices, ceiling decoration, stage background, lights etc&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;A meal is also offered to everyone who comes to bless the bride and the groom. So you decide the menu.&lt;/p&gt;
+&lt;p&gt;A return gift is also offered to the closed ones so you have to decide on that.&lt;/p&gt;
+&lt;p&gt;Depending on culture and traditions, this thing can go long or short. But every wedding does at least this as a bare minimum.&lt;/p&gt;
+&lt;p&gt;A marriage is a complete process, isn&amp;rsquo;t it? And the act of marriage (the ceremonial part) is only a small part when compared to everything that goes behind. Only that is shown to everyone but when you count what enables it, you know that the act of marriage is just a tiny part of the whole process.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;If that makes sense, you have already understood processes at a higher level. You only lack terminologies and the nuances, which we are going to be exploring very soon.&lt;/p&gt;
+&lt;h2&gt;Introducing Processes In Linux&lt;span class="hx:absolute hx:-mt-20" id="introducing-processes-in-linux"&gt;&lt;/span&gt;
+&lt;a href="#introducing-processes-in-linux" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A process is a container created by the operating system that holds all the necessary resources to execute a program.&lt;/p&gt;
+&lt;p&gt;What are these necessities?&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Virtual address space, or &lt;em&gt;the marriage venue&lt;/em&gt;.&lt;/li&gt;
+&lt;li&gt;Segments, a.k.a &lt;em&gt;the preparations&lt;/em&gt;.&lt;/li&gt;
+&lt;li&gt;Program headers, or &lt;em&gt;the schedule, the invitation card&lt;/em&gt;.&lt;/li&gt;
+&lt;li&gt;A dynamic interpreter, a.k.a the not necessary, but very common person these days, a wedding anchor.&lt;/li&gt;
+&lt;li&gt;Relocations, or &lt;em&gt;the event-day preparations&lt;/em&gt;.&lt;/li&gt;
+&lt;li&gt;Execution, a.k.a the day of marriage.&lt;/li&gt;
+&lt;li&gt;At last, cleanup.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Virtual Address Space&lt;span class="hx:absolute hx:-mt-20" id="virtual-address-space"&gt;&lt;/span&gt;
+&lt;a href="#virtual-address-space" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are thousands of processes running normally. The number rises when we multitask.&lt;/p&gt;
+&lt;p&gt;Just imagine how crazy and chaotic it would get to manage millions of process inside the RAM, with all demanding various services like stack and heap.&lt;/p&gt;
+&lt;p&gt;This is why an abstraction known as virtual address space (or VAS) exist. Every process is executed in an isolated environment called virtual address space.&lt;/p&gt;
+&lt;p&gt;A process image is the complete in-memory layout of a program after it has been loaded into memory by the OS.&lt;/p&gt;
+&lt;p&gt;It is the answer to the question, &amp;ldquo;What the process looks like in the RAM?&amp;rdquo; A process image is the memory representation of a program at runtime.&lt;/p&gt;
+&lt;p&gt;It includes code, data, stack, heap, environment, memory-mapped regions, loaded libraries etc&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;It is created by the kernel based on the ELF layout.&lt;/p&gt;
+&lt;h2&gt;Segments&lt;span class="hx:absolute hx:-mt-20" id="segments"&gt;&lt;/span&gt;
+&lt;a href="#segments" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Segments are logical grouping of multiple sections.&lt;/p&gt;
+&lt;h2&gt;Program Headers&lt;span class="hx:absolute hx:-mt-20" id="program-headers"&gt;&lt;/span&gt;
+&lt;a href="#program-headers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Program headers are a set of structures in an ELF file that describe how to create a process image in the memory.&lt;/p&gt;
+&lt;p&gt;It describes how the operating system should load the ELF binary into the memory. It maps parts of the binary into memory regions with specific permissions and purposes.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;That&amp;rsquo;s all we need to know about processes for now.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note: This is just the start. We will explore processes in real depth when the time comes. Until then, lets move on to the next thing.&lt;/strong&gt;&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/a-high-level-overview-of-build-process-in-c/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/a-high-level-overview-of-build-process-in-c/</guid><description>
+&lt;h1&gt;Build Process In C&lt;/h1&gt;&lt;p&gt;To compile this source, we can use a variety of compilers.&lt;/p&gt;
+&lt;p&gt;{% code title=&amp;ldquo;hello.c&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#960050;background-color:#1e0010"&gt;​&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Hello, World!&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;p&gt;Here we are using &lt;code&gt;gcc&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ gcc hello.c -o hello_executable
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ./hello_executable
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;​
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Hello, World!&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Although it looks simple, this process has four layers of hidden complexity. Let&amp;rsquo;s peel them back to understand what happens under the hood.&lt;/p&gt;
+&lt;p&gt;A source code turns into an executable file through these four steps:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Preprocessing&lt;/li&gt;
+&lt;li&gt;Compilation&lt;/li&gt;
+&lt;li&gt;Assembling&lt;/li&gt;
+&lt;li&gt;Linking&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Let&amp;rsquo;s dive into each.&lt;/p&gt;
+&lt;h2&gt;Preprocessing&lt;span class="hx:absolute hx:-mt-20" id="preprocessing"&gt;&lt;/span&gt;
+&lt;a href="#preprocessing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Every C program includes at least this line: &lt;code&gt;#include &amp;lt;stdio.h&amp;gt;&lt;/code&gt;, where &lt;code&gt;#include&lt;/code&gt; is a preprocessing directive.&lt;/p&gt;
+&lt;p&gt;These directives must be handled before we move further.&lt;/p&gt;
+&lt;p&gt;This preprocessing is carried out using:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc -E hello.c -o hello.i&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This step produces an intermediate &lt;code&gt;.i&lt;/code&gt; file, a raw C file where all preprocessing directives are resolved.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; If you look at &lt;code&gt;hello.i&lt;/code&gt; and &lt;code&gt;stdio.h&lt;/code&gt; side by side, you&amp;rsquo;ll see it isn&amp;rsquo;t a direct copy. That’s because the header file contains various macros, and preprocessing continues until all directives are resolved.&lt;/p&gt;
+&lt;p&gt;For more information on preprocessing, check out &lt;a href="../x64-assembly/preprocessing-directives.md"title="mention"&gt;preprocessing-directives.md&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Compilation&lt;span class="hx:absolute hx:-mt-20" id="compilation"&gt;&lt;/span&gt;
+&lt;a href="#compilation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The intermediate C code is compiled into assembly instructions—the closest we get to the CPU while still keeping it somewhat readable.&lt;/p&gt;
+&lt;p&gt;The assembly flavor (Intel or AT&amp;amp;T) depends on the assembler used to compile the source code.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If GNU Assembler is used, it generates AT&amp;amp;T assembly by default. Although it can be configured to generate Intel assembly as well. Same is followed by &lt;code&gt;gcc&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;If netwide assembler is used, it generates Intel assembly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Architecture-specific details (x86 and x86_64) are handled by the assembler.&lt;/p&gt;
+&lt;p&gt;To compile the intermediate C code into assembly code, we do:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc -S -masm&lt;span style="color:#f92672"&gt;=&lt;/span&gt;intel hello.i -o hello.s&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Assembling&lt;span class="hx:absolute hx:-mt-20" id="assembling"&gt;&lt;/span&gt;
+&lt;a href="#assembling" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The assembly code undergoes a transformation process that lays the foundation for linking. This involves several steps, including:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Lexing and parsing the assembly source&lt;/li&gt;
+&lt;li&gt;Encoding instructions into machine code&lt;/li&gt;
+&lt;li&gt;Creating sections&lt;/li&gt;
+&lt;li&gt;Resolving labels within the file&lt;/li&gt;
+&lt;li&gt;Generating the symbol table&lt;/li&gt;
+&lt;li&gt;Creating relocation entries for unresolved references&lt;/li&gt;
+&lt;li&gt;Constructing ELF headers&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The object code can be generated as:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc -c hello.s -o hello.o&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The file produced in this step is an object file with a &lt;code&gt;.o&lt;/code&gt; extension.&lt;/p&gt;
+&lt;p&gt;Object files are strict in structure and follow a format called the Executable and Linkable Format (ELF).&lt;/p&gt;
+&lt;p&gt;This object file isn’t an executable yet. It needs to be linked.&lt;/p&gt;
+&lt;h2&gt;Linking&lt;span class="hx:absolute hx:-mt-20" id="linking"&gt;&lt;/span&gt;
+&lt;a href="#linking" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;To make the object code executable, we link it with the necessary libraries.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc hello.o -o hello_elf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;In the above program, we are using a function called &lt;code&gt;printf&lt;/code&gt; for printing &lt;code&gt;Hello, World!&lt;/code&gt; to the output.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Where is that function coming from? The header file!&lt;/li&gt;
+&lt;li&gt;Where is the header file coming from? &lt;code&gt;glibc&lt;/code&gt;!&lt;/li&gt;
+&lt;li&gt;Where is &lt;code&gt;glibc&lt;/code&gt;? Somewhere on the OS!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Object code contains unresolved references to various library functions. Until these are resolved, the file cannot be executed.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Linking can be static or dynamic, and both have their use cases.&lt;/p&gt;
+&lt;p&gt;Dynamic linking is commonly used, but we can also instruct the compiler to link statically.&lt;/p&gt;
+&lt;p&gt;Now the binary is ready to be executed.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ./hello_elf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Hello, World!&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;A Misconception About GCC&lt;span class="hx:absolute hx:-mt-20" id="a-misconception-about-gcc"&gt;&lt;/span&gt;
+&lt;a href="#a-misconception-about-gcc" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;GCC isn&amp;rsquo;t just a compiler—it&amp;rsquo;s actually a toolchain. If it were only a compiler, how could it assemble and link code?&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/c-greater-than-assembly/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/c-greater-than-assembly/</guid><description>
+&lt;h1&gt;C -&amp;gt; Assembly&lt;/h1&gt;&lt;p&gt;Let&amp;rsquo;s start our journey with the output of compilation.&lt;/p&gt;
+&lt;p&gt;The source can be compiled into assembly using &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;gcc -S -masm=intel hello.c -o hello_asm.s&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Previously, we&amp;rsquo;ve learned that &lt;code&gt;void main();&lt;/code&gt; is a wrong signature for main function. But if we compile the code with &lt;code&gt;void main();&lt;/code&gt; signature, we get an almost similar assembly.&lt;/p&gt;
+&lt;p&gt;{% code title=&amp;ldquo;C_source_to_assembly.asm&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-nasm" data-lang="nasm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.file&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;hello.c&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.intel_syntax&lt;/span&gt; noprefix
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.text&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; .rodata
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.LC0:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.string&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;Hello, World!&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.text&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.globl&lt;/span&gt; main
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.type&lt;/span&gt; main, &lt;span style="color:#960050;background-color:#1e0010"&gt;@&lt;/span&gt;function
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;main:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.LFB0:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_startproc&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;push&lt;/span&gt; rbp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_def_cfa_offset&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_offset&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rbp, rsp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_def_cfa_register&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;lea&lt;/span&gt; rax, .LC0[rip]
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rdi, rax
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;call&lt;/span&gt; puts@PLT
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;nop&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;pop&lt;/span&gt; rbp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_def_cfa&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;7&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;8&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;ret&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_endproc&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.LFE0:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.size&lt;/span&gt; main, .&lt;span style="color:#f92672"&gt;-&lt;/span&gt;main
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.ident&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;GCC: (Debian 14.2.0-19) 14.2.0&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; .note.GNU&lt;span style="color:#f92672"&gt;-&lt;/span&gt;stack,&lt;span style="color:#e6db74"&gt;&amp;#34;&amp;#34;&lt;/span&gt;,&lt;span style="color:#960050;background-color:#1e0010"&gt;@&lt;/span&gt;progbits&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;p&gt;And this is the assembly generated for &lt;code&gt;int main(void);&lt;/code&gt; signature.&lt;/p&gt;
+&lt;p&gt;{% code title=&amp;ldquo;C_source_to_assembly.asm&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-nasm" data-lang="nasm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.file&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;hello.c&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.intel_syntax&lt;/span&gt; noprefix
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.text&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; .rodata
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.LC0:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.string&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;Hello, World!&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.text&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.globl&lt;/span&gt; main
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.type&lt;/span&gt; main, &lt;span style="color:#960050;background-color:#1e0010"&gt;@&lt;/span&gt;function
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;main:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.LFB0:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_startproc&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;push&lt;/span&gt; rbp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_def_cfa_offset&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_offset&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rbp, rsp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_def_cfa_register&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;lea&lt;/span&gt; rax, .LC0[rip]
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rdi, rax
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;call&lt;/span&gt; puts@PLT
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; eax, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;pop&lt;/span&gt; rbp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_def_cfa&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;7&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;8&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;ret&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.cfi_endproc&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.LFE0:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.size&lt;/span&gt; main, .&lt;span style="color:#f92672"&gt;-&lt;/span&gt;main
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.ident&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;GCC: (Debian 14.2.0-19) 14.2.0&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; .note.GNU&lt;span style="color:#f92672"&gt;-&lt;/span&gt;stack,&lt;span style="color:#e6db74"&gt;&amp;#34;&amp;#34;&lt;/span&gt;,&lt;span style="color:#960050;background-color:#1e0010"&gt;@&lt;/span&gt;progbits&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s clear that only line 21 is different, from &lt;code&gt;nop&lt;/code&gt; to &lt;code&gt;mov eax, 0&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;nop&lt;/code&gt; translates to &lt;strong&gt;no operation&lt;/strong&gt;. We need not to think about it right now.&lt;/li&gt;
+&lt;li&gt;In the other one, we are zeroing the accumulator to pass the exit code to the next sequence in the pipeline.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Lets understand this assembly now.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;.file&lt;/code&gt; is an assembler (GAS) directive to make the file name available to the binary.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.intel_syntax noprefix&lt;/code&gt; is a GAS specific directive, which is specified to use intel style assembly.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.text&lt;/code&gt; marks the start of code section.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.rodata&lt;/code&gt; marks the start of a read-only section.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.LC0&lt;/code&gt; is a label for a literal constant.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.string&lt;/code&gt; is used to define null-terminated, C-style string literals. This is where our &lt;code&gt;&amp;quot;Hello, World\n&amp;quot;&lt;/code&gt; goes.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.globl&lt;/code&gt; makes a symbol visible to the linker.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.type main, @function&lt;/code&gt; specifies that &lt;code&gt;main&lt;/code&gt; is a function symbol.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.LFB0&lt;/code&gt; stands for local function begin label, used internally by GCC for debugging info.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;push rbp&lt;/code&gt; pushes the base pointer of current frame on stack.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;mov rbp, rsp&lt;/code&gt; sets up a new stack frame.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;lea rax, .LC0[rip]&lt;/code&gt; uses RIP-relative addressing to load the address of &amp;ldquo;Hello, World!\0&amp;rdquo; string.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;mov rdi, rax&lt;/code&gt; moves the address of the string into destination index register.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;call puts@plt&lt;/code&gt; calls the &lt;code&gt;puts&lt;/code&gt; function in &lt;code&gt;glibc&lt;/code&gt; via procedure linkage table (plt).
+&lt;ul&gt;
+&lt;li&gt;We&amp;rsquo;ll expand on it further.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;mov eax, 0&lt;/code&gt; zeroes the accumulator to send as exit code.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;pop rbp&lt;/code&gt; pops the current base address.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ret&lt;/code&gt; return.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;If you are not learning passively, you are definitely wondering what about &lt;code&gt;.cfi_*&lt;/code&gt; directives?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It stands for &lt;strong&gt;call frame information&lt;/strong&gt; directives. And we don&amp;rsquo;t have to worry about them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;There is something that is missing here. Can you spot it? There is no exit syscall. There is nothing like&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-nasm" data-lang="nasm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rax, &lt;span style="color:#ae81ff"&gt;60&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;xor&lt;/span&gt; rdi, rdi
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;syscall&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Exit is never controlled by our source code. &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When we write raw assembly, we manage exit ourselves. When we use shared libraries, we are using a complete infrastructure to run something. Now it is the duty of the infrastructure to take care of this.&lt;/li&gt;
+&lt;li&gt;In the upcoming articles, we will find that there is so much that goes before our source code gets executed and there is so much that comes after it is executed, we&amp;rsquo;ll understand how tiny our source code really is.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;If we visit &lt;a href="https://godbolt.org/"target="_blank" rel="noopener"&gt;https://godbolt.org/&lt;/a&gt; and paste our source code there, we can find that the assembly generated there is very different. Something like this:&lt;/p&gt;
+&lt;p&gt;{% code title=&amp;ldquo;asm_from_godbolt_org.asm&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-nasm" data-lang="nasm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.LC0:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.string&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;Hello, World!&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;main:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;push&lt;/span&gt; rbp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rbp, rsp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; edi, OFFSET FLAT:.LC0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;call&lt;/span&gt; puts
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; eax, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;pop&lt;/span&gt; rbp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;ret&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;p&gt;In the right section, where the assembly part is displayed, you can find a clickable link to &lt;strong&gt;Libraries&lt;/strong&gt;. Above that is green tick. Click on that and you will find that different options are passed to the compiler to optimize the command.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It is the result of those compiler options that we see such a simple and stripped away assembly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;By default, there is no optimization done on the code, which is why it is lengthy and readable. Shortening (optimizing) the code would result in less readability, which is not good for us as are trying to understand things.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;And we will stick to no optimization.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;And we have walked the first step. This marks the end of understanding assembly.&lt;/p&gt;
+&lt;p&gt;Now we will move to object code.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/</guid><description>
+&lt;h1&gt;Linked ELF Analysis&lt;/h1&gt;&lt;h2&gt;Setup&lt;span class="hx:absolute hx:-mt-20" id="setup"&gt;&lt;/span&gt;
+&lt;a href="#setup" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We had the object code from previous step, which we can link in order to make it an executable.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc object_code.o -o linked_elf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This one is going to be quite lengthy. So, be prepared.&lt;/p&gt;
+&lt;h2&gt;Type Inspection&lt;span class="hx:absolute hx:-mt-20" id="type-inspection"&gt;&lt;/span&gt;
+&lt;a href="#type-inspection" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Lets start by inspecting the type of this file.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ file linked_elf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;linked_elf: ELF 64-bit LSB pie executable, x86-64, version &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;SYSV&lt;span style="color:#f92672"&gt;)&lt;/span&gt;, dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, &lt;span style="color:#66d9ef"&gt;for&lt;/span&gt; GNU/Linux 3.2.0, not stripped&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;For comparison, this was the output for object code.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ file object_code.o
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;hello.o: ELF 64-bit LSB relocatable, x86-64, version &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;SYSV&lt;span style="color:#f92672"&gt;)&lt;/span&gt;, not stripped&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The first thing that is changed is &lt;code&gt;relocatable&lt;/code&gt; is transformed into &lt;code&gt;pie executable&lt;/code&gt;. This tells that the binary has got execution powers.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The word &lt;code&gt;pie&lt;/code&gt; matters here. It stands for &lt;strong&gt;position independent executable&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;A &lt;code&gt;pie executable&lt;/code&gt; is loaded randomly in the memory. It is not fixed, unlike &lt;code&gt;non-pie executable&lt;/code&gt; binaries.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It is &lt;code&gt;dynamically linked&lt;/code&gt; . It means the ELF binary depends on external shared libraries that are loaded at runtime by the dynamic linker.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;interpreter /lib64/ld-linux-x86-64.so.2&lt;/code&gt; is the program that helps the binary achieve its dynamic nature. It loads the shared libraries, resolves the cross-references and do so extra stuff we&amp;rsquo;ll see very soon, which is very very interesting.&lt;/p&gt;
+&lt;p&gt;I have omitted the &lt;code&gt;BuildId&lt;/code&gt; thing. It has no use.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;for GNU/Linux 3.2.0&lt;/code&gt; means the binary was built targeting &lt;strong&gt;Linux kernel version 3.2.0&lt;/strong&gt; as the minimum ABI (Application Binary Interface) compatibility level.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It &lt;strong&gt;can run&lt;/strong&gt; on Linux 3.2.0 or &lt;strong&gt;any newer kernel&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;It may &lt;strong&gt;fail on older kernels&lt;/strong&gt; due to missing syscalls or ABI changes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;What really happens during linking?&lt;span class="hx:absolute hx:-mt-20" id="what-really-happens-during-linking"&gt;&lt;/span&gt;
+&lt;a href="#what-really-happens-during-linking" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This question is really hard to answer for me at this point. Why not to see it directly?&lt;/p&gt;
+&lt;h2&gt;Macro Level Roadmap&lt;span class="hx:absolute hx:-mt-20" id="macro-level-roadmap"&gt;&lt;/span&gt;
+&lt;a href="#macro-level-roadmap" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Complete output of &lt;code&gt;readelf&lt;/code&gt; can be found at &lt;a href="https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/complete_elf_headers"target="_blank" rel="noopener"&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="step-1-analyzing-elf-headers.md"title="mention"&gt;step-1-analyzing-elf-headers.md&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Before moving to the next step, it would be nice to clear a doubt, if it exists. &lt;a href="full-disassembly.md"title="mention"&gt;full-disassembly.md&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;The next step is analyzing program headers table but it has got some prerequisites.
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="part-ii-analyzing-section-headers.md"title="mention"&gt;part-ii-analyzing-section-headers.md&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="../a-brief-introduction-to-processes-in-linux.md"title="mention"&gt;a-brief-introduction-to-processes-in-linux.md&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="step-2-analyzing-program-headers-table.md"title="mention"&gt;step-2-analyzing-program-headers-table.md&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/</guid><description>
+&lt;h1&gt;Object Code Analysis&lt;/h1&gt;&lt;h2&gt;What is object code?&lt;span class="hx:absolute hx:-mt-20" id="what-is-object-code"&gt;&lt;/span&gt;
+&lt;a href="#what-is-object-code" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Object code is a machine-readable representation of source code, typically the output of a compiler or assembler.&lt;/p&gt;
+&lt;p&gt;In Linux, it follows a specific file format, called &lt;strong&gt;Executable and Linkable File&lt;/strong&gt; format.&lt;/p&gt;
+&lt;p&gt;To obtain object code for our source code, run&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc &lt;span style="color:#f92672"&gt;-&lt;/span&gt;c hello.c &lt;span style="color:#f92672"&gt;-&lt;/span&gt;o object_code.o&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;We can start our analysis by inspecting the file type, using &lt;code&gt;file&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ file object_code.o
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;hello.o: ELF 64-bit LSB relocatable, x86-64, version &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;SYSV&lt;span style="color:#f92672"&gt;)&lt;/span&gt;, not stripped&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&amp;ldquo;ELF&amp;rdquo; means the file follows Executable &amp;amp;&amp;amp; Linkable Format.&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;LSB&amp;rdquo; means it is in little-endian format.&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;relocatable&amp;rdquo; means that the file is ready to be linked and is not an executable yet.&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;x86-64&amp;rdquo; means it is compiled for 64-bit architecture.&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;SYSV&amp;rdquo; means it follows System V (five, not literal-v) convention.&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;not stripped&amp;rdquo; means that file still contains items which are not necessary and the code will function the same if they are removed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Any file of type ELF can&amp;rsquo;t be opened with standard text editors as they are not designed for that purpose. To open them, we need specialized editors and parsers, which can read these files. These include:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Hex editors like &lt;code&gt;xxd&lt;/code&gt; and &lt;code&gt;hexdump&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Disassemblers, which convert machine code into readable assembly, like &lt;code&gt;objdump&lt;/code&gt;, &lt;code&gt;ndisasm&lt;/code&gt; and &lt;code&gt;ghidra&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;ELF parsers like &lt;code&gt;readelf&lt;/code&gt; and &lt;code&gt;objdump&lt;/code&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;We will inspect our file from the perspective of &lt;code&gt;objdump&lt;/code&gt; and &lt;code&gt;readelf&lt;/code&gt;. These are enough.&lt;/p&gt;
+&lt;p&gt;This section is long enough which is why it is divided into two separate articles, one is for &lt;code&gt;objdump&lt;/code&gt; and the other one is for &lt;code&gt;readelf&lt;/code&gt;.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="objdump-perspective.md"title="mention"&gt;objdump-perspective.md&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="readelf-perspective.md"title="mention"&gt;readelf-perspective.md&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Note: The output of certain commands is slightly modified. Otherwise, it would be confusing to understand what it actually means.&lt;/strong&gt;&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/</guid><description>
+&lt;h1&gt;Static Linking v/s Dynamic Linking&lt;/h1&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/whats-next/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/whats-next/</guid><description>
+&lt;h1&gt;What&amp;rsquo;s Next?&lt;/h1&gt;&lt;ol&gt;
+&lt;li&gt;Dynamic analysis using &lt;code&gt;gdb&lt;/code&gt; &lt;/li&gt;
+&lt;li&gt;Statically linked hello world binary&lt;/li&gt;
+&lt;li&gt;Static vs dynamic linking&lt;/li&gt;
+&lt;li&gt;stripped vs non stripped binaries&lt;/li&gt;
+&lt;li&gt;difference table b/w lazy and eager binding&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/why-main-function-shouldnt-be-of-type-void/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/why-main-function-shouldnt-be-of-type-void/</guid><description>
+&lt;h1&gt;Why main Function Shouldn&amp;rsquo;t Be Of Type `void` ?&lt;/h1&gt;&lt;p&gt;{% code title=&amp;ldquo;hello.c&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Hello, World!&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;p&gt;But when I started analyzing it, I found out that &lt;code&gt;void&lt;/code&gt; signature for main function is not valid. And I was shocked.&lt;/p&gt;
+&lt;p&gt;Before I started this journey, I have explored processes in x86_64 Linux.&lt;/p&gt;
+&lt;p&gt;There I understood why every process &lt;strong&gt;must&lt;/strong&gt; return an exit code. Although there can be many reasons for this, but the most easily comprehensible ones are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;how the OS will know that a process is finished?, or&lt;/li&gt;
+&lt;li&gt;how the OS will know if an error occurred and the process can no longer execute?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;All in all, the operating system is the one that manages all these processes and it needs something to manage the state of processes.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;void&lt;/code&gt; data type returns nothing. If I used &lt;code&gt;void main();&lt;/code&gt; signature, I am returning nothing, which is a violation of how processes actually work in Linux.&lt;/p&gt;
+&lt;p&gt;If you look at &lt;strong&gt;ISO C standard&lt;/strong&gt;, it clearly defines that the &lt;code&gt;main&lt;/code&gt; function must be of type &lt;code&gt;int&lt;/code&gt; and should return an integer value, which is considered the exit status.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2310.pdf"target="_blank" rel="noopener"&gt;Here is that document.&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Open page 24 in the PDF or, search for &amp;ldquo;Program startup&amp;rdquo;. It is located at &amp;ldquo;5.1.2.2.1&amp;rdquo; section.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The two valid signatures for &lt;code&gt;main&lt;/code&gt; function are:\&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; argc, &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;argv[]);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Both returns 0 by default, if nothing else is mentioned.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Then why does &lt;code&gt;void main();&lt;/code&gt; work despite being incorrect? Why old C tutorials use this signature?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;C++ raises an error during compile time, &lt;code&gt;error: '::main' must return 'int'&lt;/code&gt; .&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;If That&amp;rsquo;s Wrong, Why It Works?&lt;span class="hx:absolute hx:-mt-20" id="if-thats-wrong-why-it-works"&gt;&lt;/span&gt;
+&lt;a href="#if-thats-wrong-why-it-works" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In simple words, there is no guarantee it will work.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It is a case of &lt;strong&gt;undefined behavior&lt;/strong&gt;. And the problem with undefined behavior is that it maybe what you expect or what you may not.&lt;/li&gt;
+&lt;li&gt;Compilers optimize it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Can this undefined behavior be tested?&lt;span class="hx:absolute hx:-mt-20" id="can-this-undefined-behavior-be-tested"&gt;&lt;/span&gt;
+&lt;a href="#can-this-undefined-behavior-be-tested" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Well, I am still learning about it and if I find something, I&amp;rsquo;ll share.&lt;/p&gt;
+&lt;h2&gt;Why old tutorials use it?&lt;span class="hx:absolute hx:-mt-20" id="why-old-tutorials-use-it"&gt;&lt;/span&gt;
+&lt;a href="#why-old-tutorials-use-it" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Only those tutors can answer this. But I have a few ideas in mind.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Online tutorials are never really meant to understand low level engineering behind programming. They are aimed at learning to pass instructions to the computer, and high level abstractions allow that very easily. So, practically there is no need to understand this. And when someone do actual development in C, they themself find what is right and wrong.&lt;/li&gt;
+&lt;li&gt;Understanding low level engineering is also not easy.
+&lt;ol&gt;
+&lt;li&gt;Why a function needs a data type?&lt;/li&gt;
+&lt;li&gt;Why does a function returns?&lt;/li&gt;
+&lt;li&gt;Who calls &lt;code&gt;main&lt;/code&gt;?&lt;/li&gt;
+&lt;li&gt;What are processes? How Linux manages processes?&lt;/li&gt;
+&lt;li&gt;Why a process returns an exit code?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;All the above mentioned things are largely a part of computer architecture. And you know how many people start with computer architecture. I too didn&amp;rsquo;t learn it until now. Not everyone might need it as well but those who need it will find it.&lt;/li&gt;
+&lt;li&gt;It&amp;rsquo;s a complex space. So, lets not blame anyone.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;It is highly possible that only I don&amp;rsquo;t know about this. But I thought there is nothing bad in sharing this.&lt;/p&gt;</description></item></channel></rss>

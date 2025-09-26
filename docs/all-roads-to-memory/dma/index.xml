@@ -1,0 +1,1196 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level – Dynamic Memory Allocation</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/</link><description>Recent content in Dynamic Memory Allocation on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/index.xml" rel="self" type="application/rss+xml"/><item><title>Linux Syscalls For DMA</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/dma-syscalls/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/dma-syscalls/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;10 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;User Space Layout&lt;span class="hx:absolute hx:-mt-20" id="user-space-layout"&gt;&lt;/span&gt;
+&lt;a href="#user-space-layout" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is the virtual address space layout for user space memory. For more information, checkout &lt;a href="../introduction/virtual-memory-layout.md"title="mention"&gt;virtual-memory-layout.md&lt;/a&gt;&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; User Space Memory Layout
+*--------------------------*
+| High Memory (~128 TiB) |
+| *-----------------* |
+| | Stack (↓) | |
+| *-----------------* |
+| | Mmap region | |
+| *-----------------* |
+| | Free Space | |
+| *-----------------* |
+| | Heap (↑) | |
+| *-----------------* |
+| | Data (data/bss) | |
+| *-----------------* |
+| | Code | |
+| *-----------------* |
+| Low Memory (0..0) |
+*--------------------------*&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The &amp;ldquo;heap&amp;rdquo; region and the &amp;ldquo;mmap&amp;rdquo; region both supports dynamic memory allocation. But both are managed differently, which is why we have two different methods for dynamic memory allocation.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;They are &lt;code&gt;sbrk()&lt;/code&gt; and &lt;code&gt;mmap()&lt;/code&gt; .&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;sbrk()&lt;/code&gt; manages the heap region and &lt;code&gt;mmap()&lt;/code&gt; manages the mmap region.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;brk()&lt;span class="hx:absolute hx:-mt-20" id="brk"&gt;&lt;/span&gt;
+&lt;a href="#brk" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There is a syscall named &lt;code&gt;brk()&lt;/code&gt; which is used to extend the &lt;strong&gt;program break&lt;/strong&gt;. What is program break?&lt;/p&gt;
+&lt;p&gt;In the early days of dynamic memory allocation, the data segment was data/bss and heap together.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It is perfectly logical as compilation already reveals how much space you need for static/globals so the lower part of the data segment was reserved for static/globals and the upper part was reserved for heap.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;em&gt;Therefore, program break is the boundary which logically separates the data/bss part from heap.&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;For example, the data segment starts at &lt;code&gt;0d1000&lt;/code&gt; and ends at &lt;code&gt;0d1015&lt;/code&gt; . This means that 16 bytes are required for data/bss. Now the program break is at &lt;code&gt;0d1016&lt;/code&gt; just one byte after the data/bss allocation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If any function from &lt;code&gt;malloc&lt;/code&gt; family is called, the &lt;code&gt;brk()&lt;/code&gt; is executed to extend the program break. And this new space is what heap is.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;brk()&lt;/code&gt; takes an address and changes the program break to it. But how we are supposed to know where the current program break is?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;brk(0)&lt;/code&gt; gives the current program break.&lt;/li&gt;
+&lt;li&gt;But a problem with &lt;code&gt;brk()&lt;/code&gt; is that it doesn&amp;rsquo;t return the pointer to the newly allocated space.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;sbrk()&lt;span class="hx:absolute hx:-mt-20" id="sbrk"&gt;&lt;/span&gt;
+&lt;a href="#sbrk" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;sbrk()&lt;/code&gt; is a C library function, which is a wrapper over the actual &lt;code&gt;brk()&lt;/code&gt; syscall.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;brk()&lt;/code&gt; returns 0 on success and -1 on failure. &lt;code&gt;sbrk()&lt;/code&gt; returns the pointer to the newly allocated memory or the previous program break on success and &lt;code&gt;(void *)-1&lt;/code&gt; on failure.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;In practice, we use &lt;code&gt;sbrk()&lt;/code&gt; not &lt;code&gt;brk()&lt;/code&gt;. Although the use of both is not recommended today; instead we should use functions from &lt;code&gt;malloc&lt;/code&gt; family.&lt;/p&gt;
+&lt;p&gt;A key thing about &lt;code&gt;sbrk(n)&lt;/code&gt; is that it extends heap contiguously. And we can prove this by a simple example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;initial_break &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sbrk&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// get current break
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Allocate 32 bytes using sbrk
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;new_mem &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sbrk&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;32&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (new_mem &lt;span style="color:#f92672"&gt;==&lt;/span&gt; (&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;&lt;span style="color:#f92672"&gt;*&lt;/span&gt;) &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;perror&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;sbrk failed&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// New program break
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;after_alloc &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sbrk&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Initial program break: %p&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, initial_break);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Allocated 32 bytes at: %p&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, new_mem);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Program break after sbrk: %p&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, after_alloc);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The output is:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ gcc main.c
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ./a.out
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Initial program break: 0x55bc200da000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Allocated &lt;span style="color:#ae81ff"&gt;32&lt;/span&gt; bytes at: 0x55bc200da000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Program break after sbrk: 0x55bc200da020&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;0x55bc200da000 = 0d94266479976448
+0x55bc200da020 = 0d94266479976480&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The difference is exactly 32 bytes.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;But, if you do this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;initial_break &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sbrk&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// get current break
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Initial program break: %p&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, initial_break);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Allocate 32 bytes using sbrk
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;new_mem &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sbrk&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;32&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (new_mem &lt;span style="color:#f92672"&gt;==&lt;/span&gt; (&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;&lt;span style="color:#f92672"&gt;*&lt;/span&gt;) &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;perror&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;sbrk failed&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Allocated 32 bytes at: %p&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, new_mem);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// New program break
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;after_alloc &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;sbrk&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Program break after sbrk: %p&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, after_alloc);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;the output changes significantly.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ gcc main.c
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ./a.out
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Initial program break: 0x559b4fc4b000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Allocated &lt;span style="color:#ae81ff"&gt;32&lt;/span&gt; bytes at: 0x559b4fc6c000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Program break after sbrk: 0x559b4fc6c020&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Just by the output we can see that the jump in address is way too much. This behavior might be attributed to &lt;code&gt;printf&lt;/code&gt; calling &lt;code&gt;malloc&lt;/code&gt; internally for its requirements.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Therefore, never mix the two&lt;/strong&gt;.&lt;/p&gt;
+&lt;h2&gt;mmap()&lt;span class="hx:absolute hx:-mt-20" id="mmap"&gt;&lt;/span&gt;
+&lt;a href="#mmap" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;mmap&lt;/code&gt; is a Linux syscall and &lt;code&gt;mmap()&lt;/code&gt; is libc wrapper around it.&lt;/p&gt;
+&lt;p&gt;mmap stands for memory map which lets a process map files or anonymous memory into its virtual address space.&lt;/p&gt;
+&lt;p&gt;Unlike &lt;code&gt;brk/sbrk&lt;/code&gt;, which adjust the heap break, &lt;code&gt;mmap&lt;/code&gt; can allocate memory anywhere in the &lt;code&gt;mmap&lt;/code&gt; region of the virtual address space, not just growing the heap upward.&lt;/p&gt;
+&lt;p&gt;If &lt;code&gt;mmap()&lt;/code&gt; was successful, it returns a pointer to the allocated memory. If failed, &lt;code&gt;(void *) -1&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Every time we run a program on Linux, the dynamic linker (&lt;code&gt;ld.so&lt;/code&gt;) uses &lt;code&gt;mmap&lt;/code&gt; to load shared libraries (&lt;code&gt;.so&lt;/code&gt; files) in our address space. So, we don&amp;rsquo;t use &lt;code&gt;mmap&lt;/code&gt; directly, unless we&amp;rsquo;re doing systems programming; but we are incomplete without it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;In a more melodramatic way, we might not use it directly, but Its presence is a boon to us.&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;code&gt;mmap&lt;/code&gt; has a variety of use cases and dynamic memory allocation is one of them.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;File mapping.&lt;/strong&gt; Map a file into memory and access it like an array.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Anonymous mapping:&lt;/strong&gt; Heap-like memory without touching the process break.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Shared memory:&lt;/strong&gt; Two processes can map the same file and see each other’s updates.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Where are the boundaries?&lt;span class="hx:absolute hx:-mt-20" id="where-are-the-boundaries"&gt;&lt;/span&gt;
+&lt;a href="#where-are-the-boundaries" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you notice, stack is free flowing, heap is free flowing and mmap is free flowing. Where are the boundaries that prevent collision?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Code section is fixed at compile-time.&lt;/li&gt;
+&lt;li&gt;data/bss size is known at compile-time, so that is also fixed.&lt;/li&gt;
+&lt;li&gt;The start of heap is fixed, just after data/bss. But the end is floating.&lt;/li&gt;
+&lt;li&gt;The start of stack is fixed at the top of user space and grows downwards. But the end is floating again, depending on stack pointer.&lt;/li&gt;
+&lt;li&gt;At last we have &lt;code&gt;mmap&lt;/code&gt; region, which is surrounded by floating regions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The answer is that there are no boundaries. &lt;/p&gt;
+&lt;p&gt;First of all, the virtual address space is large enough to make this problem insignificant for normal use case.&lt;/p&gt;
+&lt;p&gt;Second, the kernel has data structures which keep every allocation in control and lets the kernel not allocate memory when there is a point of conflict.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;sbrk() or mmap()&lt;span class="hx:absolute hx:-mt-20" id="sbrk-or-mmap"&gt;&lt;/span&gt;
+&lt;a href="#sbrk-or-mmap" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;How the allocator decides whether to use &lt;code&gt;sbrk()&lt;/code&gt; or &lt;code&gt;mmap()&lt;/code&gt; ?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Although the exact implementation can vary, the concept remains the same.&lt;/li&gt;
+&lt;li&gt;Small allocations via &lt;code&gt;sbrk()&lt;/code&gt; and large allocations via &lt;code&gt;mmap()&lt;/code&gt;. The definition of small and large can be allocator specific which we will explore later.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;And we are done with the syscalls enabling dynamic memory allocation.&lt;/p&gt;</description></item><item><title>Deallocation</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/deallocation/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/deallocation/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;10 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Deallocation as a process can be divided into two parts.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Making the memory inaccessible.&lt;/li&gt;
+&lt;li&gt;Reclamation by kernel.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;There are hundreds of process getting created and exiting simultaneously. All of them are accessing the same computer memory.&lt;/p&gt;
+&lt;p&gt;Although the virtual address space is quite large, the physical space is still limited. And the virtual space is mapped with the physical space by the MMU.&lt;/p&gt;
+&lt;p&gt;When a process used a part of memory and now it&amp;rsquo;s time for deallocation, there can be two path. Either you zero the whole memory used by the process or you make it inaccessible.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Path 1 sounds more safe as it ensures that there is no possibility of data leaks.&lt;/li&gt;
+&lt;li&gt;Path 2 sounds more like a irresponsible way to handle memory. But is it really?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;As we have seen before, there are hundreds of processes in action simultaneously. And their virtual address space do differs but at the end of the day, it is going to be mapped with physical memory.&lt;/p&gt;
+&lt;p&gt;When memory is constantly in use, it is so complex to leak data. It is highly unlikely that you won&amp;rsquo;t find the memory location with some data on it, but the question is, how you are going to make sense of it? How you are going to establish the integrity that this data belongs to that process specifically?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This is the reason that makes path 2 a clever way instead of an irresponsible one.&lt;/li&gt;
+&lt;li&gt;Because deallocation will come at a cost. You have to put zero or any sentinel value on all the memory locations. While this is possible for smaller allocations, this can be really a resource exhausting take on deallocation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;That is why making memory inaccessible is cheaper and makes logically sense as well.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Now comes part 2, reclamation by the kernel.&lt;/p&gt;
+&lt;p&gt;When we call &lt;code&gt;free(ptr)&lt;/code&gt;, it just tells the allocator that this part of memory can be reused by the process. The allocator marks this memory as free to use.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This memory is still mapped in that process as it is allocated to it.&lt;/li&gt;
+&lt;li&gt;The memory still has the contents but they aren&amp;rsquo;t accessible (directly).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;free(ptr)&lt;/code&gt; never really frees anything in an absolute sense. It just makes the memory inaccessible &lt;strong&gt;via usual means&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;As we know, there can be two ways in which dynamic memory is allocated, &lt;code&gt;brk()&lt;/code&gt; and &lt;code&gt;mmap()&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;For &lt;code&gt;brk()&lt;/code&gt; based allocation, if the top of the heap is free, the allocator can move the program break back down and this is called as &lt;strong&gt;heap trimming&lt;/strong&gt;. This part of heap is now unmapped and the kernel reclaims it instantly, mid-process.&lt;/li&gt;
+&lt;li&gt;For &lt;code&gt;mmap()&lt;/code&gt; based allocation, on a call to &lt;code&gt;free(ptr)&lt;/code&gt; , the kernel calls &lt;code&gt;munmap()&lt;/code&gt; , which stands for memory unmapping. And the kernel reclaims the memory instantly, again mid-process.&lt;/li&gt;
+&lt;li&gt;Stack also grows automatically with page faults. if you don&amp;rsquo;t use much of the space, the kernel can unmap and reclaim the space instantly.&lt;/li&gt;
+&lt;li&gt;In all of these cases, the kernel destroys the part of the data structure which was accounting the memory allocation for that part in that process. Every region, stack/heap/mmap becomes unmapped and the memory is reclaimed. And the memory reclaimed is &lt;strong&gt;no longer accessible via any means&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;When the process dies, the kernel destroys the entire data structure which was accounting the memory allocation for that process. Every region, stack/heap/mmap becomes unmapped and the memory is reclaimed.&lt;/p&gt;
+&lt;p&gt;When a new process spawns and demands memory, the kernel zeroes the memory before making it available for that process. This guarantees no cross-process leaks. Zeroing happens on demand, so idle freed pages aren’t wasted effort.&lt;/p&gt;
+&lt;p&gt;So effectively, there are two cases:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Freed but not reclaimed.&lt;/li&gt;
+&lt;li&gt;Freed and reclaimed.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;And zeroing happens for inter-process, not intra-process.&lt;/p&gt;</description></item><item><title>Doug Lea's Memory Model</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/doug-leas-memory-model/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/doug-leas-memory-model/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;11, 15, 17 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;!-- raw HTML omitted --&gt;</description></item><item><title>Lets Get Chunky</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/lets-get-chunky/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/lets-get-chunky/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;15 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;In brief, the whole story of dlmalloc revolves around chunks.&lt;/p&gt;
+&lt;h2&gt;Clarity&lt;span class="hx:absolute hx:-mt-20" id="clarity"&gt;&lt;/span&gt;
+&lt;a href="#clarity" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;DMA = &amp;ldquo;dynamic memory allocation&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;process = &amp;ldquo;an executing binary&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;Chunkification&amp;rdquo; = not an actual term but I like to use it.&lt;/p&gt;
+&lt;h2&gt;How chunks are formed?&lt;span class="hx:absolute hx:-mt-20" id="how-chunks-are-formed"&gt;&lt;/span&gt;
+&lt;a href="#how-chunks-are-formed" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When a process start to exist, it rarely requires DMA.&lt;/p&gt;
+&lt;p&gt;When &lt;code&gt;malloc&lt;/code&gt; is called for the first time, the idea of DMA starts to exist &lt;strong&gt;for that process&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;We know that a pointer in heap is returned for each &lt;code&gt;malloc&lt;/code&gt; request. The kernel releases memory in pages, the allocator processes them as &lt;em&gt;chunks&lt;/em&gt; and we get our requested bytes.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The smallest page is 1 page, assuming 4 KiB of size, the allocator would receive at least 4 KiB of memory from the kernel at minimum, which is 4096 bytes.&lt;/li&gt;
+&lt;li&gt;This 4096 bytes is our &lt;strong&gt;arena&lt;/strong&gt;, the total unallocated pool of memory, that the allocator is now going to manage.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Note: 4096 bytes is a lot of memory so the allocator doesn&amp;rsquo;t need to request the kernel every time there is a malloc request. Only when the arena is not sufficient to support allocation is when the allocator reaches the kernel.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Let&amp;rsquo;s take an example and visualize the theory.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Visualizing Chunkification&lt;span class="hx:absolute hx:-mt-20" id="visualizing-chunkification"&gt;&lt;/span&gt;
+&lt;a href="#visualizing-chunkification" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note 1: We are going to use ASCII Art to represent blocks in heap and 4096 bytes means 4096 blocks, which is too much and maybe an overkill. Therefore, for this experimentation, we are going to assume that the least the kernel can offer is &amp;ldquo;100 bytes&amp;rdquo;, not 4096 bytes. This way, we can control the influx of information without losing context.&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Note 2: This is just a simplified version of something that only exist in theory and there is no simple way to visualize it. The actual ground-level reality might differ because of &amp;ldquo;various rules&amp;rdquo;. But the idea always remains like this. &amp;ldquo;We are not studying the wrong way, we are studying the way it becomes easy to comprehend and sets up a foundation which can handle chaos later, much better.&amp;rdquo;&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;The Playground&lt;span class="hx:absolute hx:-mt-20" id="the-playground"&gt;&lt;/span&gt;
+&lt;a href="#the-playground" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;This is how our playground looks like.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+31 32 33 34 35 36 37 38 39 40
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+41 42 43 44 45 46 47 48 49 50
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+51 52 53 54 55 56 57 58 59 60
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+61 62 63 64 65 66 67 68 69 70
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+71 72 73 74 75 76 77 78 79 80
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+81 82 83 84 85 86 87 88 89 90
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+91 92 93 94 95 96 97 98 99 100&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;I have used box-drawing characters to create this playground. You can check them out on &lt;a href="https://en.wikipedia.org/wiki/Box-drawing_characters"target="_blank" rel="noopener"&gt;Wikipedia&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;Example 1&lt;span class="hx:absolute hx:-mt-20" id="example-1"&gt;&lt;/span&gt;
+&lt;a href="#example-1" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Suppose the process requests dynamic memory like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;p = malloc(20);
+q = malloc(10);
+r = malloc(15);
+s = malloc(18);
+t = malloc(32);&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The first request is for 20 bytes and the allocator asks the kernel to release memory and it gets a total of 100 bytes. The &lt;strong&gt;arena&lt;/strong&gt; is established now.&lt;/p&gt;
+&lt;p&gt;The allocator carves a chunk of 20 bytes and returns a pointer to it to the process. &lt;strong&gt;The first in-use chunk&lt;/strong&gt; came into existence.&lt;/p&gt;
+&lt;p&gt;Following the remaining four requests, a total of 95 bytes is allocated, which is shared by &lt;strong&gt;5&lt;/strong&gt; i&lt;strong&gt;n-use chunks&lt;/strong&gt; and 5 bytes of unallocated/free memory.&lt;/p&gt;
+&lt;p&gt;This is how it will look in our heap art:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| p. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .p |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| q. | | | | | | | | | .q |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| r. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+31 32 33 34 35 36 37 38 39 40
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | .r | s. | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+41 42 43 44 45 46 47 48 49 50
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+51 52 53 54 55 56 57 58 59 60
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | .s | t. | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+61 62 63 64 65 66 67 68 69 70
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+71 72 73 74 75 76 77 78 79 80
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+81 82 83 84 85 86 87 88 89 90
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | .t | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+91 92 93 94 95 96 97 98 99 100&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Unallocated and free bytes are represented using &lt;code&gt;//&lt;/code&gt; and all the blocks between &lt;code&gt;p. to .p&lt;/code&gt; belong to one chunk which is pointed by &lt;code&gt;p&lt;/code&gt;.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Now the process is coming to an end and we are freeing every allocation. &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;free(20); free(10); free(15); free(28); free(32);&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;and the process exited.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In this scenario, there were no free chunks and honestly, there was no need as well.&lt;/p&gt;
+&lt;p&gt;This example was pretty straightforward and had no space for the real chaos. So, let&amp;rsquo;s take another example which is slightly more real.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Example 2&lt;span class="hx:absolute hx:-mt-20" id="example-2"&gt;&lt;/span&gt;
+&lt;a href="#example-2" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;This time we will free memory in-between.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;p = malloc(10);
+q = malloc(20);
+free(10);
+r = malloc(30);
+free(20);
+s = malloc(32);
+t = malloc(26);
+u = malloc(12);&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The total allocation size is 118 bytes but we will not need anything beyond 100 bytes as memory is being freed in the middle.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| p. | | | | | | | | | .p |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| q. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .q |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+.
+.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Now we have to stop as there is a free instruction. On &lt;code&gt;free(p)&lt;/code&gt; , the state of memory becomes this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| q. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .q |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+.
+.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;And that&amp;rsquo;s how the first &lt;strong&gt;free chunk&lt;/strong&gt; comes into existence. This free chunk is sized 10 bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Next comes &lt;code&gt;r&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| q. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .q |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| r. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+31 32 33 34 35 36 37 38 39 40
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+41 42 43 44 45 46 47 48 49 50
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .r |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+51 52 53 54 55 56 57 58 59 60
+.
+.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;After &lt;code&gt;free(q)&lt;/code&gt; , the state of memory becomes this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| r. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+31 32 33 34 35 36 37 38 39 40
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+41 42 43 44 45 46 47 48 49 50
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .r |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+51 52 53 54 55 56 57 58 59 60
+.
+.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;We already had a free chunk of &lt;code&gt;10&lt;/code&gt; bytes and now we have another &lt;code&gt;20&lt;/code&gt; bytes. Is there any point in keeping these chunks different? Can we bring them together, like collapse them into one?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The rule is simple, allocated chunks can be adjacent to each other, but a free chunk is always surrounded by in-use chunks. So, when an in-use chunk adjacent to a free chunk is freed, the 2 free chunks are &lt;strong&gt;coalesced&lt;/strong&gt; to form one single chunk. &lt;/li&gt;
+&lt;li&gt;Now we have one free chunk of size 30 bytes and one in-use chunk of 30 bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Next comes &lt;code&gt;s&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We already had a free chunk but that free chunk is sized 30 bytes and we need 32.&lt;/li&gt;
+&lt;li&gt;So we have to allocate after &lt;code&gt;r&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| // | // | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| r. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+31 32 33 34 35 36 37 38 39 40
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+41 42 43 44 45 46 47 48 49 50
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .r |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+51 52 53 54 55 56 57 58 59 60
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| s. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+61 62 63 64 65 66 67 68 69 70
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+71 72 73 74 75 76 77 78 79 80
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+81 82 83 84 85 86 87 88 89 90
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | .s | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+91 92 93 94 95 96 97 98 99 100&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Next we have &lt;code&gt;malloc(26)&lt;/code&gt;. &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The memory after &lt;code&gt;s&lt;/code&gt; is insufficient so we have to request the kernel to allocated more memory.&lt;/li&gt;
+&lt;li&gt;But there is a free chunk of size 30 bytes, we can use that chunk. But that chunk is more than what we need so we carve 26 bytes out of it for &lt;code&gt;t&lt;/code&gt; and leave the rest as a free chunk.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;And the final state of our arena would be:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| t. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+1 2 3 4 5 6 7 8 9 10
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+11 12 13 14 15 16 17 18 19 20
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | .t | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+21 22 23 24 25 26 27 28 29 30
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| r. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+31 32 33 34 35 36 37 38 39 40
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+41 42 43 44 45 46 47 48 49 50
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | .r |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+51 52 53 54 55 56 57 58 59 60
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| s. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+61 62 63 64 65 66 67 68 69 70
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+71 72 73 74 75 76 77 78 79 80
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+81 82 83 84 85 86 87 88 89 90
+┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| | .s | // | // | // | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+91 92 93 94 95 96 97 98 99 100&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;We have 3 in-use chunks, 1 free chunk and 1 unallocated memory (like free chunk only).&lt;/p&gt;
+&lt;p&gt;At last, we have to allocate 12 bytes for &lt;code&gt;u&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you notice, the total size of free/unallocated memory is 12 bytes, precisely what we need, but it is &amp;ldquo;&lt;strong&gt;fragmented&lt;/strong&gt;&amp;rdquo;.&lt;/li&gt;
+&lt;li&gt;This is what external fragmentation looks like. It wastes memory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;External Fragmentation&lt;span class="hx:absolute hx:-mt-20" id="external-fragmentation"&gt;&lt;/span&gt;
+&lt;a href="#external-fragmentation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is a 15X16 grid, so 240 byte-addressable blocks in heap.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| .. | .. | .. | .. | .. | .. | .. | .. | | | | | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| .. | .. | .. | .. | | | | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | | | | | | .. | .. | .. | .. | .. | .. | .. | .. | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | .. | .. | | | | | .. | .. | .. | .. | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | | | | | | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | | | | .. | .. | .. | .. | .. | .. | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | .. | .. | .. | .. | .. | .. | | | | | .. | .. | .. | .. | .. |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | | | | | | .. | .. | .. | .. | .. | .. | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | | | | | .. | .. | .. | .. | .. | .. | .. | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | | | | | .. | .. | .. | .. | .. | .. | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| | .. | .. | .. | .. | .. | .. | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘
+| .. | .. | .. | .. | .. | .. | | | | | | | | | | |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The dotted blocks are reserved while the rest are free. Roughly 108 bytes are lying freely. This is almost half of the total available bytes, 45%. Yet if I want 50 bytes contiguously, that&amp;rsquo;s not possible.&lt;/p&gt;
+&lt;p&gt;Now scale it to 8 GiB of RAM or more. This is how memory is wasted&lt;/p&gt;
+&lt;p&gt;This is external fragmentation in miniature.&lt;/p&gt;
+&lt;p&gt;And there are mechanisms to deal with it and this is what we are going to explore next.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Use memory responsibly.&lt;/p&gt;
+&lt;p&gt;We saw memory allocation on surface and tried to picture it so that we can feel confident. And I am sure we are.&lt;/p&gt;
+&lt;p&gt;But how that allocation is actually managed by dlmalloc is still unknown. And to answer that, we have to get more chunky.&lt;/p&gt;
+&lt;p&gt;Basically, now we have to explore the real structure of a in-use and free chunks, as perceived by &lt;code&gt;dlmalloc&lt;/code&gt; and how the concept of bins is applied to manage chunks efficiently.&lt;/p&gt;
+&lt;p&gt;Until then, bye bye.&lt;/p&gt;</description></item><item><title>Structure Of A Chunk</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/structure-of-a-chunk/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/structure-of-a-chunk/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;16 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;We&amp;rsquo;ll start by understanding the structure of a chunk. This is how a chunk looks like:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; prev_foot;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; head;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; fd;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; bk;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;};&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;A chunk is just a piece of metadata.&lt;/p&gt;
+&lt;h2&gt;What is size_t?&lt;span class="hx:absolute hx:-mt-20" id="what-is-size_t"&gt;&lt;/span&gt;
+&lt;a href="#what-is-size_t" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;size_t&lt;/code&gt; is an unsigned integer type defined by the C standard, which is guaranteed to be able to hold the size (in bytes) of the largest possible object (word size) in the architecture we are in.&lt;/p&gt;
+&lt;p&gt;At the end of the day, &lt;code&gt;size_t&lt;/code&gt; is just a type definition alias for some unsigned integer type. In that case, why don&amp;rsquo;t we just use that instead? What&amp;rsquo;s the need for &lt;code&gt;size_t&lt;/code&gt; ?&lt;/p&gt;
+&lt;p&gt;Every major kernel like Windows, Unix and Linux has a different ABI. Then there are platform specific ABIs. What looks easy outside is not really that simple inside.&lt;/p&gt;
+&lt;p&gt;Leave the topic of ABIs for a second. We have multiple implementations of integer itself. Just open &lt;code&gt;stdint.h&lt;/code&gt; . But when you malloc for any kind, it just works.&lt;/p&gt;
+&lt;p&gt;Despite all these differences which we can&amp;rsquo;t comprehend as beginners, we still use the same &lt;code&gt;malloc()&lt;/code&gt; on Windows, Linux and anywhere else. How is that made possible?&lt;/p&gt;
+&lt;p&gt;We use the same frontend but beneath that lies the complexity to keep malloc as one single frontend instead of&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;mallocWin32(); mallocWin64()
+mallocUnix32(); mallocUnix64() and so on.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;So, we hide all that complication programmatically. The toolchain decides the most appropriate value and make it &lt;code&gt;size_t&lt;/code&gt; so that we as programmers have no difficulty working across different systems.&lt;/p&gt;
+&lt;p&gt;That&amp;rsquo;s why when we are at 32-bit system, the size of a chunk becomes 16 bytes. And when we are at 64-bit system, it becomes 32 bytes automatically without any extra lines.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;The Confusion Of Size&lt;span class="hx:absolute hx:-mt-20" id="the-confusion-of-size"&gt;&lt;/span&gt;
+&lt;a href="#the-confusion-of-size" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When we see a chunk as a struct, it&amp;rsquo;s literal size is always going to 16/32 bytes on 32-bit/64-bit. But when we talk about chunk as an allocation medium, it includes the size of both the chunk (as a metadata keeper) and the raw memory location to which a pointer is returned to the process.&lt;/p&gt;
+&lt;p&gt;And this size is stored within the &lt;code&gt;head&lt;/code&gt; declaration in the chunk itself.&lt;/p&gt;
+&lt;p&gt;You might be wondering where is the actual memory location. And it&amp;rsquo;s right to feel perplexed about it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;What happens is that for every allocation, first comes a metadata chunk, followed by the actual memory location to which a pointer is returned to the process.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;So for every allocation, it is more like:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;┌────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐────┐
+| pf | he | fd | bk | p. | | | | | | .p | // | // | // | // | // |
+└────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘────┘&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Remember, pointer &lt;code&gt;p&lt;/code&gt; is not a part of the struct. And this is very loosely represented which we will try to manage with more realism later.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;That means, every malloc request creates a chunk, where a chunk literally is just a metadata struct followed by the actual raw memory, but logically we consider them together.&lt;/p&gt;
+&lt;h2&gt;size_t head&lt;span class="hx:absolute hx:-mt-20" id="size_t-head"&gt;&lt;/span&gt;
+&lt;a href="#size_t-head" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Let&amp;rsquo;s talk about this declaration within the struct first because this probably the only declaration which is present both in free chunks and in-use chunks.&lt;/p&gt;
+&lt;p&gt;As &lt;code&gt;head&lt;/code&gt; is of type &lt;code&gt;size_t&lt;/code&gt; it will be 4 bytes on 32-bit and 8 bytes on 64-bit. So, size is sorted, I guess.&lt;/p&gt;
+&lt;p&gt;We need to do 2 things.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;We know that a free chunk must be surrounded by in-use chunks only. This is only possible when you coalesce adjacent free chunks. To do that, we need to know whether the adjacent chunk is free or in-use.&lt;/li&gt;
+&lt;li&gt;We also need to identify whether the current chunk is free or in-use.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;And we do that using flags bits. These are &lt;code&gt;PINUSE&lt;/code&gt; and &lt;code&gt;CINUSE&lt;/code&gt; bits.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;PINUSE&lt;/code&gt; bit is for &amp;ldquo;&lt;em&gt;previous chunk type&lt;/em&gt;&amp;rdquo;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;0 ⇒ previous chunk is free.&lt;/li&gt;
+&lt;li&gt;1 ⇒ previous chunk is in-use.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The &lt;code&gt;CINUSE&lt;/code&gt; bit is for &amp;ldquo;&lt;em&gt;current chunk type&lt;/em&gt;&amp;rdquo;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;0 ⇒ current chunk is free.&lt;/li&gt;
+&lt;li&gt;1 ⇒ current chunk is in-use.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There are two ways to store these bits. Either we allocate separate ints for both, which would waste memory, or we use bit masking. And dlmalloc uses bit masking.&lt;/p&gt;
+&lt;p&gt;You may ask, &lt;em&gt;wouldn&amp;rsquo;t that mess with the original size?&lt;/em&gt; No it won&amp;rsquo;t.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Remember the stack pointer has to be double word aligned (16 for 64-bits and 8 for 32-bits) because there are SIMD instructions which expects that? A similar story is repeated here as well.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;The total size of the chunk has to be double-word aligned.&lt;/strong&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;The largest primitive data type in any architecture is double, which basically means a double-word type. If the chunk is only word-aligned, any double word request would mess up the whole calculation of the CPU.&lt;/li&gt;
+&lt;li&gt;To keep things consistent and ensure that memory access for every type is managed efficiently, dlmalloc uses double-word aligned chunks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Double-word aligned means 8 bytes on 32-bit and 16-bytes on 64-bit.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Any number which is a multiple of 8 or 16 is not going to use the lower 3 bits, i.e 0, 1, 2. These bits are always going to be free. &lt;em&gt;You can do the math if unsure.&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;So, why don&amp;rsquo;t we use them to mask &lt;code&gt;pinuse&lt;/code&gt; and &lt;code&gt;cinuse&lt;/code&gt;? The third bit is not used by dlmalloc but ptmalloc uses it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To retrieve the &lt;code&gt;cinuse&lt;/code&gt; bit:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;size_field &amp;amp; 0x1&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;To retrieve the &lt;code&gt;pinuse&lt;/code&gt; bit:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;size_field &amp;amp; 0x2&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;To retrieve the size, clear the lower 3 bits.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;size_field &amp;amp; ~0x7&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If something still feels off, remember that rule, &lt;em&gt;memory interpretation is context dependent. The same group of 8 bits can be interpreted as an unsigned int, a signed int, an ASCII character, or maybe an emoji. So, bit masking doesn&amp;rsquo;t looses the original size. It just utilizes the bits which have become null function under the &amp;ldquo;alignment rule&amp;rdquo; situation.&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;size_t prev_foot&lt;span class="hx:absolute hx:-mt-20" id="size_t-prev_foot"&gt;&lt;/span&gt;
+&lt;a href="#size_t-prev_foot" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Remember the &lt;code&gt;pinuse&lt;/code&gt; bit?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When it is 0, &lt;code&gt;prev_foot&lt;/code&gt; stores the size of the previous free chunk.&lt;/li&gt;
+&lt;li&gt;When it is 1, &lt;code&gt;prev_foot&lt;/code&gt; is not managed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;*fd and *bd&lt;span class="hx:absolute hx:-mt-20" id="fd-and-bd"&gt;&lt;/span&gt;
+&lt;a href="#fd-and-bd" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;These are only used by free chunks. They help us traverse forward and backward in the bin they are associated with.&lt;/p&gt;
+&lt;h2&gt;Final Looks&lt;span class="hx:absolute hx:-mt-20" id="final-looks"&gt;&lt;/span&gt;
+&lt;a href="#final-looks" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;In-use Chunk&lt;span class="hx:absolute hx:-mt-20" id="in-use-chunk"&gt;&lt;/span&gt;
+&lt;a href="#in-use-chunk" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; prev_foot &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;DEPENDS ON PINUSE BIT&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; head &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;8/16 + REQUESTED_BYTES + DWORD_PADDING&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; CINUSE&lt;span style="color:#f92672"&gt;=&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; PINUSE&lt;span style="color:#f92672"&gt;=&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;DEPENDS&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; fd &lt;span style="color:#f92672"&gt;=&lt;/span&gt; GARBAGE;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; bk &lt;span style="color:#f92672"&gt;=&lt;/span&gt; GARBAGE;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;};&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Free Chunk&lt;span class="hx:absolute hx:-mt-20" id="free-chunk"&gt;&lt;/span&gt;
+&lt;a href="#free-chunk" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; prev_foot &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;DEPENDS ON PINUSE BIT&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; head &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;8/16 + REQUESTED_BYTES + DWORD_PADDING&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; CINUSE&lt;span style="color:#f92672"&gt;=&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; PINUSE&lt;span style="color:#f92672"&gt;=&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;DEPENDS&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; fd &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;NEXT FREE CHUNK IN THE BIN&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; bk &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;PREVIOUS FREE CHUNK IN THE BIN&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;};&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The allocator world considers this 8/16 math in head as &amp;ldquo;&lt;strong&gt;overhead&lt;/strong&gt;&amp;rdquo;. But I don&amp;rsquo;t like to complicate that much so I didn&amp;rsquo;t use that.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;size_t&lt;/code&gt; is the real MVP as it helps in making your code platform independent.&lt;/p&gt;
+&lt;p&gt;Everything is confusing until you don&amp;rsquo;t understand it. Chunks is one of those things.&lt;/p&gt;
+&lt;p&gt;Next we have to understand binning and how chunks are managed. Questions like:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;How a free chunk is associated to a bin?&lt;/li&gt;
+&lt;li&gt;What about coalesced free chunks?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;can be answered only when we understand binning. And that&amp;rsquo;s going to be our next exploration.&lt;/p&gt;
+&lt;p&gt;Until then, goodbye.&lt;/p&gt;</description></item><item><title>Free Chunk Management</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/free-chunk-management/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/free-chunk-management/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;17, 18, 19, 20 September 2025 (definitions taken out from a previous&lt;/strong&gt;&lt;/em&gt; &lt;a href="https://ankuragrawal.gitbook.io/home/~/revisions/0fLrDsjrcXzDo0NctRkY/all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model"target="_blank" rel="noopener"&gt;&lt;em&gt;&lt;strong&gt;write up&lt;/strong&gt;&lt;/em&gt;&lt;/a&gt;&lt;em&gt;&lt;strong&gt;, written on 11, 15, 16 September 2025, optimized)&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;In-use chunks are self-owned. Their bookkeeping lives in the chunk header itself and no external registry maintains them. Free chunks require management.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s explore how free chunks are managed by the allocator.&lt;/p&gt;
+&lt;h2&gt;Bins&lt;span class="hx:absolute hx:-mt-20" id="bins"&gt;&lt;/span&gt;
+&lt;a href="#bins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A bin is a bucket for storing free chunks. Different buckets exist for different chunk size.&lt;/p&gt;
+&lt;p&gt;Bins are implemented using two data structures:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Linked Lists (Singly and Circular Doubly)&lt;/li&gt;
+&lt;li&gt;Bitwise Digital Trees&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;When chunks are not in use, they are treated as nodes of either of these.&lt;/p&gt;
+&lt;p&gt;Bins are categorized as following:&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;This categorization of bins helps balancing rapid allocation, memory usage and fragmentation.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note: v2.7.0 of dlmalloc used fast bins, but they were removed in v2.8.0. The last version of dlmalloc is v2.8.6, as per this repository on&lt;/strong&gt; &lt;a href="https://github.com/DenizThatMenace/dlmalloc"target="_blank" rel="noopener"&gt;&lt;strong&gt;GitHub&lt;/strong&gt;&lt;/a&gt;&lt;strong&gt;.&lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;Structures In Account&lt;span class="hx:absolute hx:-mt-20" id="structures-in-account"&gt;&lt;/span&gt;
+&lt;a href="#structures-in-account" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We have 3 structs and some aliases to them for different use cases. The structs remains the same, only the naming changes so that it fits the context, that&amp;rsquo;s it.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;malloc_chunk&lt;/code&gt;: used for small size free chunks (by small bins).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; prev_foot;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; head;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; fd
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; bk;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk mchunk;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; mchunkptr;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; sbinptr;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ol start="2"&gt;
+&lt;li&gt;&lt;code&gt;malloc_tree_chunk&lt;/code&gt;: used for large size free chunks (by tree bins).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Usual metadata from ll-chunks
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; prev_foot;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; head;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; fd;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; bk;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Bookkeeping for trees
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; child[&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;];
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; parent;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;bindex_t&lt;/span&gt; index;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk tchunk;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; tchunkptr;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_tree_chunk&lt;span style="color:#f92672"&gt;*&lt;/span&gt; tbinptr;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ol start="3"&gt;
+&lt;li&gt;&lt;code&gt;malloc_state&lt;/code&gt;: The master record which manages everything for an allocator instance.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;struct&lt;/span&gt; malloc_state {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;binmap_t&lt;/span&gt; smallmap;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;binmap_t&lt;/span&gt; treemap;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; dvsize;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; topsize;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt;&lt;span style="color:#f92672"&gt;*&lt;/span&gt; least_addr;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; mchunkptr dv;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; mchunkptr top;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; trim_check;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; release_checks;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; magic;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; mchunkptr smallbins[(NSMALLBINS&lt;span style="color:#f92672"&gt;+&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;)&lt;span style="color:#f92672"&gt;*&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;];
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; tbinptr treebins[NTREEBINS];
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; footprint;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; max_footprint;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; footprint_limit;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;flag_t&lt;/span&gt; mflags;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; msegment seg;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;&lt;span style="color:#f92672"&gt;*&lt;/span&gt; extp;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; exts;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;};&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;We have a few type definitions to ensure size consistency across systems.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;unsigned&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;bindex_t&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;unsigned&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;binmap_t&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;typedef&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;unsigned&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;flag_t&lt;/span&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;At last, we have a few macros which define some constant values.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#define NSMALLBINS (32U)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#define NTREEBINS (32U)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;32U&lt;/code&gt; means, take the value 32 as an unsigned integer.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;malloc_state&lt;span class="hx:absolute hx:-mt-20" id="malloc_state"&gt;&lt;/span&gt;
+&lt;a href="#malloc_state" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The actual bins that manage free chunks are &lt;code&gt;smallbins[]&lt;/code&gt; and &lt;code&gt;treebins[]&lt;/code&gt; .&lt;/p&gt;
+&lt;p&gt;Using the two macros above, we can find the lengths of both the bins, i.e &lt;code&gt;smallbins[66]&lt;/code&gt; and &lt;code&gt;treebins[32]&lt;/code&gt;.&lt;/p&gt;
+&lt;h3&gt;Small Bins&lt;span class="hx:absolute hx:-mt-20" id="small-bins"&gt;&lt;/span&gt;
+&lt;a href="#small-bins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Since small bins are implemented using circular doubly-linked list. We have to maintain two pointers, i.e &lt;code&gt;fd&lt;/code&gt; and &lt;code&gt;bd&lt;/code&gt; for each bin.&lt;/p&gt;
+&lt;p&gt;The small bin at 1-index is used for unsorted bin. So there will be 32 small bins and 1 unsorted bin.&lt;/p&gt;
+&lt;p&gt;Since array indices start from zero and we are counting bins from 1, for alignment purposes, the 0th element is sentinel and is not used.&lt;/p&gt;
+&lt;p&gt;Small bins manage fixed size chunks. Each small bin, &lt;code&gt;smallbin_1&lt;/code&gt; to &lt;code&gt;smallbin_32&lt;/code&gt; manage sizes in multiple of 8. Therefore, the &lt;code&gt;smallbins&lt;/code&gt; array look something like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;smallbins &lt;span style="color:#f92672"&gt;=&lt;/span&gt; [
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;, ubin, fd_8, bk_8, fd_16, bk_16, fd_24, bk_24, fd_32,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; bk_32, fd_40, bk_40, fd_48, bk_48, fd_56, bk_56, fd_64,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; bk_64, fd_72, bk_72, fd_80, bk_80, fd_88, bk_88, fd_96,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; bk_96, fd_104, bk_104, fd_112, bk_112, fd_120, bk_120,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; fd_128, bk_128, fd_136, bk_136, fd_144, bk_144, fd_152,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; bk_152, fd_160, bk_160, fd_168, bk_168, fd_176, bk_176,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; fd_184, bk_184, fd_192, bk_192, fd_200, bk_200, fd_208,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; bk_208, fd_216, bk_216, fd_224, bk_224, fd_232, bk_232,
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; fd_240, bk_240, fd_248, bk_248, fd_256, bk_256
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;]&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;What do these entries mean?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Small bins are maintained using doubly-linked circular lists, so &lt;code&gt;fd_8&lt;/code&gt; represents the first node in a linked list that links all the free chunks of size 8 bytes together. And &lt;code&gt;bd_8&lt;/code&gt; represents the end of that same linked list.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The &lt;code&gt;malloc_chunk&lt;/code&gt; struct has 4 &lt;code&gt;size_t&lt;/code&gt; elements, which weigh 16/32 bytes on 32-bit/64-bit systems. The least memory you can request is 1 bytes, which would round up the chunk size to 24/48 bytes on 32-bit/64-bit system. That means, the small bins linking chunks of 8 and 16 bytes makes no sense?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Yeah, that&amp;rsquo;s right. But dlmalloc keeps that overhead for clarity and alignment purposes.&lt;/li&gt;
+&lt;li&gt;Those bins are empty. And we will see this practically very soon.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;When a chunk is freed, it goes into unsorted small bin. When multiple chunks are freed together, or there is no malloc request in between multiple frees, like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;free(p);
+free(q);
+// or
+free(a);
+..
+free(b);
+..
+free(c);
+..
+free(d);&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;free chunks are inserted in the unsorted bin in LIFO order. So the last freed chunk is the first one.&lt;/li&gt;
+&lt;li&gt;But popping doesn&amp;rsquo;t follow LIFO. If 2nd chunk is found to be appropriate in a list of 5, the allocator manages linking/unlinking itself.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If the next malloc request finds nothing in the unsorted bin, every chunk is popped out and linked in the respective bins.&lt;/p&gt;
+&lt;h3&gt;Tree Bins&lt;span class="hx:absolute hx:-mt-20" id="tree-bins"&gt;&lt;/span&gt;
+&lt;a href="#tree-bins" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;There are 32 tree bins in total. They manage chunks falling in a specific range of bytes. This range is obtained using power of 2.&lt;/p&gt;
+&lt;p&gt;Small bins manage size &amp;lt; 256 bytes. Everything after that is managed by tree bins.&lt;/p&gt;
+&lt;p&gt;256 is 2^8. So, the first range is 257-512 bytes (512 is 2^9). Similarly we have 513-1024, 1025-2048 bytes and so on.&lt;/p&gt;
+&lt;p&gt;Tree bins are implemented using bitwise digital trees. Every element in a tree bin is a pointer to the root node of the bitwise digital tree.&lt;/p&gt;
+&lt;p&gt;Linked List are fairly simple but bitwise digital trees are not. To understand them and visualize them, we have to practically see how a tree bin is managed by dlmalloc, which we will do very soon.&lt;/p&gt;
+&lt;h2&gt;Arena&lt;span class="hx:absolute hx:-mt-20" id="arena"&gt;&lt;/span&gt;
+&lt;a href="#arena" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The first malloc request sets up the arena.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s say we requested 10 bytes. The allocator is guaranteed to receive at least one page. On Linux, 4 KiB pages are more popular. So the allocator is guaranteed to setup an arena of at least 4096 bytes in in the first request.&lt;/p&gt;
+&lt;p&gt;Depending on the system (32-bit/64-bit), the allocator will carve a chunk of size 24/48 bytes because of double-word alignment rule. So a minimum of 4072/4048 bytes will be left unused in the arena.&lt;/p&gt;
+&lt;p&gt;These ~4k bytes are unallocated. Where do they live?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Remember program break we read about in syscalls section? &lt;a href="dma-syscalls.md"&gt;Link&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;The program break is just after the data segment. When we extend the heap, the kernel releases more memory than requested, and that memory is not used all at once, but it is allocated to the allocator.&lt;/li&gt;
+&lt;li&gt;The program break is the partition between the used arena and the unallocated arena.&lt;/li&gt;
+&lt;li&gt;When 24 bytes are used in the arena, the program break would be at the 25th bit.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The program break is a pointer to the next free byte in the arena. When there is no space left in the arena for the requested allocation, the allocator requests more memory from the kernel.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;topsize&lt;/code&gt; entry in &lt;code&gt;malloc_state&lt;/code&gt; stores the size of the top chunk, which means the amount of unallocated space in the arena. &lt;code&gt;top&lt;/code&gt; is a pointer to the first byte in the unallocated arena.&lt;/p&gt;
+&lt;p&gt;The allocator keeps requesting memory from the kernel when it runs out, the total memory ever requested by the allocator instance is recorded by the &lt;code&gt;max_footprint&lt;/code&gt; declaration.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;least_addr&lt;/code&gt; declaration points to the lowest memory address in the arena.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;footprint_limit&lt;/code&gt; is the user-defined ceiling on how much memory the allocator may request.&lt;/p&gt;
+&lt;h3&gt;Designated Victim&lt;span class="hx:absolute hx:-mt-20" id="designated-victim"&gt;&lt;/span&gt;
+&lt;a href="#designated-victim" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Many programs do repeated allocations of the same similar sizes. Designated victim is a recently freed chunk which is a part of small-medium size.&lt;/p&gt;
+&lt;p&gt;If a malloc request matches the the size of designated victim (&lt;code&gt;dvsize&lt;/code&gt;), it saves the allocator some work by reusing the chunk pointer by &lt;code&gt;dv&lt;/code&gt;. &lt;/p&gt;
+&lt;hr&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h2&gt;Rules For Coalescing&lt;span class="hx:absolute hx:-mt-20" id="rules-for-coalescing"&gt;&lt;/span&gt;
+&lt;a href="#rules-for-coalescing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;If the previous chunk is free, merge it with the current chunk. Use &lt;code&gt;prev_foot&lt;/code&gt; to find the previous chunk’s size and adjust pointers.&lt;/li&gt;
+&lt;li&gt;If the next chunk is free (top chunk excluded), merge it with the current chunk. Remove the next chunk from its bin before merging.&lt;/li&gt;
+&lt;li&gt;If the next chunk is the &lt;strong&gt;top chunk&lt;/strong&gt;, just extend the top chunk’s size instead of placing the chunk in bins.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;If coalescing has happened, update the size field of the resulting chunk and insert it in appropriate bin.&lt;/p&gt;
+&lt;p&gt;If the coalesced chunk is larger than &lt;code&gt;dvsize&lt;/code&gt;, may replace the designated victim.&lt;/p&gt;
+&lt;h2&gt;Fits Strategy&lt;span class="hx:absolute hx:-mt-20" id="fits-strategy"&gt;&lt;/span&gt;
+&lt;a href="#fits-strategy" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It refers to how the allocator chooses a free chunk from bins when multiple could work.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;First-fit&lt;/strong&gt;: pick the first sufficiently large chunk you find. Fast, but can cause uneven fragmentation.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Best-fit&lt;/strong&gt;: search for the chunk closest in size to request. Reduces waste but costs more CPU (searching).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Next-fit&lt;/strong&gt;: like first-fit but resume search where you left off. Spreads allocations, less clustering.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;code&gt;dlmalloc&lt;/code&gt; uses:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;exact fits&lt;/strong&gt; in small bins.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;best-fit within size range&lt;/strong&gt; for large bins (but not global best-fit, just best within that bin).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This hybrid gives both speed and decent fragmentation control.&lt;/p&gt;</description></item><item><title>Inspecting dlmalloc Using GDB</title><link>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/inspecting-dlmalloc-using-gdb/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/all-roads-to-memory/dma/inspecting-dlmalloc-using-gdb/</guid><description>
+&lt;p&gt;It&amp;rsquo;s time to see dlmalloc in action.&lt;/p&gt;
+&lt;p&gt;Use a VM to setup dlmalloc&lt;/p&gt;
+&lt;p&gt;Gnome Boxes is best for Linux&lt;/p&gt;
+&lt;p&gt;Learn GDB&lt;/p&gt;</description></item></channel></rss>

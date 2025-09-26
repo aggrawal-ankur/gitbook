@@ -1,0 +1,364 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level –</title><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/</link><description>Recent content on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/index.xml" rel="self" type="application/rss+xml"/><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/a-surface-level-overview-of-the-differences/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/a-surface-level-overview-of-the-differences/</guid><description>
+&lt;h1&gt;A Surface Level Overview Of The Differences&lt;/h1&gt;&lt;h2&gt;Introduction&lt;span class="hx:absolute hx:-mt-20" id="introduction"&gt;&lt;/span&gt;
+&lt;a href="#introduction" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;To use static linking on your object files, use the &lt;code&gt;-static&lt;/code&gt; flag.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc hello.o -o dynamically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc -static hello.o -o statically_linked&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;ELF Size Difference&lt;span class="hx:absolute hx:-mt-20" id="elf-size-difference"&gt;&lt;/span&gt;
+&lt;a href="#elf-size-difference" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l ./*_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;15952&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:27 ./dynamically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;758424&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:27 ./statically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l ./*_linked -h
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 16K Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:27 ./dynamically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 741K Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:27 ./statically_linked&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;(15952/758424)*100 = 2.1%&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The dynamically linked elf is just 2% of the size of the statically linked one.&lt;/p&gt;
+&lt;h2&gt;Disassembly Difference&lt;span class="hx:absolute hx:-mt-20" id="disassembly-difference"&gt;&lt;/span&gt;
+&lt;a href="#disassembly-difference" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;objdump -D dynamically_linked &amp;gt; dyn_obj -M intel
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;objdump -D statically_linked &amp;gt; stat_obj -M intel&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Size Difference&lt;span class="hx:absolute hx:-mt-20" id="size-difference"&gt;&lt;/span&gt;
+&lt;a href="#size-difference" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l ./*_obj
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;34436&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:40 ./dyn_obj
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;9892579&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:40 ./stat_obj
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l ./*_obj -h
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 34K Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:40 ./dyn_obj
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 9.5M Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:40 ./stat_obj&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;(34436/9892579)*100 = ~0.35%&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The disassembly for the dynamically linked elf is ~0.35% of the total size of the statically linked one. That&amp;rsquo;s not even 1%.&lt;/p&gt;
+&lt;h3&gt;Content Difference&lt;span class="hx:absolute hx:-mt-20" id="content-difference"&gt;&lt;/span&gt;
+&lt;a href="#content-difference" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The dynamically linked elf generates a disassembly of 801 lines, whereas the statically linked elf generated a disassembly of 187385 lines.&lt;/p&gt;
+&lt;h2&gt;`readelf` Interpretation&lt;span class="hx:absolute hx:-mt-20" id="readelf-interpretation"&gt;&lt;/span&gt;
+&lt;a href="#readelf-interpretation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf ./dynamically_linked -a &amp;gt; dyn_read
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf ./statically_linked -a &amp;gt; stat_read &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Size Difference&lt;span class="hx:absolute hx:-mt-20" id="size-difference-1"&gt;&lt;/span&gt;
+&lt;a href="#size-difference-1" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l ./*_read
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;15584&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 11:06 ./dyn_read
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;167259&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 11:06 ./stat_read
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l ./*_read -h
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 16K Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 11:06 ./dyn_read
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rw-rw-r-- &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 164K Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 11:06 ./stat_read&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;(15584/167259)*100 = 9.31%&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The output of readelf is significantly smaller for the dynamically linked elf.&lt;/p&gt;
+&lt;h3&gt;File Header&lt;span class="hx:absolute hx:-mt-20" id="file-header"&gt;&lt;/span&gt;
+&lt;a href="#file-header" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;The most interesting part here is the difference in ABI. This means, an operating system supports multiple ABI contracts?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The GNU ABI is just an extension of the System V ABI.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Section Headers&lt;span class="hx:absolute hx:-mt-20" id="section-headers"&gt;&lt;/span&gt;
+&lt;a href="#section-headers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# Dynamically Linked # Statically Linked&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;NULL NULL
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.note.gnu.property .note.gnu.property
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.note.gnu.build-id .note.gnu.build-id
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.interp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.gnu.hash
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.dynsym
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.dynstr
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.gnu.version
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.gnu.version_r
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.rela.dyn
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.rela.plt .rela.plt
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.init .init
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.plt .plt
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.plt.got
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.text .text
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.fini .fini
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.rodata .rodata
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; rodata.cst32
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.eh_frame_hdr
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.eh_frame .eh_frame
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; .gcc_except_table
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.note.ABI-tag .note.ABI-tag
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; .tdata
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; .tbss
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.init_array .init_array
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.fini_array .fini_array
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; .data.rel.ro
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.dynamic
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.got .got
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.got.plt .got.plt
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.data .data
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.bss .bss
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.comment .comment
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.symtab .symtab
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.strtab .strtab
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.shstrtab .shstrtab&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The statically linked ELF lacks these sections, which are mostly used by the dynamic interpreter program.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.interp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.gnu.hash
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.dynsym
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.dynstr
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.gnu.version
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.gnu.version_r
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.rela.dyn
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.plt.got
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.eh_frame_hdr
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;.dynamic&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h4&gt;Why?&lt;span class="hx:absolute hx:-mt-20" id="why"&gt;&lt;/span&gt;
+&lt;a href="#why" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h4&gt;&lt;p&gt;&lt;code&gt;.interp, .dynsym, .dynstr, .rela.dyn, .plt.got. eh_frame_hdr, .dynamic&lt;/code&gt; are self-explanatory. These are specific to runtime resolution.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.gnu.hash, .gnu.version, .gnu.version_r&lt;/code&gt; are also runtime used during runtime resolution.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;To make symbol lookup fast, ELF uses hash tables for dynamic symbols.&lt;/li&gt;
+&lt;li&gt;Since a static ELF has all the relocations performed during link-time, there is no need for a hash table for lookup.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These sections are new in the static ELF.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;rodata.cst32
+.gcc_except_table
+.tdata
+.tbss
+.data.rel.ro&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;We can avoid this for now.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Comparing the size for section headers,&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Header&lt;/th&gt;
+&lt;th&gt;Dynamically Linked&lt;/th&gt;
+&lt;th&gt;Statically Linked&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.rela.plt&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x18&lt;/td&gt;
+&lt;td&gt;0x210&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.plt&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x20&lt;/td&gt;
+&lt;td&gt;0xb0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.text&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x103&lt;/td&gt;
+&lt;td&gt;0x74ff9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;rodata&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x12&lt;/td&gt;
+&lt;td&gt;0x1bba4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.eh_frame&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0xac&lt;/td&gt;
+&lt;td&gt;0xb800&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.init_array&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x10&lt;/td&gt;
+&lt;td&gt;0x08&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.fini_array&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x10&lt;/td&gt;
+&lt;td&gt;0x08&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.got&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x28&lt;/td&gt;
+&lt;td&gt;0x88&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.got.plt&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x20&lt;/td&gt;
+&lt;td&gt;0xc8&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.data&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x10&lt;/td&gt;
+&lt;td&gt;0x1a00&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.bss&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x08&lt;/td&gt;
+&lt;td&gt;0x5808&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.symtab&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x360&lt;/td&gt;
+&lt;td&gt;0xc3c0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.strtab&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x1db&lt;/td&gt;
+&lt;td&gt;0x7c84&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.shstrtab&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0x11a&lt;/td&gt;
+&lt;td&gt;0x00f0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Clearly, the size of major sections in a statically linked ELF Is much higher.&lt;/p&gt;
+&lt;h3&gt;Program Headers&lt;span class="hx:absolute hx:-mt-20" id="program-headers"&gt;&lt;/span&gt;
+&lt;a href="#program-headers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# Dynamically Linked # Statically Linked&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;PHDR
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;INTERP
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;LOAD LOAD
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;LOAD LOAD
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;LOAD LOAD
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;LOAD LOAD
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;DYNAMIC
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;NOTE NOTE
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;NOTE NOTE
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;NOTE NOTE
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; TLS
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;GNU_PROPERTY GNU_PROPERTY
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;GNU_EH_FRAME
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;GNU_STACK GNU_STACK
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;GNU_RELRO GNU_RELRO&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Section to segment mapping also differs because of different sections.&lt;/p&gt;
+&lt;p&gt;The size of every program header varies a lot as well. Except &lt;code&gt;GNU_STACK&lt;/code&gt;, which is unused in both.&lt;/p&gt;
+&lt;h3&gt;Dynamic Section&lt;span class="hx:absolute hx:-mt-20" id="dynamic-section"&gt;&lt;/span&gt;
+&lt;a href="#dynamic-section" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;There is reason for it to be present in a statically linked ELF.&lt;/p&gt;
+&lt;h3&gt;Relocations&lt;span class="hx:absolute hx:-mt-20" id="relocations"&gt;&lt;/span&gt;
+&lt;a href="#relocations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Since there is no dynamic section, &lt;code&gt;.rela.dyn&lt;/code&gt; doesn&amp;rsquo;t make any sense. It is also absent in the statically linked ELF.&lt;/p&gt;
+&lt;p&gt;There are 22 entries in &lt;code&gt;.rela.plt&lt;/code&gt; and their type is &lt;code&gt;R_X86_64_IRELATIV&lt;/code&gt;, which is a new relocation type. All of these entries are unknown, with no symbol name. Their &lt;code&gt;info&lt;/code&gt; field also lacks symbol index.&lt;/p&gt;
+&lt;h3&gt;Symbol Tables&lt;span class="hx:absolute hx:-mt-20" id="symbol-tables"&gt;&lt;/span&gt;
+&lt;a href="#symbol-tables" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;&lt;code&gt;.dynsym&lt;/code&gt; as expected, absent. So as &lt;code&gt;.dynstr&lt;/code&gt; &lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.symtab&lt;/code&gt; , on the other hand, is heavily populated. It houses 2088 entries.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A statically linked ELF is a self-contained ELF, and the high size of specific sections shows why it is called &lt;em&gt;a self-contained elf&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Thanks. Bye.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/stripping-elf/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/stripping-elf/</guid><description>
+&lt;h1&gt;Stripping ELF&lt;/h1&gt;&lt;h2&gt;How to strip a binary?&lt;span class="hx:absolute hx:-mt-20" id="how-to-strip-a-binary"&gt;&lt;/span&gt;
+&lt;a href="#how-to-strip-a-binary" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Using &lt;code&gt;strip&lt;/code&gt; utility.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ strip dynamically_linked -o dynamically_linked_strip
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ strip statically_linked -o statically_linked_strip
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l *_linked*
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;15952&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt; 14:18 dynamically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;14472&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt; 14:18 dynamically_linked_strip
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;758424&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:27 statically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali &lt;span style="color:#ae81ff"&gt;676288&lt;/span&gt; Aug &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt; 14:17 statically_linked_strip
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ls -l *_linked* -h
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 16K Aug &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt; 14:18 dynamically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 15K Aug &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt; 14:18 dynamically_linked_strip
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 741K Aug &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; 10:27 statically_linked
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;-rwxrwxr-x &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; kali kali 661K Aug &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt; 14:17 statically_linked_strip&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;What gets stripped?&lt;span class="hx:absolute hx:-mt-20" id="what-gets-stripped"&gt;&lt;/span&gt;
+&lt;a href="#what-gets-stripped" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Lets analyze &lt;code&gt;readelf&lt;/code&gt; to find that out.&lt;/p&gt;
+&lt;p&gt;For both the elfs, &lt;code&gt;.symtab&lt;/code&gt; and &lt;code&gt;.strtab&lt;/code&gt; are missing in the section headers.&lt;/p&gt;
+&lt;p&gt;Stripping removes only non-essential symbol information used for debugging and linking, not for execution.&lt;/p&gt;
+&lt;p&gt;If a section is not referenced by runtime execution and not marked &lt;code&gt;SHF_ALLOC&lt;/code&gt;, it can be stripped.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/use-cases/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/static-linking-v-s-dynamic-linking/use-cases/</guid><description>
+&lt;h1&gt;Use Cases&lt;/h1&gt;</description></item></channel></rss>

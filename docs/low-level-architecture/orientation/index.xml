@@ -1,0 +1,1584 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level – Orientation</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/</link><description>Recent content in Orientation on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/index.xml" rel="self" type="application/rss+xml"/><item><title>Historical Introduction</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/history/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/history/</guid><description>
+&lt;p&gt;Assembly is a low-level programming language, which provides direct-access over computer hardware. It almost maps one-to-one with machine instructions.&lt;/p&gt;
+&lt;p&gt;Assembly is the closest we can get to the CPU while still understanding what&amp;rsquo;s going on.&lt;/p&gt;
+&lt;p&gt;What distinguishes assembly from other programming languages is that &lt;strong&gt;every CPU architecture&lt;/strong&gt; (like x86, ARM, MIPS, RISC-V) has its &lt;strong&gt;own assembly language&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Why different flavors of assembly exist?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Because of the &lt;strong&gt;Instruction Set Architecture (ISA)&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;Each CPU has its own set of instructions, which creates demand for specific-assembly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;Architectural History&lt;span class="hx:absolute hx:-mt-20" id="architectural-history"&gt;&lt;/span&gt;
+&lt;a href="#architectural-history" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The x86 CPU architecture, which refers to a family of processors — 8086, 80186, 80286, 80386, 80486 — was originally developed by &lt;strong&gt;Intel Corporation&lt;/strong&gt;, starting in &lt;strong&gt;1978&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The x86 ISA is a &lt;strong&gt;Intel&amp;rsquo;s proprietary&lt;/strong&gt;, but other companies (notably &lt;strong&gt;AMD&lt;/strong&gt;) were &lt;strong&gt;licensed&lt;/strong&gt; to create compatible CPUs.&lt;/p&gt;
+&lt;p&gt;All these processors share the same &lt;strong&gt;Instruction Set Architecture (ISA)&lt;/strong&gt; and are collectively known as &lt;strong&gt;x86&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The original &lt;strong&gt;8086&lt;/strong&gt; was a &lt;strong&gt;16-bit&lt;/strong&gt; processor. Intel extended it to &lt;strong&gt;32-bit&lt;/strong&gt;, known as &lt;strong&gt;IA-32&lt;/strong&gt; (or x86_32). Then in &lt;strong&gt;2003&lt;/strong&gt;, AMD extended the architecture to &lt;strong&gt;64-bit&lt;/strong&gt;, releasing &lt;strong&gt;AMD64&lt;/strong&gt;. Intel later adopted the same ISA, calling their version &lt;strong&gt;Intel 64&lt;/strong&gt; — both are &lt;strong&gt;functionally identical&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Since Intel designed the architecture, they also defined the original syntax for its assembly — known as, &lt;strong&gt;Intel syntax&lt;/strong&gt;. This style is widely used in &lt;strong&gt;Microsoft&lt;/strong&gt; development tools and the &lt;strong&gt;Windows&lt;/strong&gt; ecosystem.&lt;/p&gt;
+&lt;p&gt;But Intel is not the only syntax for x86 processors.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;The Origins of AT&amp;amp;T Syntax&lt;span class="hx:absolute hx:-mt-20" id="the-origins-of-att-syntax"&gt;&lt;/span&gt;
+&lt;a href="#the-origins-of-att-syntax" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Along the same time, &lt;strong&gt;AT&amp;amp;T&lt;/strong&gt;, through &lt;strong&gt;Bell Labs&lt;/strong&gt;, created &lt;strong&gt;Unix&lt;/strong&gt; in &lt;strong&gt;1969&lt;/strong&gt;, originally for &lt;strong&gt;PDP-7&lt;/strong&gt; machines, which was initially written in assembly. By &lt;strong&gt;1973&lt;/strong&gt;, Unix was rewritten in &lt;strong&gt;C&lt;/strong&gt;, making it portable.&lt;/p&gt;
+&lt;p&gt;In &lt;strong&gt;1978&lt;/strong&gt;, Intel introduced the x86 architecture, which eventually became popular on personal computers.&lt;/p&gt;
+&lt;p&gt;In &lt;strong&gt;1983&lt;/strong&gt;, &lt;strong&gt;GNU Project&lt;/strong&gt; was launched to create a &lt;strong&gt;free, Unix-like operating system&lt;/strong&gt;. It needed a new assembler and adopted a &lt;strong&gt;new assembly syntax&lt;/strong&gt; for x86 that was more consistent and easier to parse than Intel&amp;rsquo;s. Also, they wanted to avoid the proprietary issues, and this created the need for a new syntax.&lt;/p&gt;
+&lt;p&gt;This new syntax, although created by GNU, was based on conventions from Unix systems — and since &lt;strong&gt;Unix was synonymous with AT&amp;amp;T&lt;/strong&gt;, this style became popular as &lt;strong&gt;AT&amp;amp;T syntax&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;When &lt;strong&gt;Linux&lt;/strong&gt; was created in &lt;strong&gt;1991&lt;/strong&gt;, it relied heavily on GNU tools like &lt;strong&gt;GCC&lt;/strong&gt; and &lt;strong&gt;GAS&lt;/strong&gt;, which used AT&amp;amp;T syntax. As a result, &lt;strong&gt;AT&amp;amp;T&lt;/strong&gt; syntax became the &lt;em&gt;de facto&lt;/em&gt; in the Linux ecosystem.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Which Syntax We Are Going To Use?&lt;span class="hx:absolute hx:-mt-20" id="which-syntax-we-are-going-to-use"&gt;&lt;/span&gt;
+&lt;a href="#which-syntax-we-are-going-to-use" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We are learning assembly, not syntaxes. The only thing that matters here is an assembler. Because an assembly code heavily uses assembler directives. That&amp;rsquo;s it.&lt;/p&gt;
+&lt;p&gt;We will write intel syntax and use GAS. Because, the operand style matches the mathematical style, &lt;code&gt;LHS = RHS&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;// Intel
+mnemonic destination, source
+// AT&amp;amp;T
+mnemonic source, destination&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Learn Assembly, Not Syntaxes.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Difference Between Assembly And Other Languages (C, Python&amp;hellip;..)&lt;span class="hx:absolute hx:-mt-20" id="difference-between-assembly-and-other-languages-c-python"&gt;&lt;/span&gt;
+&lt;a href="#difference-between-assembly-and-other-languages-c-python" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;1. Core Purpose&lt;span class="hx:absolute hx:-mt-20" id="1-core-purpose"&gt;&lt;/span&gt;
+&lt;a href="#1-core-purpose" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;High level languages abstract the core functionality. Their core purpose is to provide the programmer with ease of usability and reduce development time.&lt;/p&gt;
+&lt;p&gt;Assembly, on the other hand, is completely raw. There&amp;rsquo;s no abstraction. Everything is open and the programmer has to write every single instruction themselves.&lt;/p&gt;
+&lt;p&gt;This exposes the reality that even a simple &amp;ldquo;Hello, World!&amp;rdquo; program requires multiple low-level steps before it can actually run.&lt;/p&gt;
+&lt;h3&gt;2. Platform Dependency&lt;span class="hx:absolute hx:-mt-20" id="2-platform-dependency"&gt;&lt;/span&gt;
+&lt;a href="#2-platform-dependency" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;We are used to download python for our windows, Linux or mac machine and start coding. We don&amp;rsquo;t have to worry about how CPU will understand our hand writing.&lt;/p&gt;
+&lt;p&gt;But assembly doesn&amp;rsquo;t work like that. It is &lt;strong&gt;architecture-dependent&lt;/strong&gt;. Assembly written for x86 will not work on ARM.&lt;/p&gt;
+&lt;h3&gt;3. Control &amp;raquo; Convenience&lt;span class="hx:absolute hx:-mt-20" id="3-control--convenience"&gt;&lt;/span&gt;
+&lt;a href="#3-control--convenience" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Assembly gives you &lt;strong&gt;maximum control&lt;/strong&gt;, at the cost of &lt;strong&gt;convenience&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;What is convenience?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Pretty and verbose named variables&lt;/strong&gt;? Not in assembly. You work directly with memory and registers.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Data types&lt;/strong&gt;? Everything is just bytes. It&amp;rsquo;s up to &lt;strong&gt;you&lt;/strong&gt; to interpret the bytes as intended.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Control flow&lt;/strong&gt;? Nothing is built in. You implement it using jump instructions.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Loops&lt;/strong&gt;? You use jump statements to create them as well.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;I/O&lt;/strong&gt;? Use direct syscalls. No dedicated &lt;code&gt;printf&lt;/code&gt; and &lt;code&gt;scanf&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Data Structures&lt;/strong&gt;? &lt;strong&gt;Functions&lt;/strong&gt;? &lt;strong&gt;DO. IT. YOURSELF.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You have got every raw material, and building anything is your responsibility.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;How these things exist then? We will explore each of them soon.&lt;/p&gt;
+&lt;h2&gt;Fun Fact&lt;span class="hx:absolute hx:-mt-20" id="fun-fact"&gt;&lt;/span&gt;
+&lt;a href="#fun-fact" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;C is called portable assembly.&lt;/p&gt;</description></item><item><title>Basic Computer Theory</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/basic-intro/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/basic-intro/</guid><description>
+&lt;p&gt;Learning assembly is not similar to learning yet another programming language. There are no high-level constructs. There is memory and instructions. That&amp;rsquo;s it.&lt;/p&gt;
+&lt;h2&gt;Memory (RAM)&lt;span class="hx:absolute hx:-mt-20" id="memory-ram"&gt;&lt;/span&gt;
+&lt;a href="#memory-ram" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Imagine a room of personal-lockers inside of a bank. Every locker is the same.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Same size and color,&lt;/li&gt;
+&lt;li&gt;Same capacity,&lt;/li&gt;
+&lt;li&gt;Same access mechanism, and&lt;/li&gt;
+&lt;li&gt;An addressing system to uniquely identify them.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;A locker can contain anything, but what identifies them commonly is &lt;strong&gt;valuables&lt;/strong&gt;. A person can keep gold or silver items while another person can keep the photos of their family. Items are different but both of them identifies as a &lt;em&gt;valuable&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Similarly, memory is a huge collection of boxes, which have common properties, like:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;They are fixed in capacity, 1 byte (or 8-bits).&lt;/li&gt;
+&lt;li&gt;Each box is identified by a unique number, called &lt;strong&gt;memory address&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Just as a locker itself can&amp;rsquo;t identify its contents, everything is just a valuable, the same is with memory.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Everything is raw bytes. What defines a byte as an integer, a decimal, an emoji, an alphabet is the interpretation of that byte (or a group of bytes).&lt;/li&gt;
+&lt;li&gt;Previously, we have read that &lt;strong&gt;context&lt;/strong&gt; and &lt;strong&gt;interpretation&lt;/strong&gt; is what that rules assembly. We can see it in practice here.&lt;/li&gt;
+&lt;li&gt;A byte can be interpreted as digit, as an alphabet. When those same bytes are grouped, and interpreted, their meaning changes.&lt;/li&gt;
+&lt;li&gt;Context decides the kind of interpretation required in order to get the right meaning out of those bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Central Processing Unit&lt;span class="hx:absolute hx:-mt-20" id="central-processing-unit"&gt;&lt;/span&gt;
+&lt;a href="#central-processing-unit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;CPU is the physical component that actually executes instructions.&lt;/p&gt;
+&lt;p&gt;While modern systems are very complex, the role of CPU is quite simple: fetch, decode, and execute instructions stored in memory. And this what a &lt;strong&gt;fetch-execute&lt;/strong&gt; cycle is.&lt;/p&gt;
+&lt;p&gt;The CPU needs to know the instruction to be executed, for this, it has got &lt;strong&gt;Program Counter&lt;/strong&gt;, whose purpose is to hold the memory address of the next instruction to be executed.&lt;/p&gt;
+&lt;p&gt;The CPU has the instruction now and it needs to figure-out what this instruction means. For this, the CPU has &lt;strong&gt;instruction decoder&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;In our everyday life, anything we do involves movement. We are moving things from one place to other. &lt;strong&gt;Locations&lt;/strong&gt; are one the most important things in our life. And so as with CPU.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Every instruction uses some memory locations, where some data is stored, which is required in the instruction. Instructions themselves can be stored at a memory location.&lt;/li&gt;
+&lt;li&gt;To fetch that data from that memory location, what comes handy is the &lt;strong&gt;data bus&lt;/strong&gt;. It is the connection between CPU and memory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Suppose you have to go to your best friend&amp;rsquo;s house. You have picked up the keys for your bike, the cap, the scarf to protect from heat, and the sun glasses. All these things are stored somewhere in your house.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The key is probably on the top of the fridge or in the key-holding area.&lt;/li&gt;
+&lt;li&gt;The sun glasses are at the dressing table.&lt;/li&gt;
+&lt;li&gt;The scarf is in the closet.&lt;/li&gt;
+&lt;li&gt;And the cap is on the table.&lt;/li&gt;
+&lt;li&gt;What about the address to your friend&amp;rsquo;s house? Where is that? In your mind?&lt;/li&gt;
+&lt;li&gt;If you don&amp;rsquo;t go mad on me, can I ask why don&amp;rsquo;t you write the address of your friend on a paper and store it your closet?&lt;/li&gt;
+&lt;li&gt;Obviously, you are saying, &amp;ldquo;I am not mad!&amp;rdquo; Keeping the address in your mind ensures that it is accessible all the time.&lt;/li&gt;
+&lt;li&gt;The CPU also has some highly-efficient and rapidly-accessible locations for this exact purpose. They are called &lt;strong&gt;general purpose registers&lt;/strong&gt;. These are high-speed memory locations inside the processor itself, that takes part in the actual execution.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;At last, the &lt;strong&gt;Arithmetic and Logic Unit&lt;/strong&gt;. The data and the decoded instruction is passed here for further processing. Here, the instruction is actually executed. The computed results are placed on the data bus and sent to the appropriate location (a memory, or a register), as specified by the instruction.&lt;/p&gt;
+&lt;p&gt;And these are the core elements of the CPU.&lt;/p&gt;
+&lt;h2&gt;Fetch-Execute Cycle&lt;span class="hx:absolute hx:-mt-20" id="fetch-execute-cycle"&gt;&lt;/span&gt;
+&lt;a href="#fetch-execute-cycle" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Fetch&lt;/strong&gt; – Read the instruction from memory (address held in instruction pointer).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Decode&lt;/strong&gt; – Understand what the instruction means.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Execute&lt;/strong&gt; – Perform the operation (move data, add, compare, etc).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Store&lt;/strong&gt; – Write the result (often into a register or memory).&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Repeat&lt;/strong&gt; – Move to the next instruction.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;And this happens billions of times.&lt;/p&gt;
+&lt;h2&gt;Registers&lt;span class="hx:absolute hx:-mt-20" id="registers"&gt;&lt;/span&gt;
+&lt;a href="#registers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In addition to the memory outside of the processor, the processor itself has some special, high-speed memory locations called registers.&lt;/p&gt;
+&lt;p&gt;The primary purpose of a register is to hold the data that the CPU is actively working on. Just like the desk has a pen-holder which holds necessary pens like black and blue ball pens, a correction pen, a ruler, pencil, and a rubber. But it doesn&amp;rsquo;t contain the whole stationary. We have cupboards for that.&lt;/p&gt;
+&lt;p&gt;Since registers are high-speed and are located within the processor itself, they are limited in number, for various valid reasons.&lt;/p&gt;
+&lt;p&gt;Most information is stored in the main memory, brought in the registers [,for processing], and then put back into memory when the processing is completed.&lt;/p&gt;
+&lt;p&gt;Just like memory, registers also hold bits. It&amp;rsquo;s up to you to interpret them correctly (as numbers, characters, addresses, etc.)&lt;/p&gt;
+&lt;p&gt;Mainly, there are two types of registers:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;General Purpose Registers&lt;/strong&gt;, this is where the main action happens. Addition, subtraction, multiplication, comparisons, and other operations generally use GPRs. They are expansive and are very less in number. There are 16 GPRs in x86_64 (amd64 or 64-bit) architecture.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Special Purpose Registers&lt;/strong&gt;, self-explanatory?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Size/Width Of A Register&lt;span class="hx:absolute hx:-mt-20" id="sizewidth-of-a-register"&gt;&lt;/span&gt;
+&lt;a href="#sizewidth-of-a-register" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Word size is the size of the data, or the number of bits the CPU can process at once.&lt;/p&gt;
+&lt;p&gt;It is architecture dependent. 32-bit systems has a word size of 32-bits or 4-bytes, while 64-bit systems have 64-bit wide registers.&lt;/p&gt;
+&lt;p&gt;Word is the size of the registers in a particular CPU architecture.&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;Word&amp;rdquo; is the fundamental unit of CPU. Just like &lt;em&gt;m/s&lt;/em&gt; is for velocity.&lt;/p&gt;
+&lt;h2&gt;What is 32-bit &amp;amp;&amp;amp; 64-bit?&lt;span class="hx:absolute hx:-mt-20" id="what-is-32-bit--64-bit"&gt;&lt;/span&gt;
+&lt;a href="#what-is-32-bit--64-bit" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We download software. If that&amp;rsquo;s a technical software, it is always mentioned whether you are at 32-bit or 64-bit OS. And there are different software for both.&lt;/p&gt;
+&lt;p&gt;Most modern systems are based on 64-bit architecture.&lt;/p&gt;
+&lt;p&gt;This 32-bit and 64-bit tells us how many numbers the CPU is capable of dealing at once.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A 32-bit CPU can work with numbers that are 32 bits long.&lt;/li&gt;
+&lt;li&gt;A 64-bit CPU can work with numbers that are 64-bits long.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;ISA v/s Assemblers&lt;span class="hx:absolute hx:-mt-20" id="isa-vs-assemblers"&gt;&lt;/span&gt;
+&lt;a href="#isa-vs-assemblers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are multiple assemblers in the market. GNU assembler (GAS), Netwide assembler (NASM), fish assembler (FASM), Microsoft assembler (MASM) and so on&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;Assembler does one thing — translate human readable assembly instructions into machine opcodes, which the CPU can understand and execute directly.&lt;/p&gt;
+&lt;p&gt;A CPU&amp;rsquo;s instruction set architecture defines its capabilities. It conceptualizes everything that the CPU can do.&lt;/p&gt;
+&lt;p&gt;Assemblers are the programs that decides how the programmers will interact with the CPU.&lt;/p&gt;
+&lt;p&gt;Take this, there are handful of firms that research on semiconductor chips, but there are relatively many who does the manufacturing. ISA is that research while assemblers are the manufacturers. Each manufacturer (assembler) has the freedom to manufacture its own way.&lt;/p&gt;
+&lt;h2&gt;Assembly-Time vs Run-Time&lt;span class="hx:absolute hx:-mt-20" id="assembly-time-vs-run-time"&gt;&lt;/span&gt;
+&lt;a href="#assembly-time-vs-run-time" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Assembler directives mean nothing to the CPU. They exist to streamline development. Assembler resolves them into machine understandable things while assembling the code. This is called assembly-time management. (Checkout &lt;a href="../../understanding-hello-world/a-high-level-overview-of-build-process-in-c.md"title="mention"&gt;a-high-level-overview-of-build-process-in-c.md&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;There are things that are consistent across all the assemblers because the CPU directly understand them. These are runtime managed things.&lt;/p&gt;
+&lt;p&gt;For example, &lt;code&gt;OFFSET&lt;/code&gt; is an assembler directive, while &lt;code&gt;lea&lt;/code&gt; is a CPU understood operation, defined in the ISA itself.&lt;/p&gt;</description></item><item><title>Common Terminologies</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/common-terms/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/common-terms/</guid><description>
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Mnemonic:&lt;/strong&gt; The actual CPU operation.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Operand:&lt;/strong&gt; Arguments passed to the mnemonic, which could be a register, intermediate or a memory location.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Instruction:&lt;/strong&gt; Something the CPU can execute. It includes both the mnemonic and the operands.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Immediate&lt;/strong&gt;: An immediate is a constant value, like &lt;code&gt;4&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Label:&lt;/strong&gt; A name given to a particular memory address in the code.
+&lt;ul&gt;
+&lt;li&gt;It is made up of letters, digits and underscore.&lt;/li&gt;
+&lt;li&gt;A label must start with a letter or underscore.&lt;/li&gt;
+&lt;li&gt;A label must end with a colon.&lt;/li&gt;
+&lt;li&gt;There are &lt;code&gt;.&lt;/code&gt; prepended labels which are used to make a label available to its parent and hides from others. &lt;em&gt;Just don&amp;rsquo;t think about it for now, it&amp;rsquo;s a complicated thing.&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;It holds meaning for the assembler (&lt;code&gt;GAS&lt;/code&gt;, in our case), not the CPU. The assembler replaces the labels with virtual addresses or offsets.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Directive (or Pseudo-Instruction):&lt;/strong&gt; Instructions defined for the assembler program, not the CPU.
+&lt;ul&gt;
+&lt;li&gt;They begin with a period (&lt;code&gt;.&lt;/code&gt;).&lt;/li&gt;
+&lt;li&gt;Ex: &lt;code&gt;.section&lt;/code&gt; creates a section within the program.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Section:&lt;/strong&gt; The code is divided into multiple sections to organize the memory layout.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Comment:&lt;/strong&gt; Anything after a semi-colon (;) or hash (#) is ignored by the assembler and is a note for the programmer itself.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Keyword:&lt;/strong&gt; In high-level languages, keywords are reserved words (like if, for, while). In assembly, the idea of keywords basically overlaps with mnemonics and directives.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Symbol:&lt;/strong&gt; Everything is a symbol. Ever label is a symbol, but every symbol need not to be a label.&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title>Instructions</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/instructions/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/instructions/</guid><description>
+&lt;p&gt;An instruction is an atomic operation that tells the CPU what to do.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-asm" data-lang="asm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;mnemonic&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;destination&lt;/span&gt;, &lt;span style="color:#66d9ef"&gt;source&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Mnemonic is the actual CPU operation. Destination and source are the operands it is generally performed on.&lt;/p&gt;
+&lt;p&gt;Some mnemonics take one operand only. So, this is not strict.&lt;/p&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-asm" data-lang="asm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;rax&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;move 1 into &lt;code&gt;rax&lt;/code&gt; register.&lt;/li&gt;
+&lt;li&gt;It also aligns with the mathematical assignment of values, &lt;code&gt;a = 4&lt;/code&gt;, assign 4 to a.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Common Operations&lt;span class="hx:absolute hx:-mt-20" id="common-operations"&gt;&lt;/span&gt;
+&lt;a href="#common-operations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;There are hundreds of instructions in assembly. But the core ones are as follows.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h2&gt;CPU Flags&lt;span class="hx:absolute hx:-mt-20" id="cpu-flags"&gt;&lt;/span&gt;
+&lt;a href="#cpu-flags" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;CPU flags are binary indicators (either 0 or 1) that reflect the outcome of certain operations or hold special status information. They&amp;rsquo;re part of the processor&amp;rsquo;s status register, which is used by instructions like &lt;code&gt;cmp&lt;/code&gt; (compare) and &lt;code&gt;test&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;When an instruction modifies the flags, other instructions can check the state of these flags to make decisions, like jumping to different parts of code based on conditions.&lt;/p&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Flag&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;ZF&lt;/strong&gt; (Zero Flag)&lt;/td&gt;
+&lt;td&gt;Set to 1 if the result of an operation is zero; otherwise, it’s 0.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;SF&lt;/strong&gt; (Sign Flag)&lt;/td&gt;
+&lt;td&gt;Set to 1 if the result of an operation is negative (the most significant bit of the result is 1).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;There are other flags as well.&lt;/p&gt;
+&lt;h2&gt;Memory/Pointer Dereferencing&lt;span class="hx:absolute hx:-mt-20" id="memorypointer-dereferencing"&gt;&lt;/span&gt;
+&lt;a href="#memorypointer-dereferencing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It refers to obtaining the actual value stored at a memory location.&lt;/p&gt;
+&lt;p&gt;It is done by &lt;code&gt;[]&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For example, if a memory location like 100000 stores a number, such as 45, dereferencing the memory location would give 45, like this, &lt;code&gt;[100000] = 45&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;Common Instructions&lt;span class="hx:absolute hx:-mt-20" id="common-instructions"&gt;&lt;/span&gt;
+&lt;a href="#common-instructions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;&lt;code&gt;mov&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="mov"&gt;&lt;/span&gt;
+&lt;a href="#mov" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;In simple words, it is assignment operator (&lt;code&gt;=&lt;/code&gt;) in assembly.&lt;/p&gt;
+&lt;p&gt;Syntax:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-asm" data-lang="asm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;destination&lt;/span&gt;, &lt;span style="color:#66d9ef"&gt;source&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Mathematically, it is &lt;code&gt;destination = source&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Most commonly, these operands are registers like rax, rsi etc&amp;hellip;. But there are other options as well.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;mov rax, rsi&lt;/code&gt; means &lt;code&gt;rsi = rax&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;mov rax, [rsi]&lt;/code&gt;: dereference the value in &lt;code&gt;rsi&lt;/code&gt; and put it into &lt;code&gt;rax&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;mov [rsi], rax&lt;/code&gt;: dereference the value in &lt;code&gt;rsi&lt;/code&gt; and store what&amp;rsquo;s inside &lt;code&gt;rax&lt;/code&gt; in there.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;Note: &lt;code&gt;mov&lt;/code&gt; copy data from one place to other. Its not &amp;lsquo;move&amp;rsquo; in literal sense.&lt;/strong&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;code&gt;cmp&lt;/code&gt;&lt;span class="hx:absolute hx:-mt-20" id="cmp"&gt;&lt;/span&gt;
+&lt;a href="#cmp" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;It compares two values by subtracting them, later deciding what might be the case.&lt;/p&gt;
+&lt;p&gt;In C, we can do something like this: &lt;code&gt;a = (4 &amp;gt; 2)&lt;/code&gt; and &lt;code&gt;a&lt;/code&gt; will contain the result. However, that&amp;rsquo;s not the case here.&lt;/p&gt;
+&lt;p&gt;Syntax:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-asm" data-lang="asm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;cmp&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;a&lt;/span&gt;, &lt;span style="color:#66d9ef"&gt;b&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;which is evaluated as &lt;code&gt;a - b&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;When we do &lt;code&gt;cmp 4, 2&lt;/code&gt;, &lt;code&gt;cmp&lt;/code&gt; does &lt;code&gt;4-2&lt;/code&gt;, and the result is 2. This result is not stored. Instead, certain CPU flags are changed based on the result. Jump statements use these flags to decide what to do next.&lt;/p&gt;
+&lt;h3&gt;Jump Statements&lt;span class="hx:absolute hx:-mt-20" id="jump-statements"&gt;&lt;/span&gt;
+&lt;a href="#jump-statements" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;They change the flow of execution. Instead of executing the next line, they send the CPU to another part of the code based on some condition. This is what &lt;code&gt;if-else&lt;/code&gt; stands on.&lt;/p&gt;
+&lt;p&gt;There are two types of jumps, conditional and unconditional.&lt;/p&gt;
+&lt;p&gt;An unconditional jump always goes to some label, no matter what. &lt;code&gt;jmp some_label&lt;/code&gt; is an unconditional jump.&lt;/p&gt;
+&lt;p&gt;A conditional jump is based on the flags set by &lt;code&gt;cmp&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Type Specifier&lt;span class="hx:absolute hx:-mt-20" id="type-specifier"&gt;&lt;/span&gt;
+&lt;a href="#type-specifier" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Type specifiers are used to explicitly tell the assembler what size of data we&amp;rsquo;re working with while accessing memory.&lt;/p&gt;
+&lt;p&gt;They ensure that the assembler knows how much data to read or write.&lt;/p&gt;
+&lt;p&gt;Common type specifiers include:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;byte ptr&lt;/code&gt;: load only 1-byte from the memory address.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;word ptr&lt;/code&gt;: load a word or 2-bytes (in x86_64) from the memory address.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;dword ptr&lt;/code&gt;: load a double word or 4-bytes from the memory address.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;qword ptr&lt;/code&gt;: load a quad word or 8-bytes from the memory address.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;They are particularly important (actually necessary) when working with memory operands and dereferencing pointers because x86_64 architecture can handle different size of data (like bytes, words, double words, etc).&lt;/p&gt;
+&lt;p&gt;Many assemblers offer separate mnemonics for special data movements, like GAS.&lt;/p&gt;</description></item><item><title>Anatomy Of An Assembly Program</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/anatomy/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/anatomy/</guid><description>
+&lt;h2&gt;Section&lt;span class="hx:absolute hx:-mt-20" id="section"&gt;&lt;/span&gt;
+&lt;a href="#section" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Sections define how the memory layout at runtime would be prepared. Common sections include:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;.text&lt;/code&gt;, for code or instructions.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.data&lt;/code&gt;, for initialized data.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.bss&lt;/code&gt;, for uninitialized data, where bss stands for &amp;ldquo;Block Started by Symbol&amp;rdquo;.
+&lt;ul&gt;
+&lt;li&gt;It refers to a label (symbol) that marks the start of a block of uninitialized data in memory.&lt;/li&gt;
+&lt;li&gt;It helps in reducing the size of the object files by leaving a note for the system to allocate x bytes at runtime for this block and zero-initialize them. As allocating zeros at compile time makes no sense.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.rodata&lt;/code&gt;, for read-only data.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Registers (As Operands)&lt;span class="hx:absolute hx:-mt-20" id="registers-as-operands"&gt;&lt;/span&gt;
+&lt;a href="#registers-as-operands" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;If you&amp;rsquo;ve attempted assembly before, you might have seen old lectures using ax, bx, cx, dx like registers, or eax, ebx, ecx, edx and the most recent ones might be using rax, rsi, rdi etc&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;We know that x86 architecture emerged from 8086 processor, which was a 16-bit processor. The two lettered registers we see belongs to the 16-bit architecture.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;These 16-bit registers also have smaller ones. They are sized 8-bits each.&lt;/li&gt;
+&lt;li&gt;They are called high and low. For example, &lt;code&gt;ax&lt;/code&gt; has &lt;code&gt;al&lt;/code&gt; and &lt;code&gt;ah&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Intel extended them to 32-bit. This increased the register width and all the registers from 16-bit architecture got prefixed by an e. So, ax become eax, bx become ebx and so on. &lt;code&gt;e&lt;/code&gt; stands for extended.&lt;/p&gt;
+&lt;p&gt;AMD extended it further to 64-bit. The register width increased again and we get new registers prefixed with r, while retaining the existing ones. So, eax become rax, ebx become rbx and so on. Along with this, we have got 8 new general purpose registers from r8-r15.&lt;/p&gt;
+&lt;p&gt;The newer systems are also backward compatible. This means that x86_32 still supports x86 registers, x86_64 still supports x86 and x86_32.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When we use rax, we are using the complete 64-bit register.&lt;/li&gt;
+&lt;li&gt;When we use eax, we are using the lower 32-bits of the rax register.&lt;/li&gt;
+&lt;li&gt;When we use ax, we are using the lower 16-bits of the rax register.&lt;/li&gt;
+&lt;li&gt;When we use ah, we are using the 8-bits after al, 8-15.&lt;/li&gt;
+&lt;li&gt;When we use al, we are using the lowest 8-bits of the rax register, 0-7.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://miro.medium.com/v2/resize:fit:1100/format:webp/1*PSTOKsqSfpKLxrFEr2BY2Q.png"target="_blank" rel="noopener"&gt;a visual diagram&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A complete list of general purpose registers, &lt;a href="https://www.google.com/imgres?q=x86%2064%20rax%20register%20anatomy%5c&amp;amp;imgurl=https%3A%2F%2Fwww.researchgate.net%2Fpublication%2F342043300%2Ffigure%2Ftbl1%2FAS%3A900496000827404%401591706385889%2FThe-sixteen-x86-64-general-purpose-registers-and-their-sub-registers.png%5c&amp;amp;imgrefurl=https%3A%2F%2Fwww.researchgate.net%2Ffigure%2FThe-sixteen-x86-64-general-purpose-registers-and-their-sub-registers_tbl1_342043300%5c&amp;amp;docid=xbGBS-ISu9YcPM%5c&amp;amp;tbnid=iHb1hi27pi33ZM%5c&amp;amp;vet=12ahUKEwjtu8-Zo4yNAxW7XmwGHfwTDG4QM3oECFoQAA..i%5c&amp;amp;w=565%5c&amp;amp;h=466%5c&amp;amp;hcb=2%5c&amp;amp;ved=2ahUKEwjtu8-Zo4yNAxW7XmwGHfwTDG4QM3oECFoQAA"target="_blank" rel="noopener"&gt;link&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;Data Addressing Modes&lt;span class="hx:absolute hx:-mt-20" id="data-addressing-modes"&gt;&lt;/span&gt;
+&lt;a href="#data-addressing-modes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;Immediate Mode.
+&lt;ul&gt;
+&lt;li&gt;The simplest method.&lt;/li&gt;
+&lt;li&gt;Here, the data to access is embedded in the instruction itself.&lt;/li&gt;
+&lt;li&gt;Example: &lt;code&gt;mov eax, 5 ; Move the value 5 into EAX register&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Register Addressing Mode.
+&lt;ul&gt;
+&lt;li&gt;The instruction contains a register to access, rather than a memory location.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Direct Addressing Mode.
+&lt;ul&gt;
+&lt;li&gt;The instruction contains the reference to the memory address to access.&lt;/li&gt;
+&lt;li&gt;Example: &lt;code&gt;mov eax, [some_address] ; Move data from memory at some_address into EAX&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Indexed Addressing Mode.
+&lt;ul&gt;
+&lt;li&gt;The instruction contains a memory address to access, and also specifies an index register to offset that address.&lt;/li&gt;
+&lt;li&gt;Example: &lt;code&gt;mov eax, [ebx + 4] ; Move data from the address in EBX + 4 into EAX&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Indirect Addressing Mode.
+&lt;ul&gt;
+&lt;li&gt;The instruction contains a register that contains a pointer to where the data should be accessed.&lt;/li&gt;
+&lt;li&gt;Example: &lt;code&gt;mov eax, [ebx] ; Move data from the address in EBX into EAX&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Base Pointer Addressing Mode.
+&lt;ul&gt;
+&lt;li&gt;This is similar to indirect addressing, but you also include a number called the offset to add to the register&amp;rsquo;s value before using it for lookup.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;Always leave an empty line at end of the program. This gracefully marks the end of assembly code. Otherwise, you&amp;rsquo;ll get a warning by the assembler.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;System Calls&lt;span class="hx:absolute hx:-mt-20" id="system-calls"&gt;&lt;/span&gt;
+&lt;a href="#system-calls" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A &lt;strong&gt;system call&lt;/strong&gt; is the controlled gateway between a user-space program and the kernel. It lets your code request services that require higher privileges — like writing to the screen, reading a file, or exiting the program.&lt;/p&gt;
+&lt;h3&gt;User Mode vs Kernel Mode&lt;span class="hx:absolute hx:-mt-20" id="user-mode-vs-kernel-mode"&gt;&lt;/span&gt;
+&lt;a href="#user-mode-vs-kernel-mode" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The CPU operates in two modes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;User Mode&lt;/strong&gt;: Restricted environment in which our code runs.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Kernel Mode&lt;/strong&gt;: Full-access mode where the operating system runs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Our program cannot perform privileged operations directly. Instead, it uses &lt;strong&gt;syscalls&lt;/strong&gt; to request the kernel to perform them on its behalf.&lt;/p&gt;
+&lt;p&gt;Linux supports hundreds of syscalls. Here are a few common ones:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Purpose&lt;/th&gt;
+&lt;th&gt;Syscall&lt;/th&gt;
+&lt;th&gt;Syscall Number&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Read from a file&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;read&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Write to a file&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;write&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Open a file&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;open&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Map memory&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;mmap&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Exit the program&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;exit&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;60&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2&gt;Variables v/s Labels&lt;span class="hx:absolute hx:-mt-20" id="variables-vs-labels"&gt;&lt;/span&gt;
+&lt;a href="#variables-vs-labels" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A variable is a container to store a value. A label is a named memory location. Both are different.&lt;/p&gt;
+&lt;p&gt;A label can point to a group of instructions, a constant value, a procedure, anything. But a variable only stores some value. It can store the result of a computation, but not the instruction itself.&lt;/p&gt;
+&lt;p&gt;In simple terms, every variable is a label, but every label need not to be a variable.&lt;/p&gt;</description></item><item><title>Calling Conventions</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/calling-conventions/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/calling-conventions/</guid><description>
+&lt;p&gt;Registers are fast, low-level storage locations inside the CPU. While x86_64 offers 16 general-purpose registers, their usage is often guided by conventions rather than absolute freedom.&lt;/p&gt;
+&lt;p&gt;The use of these registers usually depends on the context. Primarily there exist two contexts:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Function Call Context&lt;/li&gt;
+&lt;li&gt;System Call Context&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;How the registers would be used in the above two contexts is defined in a system-level agreement, called ABI, which stands for &lt;em&gt;Application Binary Interface&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;As long as we are out of these two contexts, we can use a register as we want. And we will demonstrate this later.&lt;/p&gt;
+&lt;h2&gt;Function Call Convention&lt;span class="hx:absolute hx:-mt-20" id="function-call-convention"&gt;&lt;/span&gt;
+&lt;a href="#function-call-convention" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Argument&lt;/th&gt;
+&lt;th&gt;Register&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Syscall #&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;rax&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Identifier&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Argument 1&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;rdi&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;First parameter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Argument 2&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;rsi&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Second parameter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Argument 3&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;rdx&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Third parameter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Argument 4&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;r10&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Fourth parameter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Argument 5&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;r8&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Fifth parameter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Argument 6&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;r9&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Sixth parameter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2&gt;Syscall Convention&lt;span class="hx:absolute hx:-mt-20" id="syscall-convention"&gt;&lt;/span&gt;
+&lt;a href="#syscall-convention" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; &lt;em&gt;Caller&lt;/em&gt; is the function that makes a call to another function. The function that is being called is termed as &lt;em&gt;callee&lt;/em&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When a register is callee-saved, the callee function must preserve the state of that register if it wants to use it and restore its state before returning.&lt;/li&gt;
+&lt;li&gt;When a register is caller-saved, the caller function must preserve its state if it wants to use it later because a function call in-between might use it and it has no reason to preserve its state.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In Linux (x86_64), the most common calling convention is &lt;strong&gt;System V AMD64 ABI&lt;/strong&gt;. It defines how functions and system calls exchange data by assigning specific roles to specific registers.&lt;/p&gt;
+&lt;p&gt;To successfully invoke a system call, our data must be placed in these registers accordingly. Otherwise, the kernel will not interpret our request correctly.&lt;/p&gt;
+&lt;h2&gt;But Why Do These Conventions Even Exist?&lt;span class="hx:absolute hx:-mt-20" id="but-why-do-these-conventions-even-exist"&gt;&lt;/span&gt;
+&lt;a href="#but-why-do-these-conventions-even-exist" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;System V ABI (where V is 5) is not the only ABI that exist. It is the one that Linux uses. Microsoft Windows 64-bit uses x64 ABI.&lt;/p&gt;
+&lt;p&gt;If every organization used their own calling convention, one thing is sure to suffer — cross-compatibility. These ABIs are contracts that everyone agrees upon. When every system uses the same convention, cross-compatibility improved. Software support improved.&lt;/p&gt;</description></item><item><title>Hello, World!</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/hello-world/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/hello-world/</guid><description>
+&lt;p&gt;How To Print &amp;ldquo;Hello, World!&amp;rdquo; ?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Step 1:&lt;/strong&gt; Store the hello world string somewhere in the memory.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Step 2:&lt;/strong&gt; Prepare a write syscall.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Step 3:&lt;/strong&gt; Invoke the syscall.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Step 4:&lt;/strong&gt; Prepare an exit syscall.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Step 5:&lt;/strong&gt; Invoke the syscall.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The assembly code for hello world looks like:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-asm" data-lang="asm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;.intel_syntax&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;noprefix&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;.data&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; msg: &lt;span style="color:#a6e22e"&gt;.ascii&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;Hello, world!\n&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;len&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;=&lt;/span&gt; . - &lt;span style="color:#66d9ef"&gt;msg&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;.text&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.global&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;_start&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;_start:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;rax&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#75715e"&gt;# syscall number for write (1)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;rdi&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#75715e"&gt;# file descriptor (stdout)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;rsi&lt;/span&gt;, &lt;span style="color:#66d9ef"&gt;offset&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;msg&lt;/span&gt; &lt;span style="color:#75715e"&gt;# pointer to the buffer to print
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;rdx&lt;/span&gt;, &lt;span style="color:#66d9ef"&gt;len&lt;/span&gt; &lt;span style="color:#75715e"&gt;# buffer length
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;syscall&lt;/span&gt; &lt;span style="color:#75715e"&gt;# invoke kernel
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;# Exit syscall
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;rax&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;60&lt;/span&gt; &lt;span style="color:#75715e"&gt;# syscall number for exit (60)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;xor&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;rdi&lt;/span&gt;, &lt;span style="color:#66d9ef"&gt;rdi&lt;/span&gt; &lt;span style="color:#75715e"&gt;# exit code 0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;syscall&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Note: Indentation makes no sense in assembly, but I have write it for visual clarity.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Lets explore this line by line.&lt;/p&gt;
+&lt;h2&gt;Line 1: Assembler Directive For Syntax Clarity&lt;span class="hx:absolute hx:-mt-20" id="line-1-assembler-directive-for-syntax-clarity"&gt;&lt;/span&gt;
+&lt;a href="#line-1-assembler-directive-for-syntax-clarity" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Since we are writing in intel syntax but assembling it through GAS, we have to inform GAS about it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;.intel_syntax&lt;/code&gt; tells GAS we are writing in intel syntax.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.no_prefix&lt;/code&gt; tells GAS to strictly avoid &lt;code&gt;%&lt;/code&gt; and &lt;code&gt;$&lt;/code&gt; in instructions.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Line 2: Define Data&lt;span class="hx:absolute hx:-mt-20" id="line-2-define-data"&gt;&lt;/span&gt;
+&lt;a href="#line-2-define-data" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Remember, sections are assembler directives, not something that the CPU understands. This is for the assembler to maintain clarity in asm code.&lt;/p&gt;
+&lt;p&gt;The data section keeps all the static and global initialized data variables.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.section&lt;/code&gt; marks the start of a section and &lt;code&gt;.data&lt;/code&gt; tells that it is data section.&lt;/p&gt;
+&lt;p&gt;A section continues until a new section is defined. Therefore, both &lt;code&gt;msg&lt;/code&gt; and &lt;code&gt;len&lt;/code&gt; are part of the data section, where &lt;code&gt;msg&lt;/code&gt; and &lt;code&gt;len&lt;/code&gt; are &lt;strong&gt;constant labels&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note: Sections can be user-defined as well. But they are for advance use-cases.&lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;Line 3 And 4: DATA (Global And Static Variables)&lt;span class="hx:absolute hx:-mt-20" id="line-3-and-4-data-global-and-static-variables"&gt;&lt;/span&gt;
+&lt;a href="#line-3-and-4-data-global-and-static-variables" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-asm" data-lang="asm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;msg: &lt;span style="color:#a6e22e"&gt;.ascii&lt;/span&gt; &lt;span style="color:#e6db74"&gt;&amp;#34;Hello, world!\n&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;len&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;=&lt;/span&gt; . - &lt;span style="color:#66d9ef"&gt;msg&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;msg:&lt;/code&gt; is a label. It can contain anything &amp;ldquo;but we are storing a string buffer in it&amp;rdquo;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;What else can it contain? A future topic.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;len&lt;/code&gt; is a assembly-time constant. It calculates and contains the length of the buffer. It does this using the &lt;code&gt;.&lt;/code&gt; directive in GAS.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;.&lt;/code&gt; directive represents the current address in memory, where current address is defined as how much the assembler has moved in the memory.&lt;/li&gt;
+&lt;li&gt;When we created a label &lt;code&gt;msg&lt;/code&gt;, memory started to get occupied. Once that is done, we came on &lt;code&gt;len&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Now the pointer is just after where the buffer finished. This is what the &lt;code&gt;.&lt;/code&gt; directive &amp;ldquo;&lt;strong&gt;in GAS&lt;/strong&gt;&amp;rdquo; represents.&lt;/li&gt;
+&lt;li&gt;And the &lt;code&gt;msg&lt;/code&gt; label is a pointer to the start of the &amp;ldquo;hello world&amp;rdquo; buffer.&lt;/li&gt;
+&lt;li&gt;Subtracting the two gives us the effective length of the &amp;ldquo;hello world!&amp;rdquo; buffer.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Data section completed.&lt;/p&gt;
+&lt;h2&gt;The Instructions Section&lt;span class="hx:absolute hx:-mt-20" id="the-instructions-section"&gt;&lt;/span&gt;
+&lt;a href="#the-instructions-section" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;.section .text&lt;/code&gt; marks the start of text section. This section contains the instructions to the CPU. Basically, here goes the actual code.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.global&lt;/code&gt; is used to declare a symbol as globally accessible. Here, globally accessible means accessibility outside of the current file.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Again, an assembler directive, allowing a symbol to be accessed in other files or modules during the linking process.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you remove it, the code will still work. But it is important when there are multiple files.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Example, a C project might have multiple source files combined to generate one binary. There it becomes important.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;_start&lt;/code&gt; is the memory location (a label) where the execution starts from. Same as main() in C.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It is called by the OS. It is the entry-point label.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;.global _start&lt;/code&gt; makes &lt;code&gt;_start&lt;/code&gt; globally accessible.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note&lt;/strong&gt;: &lt;code&gt;_start&lt;/code&gt; is just another label. But this is what everyone has mutually agreed upon. Thus, assemblers look for it. We can define our own label and tell the linker to use it as well.&lt;/p&gt;
+&lt;h2&gt;Syscall Setup&lt;span class="hx:absolute hx:-mt-20" id="syscall-setup"&gt;&lt;/span&gt;
+&lt;a href="#syscall-setup" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;mov rax, 1&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;By convention, &lt;code&gt;rax&lt;/code&gt; is used to specify the system call number.&lt;/li&gt;
+&lt;li&gt;1 identifies the &amp;ldquo;write&amp;rdquo; system call.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;move rdi, 1&lt;/code&gt; sets the file descriptor to 1, which is used for standard output. This ensures that we see &amp;ldquo;hello world!\n&amp;rdquo; in the terminal.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;mov rsi, offset msg&lt;/code&gt; sets &lt;code&gt;rsi&lt;/code&gt; to hold the pointer to the message buffer.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;offset&lt;/code&gt; is a GAS directive.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;mov rdx, len&lt;/code&gt; sets the length of the buffer in &lt;code&gt;rdx&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;syscall&lt;/code&gt;, invoke the syscall.&lt;/p&gt;
+&lt;h3&gt;The &lt;code&gt;write&lt;/code&gt; Syscall&lt;span class="hx:absolute hx:-mt-20" id="the-write-syscall"&gt;&lt;/span&gt;
+&lt;a href="#the-write-syscall" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;write(fd=rdi, buffer=rsi, buffer_len=rdx)`&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The write syscall is used to output data to a file descriptor.&lt;/p&gt;
+&lt;p&gt;It takes 3 arguments which are passed through registers.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Argument 1&lt;/strong&gt;: File descriptor.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This defines where to write or where the output would go.&lt;/li&gt;
+&lt;li&gt;It goes in the &lt;code&gt;rdi&lt;/code&gt; register.&lt;/li&gt;
+&lt;li&gt;0 for &lt;code&gt;stdin&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;1 for &lt;code&gt;stdout&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;2 for &lt;code&gt;stderr&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Argument 2&lt;/strong&gt;: Pointer to the buffer that contains the data to be written.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This defines where is the item that has to be written.&lt;/li&gt;
+&lt;li&gt;This goes in &lt;code&gt;rsi&lt;/code&gt; register.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Argument 3&lt;/strong&gt;: Length of the buffer.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This defines the number of bytes to write.&lt;/li&gt;
+&lt;li&gt;This goes in the &lt;code&gt;rdx&lt;/code&gt; register.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Exit Syscall&lt;span class="hx:absolute hx:-mt-20" id="exit-syscall"&gt;&lt;/span&gt;
+&lt;a href="#exit-syscall" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;mov rax, 60&lt;/code&gt; sets the register for the next syscall, which is exit.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;xor rdi, rdi&lt;/code&gt; sets &lt;code&gt;rdi&lt;/code&gt; to 0 using a bitwise XOR (which is faster than &lt;code&gt;mov rdi, 0&lt;/code&gt;). This sets the exit code to zero.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;syscall&lt;/code&gt;, invoke the syscall.&lt;/p&gt;
+&lt;p&gt;Done.&lt;/p&gt;
+&lt;h2&gt;Fun Thing&lt;span class="hx:absolute hx:-mt-20" id="fun-thing"&gt;&lt;/span&gt;
+&lt;a href="#fun-thing" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A hello world program written in C won&amp;rsquo;t translate to such an assembly. That&amp;rsquo;s a complete rabbit hole but the reason is that it uses C runtime for setup and cleanup, which makes the assembly slightly different.&lt;/p&gt;
+&lt;p&gt;I have explored it in depth &lt;a href="../../understanding-hello-world/"&gt;here&lt;/a&gt;. But it is lengthy and takes time, so I would suggest not to explore that now.&lt;/p&gt;</description></item><item><title>The Idea Behind "Invisible Symbols"</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/invisible-symbols/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/invisible-symbols/</guid><description>
+&lt;p&gt;What are symbols? why everything is a symbol?&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.&lt;/code&gt; prefixed symbols&lt;/p&gt;</description></item><item><title>Numbers In Computer Science</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/binary-number-system/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/binary-number-system/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;Polished on 07 September 2025 (written in May 2025)&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;Number System Refresher&lt;span class="hx:absolute hx:-mt-20" id="number-system-refresher"&gt;&lt;/span&gt;
+&lt;a href="#number-system-refresher" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Primarily we have 4 number systems. They are: binary, octal, decimal and hexadecimal.&lt;/p&gt;
+&lt;p&gt;Normally we use the decimal number system.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;1 Byte = 8 Bits&lt;/p&gt;
+&lt;p&gt;Now it&amp;rsquo;s time to dive into binary number system.&lt;/p&gt;
+&lt;h2&gt;Revision&lt;span class="hx:absolute hx:-mt-20" id="revision"&gt;&lt;/span&gt;
+&lt;a href="#revision" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Everyone learns number lines in elementary school.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;A pictorial representation of numbers on a straight line.&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;That number line has a zero which separates negative numbers from positive numbers.&lt;/p&gt;
+&lt;p&gt;A whole number (-infinity to +infinity) with no fractional part is called an integer. A whole number with fractional part is a decimal.&lt;/p&gt;
+&lt;h2&gt;Binary To Decimal Conversion&lt;span class="hx:absolute hx:-mt-20" id="binary-to-decimal-conversion"&gt;&lt;/span&gt;
+&lt;a href="#binary-to-decimal-conversion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Before we dive any further, it is important to understand how bits relate with decimals.&lt;/p&gt;
+&lt;p&gt;To obtain the decimal equivalent of a group of bits, we just have to multiply each bit with a power of 2. &lt;/p&gt;
+&lt;p&gt;For example: &lt;code&gt;0101&lt;/code&gt; ; to obtain it decimal equivalent, we have to multiply each digit right to left with a power of 2. The power starts from 0 and goes up to &lt;code&gt;digit - 1&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;0101&lt;/code&gt; = &lt;code&gt;0* 2^3 + 1* 2^2 + 0* 2^1 + 1* 2^0&lt;/code&gt; = &lt;code&gt;0 + 4 + 0 + 1&lt;/code&gt; = 5.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you have any problem, it is discussed &lt;strong&gt;in detail&lt;/strong&gt; below.&lt;/p&gt;
+&lt;h2&gt;Types Of Numbers&lt;span class="hx:absolute hx:-mt-20" id="types-of-numbers"&gt;&lt;/span&gt;
+&lt;a href="#types-of-numbers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In computer science, there are 3 types of numbers, or, better is, 3 levels of difficulty with numbers.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Unsigned integers are positive integers.&lt;/li&gt;
+&lt;li&gt;Signed integers are &amp;ldquo;positive and negative Integers&amp;rdquo; &lt;em&gt;together.&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Floating point values.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;There is no name for &amp;ldquo;negative integers only&amp;rdquo; in computer science.&lt;/p&gt;
+&lt;p&gt;Fractions are popularly known as &lt;strong&gt;floating point integers&lt;/strong&gt;.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;In unsigned integers, it is simple.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When all the bits are 0, &lt;code&gt;0b00000000&lt;/code&gt;, it is 0.&lt;/li&gt;
+&lt;li&gt;When all the bits are 1, &lt;code&gt;0b11111111&lt;/code&gt;, it is 255.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With signed integers comes problems.&lt;/p&gt;
+&lt;p&gt;Signed integers are implemented using two&amp;rsquo;s complement.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;What is 2&amp;rsquo;s complement? Discussed below.&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To represent signed integers, we use the most significant bit as the sign bit. It is how we keep tracks of positivity and negativity.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;0 = positive&lt;/li&gt;
+&lt;li&gt;1 = negative&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;em&gt;What is this most significant bit? Discussed below.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Thus, a group of 8-bits can represent -128 to +127. Their representation is as follows:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;0 =&amp;gt; 0b00000000
+&amp;#43;127 =&amp;gt; 0b01111111
+-128 =&amp;gt; 0b10000000
+-1 =&amp;gt; 0b11111111&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Representing Negative Integers&lt;span class="hx:absolute hx:-mt-20" id="representing-negative-integers"&gt;&lt;/span&gt;
+&lt;a href="#representing-negative-integers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In binary number system, + and - holds no meaning. Complements are how we represent negative numbers here.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Complements are mathematical transformations of binary numbers, specifically designed for how binary arithmetic works in computers.&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The most common ones are: 1&amp;rsquo;s and 2&amp;rsquo;s complement.&lt;/p&gt;
+&lt;h3&gt;Types Of Bits&lt;span class="hx:absolute hx:-mt-20" id="types-of-bits"&gt;&lt;/span&gt;
+&lt;a href="#types-of-bits" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Primarily there are two types of bits.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Least Significant Bit (LSB) : It is the rightmost bit in the binary representation of an integer. It is called &lt;strong&gt;least&lt;/strong&gt; because setting this ON/OFF has the least impact on the magnitude of the value.&lt;/li&gt;
+&lt;li&gt;Most Significant Bit (MSB) : It is the leftmost bit in the binary representation of an integer. It is called &lt;strong&gt;most&lt;/strong&gt; because setting this ON/OFF has the largest possible impact on the magnitude of the value.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;15 is represented by &lt;code&gt;1111&lt;/code&gt; in 4-bits.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you set LSB to 0, we get &lt;code&gt;1110&lt;/code&gt; which is 14. The magnitude is lowered by 1 only.&lt;/li&gt;
+&lt;li&gt;If you set MSB to 0, we get &lt;code&gt;0111&lt;/code&gt;, which is 7. The magnitude is lowered by 8.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;1&amp;rsquo;s Complement&lt;span class="hx:absolute hx:-mt-20" id="1s-complement"&gt;&lt;/span&gt;
+&lt;a href="#1s-complement" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;The value you must add to a number so the result is a string of 1s or the result is the maximum value that you can represent with the number of bits.&lt;/p&gt;
+&lt;p&gt;To get the 1&amp;rsquo;s complement of a binary number: Flip all bits (change 0s to 1s and 1s to 0s).&lt;/p&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;5 in binary is represented by: &lt;code&gt;0b00000101&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;1&amp;rsquo;s complement of 5 (= -5): &lt;code&gt;0b11111010&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The problem with 1&amp;rsquo;s complement is that it has two representation of 0.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;+0 = &lt;code&gt;0b00000000&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;-0 = &lt;code&gt;0b11111111&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;But 0 is one digit. + and - are insignificant for it.&lt;/p&gt;
+&lt;h3&gt;2&amp;rsquo;s Complement&lt;span class="hx:absolute hx:-mt-20" id="2s-complement"&gt;&lt;/span&gt;
+&lt;a href="#2s-complement" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;In 2&amp;rsquo;s complement, the number of possible combinations are divided into two halves.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Lowe halve: positive integers&lt;/li&gt;
+&lt;li&gt;Upper halve: negative integers&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To obtain 2&amp;rsquo;s complement of a number:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Start with a binary representation.&lt;/li&gt;
+&lt;li&gt;Get 1&amp;rsquo;s complement.&lt;/li&gt;
+&lt;li&gt;Add 1 (0001) to the result.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;5 in binary is represented by: &lt;code&gt;0b00000101&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;1&amp;rsquo;s complement of 5: &lt;code&gt;0b11111010&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Add 1: &lt;code&gt;0b11111010&lt;/code&gt; + &lt;code&gt;0b00000001&lt;/code&gt; = &lt;code&gt;0b11111011&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;We get -5 in 2&amp;rsquo;s complement as &lt;code&gt;0b11111011&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;0b00000101&lt;/code&gt; - &lt;code&gt;0b11111011&lt;/code&gt; = &lt;code&gt;0b00000000&lt;/code&gt;, Hence proved!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;How 2&amp;rsquo;s complement this solves the problem of 0?&lt;span class="hx:absolute hx:-mt-20" id="how-2s-complement-this-solves-the-problem-of-0"&gt;&lt;/span&gt;
+&lt;a href="#how-2s-complement-this-solves-the-problem-of-0" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Lets take an example using 4-bits, because combinations here are neither too less, nor too more.&lt;/p&gt;
+&lt;p&gt;4-bits can represent 16 combinations, or better, &lt;strong&gt;16 unsigned integers&lt;/strong&gt; from 0 to 15. These combinations are: &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111, 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;2&amp;rsquo;s complement divides these into two halves. Both of them gets 8 values each.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Lower Half :: 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111,
+Upper Half :: 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;We can use the range formula mentioned above to verify this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;=&amp;gt; [(-2)^(4-1), 2^(4-1)-1]
+=&amp;gt; [(-2)^3, (2^3)-1]
+=&amp;gt; [-8, &amp;#43;7]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Let&amp;rsquo;s see how the upper halve maps to negative integers.&lt;/p&gt;
+&lt;p&gt;First of all, If you notice, all the combination in the upper half have the most significant bit set to 1.&lt;/p&gt;
+&lt;p&gt;Second, to obtain integers from 8-15, 4th bit must be set to 1. But it is not required with 0-7. This is the distinction.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In 2&amp;rsquo;s complement, positive integers have their MSB set to 0 and negative integers have this bit set to 1.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now take the upper half and put it in the left of the lower halve. We&amp;rsquo;ll get something like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111, 0000, 0001, 0010, 0011, 0100, 0101, 0110, 0111
+-8 -7 -6 -5 -4 -3 -2 -1 0 &amp;#43;1 &amp;#43;2 &amp;#43;3 &amp;#43;4 &amp;#43;5 &amp;#43;6 &amp;#43;7&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;To obtain the negative representation of 0, we need the MSB as 1 and rest of the bits as 0, which brings us to 1000, which represents -8.&lt;/p&gt;
+&lt;p&gt;We can notice a pattern from the grid above. Every negative integer is of the form &lt;code&gt;-(2^n) + (+ve integer)&lt;/code&gt; . For example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;-8 =&amp;gt; -(2^4) &amp;#43; (&amp;#43;8) = -16 &amp;#43; 8 = -8 (1000)
+-1 =&amp;gt; -(2^4) &amp;#43; (&amp;#43;1) = -16 &amp;#43; 1 = -15 (1111)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If we try the same for 0, we get&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;-0 =&amp;gt; -(2^4) &amp;#43; (&amp;#43;0) = -16 &amp;#43; 0 = -16&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;But 16 as a combination is not possible using 4-bits.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This proves that 2&amp;rsquo;s complement by design has no room for two representations of zero.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Binary Arithmetic&lt;span class="hx:absolute hx:-mt-20" id="binary-arithmetic"&gt;&lt;/span&gt;
+&lt;a href="#binary-arithmetic" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Take out your elementary mathematics notes because we are going to need them&lt;/p&gt;
+&lt;h3&gt;Unsigned Arithmetic&lt;span class="hx:absolute hx:-mt-20" id="unsigned-arithmetic"&gt;&lt;/span&gt;
+&lt;a href="#unsigned-arithmetic" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Everything is same, only the borrowing value is different. But the borrow value is calculated the same way.&lt;/p&gt;
+&lt;h4&gt;Addition&lt;span class="hx:absolute hx:-mt-20" id="addition"&gt;&lt;/span&gt;
+&lt;a href="#addition" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;Carry&lt;/strong&gt; once the sum exceeds 1. And dispose than 1 only when the result of a sum is 0.&lt;/p&gt;
+&lt;p&gt;Basically, if the digits in sum are more than 1, you have to carry.&lt;/p&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; 0011 (3)
+1101 (13)
+= 10000 (16)
+We have to add a new bit because the result exceeded the bit-limit.
+0011 (3)
+0110 (6)
+= 1001 (9)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h4&gt;Subtraction&lt;span class="hx:absolute hx:-mt-20" id="subtraction"&gt;&lt;/span&gt;
+&lt;a href="#subtraction" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h4&gt;&lt;p&gt;&lt;em&gt;Take out you subtraction notes now. We are gonna need them. Just joking. If you don&amp;rsquo;t remember, you&amp;rsquo;ll.&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;We know that &lt;code&gt;10 - 8 = 2&lt;/code&gt;. And we can do the same for any operands. But this process has become so automatic that we have internalize the theory subconsciously and forget it consciously.&lt;/p&gt;
+&lt;p&gt;To understand binary subtraction, we have to revisit how subtraction works.&lt;/p&gt;
+&lt;p&gt;In decimal number system, every digit in a number has a &lt;em&gt;&lt;strong&gt;position&lt;/strong&gt;&lt;/em&gt; attached to it. For example, take &lt;code&gt;49521&lt;/code&gt; . Moving from right to left,&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1 is the ones digit,&lt;/li&gt;
+&lt;li&gt;2 is the tens digit,&lt;/li&gt;
+&lt;li&gt;5 is the hundreds digit,&lt;/li&gt;
+&lt;li&gt;9 is the thousands digit, and&lt;/li&gt;
+&lt;li&gt;4 is the ten-thousands digit.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These positions aren&amp;rsquo;t NPCs, they have a purpose. And this &lt;em&gt;purpose&lt;/em&gt; is the whole &lt;strong&gt;purpose of our revisit.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;We know that decimal system is a base-10 system. But what does that actually mean?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;It means that every position has a &lt;strong&gt;weight&lt;/strong&gt; attached to it, where &lt;strong&gt;weights&lt;/strong&gt; are indices raised to the power of base and &lt;strong&gt;indices&lt;/strong&gt;&lt;/em&gt; refers to a numerical identity, given to a position. &lt;em&gt;These &lt;strong&gt;indices&lt;/strong&gt; start from 0 and go till (number of digits - 1).&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Therefore,&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The ones position carries a weight of 10^0 = 1.&lt;/li&gt;
+&lt;li&gt;The tens position carries a weight of 10^1 = 10&lt;/li&gt;
+&lt;li&gt;The hundreds position carries a weight of 10^2 = 100&lt;/li&gt;
+&lt;li&gt;The thousands position carries a weight of 10^3 = 1000&lt;/li&gt;
+&lt;li&gt;The ten-thousands position carries a weight of 10^4 = 10000&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;In division, we have dividend (numerator) and divisor (denominator). In subtraction, we have &lt;em&gt;&lt;strong&gt;minuend&lt;/strong&gt;&lt;/em&gt; and &lt;em&gt;&lt;strong&gt;subtrahend&lt;/strong&gt;&lt;/em&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Even I can&amp;rsquo;t remember if I have heard these words before.&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To keep things simple, if we have &lt;code&gt;op1 - op2&lt;/code&gt; operation, op1 is the &lt;em&gt;&lt;strong&gt;minuend&lt;/strong&gt;&lt;/em&gt; and op2 is the &lt;em&gt;&lt;strong&gt;subtrahend&lt;/strong&gt;&lt;/em&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;There are multiple techniques to do subtraction.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;In school, we have learned &lt;em&gt;&lt;strong&gt;column-based subtraction&lt;/strong&gt;&lt;/em&gt;, which involves borrowing from the left digits.&lt;/li&gt;
+&lt;li&gt;We can &lt;strong&gt;add equal&lt;/strong&gt; numbers to both minuend and subtrahend and make the subtrahend end with zero. It helps visually, that&amp;rsquo;s it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Subtraction&lt;/strong&gt; by complement. A quite easy way to do subtraction, and computers this.&lt;/li&gt;
+&lt;li&gt;Most simplest way, &lt;strong&gt;counting&lt;/strong&gt;, &lt;em&gt;even though I confuse that as well, sometimes&lt;/em&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Decomposition&lt;/strong&gt;. I love this one and use it quite often, when I don&amp;rsquo;t have calculator. We break numbers in pairs of 10s. Like 4215 can be broken into 4200 + 15. 2307 can be broken into 2300 + 7. 4200 - 2300 is simple, 1900. So as 15 - 7, 8. Add at last, 1900 + 8, result = 1908. I use this in addition as well.&lt;/li&gt;
+&lt;li&gt;And yes, I didn&amp;rsquo;t forget calculator!&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;We have to study column-based subtraction for binary bits.&lt;/p&gt;
+&lt;p&gt;When doing column-based subtraction, we subtract digits at corresponding positions in minuend and subtrahend. For example: 4215 and 2307. The digit at ones position (7) will be subtracted from the digit at ones position (5) only.&lt;/p&gt;
+&lt;p&gt;Sometimes, we get stuck when the corresponding minuend is lesser than the subtrahend. In that case, we &lt;em&gt;&lt;strong&gt;borrow&lt;/strong&gt;&lt;/em&gt; from the left side. This is where the problem is.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s take &lt;code&gt;10 - 4&lt;/code&gt; as borrowing is inevitable here.&lt;/p&gt;
+&lt;p&gt;We are taught that when we borrow, we reduce the one from the lender and add 10 to the borrower. So, 0 borrowing from 1 becomes 10. Now it can subtract.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;You may ask, it was 10 before as well. And seriously, I also want to know the &amp;ldquo;commonsense&amp;rdquo; behind this. But anyways.&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Similarly, in &lt;code&gt;20 - 4&lt;/code&gt;, we just need 10, not the entire 20. Upon looking closely, 20 is just 10+10. Problem solved. Take out one 10 and give it to 0.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;But why 10 only? Why not any arbitrary number? And the answer is &lt;strong&gt;weight&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Treat positions like containers, where every container has a limit on how much it can contain.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The ones position has a weight 10^0 or 1. It can&amp;rsquo;t contain more than that. And 1 here represents the base value, which is 10, not the literal 1.&lt;/li&gt;
+&lt;li&gt;That is why we have never borrowed more than 10. Because it can&amp;rsquo;t hold more. And to keep thing consistent, we borrow the max value, not any arbitrary digit.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;That&amp;rsquo;s all we need to know. &lt;em&gt;Looks easy huh?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Lets tackle binary subtraction now.&lt;/p&gt;
+&lt;p&gt;There are 4 rules, 3 of them are straightforward. And one is the rebel.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;0 - 0 = 0
+1 - 1 = 0
+1 - 0 = 1
+0 - 1 = 1 # the problem&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Take this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;_ 0110 (6)
+0100 (4)
+= 0010 (2)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;Simple.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;And these?&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;_ 0100 (4)
+0001 (1)
+= 0011
+_ 1010 (10)
+0011 (3)
+= 0111&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If you are questioning &lt;em&gt;what and how&lt;/em&gt;, then we are on the same page. I have also wasted hours figuring out the same.&lt;/p&gt;
+&lt;p&gt;Anyone who has spend time with binary knows about &amp;ldquo;8 4 2 1&amp;rdquo;. Some might know it by name, others use it as is. I fall in the others category.&lt;/p&gt;
+&lt;p&gt;My search brought me to this YouTube video: &lt;a href="https://www.youtube.com/watch?v=AE-27BSbkJ4%5c&amp;amp;t=629s%5c&amp;amp;pp=ygUSYmluYXJ5IHN1YnRyYWN0aW9u"target="_blank" rel="noopener"&gt;Binary Addition and Subtraction Explained (with Examples)&lt;/a&gt;. And the first time, I got introduced to the term &lt;strong&gt;weights&lt;/strong&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;These 8 4 2 1 are the weights in binary number system.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;To obtain weight for any given position, we use this formula: &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Weight For Position i = (base)^i&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Lets look at the minuend, &lt;code&gt;1010&lt;/code&gt;. The weights attached to each digit are: &lt;code&gt;[2^3:1, 2^2:0, 2^1:1, 2^0:0]&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;To convert binary representation into decimal, we have to multiply the digit with its weight and sum-up the result. For example, 1010. The weights are 8421. We get &lt;code&gt;8 + 2 = 10&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;From this, can we say that,&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1 at 0th bit position represents &lt;code&gt;2^0&lt;/code&gt;?&lt;/li&gt;
+&lt;li&gt;1 at 3rd bit represents &lt;code&gt;2^3&lt;/code&gt;?&lt;/li&gt;
+&lt;li&gt;And a 1 at position &lt;code&gt;i&lt;/code&gt; represents &lt;code&gt;2^i&lt;/code&gt;?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A bit at index 3 is basically inside a container which can hold a maximum value of &lt;code&gt;2^3&lt;/code&gt; (size in decimals). But in binary, it is still about 0 and 1.&lt;/p&gt;
+&lt;p&gt;I think &lt;code&gt;10 - 3&lt;/code&gt; is a really complex binary subtraction primarily because of how borrowing works.&lt;/p&gt;
+&lt;p&gt;To visualize borrowing, lets take a simple example.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;8 - 3 = 5
+_ 1000 (Minuend, 8)
+0011 (Subtrahend, 3)
+= ____&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Subtraction process starts the same, from right towards left.&lt;/p&gt;
+&lt;p&gt;Here is a simple table to condense this information.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Attribute&lt;/th&gt;
+&lt;th&gt;Value At Bit&lt;/th&gt;
+&lt;th&gt;Value At Bit&lt;/th&gt;
+&lt;th&gt;Value At Bit&lt;/th&gt;
+&lt;th&gt;Value At Bit&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Index&lt;/td&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Weight&lt;/td&gt;
+&lt;td&gt;2^3 = 8&lt;/td&gt;
+&lt;td&gt;2^2 = 4&lt;/td&gt;
+&lt;td&gt;2^1 = 2&lt;/td&gt;
+&lt;td&gt;2^0 = 1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Minuend&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Subtrahend&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Now lets understand &lt;em&gt;&lt;strong&gt;borrowing&lt;/strong&gt;&lt;/em&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;bit-0 subtraction needs borrowing. It goes to bit-1.&lt;/li&gt;
+&lt;li&gt;bit-1 also needs borrowing. It goes to bit-2.&lt;/li&gt;
+&lt;li&gt;bit-2 also needs borrowing. It goes to bit-3.&lt;/li&gt;
+&lt;li&gt;bit-3 is 1, so it can lend. The weight attached to bit 3 is 8.&lt;/li&gt;
+&lt;li&gt;bit-2 has come to ask for lending from bit-3. But the maximum that bit-2 can contain is 2^2. But bit-3 can lend 2^3 only. Because in binary, either you have 0 or you have 1.&lt;/li&gt;
+&lt;li&gt;So bit-3 breaks itself as 4+4, which is same as 2 units of 2^2. And notice, 2^2 is exactly what bit-2 can hold at max. But there are two units. &lt;em&gt;Lets not go any further and assume it can hold it&lt;/em&gt;. Lending successful.&lt;/li&gt;
+&lt;li&gt;Status:
+&lt;ul&gt;
+&lt;li&gt;bit-3 = 0&lt;/li&gt;
+&lt;li&gt;bit-2 = something that 2*(2^2) might refer to.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Now bit-2 lends to bit-1. It has got two units of 2^2.&lt;/li&gt;
+&lt;li&gt;But again, bit-1 can hold up to 2^1 only. So bit-2 breaks one of its units 2^2 as 2 * (2^1). And lends it to bit-1. Lending successful.&lt;/li&gt;
+&lt;li&gt;Status:
+&lt;ul&gt;
+&lt;li&gt;bit-3: 0&lt;/li&gt;
+&lt;li&gt;bit-2: something that 2^2 might refer to. One unit is now given to bit-1.&lt;/li&gt;
+&lt;li&gt;bit-1: something that 2*(2^1) might refer to.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Now bit-1 lends to bit-0. It has two units of 2^1.&lt;/li&gt;
+&lt;li&gt;But once again, bit-0 can only hold up to 2^0. So bit-1 breaks one of its units 2^1 as 2 * (2^0), And lends it to bit-0. Lending successful.&lt;/li&gt;
+&lt;li&gt;Status:
+&lt;ul&gt;
+&lt;li&gt;bit-3: 0&lt;/li&gt;
+&lt;li&gt;bit-2: something that 2^2 might refer to.&lt;/li&gt;
+&lt;li&gt;bit-1: something that 2^1 might refer to. One unit is now given to bit-0.&lt;/li&gt;
+&lt;li&gt;bit-0: something that 2*(2^0) might refer to.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now, no more lending or borrowing.&lt;/p&gt;
+&lt;p&gt;What is this &amp;ldquo;something that __ might refer to&amp;rdquo;? What do they actually refer to?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Just look at them, you&amp;rsquo;ll find your answer.&lt;/li&gt;
+&lt;li&gt;bit-3 is already zeroed, so no confusion.&lt;/li&gt;
+&lt;li&gt;bit-2 is 2^2, from the table above, it is exactly the weight it can contain, that means, a 1.&lt;/li&gt;
+&lt;li&gt;bit-1 is 2^1, from the table above, it is exactly the weight it can contain, that means, a 1.&lt;/li&gt;
+&lt;li&gt;bit-0 is 2 units of 2^0 or better, 2 units of 1.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now, lets do the subtraction.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;_ 1 0 0 0
+0 0 1 1
+can be written as
+_ 0 1 1 (1&amp;#43;1)
+0 0 1 1&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;I don&amp;rsquo;t think its tough anymore. The answer is 0101, precisely what we needed.&lt;/p&gt;
+&lt;p&gt;Lets tackle the final boss now, which spiraled me to understand subtraction from its roots.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;_ 1 0 1 0 (10)
+0 0 1 1 (3)
+can be written as
+_ 0 1 (1&amp;#43;1) (1&amp;#43;1)
+0 0 1 1
+= 0 1 1 1 (7)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;And, we are done!&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;In the end, binary subtraction is mysterious because of the fundamentals not being right.&lt;/p&gt;
+&lt;p&gt;Most of the people advising &amp;ldquo;&lt;em&gt;Your fundamentals have to be really strong&lt;/em&gt;&amp;rdquo; might not even realize the depth of their statement. It can easily turn into a rabbit hole because of our incomplete understanding and things becoming automatic (subconscious).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;But don&amp;rsquo;t assume this was the final boss.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Signed Arithmetic&lt;span class="hx:absolute hx:-mt-20" id="signed-arithmetic"&gt;&lt;/span&gt;
+&lt;a href="#signed-arithmetic" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Computers use 2&amp;rsquo;s complement so it is pretty straightforward.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;A - B&lt;/code&gt; becomes &lt;code&gt;A + (-B)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;We obtain &lt;code&gt;-B&lt;/code&gt; using 2&amp;rsquo;s complement.&lt;/p&gt;
+&lt;p&gt;Example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;A = 0101 (5)
+B = 0011 (3)
+5 - 3 = 2
+A - B =&amp;gt; A &amp;#43; (-B)
+-B = 1&amp;#39;s complement (B) &amp;#43; 0011
+= 1100 &amp;#43; 0001
+= 1101
+A - B = A &amp;#43; (-B)
+= 0101 &amp;#43; 1101
+= 10010 (discard carry)
+= 0010
+= 2
+Hence Proved&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It is no black magic, first of all.&lt;/p&gt;
+&lt;p&gt;Second, signed numbers and floats is where the problem is.&lt;/p&gt;</description></item><item><title>Endianness</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/endianness/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/endianness/</guid><description/></item><item><title>Bitwise Operations</title><link>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/bitwise-operations/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/low-level-architecture/orientation/bitwise-operations/</guid><description>
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;08 September 2025&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;Introduction&lt;span class="hx:absolute hx:-mt-20" id="introduction"&gt;&lt;/span&gt;
+&lt;a href="#introduction" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;As named, bitwise operations are logical operations performed on the individual bits of a binary representation.&lt;/p&gt;
+&lt;p&gt;We have logic gates like &lt;code&gt;AND&lt;/code&gt;, &lt;code&gt;OR&lt;/code&gt;, &lt;code&gt;NOT&lt;/code&gt; and others which are made up of these fundamental logic gates, like &lt;code&gt;NOR&lt;/code&gt; and &lt;code&gt;XOR&lt;/code&gt;. When we perform these logical operations on bits, it becomes a bitwise operation.&lt;/p&gt;
+&lt;p&gt;From boolean algebra, we know this.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;1 and 1 = 1
+1 or 1 = 1
+1 and 0 = 0
+1 or 0 = 1
+0 and 0 = 0
+0 or 0 = 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The same idea is applied either it is normal logical operations or bitwise operations.&lt;/p&gt;
+&lt;p&gt;In C, we use:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Operation&lt;/th&gt;
+&lt;th&gt;Symbol&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;AND&lt;/td&gt;
+&lt;td&gt;&amp;amp;&amp;amp;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;OR&lt;/td&gt;
+&lt;td&gt;||&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;NOT&lt;/td&gt;
+&lt;td&gt;!&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Bitwise AND&lt;/td&gt;
+&lt;td&gt;&amp;amp;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Bitwise OR&lt;/td&gt;
+&lt;td&gt;|&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Bitwise NOT&lt;/td&gt;
+&lt;td&gt;~&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Left shift&lt;/td&gt;
+&lt;td&gt;&amp;laquo;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Right shift&lt;/td&gt;
+&lt;td&gt;&amp;raquo;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Let&amp;rsquo;s take some examples to understand how bitwise operations work&lt;/p&gt;
+&lt;h2&gt;Examples&lt;span class="hx:absolute hx:-mt-20" id="examples"&gt;&lt;/span&gt;
+&lt;a href="#examples" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;In bitwise AND, compare the bits in both the operands and put 1 in the output for that bit if both the operands have 1, else 0.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 &amp;amp; 5 = 5
+0101
+&amp;amp; 0101
+------
+= 0101
+------&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 &amp;amp; 6 = 4
+0101
+&amp;amp; 0110
+------
+= 0100
+------&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;In bitwise OR, compare the bits in both operands and put 1 in the output bit if at least one operand bit is 1, else 0.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 | 5 = 5
+0101
+| 0101
+------
+= 0101
+------&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 | 6 = 7
+0101
+&amp;amp; 0110
+------
+= 0111
+------&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;In bitwise NOT, flip all the bits in the output.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; 6 = 0110
+~6 = 1001 (-7)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Be cautious and remember the rule of &lt;strong&gt;interpretation&lt;/strong&gt; as the output might not be what you expect if you don&amp;rsquo;t factor it. Take this: &lt;code&gt;int a = ~6;&lt;/code&gt; &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you use &lt;code&gt;%d&lt;/code&gt; format specifier, you &lt;code&gt;-7&lt;/code&gt; as ints are signed by default.&lt;/li&gt;
+&lt;li&gt;If you use &lt;code&gt;%u&lt;/code&gt; format specifier, you get &lt;code&gt;4294967289&lt;/code&gt; as it interprets the value as unsigned int.&lt;/li&gt;
+&lt;li&gt;And it is applicable to any pattern that can produce both signed and unsigned interpretations.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The bitwise XOR operation is made up of all the three fundamental operations.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;XOR(A, B) = (A AND NOT B) OR (B AND NOT A) .&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;In simple words, set the bit to 1 where the bits are different.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 ^ 6 = 3
+0101
+^ 0110
+------
+= 0011
+------&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;hr&gt;
+&lt;p&gt;Let&amp;rsquo;s talk about shifts now.&lt;/p&gt;
+&lt;p&gt;In left shift, we move from right to left and shift all the bits by n positions and the new bits in right will be 0. For example,&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 &amp;lt;&amp;lt; 2
+=&amp;gt; 00000101 &amp;lt;&amp;lt; 2
+=&amp;gt; 00010100&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;So &lt;code&gt;5 &amp;lt;&amp;lt; 2&lt;/code&gt; = &lt;code&gt;20&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In right shift, we move all bits to the &lt;strong&gt;right&lt;/strong&gt; by &lt;code&gt;n&lt;/code&gt; positions. We have two options here.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Arithmetic right shift is where the sign is preserved. The new bits on the left are copies of the &lt;strong&gt;sign bit&lt;/strong&gt;. For example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;11010000 &amp;gt;&amp;gt; 2
+=&amp;gt; 11110100
+00001100 &amp;gt;&amp;gt; 2
+=&amp;gt; 00000011&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Logical right shift is normal shifting. For example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;11010000 &amp;gt;&amp;gt; 2
+=&amp;gt; 00110100&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;If the value get passed the limit, it is discarded. For example:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;11001100 &amp;lt;&amp;lt; 2
+=&amp;gt; 00110000
+00001100 &amp;gt;&amp;gt; 4
+=&amp;gt; 00000000&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Rotation&lt;span class="hx:absolute hx:-mt-20" id="rotation"&gt;&lt;/span&gt;
+&lt;a href="#rotation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Rotation is shifting with wrapping. The values which get past the container limit are wrapped on the other side.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;10110001 rol 2
+=&amp;gt; 11000110
+10110001 ror 2
+=&amp;gt; 01101100&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;What Use?&lt;span class="hx:absolute hx:-mt-20" id="what-use"&gt;&lt;/span&gt;
+&lt;a href="#what-use" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;Performance&lt;span class="hx:absolute hx:-mt-20" id="performance"&gt;&lt;/span&gt;
+&lt;a href="#performance" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Bitwise operation are single instructions and multiplication/division is more costlier. So, if the system can achieve the same thing with bitwise ops, it optimizes for that.&lt;/p&gt;
+&lt;p&gt;For example:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;(x &amp;lt;&amp;lt; n``) ~= (x* 2^n)&lt;/code&gt; . &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 &amp;lt;&amp;lt; 2 = 20
+5*(2^2) = 5*4 = 20&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;(x &amp;gt;&amp;gt; n``) ~= (x/ 2^n)&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;5 &amp;gt;&amp;gt; 2 = 1
+5/(2^2) = 1&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Data Compression&lt;span class="hx:absolute hx:-mt-20" id="data-compression"&gt;&lt;/span&gt;
+&lt;a href="#data-compression" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;We can use one a single int to compress multiple information and use bit shifts to obtain the correct values.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Bitwise Operation&lt;/th&gt;
+&lt;th&gt;Symbol in C&lt;/th&gt;
+&lt;th&gt;Instruction In x64 Assembly&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Bitwise AND&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;&amp;amp;&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;and reg, reg/mem/imm&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Keeps only common &lt;code&gt;1&lt;/code&gt; bits&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Bitwise OR&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;|&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;or reg, reg/mem/imm&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Bitwise XOR&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;^&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;xor reg, reg/mem/imm&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Sets bit if different&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Bitwise NOT&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;~&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;not reg/mem&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Flips all bits&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Logical AND (boolean)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;test reg, reg/mem&lt;/code&gt; + &lt;code&gt;jcc&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;In C it’s short-circuit; in asm use &lt;code&gt;test&lt;/code&gt;/&lt;code&gt;cmp&lt;/code&gt; + jump&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Logical OR (boolean)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;||&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Logical NOT (boolean)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;!&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;test&lt;/code&gt;/&lt;code&gt;cmp&lt;/code&gt; + &lt;code&gt;setz&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Inverts truth value&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Left Shift&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;&amp;lt;&amp;lt;&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;shl reg, imm/cl&lt;/code&gt; or &lt;code&gt;sal reg, imm/cl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Fill right with &lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Right Shift (logical)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;&amp;gt;&amp;gt;&lt;/code&gt; (unsigned)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;shr reg, imm/cl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Fill left with &lt;code&gt;0&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Right Shift (arith.)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;&amp;gt;&amp;gt;&lt;/code&gt; (signed)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;sar reg, imm/cl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Fill left with sign bit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Rotate Left&lt;/td&gt;
+&lt;td&gt;–&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;rol reg, imm/cl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Bits wrap left-to-right&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Rotate Right&lt;/td&gt;
+&lt;td&gt;–&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;ror reg, imm/cl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Bits wrap right-to-left&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Rotate Left w/ Carry&lt;/td&gt;
+&lt;td&gt;–&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;rcl reg, imm/cl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Includes CF as extra bit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Rotate Right w/ Carry&lt;/td&gt;
+&lt;td&gt;–&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;rcr reg, imm/cl&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Includes CF as extra bit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</description></item></channel></rss>

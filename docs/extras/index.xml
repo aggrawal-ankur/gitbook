@@ -1,0 +1,829 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level –</title><link>https://hi-anki.github.io/gitbook/docs/extras/</link><description>Recent content on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/extras/index.xml" rel="self" type="application/rss+xml"/><item><title/><link>https://hi-anki.github.io/gitbook/docs/extras/garbage-collection/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/extras/garbage-collection/</guid><description>
+&lt;h1&gt;What Is Garbage Collection?&lt;/h1&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/extras/how-package-management-works/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/extras/how-package-management-works/</guid><description>
+&lt;h1&gt;How Package Management Works?&lt;/h1&gt;&lt;p&gt;apt, npm, yarn, pip&lt;/p&gt;
+&lt;p&gt;sources&lt;/p&gt;
+&lt;p&gt;repositories&lt;/p&gt;
+&lt;p&gt;gpg keys&lt;/p&gt;
+&lt;p&gt;channels&lt;/p&gt;
+&lt;p&gt;contrib main non-free&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/extras/inline-assembly/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/extras/inline-assembly/</guid><description>
+&lt;h1&gt;Inline Assembly&lt;/h1&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/extras/processes/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/extras/processes/</guid><description>
+&lt;h1&gt;Introduction To Processes In Linux&lt;/h1&gt;&lt;h2&gt;Introduction To Processes&lt;span class="hx:absolute hx:-mt-20" id="introduction-to-processes"&gt;&lt;/span&gt;
+&lt;a href="#introduction-to-processes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A process is an instance of a running program. Every time you execute a command or run a program, the Linux kernel creates a process to run it.&lt;/p&gt;
+&lt;p&gt;Every process gets a virtual address space (VAS), which is mostly made up of the program image.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A virtual memory address (VMA) is the same as the name of a street and the physical memory address (PMA) is the actual GPS coordinates.&lt;/li&gt;
+&lt;li&gt;Two cities can have a &amp;ldquo;main street&amp;rdquo; but their coordinates would be unique.&lt;/li&gt;
+&lt;li&gt;Every process gets its own isolated address space, thanks to virtual memory. So your program might access 0x400000, but that doesn&amp;rsquo;t mean that&amp;rsquo;s the physical address.&lt;/li&gt;
+&lt;li&gt;The OS + hardware&amp;rsquo;s MMU (Memory Management Unit) maps VMA to PMA.&lt;/li&gt;
+&lt;li&gt;Without the MMU, all processes would share the same memory space — like roommates with no walls.
+&lt;ul&gt;
+&lt;li&gt;A bug in one process could overwrite another process&amp;rsquo;s memory.&lt;/li&gt;
+&lt;li&gt;With MMU, each process gets its own private virtual address space. It&amp;rsquo;s still messy on ground level but easier for management. It&amp;rsquo;s a nice abstraction.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;Process Hierarchy&lt;span class="hx:absolute hx:-mt-20" id="process-hierarchy"&gt;&lt;/span&gt;
+&lt;a href="#process-hierarchy" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Processes follow a tree like structure in linux.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The first process is &lt;code&gt;init&lt;/code&gt; or &lt;code&gt;systemd&lt;/code&gt;, depending on the system, which is started by the kernel. It&amp;rsquo;s PID is 1, and PPID is 0.&lt;/li&gt;
+&lt;li&gt;Every process is created by another process (its parent process).&lt;/li&gt;
+&lt;li&gt;Every process is a descendant of the &lt;code&gt;init&lt;/code&gt; process.&lt;/li&gt;
+&lt;li&gt;Processes follow a parent-child relationship. Although each process is independent in nature, and the execution of a sub-process doesn&amp;rsquo;t hinder the execution of the parent process, still, the child process is linked with the parent process and it has to report its exit status.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To view the tree like structure of processes, use &lt;code&gt;pstree&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Why does process hierarchy exists? Why can&amp;rsquo;t processes be truly independent?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;To understand this, we need to understand how processes are created.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;Process Creation&lt;span class="hx:absolute hx:-mt-20" id="process-creation"&gt;&lt;/span&gt;
+&lt;a href="#process-creation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It is a 4 step &amp;ldquo;process&amp;rdquo;.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Each process may require other helper processes.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;For example, when I did &lt;code&gt;pstree&lt;/code&gt;, I found that VS Code is not a standalone process. It has a lot of sub-processes. Like the terminal opened within VS Code comes under it, not as a fully independent process with no parent.&lt;/li&gt;
+&lt;li&gt;The same is with Firefox and everything else.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Hierarchical structure is not just a design philosophy, but a very logical decision.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It is a proper way to manage which process spawned which sub-process.&lt;/li&gt;
+&lt;li&gt;We fork the calling process (parent process), keep the identifying metadata as it is and replace the old process image with the new one. This ensures that the child process has proper links to the parent process, without any hustle.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Every process is independent in its execution. But it is answerable to the parent process so that it knows if the sub-process exited successfully or it acquired any problem.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Just like children, who are although independent but they are always answerable to their parents.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;Key Properties Of A Process&lt;span class="hx:absolute hx:-mt-20" id="key-properties-of-a-process"&gt;&lt;/span&gt;
+&lt;a href="#key-properties-of-a-process" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Property&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;PID (Process ID)&lt;/td&gt;
+&lt;td&gt;Unique identifier of a process.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;PPID (Parent Process ID)&lt;/td&gt;
+&lt;td&gt;Unique identifier of the process that created the PID process&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;UID (User ID)&lt;/td&gt;
+&lt;td&gt;Who owns the process&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;State&lt;/td&gt;
+&lt;td&gt;Running, sleeping, zombie etc&amp;hellip;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Memory Info&lt;/td&gt;
+&lt;td&gt;RAM consumption&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Executable code and data&lt;/td&gt;
+&lt;td&gt;What it’s running and working with&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2&gt;A Real Example&lt;span class="hx:absolute hx:-mt-20" id="a-real-example"&gt;&lt;/span&gt;
+&lt;a href="#a-real-example" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We are going to run an ELF binary made from this C code and see how Linux does all the magic.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;unistd.h&amp;gt; // sleep()&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Hello, World!&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;sleep&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;400&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;To get the final ELF binary:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc main.c -o main_elf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Step1 - Call The Binary&lt;span class="hx:absolute hx:-mt-20" id="step1---call-the-binary"&gt;&lt;/span&gt;
+&lt;a href="#step1---call-the-binary" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;To call or execute the binary (&lt;code&gt;main_elf&lt;/code&gt;), we need a shell (or terminal).&lt;/p&gt;
+&lt;p&gt;I have opened my shell, which is zsh.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ echo $SHELL
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;/usr/bin/zsh&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;zsh&lt;/code&gt; itself is a &amp;ldquo;running&amp;rdquo; process.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-zsh" data-lang="zsh"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ps
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;PID TTY TIME CMD
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;41027&lt;/span&gt; pts/0 00:00:01 zsh
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;49852&lt;/span&gt; pts/0 00:00:00 ps&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Run the binary in background so that we can retain the shell session.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ./main_elf &amp;amp;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#f92672"&gt;[&lt;/span&gt;1&lt;span style="color:#f92672"&gt;]&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;52184&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;ps&lt;/code&gt; ~&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ps
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;PID TTY TIME CMD
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;41027&lt;/span&gt; pts/0 00:00:02 zsh
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;52184&lt;/span&gt; pts/0 00:00:00 main_elf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;52325&lt;/span&gt; pts/0 00:00:00 ps&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Since main_elf is executed within zsh, zsh must be the parent of main_elf? Lets verify this.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ ps -T -o pid,ppid,cmd
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;PID PPID CMD
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;41027&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;40797&lt;/span&gt; /usr/bin/zsh -i
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;59461&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;41027&lt;/span&gt; ./main_elf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;59559&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;41027&lt;/span&gt; ps -T -o pid,ppid,cmd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-T&lt;/code&gt; shows processes for the current terminal session.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-o&lt;/code&gt; helps in custom formatting.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This proves that the &lt;code&gt;zsh&lt;/code&gt; process was forked and the child process (main_elf) born from it.&lt;/p&gt;
+&lt;p&gt;Until now, we can say that a base template for the child process is created.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Now we have to find the evidence for the process image replacement.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3&gt;Step2 - Correct (Replace) The Process Image In The Child Process (Fork)&lt;span class="hx:absolute hx:-mt-20" id="step2---correct-replace-the-process-image-in-the-child-process-fork"&gt;&lt;/span&gt;
+&lt;a href="#step2---correct-replace-the-process-image-in-the-child-process-fork" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;A fork is a near-clone of the parent process. But the child process is a different program than the parent. Therefore, the process image must have been changed.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;strace&lt;/code&gt; is a Linux utility which helps in tracing all the syscalls a process has executed.&lt;/p&gt;
+&lt;p&gt;If we run our program with &lt;code&gt;strace&lt;/code&gt;, like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;strace ./main_elf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;we can find a long list of output, which starts from &lt;code&gt;execve&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;What is &lt;code&gt;execve&lt;/code&gt;?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In simple words, &lt;code&gt;execve&lt;/code&gt; is a syscall which executes a binary.&lt;/li&gt;
+&lt;li&gt;In real terms, &lt;code&gt;execve&lt;/code&gt; is a syscall which executes a binary passed in the &lt;code&gt;pathname&lt;/code&gt; argument by replacing the process image of the current process (not the child process, the current process).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;execve&lt;/code&gt; is designed to be paired with &lt;code&gt;fork&lt;/code&gt; in order to fit Linux&amp;rsquo;s hierarchical process structure.&lt;/li&gt;
+&lt;li&gt;This is the signature of the &lt;code&gt;execve&lt;/code&gt; syscall, &lt;code&gt;int execve(const char *pathname, char *const _Nullable argv[], char *const _Nullable envp[]);&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;pathname&lt;/code&gt; is the name of the binary.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;argv[]&lt;/code&gt; is a &lt;code&gt;NULL&lt;/code&gt; terminated array of arguments passed to the binary.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;envp[]&lt;/code&gt; is a &lt;code&gt;NULL&lt;/code&gt; terminated array of environment variables required in the process image.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;What is a process image?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Just imagine how crazy and chaotic it would get to manage millions of process inside a single RAM, with all demanding various services including stack and heap.&lt;/li&gt;
+&lt;li&gt;This is why an abstraction known as virtual address space (VAS) exist. Every process is executed in an isolated environment called virtual address space.&lt;/li&gt;
+&lt;li&gt;A process image is the complete in-memory layout of a program after it has been loaded into memory by the OS.&lt;/li&gt;
+&lt;li&gt;It is the answer to the question, &amp;ldquo;What the process looks like in the RAM?&amp;rdquo; A process image is the memory representation of a program at runtime.&lt;/li&gt;
+&lt;li&gt;It includes code, data, stack, heap, environment, memory-mapped regions, loaded libraries etc&amp;hellip;.&lt;/li&gt;
+&lt;li&gt;It is created by the kernel during &lt;code&gt;execve()&lt;/code&gt;, based on the ELF layout.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This is the whole process that &lt;code&gt;execve&lt;/code&gt; syscall carries out.&lt;/p&gt;
+&lt;p&gt;The kernel opens the binary (&lt;code&gt;main_elf&lt;/code&gt;) using virtual file system (VFS).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It reads the ELF Header (first 64 bytes) to confirm that it is an ELF file, and find the &lt;code&gt;e_type&lt;/code&gt;, &lt;code&gt;e_entry&lt;/code&gt; and Program Headers Table (PHT) for carrying out its job.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;What is VFS and Why the kernel is using it?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It&amp;rsquo;s an abstraction layer inside the Linux kernel that provides a uniform interface to access all kinds of file systems — regardless of their actual formats or physical devices.&lt;/li&gt;
+&lt;li&gt;There exist multiple file systems, like ext4, btrfs, zfs, hfs, ntfs, fat32 and so on&amp;hellip;. If there is no VFS, the kernel has to learn to speak in all the different file systems.&lt;/li&gt;
+&lt;li&gt;VFS knows how to talk to different file systems and provide the kernel with a consistent interface.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The kernel loads the binary into memory by reading the PHT.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;It maps each segment defined in the PHT into memory regions using &lt;code&gt;mmap()&lt;/code&gt; (memory map) syscall and sets the permissions (R, W, X) accordingly.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;This is the PHT for our ELF:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ readelf -l main_elf
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Elf file type is DYN &lt;span style="color:#f92672"&gt;(&lt;/span&gt;Position-Independent Executable file&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Entry point 0x1060
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;There are &lt;span style="color:#ae81ff"&gt;14&lt;/span&gt; program headers, starting at offset &lt;span style="color:#ae81ff"&gt;64&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Program Headers:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Type Offset VirtAddr PhysAddr FileSiz MemSiz Flags Align
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; PHDR 0x0000000000000040 0x0000000000000040 0x0000000000000040 0x0000000000000310 0x0000000000000310 R 0x8
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; INTERP 0x0000000000000394 0x0000000000000394 0x0000000000000394 0x000000000000001c 0x000000000000001c R 0x1
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt;Requesting program interpreter: /lib64/ld-linux-x86-64.so.2&lt;span style="color:#f92672"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; LOAD 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000660 0x0000000000000660 R 0x1000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; LOAD 0x0000000000001000 0x0000000000001000 0x0000000000001000 0x0000000000000179 0x0000000000000179 R E 0x1000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; LOAD 0x0000000000002000 0x0000000000002000 0x0000000000002000 0x000000000000010c 0x000000000000010c R 0x1000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; LOAD 0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000250 0x0000000000000258 RW 0x1000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; DYNAMIC 0x0000000000002de0 0x0000000000003de0 0x0000000000003de0 0x00000000000001e0 0x00000000000001e0 RW 0x8
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; NOTE 0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020 R 0x8
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; NOTE 0x0000000000000370 0x0000000000000370 0x0000000000000370 0x0000000000000024 0x0000000000000024 R 0x4
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; NOTE 0x00000000000020ec 0x00000000000020ec 0x00000000000020ec 0x0000000000000020 0x0000000000000020 R 0x4
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; GNU_PROPERTY 0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020 R 0x8
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; GNU_EH_FRAME 0x0000000000002014 0x0000000000002014 0x0000000000002014 0x000000000000002c 0x000000000000002c R 0x4
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; GNU_STACK 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000 RW 0x10
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; GNU_RELRO 0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000230 0x0000000000000230 R 0x1
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Section to Segment mapping:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Segment Sections...
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;01&lt;/span&gt; .interp
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;02&lt;/span&gt; .note.gnu.property .note.gnu.build-id .interp .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;03&lt;/span&gt; .init .plt .plt.got .text .fini
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;04&lt;/span&gt; .rodata .eh_frame_hdr .eh_frame .note.ABI-tag
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;05&lt;/span&gt; .init_array .fini_array .dynamic .got .got.plt .data .bss
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;06&lt;/span&gt; .dynamic
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;07&lt;/span&gt; .note.gnu.property
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;08&lt;/span&gt; .note.gnu.build-id
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;09&lt;/span&gt; .note.ABI-tag
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;10&lt;/span&gt; .note.gnu.property
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;11&lt;/span&gt; .eh_frame_hdr
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;12&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;13&lt;/span&gt; .init_array .fini_array .dynamic .got&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Note: It is slightly formatted so that we can see it clearly.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Program headers table describes how the operating system should load the ELF binary into the memory. It maps parts of the binary file into memory regions with specific permissions and purposes.&lt;/p&gt;
+&lt;p&gt;A simple decode of this cryptic table is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Type: PHDR&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Offset: 0x40
+VirtAddr:0x40
+Size: 0x310
+Flags: R&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This describes where in the memory the program headers themselves are located.&lt;/p&gt;
+&lt;p&gt;The loader reads this to get all other segment info.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Type: INTERP&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Offset: 0x394
+VirtAddr: 0x394
+Size: 0x1c
+Flags: R
+[Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Specifies the dynamic linker to load and run this PIE executable.&lt;/p&gt;
+&lt;p&gt;This linker will resolve symbols and apply relocations before main() runs.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Type: LOAD Segments, The actual loadable code/data in the binary&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# LOAD 1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Offset: 0x0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;VirtAddr: 0x0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;FileSiz: 0x660
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Flags: R&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The R flag shows that this is a read only section, contains the initial part of ELF.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# LOAD 2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Offset: 0x1000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;VirtAddr: 0x1000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Size: 0x179
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Flags: R E&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This is a read + executable section. This implies that it contains the actual code segment&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# LOAD 3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Offset: 0x2000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;VirtAddr: 0x2000
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Size: 0x10c
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Flags: R&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Another readonly segment, which may contain constants and other ro-data.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# LOAD 4&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Offset: 0x2dd0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;VirtAddr: 0x3dd0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Size: File&lt;span style="color:#f92672"&gt;=&lt;/span&gt;0x250, Mem&lt;span style="color:#f92672"&gt;=&lt;/span&gt;0x258
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Flags: RW&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This section is both readable and writeable. This is where .data, .bss, etc&amp;hellip;. are stored.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Type: DYNAMIC&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Offset: 0x2de0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;VirtAddr: 0x3de0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Size: 0x1e0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Flags: RW&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Contains relocations, library names, symbol tables, etc&amp;hellip;., which are used by the dynamic linker to perform symbol resolution and relocation at runtime.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Type: Note Segments and GNU_PROPERTY, for metadata handling. Nothing explosive.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Type: GNU_EH_FRAME, exception handling frame, used by debuggers and during crashes.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Type: GNU_STACK, specifies stack permissions.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Type GNU_RELRO, a region that is read-only after relocation.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The kernel finds the &lt;code&gt;LOAD&lt;/code&gt; segments and maps them into memory.&lt;/p&gt;
+&lt;p&gt;All the offsets are relative to the location where the binary would be actually loaded.&lt;/p&gt;
+&lt;p&gt;Now our program is loaded in the memory, but we&amp;rsquo;re not executing yet.&lt;/p&gt;
+&lt;h4&gt;Handle Dynamic Linking&lt;span class="hx:absolute hx:-mt-20" id="handle-dynamic-linking"&gt;&lt;/span&gt;
+&lt;a href="#handle-dynamic-linking" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h4&gt;&lt;p&gt;Since the PHT has &lt;code&gt;INTERP&lt;/code&gt; header, this tells the kernel to run this interpreter &lt;code&gt;lib64/ld-linux-x86-64.so.2&lt;/code&gt; before jumping to the entry point in the binary.&lt;/p&gt;
+&lt;p&gt;The kernel now loads the dynamic linker/loader (&lt;code&gt;ld-linux-x86-64.so.2&lt;/code&gt;) into the memory.&lt;/p&gt;
+&lt;p&gt;The dynamic linker is the first code that will run in this process.&lt;/p&gt;
+&lt;p&gt;Now the kernel set up the stack, &lt;code&gt;rip&lt;/code&gt; to &lt;code&gt;ld-linux&lt;/code&gt;&amp;rsquo;s entry point and returns the control to user space.&lt;/p&gt;
+&lt;p&gt;And the child process is finally alive.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ld-linux&lt;/code&gt; now:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Parses the &lt;code&gt;.dynamic&lt;/code&gt; section (&lt;code&gt;readelf -S main_elf&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Finds the required shared libraries, like &lt;code&gt;libc.so.6&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Loads them into the memory using &lt;code&gt;mmap()&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Applies relocations to the code.&lt;/li&gt;
+&lt;li&gt;Finally, jumps to our ELF binary&amp;rsquo;s real entry point (not &lt;code&gt;main&lt;/code&gt;, but &lt;code&gt;_start&lt;/code&gt;).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4&gt;Entry point Management &amp;amp;&amp;amp; Program Execution&lt;span class="hx:absolute hx:-mt-20" id="entry-point-management--program-execution"&gt;&lt;/span&gt;
+&lt;a href="#entry-point-management--program-execution" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h4&gt;&lt;p&gt;The dynamic linker jumps to &lt;code&gt;_start&lt;/code&gt; in our binary (provided by crt1.o).&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;_start&lt;/code&gt; sets up the runtime.&lt;/p&gt;
+&lt;p&gt;Then it calls &lt;code&gt;__libc_start_main()&lt;/code&gt;, a libc function that initializes more stuff and finally calls the &lt;code&gt;main()&lt;/code&gt; .&lt;/p&gt;
+&lt;p&gt;Now the program runs.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;printf()&lt;/code&gt; is a call into &lt;code&gt;libc&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;sleep()&lt;/code&gt; sleeps the process for 400 seconds using &lt;code&gt;nanosleep&lt;/code&gt; syscall.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3&gt;Step3 - End Of The Program&lt;span class="hx:absolute hx:-mt-20" id="step3---end-of-the-program"&gt;&lt;/span&gt;
+&lt;a href="#step3---end-of-the-program" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;After main() ends, control goes back to &lt;code&gt;__libc_start_main()&lt;/code&gt;, which handles the final cleanup and calls &lt;code&gt;exit()&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The kernel:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cleans up the process resources.&lt;/li&gt;
+&lt;li&gt;Returns the exit code to parent (zsh).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;Lets Manage An Actual Process Using C&lt;span class="hx:absolute hx:-mt-20" id="lets-manage-an-actual-process-using-c"&gt;&lt;/span&gt;
+&lt;a href="#lets-manage-an-actual-process-using-c" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Downloadable source code of the program can be found at &lt;a href="https://github.com/hi-anki/process-creation-in-linux/blob/main/process.c"target="_blank" rel="noopener"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Standard I/O: printf() and perror()
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// General Utils: exit()
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// POSIX OS API: fork(), execvp(), getpid(), getppid()
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Defines data types used in system calls: pid_t, the data type for process IDs
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;sys/types.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;// Provides macros and functions for waiting on child processes: waitpid(), WIFEXITED(), WEXITSTATUS()
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;sys/wait.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;pid_t&lt;/span&gt; pid;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Calling Process `p_proc`:&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34; PPID: %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;getppid&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34; PID : %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;getpid&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;---------------------------&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 1. Process creation (fork)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Calling fork.....&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; pid &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;fork&lt;/span&gt;();
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (pid &lt;span style="color:#f92672"&gt;==&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;perror&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;fork failed&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;`p_proc`: return value from fork(): %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, pid);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;exit&lt;/span&gt;(EXIT_FAILURE);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (pid &lt;span style="color:#f92672"&gt;==&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Cloned Process `c_proc`:&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34; PPID: %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;getppid&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34; PID : %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;getpid&lt;/span&gt;());
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Return value from fork() to `c_proc`: %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, pid);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;---------------------------&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// 2. Image replacement using exec
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;args[] &lt;span style="color:#f92672"&gt;=&lt;/span&gt; {&lt;span style="color:#e6db74"&gt;&amp;#34;./main_elf&amp;#34;&lt;/span&gt;, NULL};
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;execvp&lt;/span&gt;(args[&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;], args) &lt;span style="color:#f92672"&gt;==&lt;/span&gt; &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;perror&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;exec failed&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;exit&lt;/span&gt;(EXIT_FAILURE);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;else&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#75715e"&gt;// Parent process
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; status;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;waitpid&lt;/span&gt;(pid, &lt;span style="color:#f92672"&gt;&amp;amp;&lt;/span&gt;status, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;); &lt;span style="color:#75715e"&gt;// Wait for child to finish
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (&lt;span style="color:#a6e22e"&gt;WIFEXITED&lt;/span&gt;(status)) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Child exited with status %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, &lt;span style="color:#a6e22e"&gt;WEXITSTATUS&lt;/span&gt;(status));
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;---------------------------&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Return value from fork(): to `p_proc` %d&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;, pid);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; } &lt;span style="color:#66d9ef"&gt;else&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Child did not exit normally.&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Lets understand this program.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pid_t&lt;/code&gt; is a type definition, defined in&lt;code&gt;POSIX&lt;/code&gt; to hold process IDs. It allows the kernel and user-space programs to use a consistent and portable data type for managing process IDs.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;pid&lt;/code&gt; variable is very important. Understanding this small and harmless looking part is very important.&lt;/li&gt;
+&lt;li&gt;The confusion is paired with &lt;code&gt;fork&lt;/code&gt;, so we&amp;rsquo;ll learn it there.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;code&gt;fork()&lt;/code&gt; function is used to clone the calling process. Tell me, where would &lt;code&gt;fork&lt;/code&gt; send its return value?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;To the calling process? or, To the cloned process?&lt;/li&gt;
+&lt;li&gt;The answer is, both. And this is where the question how the parent process maintains its state arises from.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt; It returns&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;0&lt;/code&gt; to the &lt;strong&gt;cloned process&lt;/strong&gt; if the calling process is cloned successfully and the process ID of the cloned process to the calling process (which is now the parent process).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-1&lt;/code&gt; to the &lt;strong&gt;parent process&lt;/strong&gt;, if an error occurred and cloning didn&amp;rsquo;t succeed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Remember, &lt;code&gt;fork()&lt;/code&gt; makes a near-clone of the calling process. Only certain things are different.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;The functions &lt;code&gt;getpid()&lt;/code&gt; and &lt;code&gt;getppid()&lt;/code&gt; are used to obtain the child process ID and the parent process ID, respectively.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;These functions are relative to the process that has invoked them.&lt;/li&gt;
+&lt;li&gt;This is why &lt;code&gt;getpid()&lt;/code&gt; before forking the process returned the process ID of the current process, which became the parent process after forking.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;The &lt;code&gt;exec()&lt;/code&gt; family of functions replaces the current process image with a new process image. Under the hood, they all use the mighty &lt;code&gt;execve&lt;/code&gt; syscall.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;char *argv[]&lt;/code&gt; argument is an array of pointers to null-terminated strings that represent the argument list available to the new program.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The first argument, by convention, should point to the filename associated with the file being executed. The array of pointers must be terminated by a &lt;code&gt;null&lt;/code&gt; pointer.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;execvp()&lt;/code&gt; is wrapper build upon &lt;code&gt;execve&lt;/code&gt; syscall. Internally, it is just:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;execvp&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;file, &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;&lt;span style="color:#66d9ef"&gt;const&lt;/span&gt; argv[]);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The first argument is a pointer to the binary which is to be executed and the second argument is an array to the arguments provided to the binary.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Why not &lt;code&gt;execvp(argv)&lt;/code&gt; directly?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Remember, &lt;code&gt;sys.argv[0]&lt;/code&gt; is reserved to the filename in python. &lt;code&gt;$0&lt;/code&gt; is reserved for the script name in bash. The same principle is followed here.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;exec()&lt;/code&gt; family of functions returns only when an error has occurred, which is -1, which is why we are running the binary through &lt;code&gt;execvp&lt;/code&gt; and matching if the return value is -1, to indicate failure or success.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;waitpid()&lt;/code&gt; function is like &lt;code&gt;async()&lt;/code&gt; function in JavaScript, which waits for a longer process to finish and then adjusts the results appropriately, without stopping the current thread.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;After that some cleanup happens and we are done.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Now, lets understand the flow of execution, that&amp;rsquo;s the most important thing here.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Lets name the process of the calling C program as &lt;code&gt;p_proc&lt;/code&gt; and the process of the binary it is calling internally as &lt;code&gt;c_proc&lt;/code&gt; .&lt;/li&gt;
+&lt;li&gt;The calling process is cloned.&lt;/li&gt;
+&lt;li&gt;We know that process are independent in their execution context, which means that &lt;code&gt;p_proc&lt;/code&gt; and &lt;code&gt;c_proc&lt;/code&gt; will be running independently.
+&lt;ul&gt;
+&lt;li&gt;If we print something just after cloning the process, there is no guarantee if the first print came from the parent or the child because the child has a copy of the file descriptors and it depends on scheduling algorithms that which on goes first.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Both the processes continue executing the same code from the point where fork() returned. Lets look at the execution of &lt;code&gt;p_proc&lt;/code&gt; first.
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;pid&lt;/code&gt; variable for the calling process would have a random 4-5 digit unsigned value, which is definitely not equal to -1. Therefore, it never goes in the first &lt;code&gt;if&lt;/code&gt; block.&lt;/li&gt;
+&lt;li&gt;Also, it is not 0. So, it never goes in the second &lt;code&gt;if&lt;/code&gt; block as well.&lt;/li&gt;
+&lt;li&gt;Remaining &lt;code&gt;else&lt;/code&gt; block. Here, it will find &lt;code&gt;waitpid()&lt;/code&gt;, which will tell it to wait until the cloned process ends up.
+&lt;ul&gt;
+&lt;li&gt;If you comment this part, this means, the parent didn&amp;rsquo;t wait until the child finished. Such a process is called zombie process. Such processes are adopted by &lt;code&gt;init&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;You&amp;rsquo;ll only see &lt;code&gt;Hello, World!&lt;/code&gt; and no &lt;code&gt;sleep(10)&lt;/code&gt; effect.&lt;/li&gt;
+&lt;li&gt;But wait. After 10 seconds, you&amp;rsquo;ll see that too, but in a new prompt.&lt;/li&gt;
+&lt;li&gt;Here the parent process finished. Lets focus on the child now. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;c_proc&lt;/code&gt; receives &lt;code&gt;0&lt;/code&gt; in its &lt;code&gt;pid&lt;/code&gt; variable. Thus, it qualifies to go inside the second &lt;code&gt;if&lt;/code&gt; block.
+&lt;ul&gt;
+&lt;li&gt;And everything happens as stated before in &lt;code&gt;execve&lt;/code&gt; section.&lt;/li&gt;
+&lt;li&gt;But remember, both the processes are executing independently. But because of &lt;code&gt;waitpid()&lt;/code&gt;, the parent waits for the child to finish and cleans up everything.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;That&amp;rsquo;s how it works.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;`exec` Family Of Functions&lt;span class="hx:absolute hx:-mt-20" id="exec-family-of-functions"&gt;&lt;/span&gt;
+&lt;a href="#exec-family-of-functions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;execve&lt;/code&gt; syscall has multiple wrappers in the form of C library functions. The questions is, which one to use when?&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;execve(path, argv, envp)&lt;/code&gt; is the raw signature of this syscall.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;argv[] &lt;span style="color:#f92672"&gt;=&lt;/span&gt; {&lt;span style="color:#e6db74"&gt;&amp;#34;/path/to/binary&amp;#34;&lt;/span&gt;, .., .., NULL};
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;envp[] &lt;span style="color:#f92672"&gt;=&lt;/span&gt; {&lt;span style="color:#e6db74"&gt;&amp;#34;variable=value&amp;#34;&lt;/span&gt;, &lt;span style="color:#e6db74"&gt;&amp;#34;var2=val2&amp;#34;&lt;/span&gt;, NULL}
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;execve&lt;/span&gt;(args[&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;], args, envp);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Prefix Guide&lt;span class="hx:absolute hx:-mt-20" id="prefix-guide"&gt;&lt;/span&gt;
+&lt;a href="#prefix-guide" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;v&lt;/code&gt;: vector: refers to an array/vector of arguments&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;l&lt;/code&gt;: list: refers to a list of arguments, passed as varargs&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;p&lt;/code&gt;: path: tells the function to search $PATH for the executable&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;e&lt;/code&gt;: environment: lets you explicitly pass the environment&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Functions&lt;span class="hx:absolute hx:-mt-20" id="functions"&gt;&lt;/span&gt;
+&lt;a href="#functions" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;execv(path, argv)&lt;/code&gt;: inherits caller&amp;rsquo;s environment.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;execl(path, arg0, arg1, ..., NULL)&lt;/code&gt;: Same as &lt;code&gt;execv&lt;/code&gt;, except that the arguments are directly passed as varargs, rather than an array.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;execvp(file, argv)&lt;/code&gt;: searches &lt;code&gt;$PATH&lt;/code&gt; variable for the binary. Good to run programs like a shell would do, like &lt;code&gt;ls&lt;/code&gt; or &lt;code&gt;./exe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;execlp(file, arg0, ...., argN, NULL)&lt;/code&gt;: combines &lt;code&gt;execl + $PATH&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;execle(path, arg0, ..., NULL, envp)&lt;/code&gt;: varargs + custom env&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;And that&amp;rsquo;s how we finish establishing a baseline understanding in Linux processes.&lt;/p&gt;
+&lt;p&gt;Thank You.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/extras/user-input/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/extras/user-input/</guid><description>
+&lt;h1&gt;User Input In Assembly&lt;/h1&gt;&lt;p&gt;To take user input, we use &lt;code&gt;read&lt;/code&gt; syscall.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-nasm" data-lang="nasm"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;.intel_syntax&lt;/span&gt; noprefix
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; .bss
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; buffer: &lt;span style="color:#a6e22e"&gt;.skip&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;100&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#a6e22e"&gt;.section&lt;/span&gt; .text
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;.global&lt;/span&gt; _start
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; _start:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;Step&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;: Take user&lt;span style="color:#f92672"&gt;-&lt;/span&gt;input
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rax, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; sys_read
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rdi, &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; stdin
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;lea&lt;/span&gt; rsi, buffer &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; buffer to read into
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rdx, &lt;span style="color:#ae81ff"&gt;100&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; &lt;span style="color:#66d9ef"&gt;byte&lt;/span&gt;s to read
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;syscall&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;Step&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;: Display the input
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rdx, rax &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; number of &lt;span style="color:#66d9ef"&gt;byte&lt;/span&gt;s read (from previous syscall)
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rax, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; sys_write
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rdi, &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; stdout
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;lea&lt;/span&gt; rsi, buffer &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; buffer to write from
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;syscall&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;Exit&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;mov&lt;/span&gt; rax, &lt;span style="color:#ae81ff"&gt;60&lt;/span&gt; &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; sys_exit
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;xor&lt;/span&gt; rdi, rdi &lt;span style="color:#960050;background-color:#1e0010"&gt;#&lt;/span&gt; status &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;syscall&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Why `stdin` goes in `.bss` and not in `.data` section?&lt;span class="hx:absolute hx:-mt-20" id="why-stdin-goes-in-bss-and-not-in-data-section"&gt;&lt;/span&gt;
+&lt;a href="#why-stdin-goes-in-bss-and-not-in-data-section" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;.bss&lt;/code&gt; section is the place for uninitialized data.&lt;/p&gt;
+&lt;p&gt;The allocation in .bss is zero-initialized at runtime. Why can&amp;rsquo;t we just zero initialize the memory locations ourselves in the .data section only?&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.data&lt;/code&gt; section holds static and global variables, which are already initialized. This directly affects the size of the binary.&lt;/p&gt;
+&lt;p&gt;When we allocate an array of size 100 bytes, zero-initialized in .data section, those 100 bytes are basically excess space, because they aren&amp;rsquo;t used right away. We have to populate them before using.&lt;/p&gt;
+&lt;p&gt;Those 100 bytes could also have been allocated directly at runtime, reducing the size of the overall binary? This is the whole idea behind the existence of &lt;code&gt;.bss&lt;/code&gt; and why stdin goes in &lt;code&gt;.bss&lt;/code&gt; not &lt;code&gt;.data&lt;/code&gt;.&lt;/p&gt;
+&lt;h2&gt;Reserve Space&lt;span class="hx:absolute hx:-mt-20" id="reserve-space"&gt;&lt;/span&gt;
+&lt;a href="#reserve-space" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;buffer&lt;/code&gt; is a user-defined label which is reserving number of bytes for stdin.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.skip&lt;/code&gt; is a GAS directive used to reserve uninitialized space by skipping N-bytes.&lt;/p&gt;
+&lt;h2&gt;Setup Read Syscall&lt;span class="hx:absolute hx:-mt-20" id="setup-read-syscall"&gt;&lt;/span&gt;
+&lt;a href="#setup-read-syscall" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The accumulator (&lt;code&gt;rax&lt;/code&gt;) is set for read syscall, which is 0.&lt;/p&gt;
+&lt;p&gt;The file descriptor (&lt;code&gt;rdi&lt;/code&gt;) is set to 0, which is for stdin.&lt;/p&gt;
+&lt;p&gt;Now we need the runtime address of the &lt;code&gt;buffer&lt;/code&gt; label in the source index register (&lt;code&gt;rsi&lt;/code&gt;). To obtain this, we use &lt;code&gt;lea&lt;/code&gt; instruction, which stands for &lt;em&gt;load effective address&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Set &lt;code&gt;rdx&lt;/code&gt; with the number of bytes to read (arg 3).&lt;/p&gt;
+&lt;p&gt;Invoke the syscall and read from console.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;With that in mind, read syscall would look like: &lt;code&gt;read(fd, buffer, bytes)&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;Displaying The Input&lt;span class="hx:absolute hx:-mt-20" id="displaying-the-input"&gt;&lt;/span&gt;
+&lt;a href="#displaying-the-input" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Setup &lt;code&gt;rax&lt;/code&gt; for write syscall, 1.&lt;/p&gt;
+&lt;p&gt;Set the file descriptor to 1, for stdout.&lt;/p&gt;
+&lt;p&gt;Load the buffer to write from in &lt;code&gt;rsi&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Set the number of bytes to write in &lt;code&gt;rdx&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The question is, how we are going to know the length of our input?&lt;/li&gt;
+&lt;li&gt;Because 100 is the maximum number of bytes that can be read, not necessarily the bytes we have read in total.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;How to find the number of bytes being read?&lt;span class="hx:absolute hx:-mt-20" id="how-to-find-the-number-of-bytes-being-read"&gt;&lt;/span&gt;
+&lt;a href="#how-to-find-the-number-of-bytes-being-read" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;If we open the man page for &lt;code&gt;read&lt;/code&gt; syscall, we can find this signature:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;ssize_t&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;read&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; fd, &lt;span style="color:#66d9ef"&gt;void&lt;/span&gt; buf[.count], &lt;span style="color:#66d9ef"&gt;size_t&lt;/span&gt; count);&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If you are still unsure, lets look at the &lt;code&gt;RETURN VALUE&lt;/code&gt; section.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;On success, the number of bytes read is returned (zero indicates end of file), and the file position is advanced by this number.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Now it is confirmed that the number of bytes read is returned, but where? As this is a C wrapper on the actual syscall!&lt;/p&gt;
+&lt;p&gt;If you go back to the calling convention article, you can find that &lt;code&gt;rax&lt;/code&gt; is where the result of a syscall is returned.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also verify this by visiting the System V ABI documentation.&lt;/li&gt;
+&lt;li&gt;Visit this GitLab repo, &lt;a href="https://gitlab.com/x86-psABIs/x86-64-ABI"target="_blank" rel="noopener"&gt;x86-64 psABI&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Search for &amp;ldquo;Download latest PDF&amp;rdquo; and open the link.&lt;/li&gt;
+&lt;li&gt;Check Appendix A, AMD64 Linux Kernel Conventions on page 146.&lt;/li&gt;
+&lt;li&gt;Point number 5 reads as: &lt;em&gt;Returning from the syscall, register %rax contains the result of the system-call. A value in the range between -4095 and -1 indicates an error, it is -errno&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;That&amp;rsquo;s why we are setting up rdx before setting the accumulator for write syscall.&lt;/p&gt;
+&lt;p&gt;Invoke the syscall, print to console.&lt;/p&gt;
+&lt;p&gt;Exit syscall. And we are done.&lt;/p&gt;
+&lt;h2&gt;What is &lt;code&gt;lea&lt;/code&gt; and Why is &lt;code&gt;lea&lt;/code&gt;?&lt;span class="hx:absolute hx:-mt-20" id="what-is-lea-and-why-is-lea"&gt;&lt;/span&gt;
+&lt;a href="#what-is-lea-and-why-is-lea" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;It stands for &amp;ldquo;load effective address&amp;rdquo;.&lt;/p&gt;
+&lt;p&gt;It computes the address of a memory operand and loads it into a register, but it never access the value at that memory address.&lt;/p&gt;
+&lt;p&gt;Why we haven&amp;rsquo;t used &lt;code&gt;offset&lt;/code&gt;?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Remember assembly-time v/s runtime constraints? That&amp;rsquo;s the reason.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;offset&lt;/code&gt; is an assembler directive. It replaces the label with a virtual address or offset. It doesn&amp;rsquo;t resemble the actual runtime address of that label (symbol).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;lea&lt;/code&gt; is a CPU instruction which specializes in finding the runtime memory address of a label.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Lets talk about an undefined behavior here.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Right now we don&amp;rsquo;t know how memory is managed, so we don&amp;rsquo;t know what an offset, virtual address or anything else actually mean.&lt;/li&gt;
+&lt;li&gt;Sometimes, just using &lt;code&gt;offset&lt;/code&gt; with mov can perfectly work. But, its not guaranteed.&lt;/li&gt;
+&lt;li&gt;This undefined behavior exists when that offset or virtual address is mapped as it is in the actual memory, which in today&amp;rsquo;s world is almost impossible if you use production-grade principles.&lt;/li&gt;
+&lt;li&gt;ASLR exists to eliminate such possibilities. ASLR stands for address space layout randomization. But we need not to know about it.&lt;/li&gt;
+&lt;li&gt;Just keep this in mind that &lt;code&gt;offset&lt;/code&gt; might work but it is not right.&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/extras/virtualization/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/extras/virtualization/</guid><description>
+&lt;h1&gt;Virtualization&lt;/h1&gt;&lt;p&gt;how to virtualize efficiently&lt;/p&gt;
+&lt;p&gt;problems in mainstream solutions&lt;/p&gt;
+&lt;p&gt;plug and play GNOME Boxes&lt;/p&gt;
+&lt;p&gt;kvm+qemu the best way&lt;/p&gt;
+&lt;p&gt;comparison table (ease of use, customization, memory, usage, unforeseen breaks, most stable, plug and play behavior, &amp;ldquo;set it, forget it&amp;rdquo; level&lt;/p&gt;</description></item></channel></rss>

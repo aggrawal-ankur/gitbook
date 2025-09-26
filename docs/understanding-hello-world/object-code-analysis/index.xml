@@ -1,0 +1,535 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level –</title><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/</link><description>Recent content on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/index.xml" rel="self" type="application/rss+xml"/><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/objdump-perspective/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/objdump-perspective/</guid><description>
+&lt;h1&gt;`objdump` Perspective&lt;/h1&gt;&lt;h2&gt;Introduction To `objdump`&lt;span class="hx:absolute hx:-mt-20" id="introduction-to-objdump"&gt;&lt;/span&gt;
+&lt;a href="#introduction-to-objdump" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;objdump&lt;/code&gt; or object dump, is a GNU development tool, which specializes in displaying information from object files.&lt;/p&gt;
+&lt;p&gt;Syntax of usage looks like: &lt;code&gt;objdump &amp;lt;elf_file&amp;gt; &amp;lt;flag(s)&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;It is a feature-rich tool. The ones that concern us include these:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;objdump object_code.o -D -M intel &lt;span style="color:#75715e"&gt;# Complete disassembly using Intel syntax&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;objdump object_code.o -t &lt;span style="color:#75715e"&gt;# Symbol table&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;objdump object_code.o -r &lt;span style="color:#75715e"&gt;# Relocation entries&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;objdump object_code.o -h &lt;span style="color:#75715e"&gt;# Section headers&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;hr&gt;
+&lt;h3&gt;Full Disassembly (-D)&lt;span class="hx:absolute hx:-mt-20" id="full-disassembly--d"&gt;&lt;/span&gt;
+&lt;a href="#full-disassembly--d" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;It can be found here at &lt;a href="https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/full_disasm_from_obj_code"target="_blank" rel="noopener"&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The full disassembly is 69 lines long. But wait, the assembly generated from source was only 29 lines long!&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;As we have read before, assembling lays down the base at which linking can be performed.
+&lt;ul&gt;
+&lt;li&gt;Refer to &lt;a href="../a-high-level-overview-of-build-process-in-c.md"title="mention"&gt;a-high-level-overview-of-build-process-in-c.md&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Our source is a tiny part of the picture.&lt;/li&gt;
+&lt;li&gt;The instructions for printing the string are in the &lt;code&gt;.text&lt;/code&gt; section, while the string itself is a read-only data and thus it is stored in the &lt;code&gt;.rodata&lt;/code&gt; section.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.comment&lt;/code&gt; and &lt;code&gt;.eh_frame&lt;/code&gt; are compiler sections.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;If you notice, there is no sign of &amp;ldquo;Hello, World!\n&amp;rdquo; in the disassembly.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;But, it is there in encoded form. And we can verify that.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Strings are immutable, therefore, they must be in the &lt;code&gt;.rodata&lt;/code&gt; section.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;This is the &lt;code&gt;.rodata&lt;/code&gt; section.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Disassembly of section .rodata:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &amp;lt;.rodata&amp;gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 0: &lt;span style="color:#ae81ff"&gt;48&lt;/span&gt; rex.W
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 1: &lt;span style="color:#ae81ff"&gt;65&lt;/span&gt; 6c gs ins BYTE PTR es:&lt;span style="color:#f92672"&gt;[&lt;/span&gt;rdi&lt;span style="color:#f92672"&gt;]&lt;/span&gt;,dx
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 3: 6c ins BYTE PTR es:&lt;span style="color:#f92672"&gt;[&lt;/span&gt;rdi&lt;span style="color:#f92672"&gt;]&lt;/span&gt;,dx
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 4: 6f outs dx,DWORD PTR ds:&lt;span style="color:#f92672"&gt;[&lt;/span&gt;rsi&lt;span style="color:#f92672"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 5: 2c &lt;span style="color:#ae81ff"&gt;20&lt;/span&gt; sub al,0x20
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 7: &lt;span style="color:#ae81ff"&gt;57&lt;/span&gt; push rdi
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 8: 6f outs dx,DWORD PTR ds:&lt;span style="color:#f92672"&gt;[&lt;/span&gt;rsi&lt;span style="color:#f92672"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; 9: &lt;span style="color:#ae81ff"&gt;72&lt;/span&gt; 6c jb &lt;span style="color:#ae81ff"&gt;77&lt;/span&gt; &amp;lt;main+0x77&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; b: &lt;span style="color:#ae81ff"&gt;64&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;21&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; and DWORD PTR fs:&lt;span style="color:#f92672"&gt;[&lt;/span&gt;rax&lt;span style="color:#f92672"&gt;]&lt;/span&gt;,eax
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# Offset Machine Code Disassembly&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Now visit this website &lt;a href="https://www.rapidtables.com/convert/number/ascii-to-hex.html"target="_blank" rel="noopener"&gt;https://www.rapidtables.com/convert/number/ascii-to-hex.html&lt;/a&gt; and paste &lt;code&gt;&amp;quot;Hello, World!\n&amp;quot;&lt;/code&gt; there.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;In the bottom box, you can find a stream of characters as &lt;code&gt;48 65 6C 6C 6F 2C 20 57 6F 72 6C 64&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Visit an &lt;a href="https://www.ascii-code.com/"target="_blank" rel="noopener"&gt;ASCII to Hex reference&lt;/a&gt; table. And match the characters above in the &lt;code&gt;HEX&lt;/code&gt; column with the &lt;code&gt;Symbol&lt;/code&gt; column.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;48(H) 65(e) 6C(l) 6C(l) 6F(o) 2C(,) 20(SP) 57(W) 6F(o) 72(r) 6C(l) 64(d)&lt;/code&gt; &lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3&gt;Symbol Table (-t)&lt;span class="hx:absolute hx:-mt-20" id="symbol-table--t"&gt;&lt;/span&gt;
+&lt;a href="#symbol-table--t" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;SYMBOL TABLE:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; l df *ABS* &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; hello.c
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; l d .text &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; .text
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; l d .rodata &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; .rodata
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; g F .text 000000000000001a hello
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; *UND* &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; puts
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# Value (Offset Linker Symbol Section it Size of symbol Symbol name&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# relative to Visibility Type belongs to&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# section)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;Since it is unlinked, the &lt;code&gt;00...&lt;/code&gt; part in the first column is all about placeholders, which would be replaced at runtime.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;l&lt;/code&gt;: local; &lt;code&gt;g&lt;/code&gt;: global.
+&lt;ul&gt;
+&lt;li&gt;Only &lt;code&gt;main&lt;/code&gt; has global visibility, because we made it so.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;df&lt;/code&gt;: file definition (name).
+&lt;ul&gt;
+&lt;li&gt;Remember the &lt;code&gt;.file&lt;/code&gt; directive?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;*ABS*&lt;/code&gt;: absolute section, not relocatable.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;d&lt;/code&gt;: section definition, marks the beginning of a section.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;F&lt;/code&gt;: a function. It is located within the &lt;code&gt;.text&lt;/code&gt; section. The size is &lt;code&gt;1a&lt;/code&gt; bytes or &lt;code&gt;0001 1010&lt;/code&gt;, which is 26 bytes.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;*UND*&lt;/code&gt; refers to an undefined symbol which would be resolved at link time.
+&lt;ul&gt;
+&lt;li&gt;This is for the &lt;code&gt;puts&lt;/code&gt; function which comes from &lt;code&gt;glibc&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3&gt;Relocation Entries (-r)&lt;span class="hx:absolute hx:-mt-20" id="relocation-entries--r"&gt;&lt;/span&gt;
+&lt;a href="#relocation-entries--r" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;RELOCATION RECORDS FOR &lt;span style="color:#f92672"&gt;[&lt;/span&gt;.text&lt;span style="color:#f92672"&gt;]&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;OFFSET TYPE VALUE
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000007&lt;/span&gt; R_X86_64_PC32 .rodata-0x0000000000000004
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;000000000000000f R_X86_64_PLT32 puts-0x0000000000000004
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;RELOCATION RECORDS FOR &lt;span style="color:#f92672"&gt;[&lt;/span&gt;.eh_frame&lt;span style="color:#f92672"&gt;]&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;OFFSET TYPE VALUE
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#ae81ff"&gt;0000000000000020&lt;/span&gt; R_X86_64_PC32 .text&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Relocations are instructions for the linker/loader program (&lt;code&gt;ld-linux.so&lt;/code&gt;).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In simple words, a relocation entry asks to replace the mentioned placeholder offset with the real address or offset for this symbol.&lt;/li&gt;
+&lt;li&gt;The offset value is the position relative from the binary where the relocation is required.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3&gt;Section Headers (-h)&lt;span class="hx:absolute hx:-mt-20" id="section-headers--h"&gt;&lt;/span&gt;
+&lt;a href="#section-headers--h" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;{% code fullWidth=&amp;ldquo;false&amp;rdquo; %}&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Sections:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;Idx Name Size VMA LMA File off Algn
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt; .text 0000001a &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00000040&lt;/span&gt; 2**0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; └─ CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; .data &lt;span style="color:#ae81ff"&gt;00000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; 0000005a 2**0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; └─ CONTENTS, ALLOC, LOAD, DATA
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;2&lt;/span&gt; .bss &lt;span style="color:#ae81ff"&gt;00000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; 0000005a 2**0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; └─ ALLOC
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;3&lt;/span&gt; .rodata 0000000e &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; 0000005a 2**0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; └─ CONTENTS, ALLOC, LOAD, READONLY, DATA
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt; .comment &lt;span style="color:#ae81ff"&gt;00000020&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00000068&lt;/span&gt; 2**0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; └─ CONTENTS, READONLY
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;5&lt;/span&gt; .note.GNU-stack &lt;span style="color:#ae81ff"&gt;00000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00000088&lt;/span&gt; 2**0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; └─ CONTENTS, READONLY
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt; .eh_frame &lt;span style="color:#ae81ff"&gt;00000038&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0000000000000000&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00000088&lt;/span&gt; 2**3
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; └─ CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# Section Section Size in Virtual Memory Load Memory Offset In Alignment&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# Index Name Bytes Addrress Address File Where Requirement&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;# It Begins&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;{% endcode %}&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;CONTENTS, ALLOC, LOAD, DATA, RELOC, READONLY, CODE&lt;/code&gt; are flags.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CONTENTS&lt;/code&gt;: has data in the file.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ALLOC&lt;/code&gt;: should exist in memory at runtime.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LOAD&lt;/code&gt;: should be loaded by the linker/loader program.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RELOC&lt;/code&gt;: has relocation entries.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;READONLY&lt;/code&gt;: not writable.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CODE&lt;/code&gt;: contains executable instructions.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DATA&lt;/code&gt;: contains data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The code section (&lt;code&gt;.text&lt;/code&gt;) must be available at runtime, has dynamic entries which are required to be loaded by &lt;code&gt;ld-linux.so&lt;/code&gt; and it obviously has data in it. Therefore, it has &lt;code&gt;CONTENTS, ALLOC, LOAD, DATA&lt;/code&gt; flags.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;What is &lt;code&gt;VMA&lt;/code&gt; and &lt;code&gt;LMA&lt;/code&gt; ?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We are going to talk about this very soon. It deserves its own space.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;Here comes the end of inspection through &lt;code&gt;objdump&lt;/code&gt;. Next we are going to be using &lt;code&gt;readelf&lt;/code&gt;.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/readelf-perspective/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/object-code-analysis/readelf-perspective/</guid><description>
+&lt;h1&gt;`readelf` Perspective&lt;/h1&gt;&lt;h2&gt;Introduction To `readelf`&lt;span class="hx:absolute hx:-mt-20" id="introduction-to-readelf"&gt;&lt;/span&gt;
+&lt;a href="#introduction-to-readelf" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;code&gt;readelf&lt;/code&gt; is a part GNU Binutils Project.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s a versatile program that excels at parsing files with ELF structure.&lt;/p&gt;
+&lt;p&gt;Syntax of usage looks like: &lt;code&gt;readelf &amp;lt;elf_file&amp;gt; [flag(s)]&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;And yes, it is feature-rich just like &lt;code&gt;objdump&lt;/code&gt; . The ones that concern us now include these:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf object_code.o -a &lt;span style="color:#75715e"&gt;# Everything under one roof&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf object_code.o -h &lt;span style="color:#75715e"&gt;# ELF headers&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf object_code.o -l &lt;span style="color:#75715e"&gt;# Program headers&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf object_code.o -S &lt;span style="color:#75715e"&gt;# Section headers&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf object_code.o -s &lt;span style="color:#75715e"&gt;# Symbol table&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;readelf object_code.o -r &lt;span style="color:#75715e"&gt;# Relocation entries&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;$ readelf hello.o -a
+ELF Header:
+Magic: 7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00
+Class: ELF64
+Data: 2&amp;#39;s complement, little endian
+Version: 1 (current)
+OS/ABI: UNIX - System V
+ABI Version: 0
+Type: REL (Relocatable file)
+Machine: Advanced Micro Devices X86-64
+Version: 0x1
+Entry point address: 0x0
+Start of program headers: 0 (bytes into file)
+Start of section headers: 536 (bytes into file)
+Flags: 0x0
+Size of this header: 64 (bytes)
+Size of program headers: 0 (bytes)
+Number of program headers: 0
+Size of section headers: 64 (bytes)
+Number of section headers: 13
+Section header string table index: 12
+Section Headers:
+[Nr] Name Type Address Offset Size EntSize Flags Link Info Align
+[ 0] NULL 0000000000000000 00000000 0000000000000000 0000000000000000 0 0 0
+[ 1] .text PROGBITS 0000000000000000 00000040 000000000000001a 0000000000000000 AX 0 0 1
+[ 2] .rela.text RELA 0000000000000000 00000168 0000000000000030 0000000000000018 I 10 1 8
+[ 3] .data PROGBITS 0000000000000000 0000005a 0000000000000000 0000000000000000 WA 0 0 1
+[ 4] .bss NOBITS 0000000000000000 0000005a 0000000000000000 0000000000000000 WA 0 0 1
+[ 5] .rodata PROGBITS 0000000000000000 0000005a 000000000000000e 0000000000000000 A 0 0 1
+[ 6] .comment PROGBITS 0000000000000000 00000068 0000000000000020 0000000000000001 MS 0 0 1
+[ 7] .note.GNU-stack PROGBITS 0000000000000000 00000088 0000000000000000 0000000000000000 0 0 1
+[ 8] .eh_frame PROGBITS 0000000000000000 00000088 0000000000000038 0000000000000000 A 0 0 8
+[ 9] .rela.eh_frame RELA 0000000000000000 00000198 0000000000000018 0000000000000018 I 10 8 8
+[10] .symtab SYMTAB 0000000000000000 000000c0 0000000000000090 0000000000000018 11 4 8
+[11] .strtab STRTAB 0000000000000000 00000150 0000000000000013 0000000000000000 0 0 1
+[12] .shstrtab STRTAB 0000000000000000 000001b0 0000000000000061 0000000000000000 0 0 1
+Key to Flags:
+W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+L (link order), O (extra OS processing required), G (group), T (TLS),
+C (compressed), x (unknown), o (OS specific), E (exclude),
+D (mbind), l (large), p (processor specific)
+There are no section groups in this file.
+There are no program headers in this file.
+There is no dynamic section in this file.
+Relocation section &amp;#39;.rela.text&amp;#39; at offset 0x168 contains 2 entries:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000000007 000300000002 R_X86_64_PC32 0000000000000000 .rodata - 4
+00000000000f 000500000004 R_X86_64_PLT32 0000000000000000 puts - 4
+Relocation section &amp;#39;.rela.eh_frame&amp;#39; at offset 0x198 contains 1 entry:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000000020 000200000002 R_X86_64_PC32 0000000000000000 .text &amp;#43; 0
+No processor specific unwind information to decode
+Symbol table &amp;#39;.symtab&amp;#39; contains 6 entries:
+Num: Value Size Type Bind Vis Ndx Name
+0: 0000000000000000 0 NOTYPE LOCAL DEFAULT UND
+1: 0000000000000000 0 FILE LOCAL DEFAULT ABS hello.c
+2: 0000000000000000 0 SECTION LOCAL DEFAULT 1 .text
+3: 0000000000000000 0 SECTION LOCAL DEFAULT 5 .rodata
+4: 0000000000000000 26 FUNC GLOBAL DEFAULT 1 main
+5: 0000000000000000 0 NOTYPE GLOBAL DEFAULT UND puts
+No version information found in this file.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The output is long but when we&amp;rsquo;ll inspect a linked binary, the output would be huge. So, in comparison to that, the output of inspecting an object file through and elf parser like &lt;code&gt;readelf&lt;/code&gt; is quite short.&lt;/p&gt;
+&lt;p&gt;Lets start understanding this output.&lt;/p&gt;
+&lt;h3&gt;ELF Headers&lt;span class="hx:absolute hx:-mt-20" id="elf-headers"&gt;&lt;/span&gt;
+&lt;a href="#elf-headers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;These headers include information (metadata) that identifies a file as an ELF.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Magic&lt;/code&gt; (magic number) is a stream of characters which are used to identify a file format or protocol.&lt;br&gt;
+(Source &lt;a href="https://en.wikipedia.org/wiki/Magic_number_%5c%28programming%5c%29"target="_blank" rel="noopener"&gt;Wikipedia&lt;/a&gt;)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;They are often placed at the beginning of a data stream and serve as a unique signature to indicate the type or origin of a data.&lt;/li&gt;
+&lt;li&gt;For example, a PNG file typically starts with &lt;code&gt;89 50 4E 47 0D 0A 1A 0A&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Here it is &lt;code&gt;7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Here we have 16 pairs of hexadecimal digits, each representing 1-byte. Therefore, it is 16-bytes long.
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Magic Number Part&lt;/th&gt;
+&lt;th&gt;Explanation&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;7f 45 4c 46&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;This is an ELF file.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;02&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Architecture is 64-bit (&lt;code&gt;01&lt;/code&gt; for 32-bit).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;01&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Bits are stored in little-endian notation (&lt;code&gt;02&lt;/code&gt; for big-endian).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;01&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Version, nothing interesting about it.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;00&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;OS/ABI is System V&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;7f&lt;/code&gt; is 127 in decimals, which is for &lt;code&gt;DEL&lt;/code&gt; , which is a non-printable ASCII character. Each binary file format (like PNG, JPEG etc) uses a non-printable ASCII character so that the system can distinguish the file from a random text file. This non-printable character indicates that this is a structured file and the next 3 bytes will tell which structure it really uses.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;45 4c 46&lt;/code&gt; translates to &lt;code&gt;E L F&lt;/code&gt; .&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;Type&lt;/code&gt; field explains the purpose of the ELF file.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CORE&lt;/code&gt; (value 4).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DYN&lt;/code&gt; (Shared object file), used by libraries (value 3).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;EXEC&lt;/code&gt; (Executable file), used by binaries (value 2).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;REL&lt;/code&gt; (Relocatable file), object code ready to be linked (value 1).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;ELF headers is the first thing in an ELF file, which is why the entry point address is &lt;code&gt;0x0&lt;/code&gt; .&lt;/p&gt;
+&lt;p&gt;Programs headers are created during linking, that&amp;rsquo;s why there is &lt;code&gt;0&lt;/code&gt; for the start, number and size of program headers.&lt;/p&gt;
+&lt;p&gt;No flags were provided so &lt;code&gt;0x0&lt;/code&gt; in that.&lt;/p&gt;
+&lt;p&gt;Section headers are used by the linker during build time. Also, the assembling process lays down a basic section layout. That&amp;rsquo;s why we are seeing values related to section headers.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It starts from 536 bytes in the binary.&lt;/li&gt;
+&lt;li&gt;Total 13 section headers.&lt;/li&gt;
+&lt;li&gt;And their size is 64-bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The size of this ELF header is 64 bytes.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On 64-bit architecture, it is 64-bytes.&lt;/li&gt;
+&lt;li&gt;On 32-bit architecture, it is 32-bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;At last, we have this weird entry in the ELF headers, &lt;code&gt;Section header string table index: 12&lt;/code&gt; . Lets not gloss over it as it contains an important design concept.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Just for the time being, run &lt;code&gt;readelf hello.o -S&lt;/code&gt; . You can see an output like &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Section Headers:
+[Nr] Name Type Address Offset
+Size EntSize Flags Link Info Align
+[ 0] NULL 0000000000000000 00000000
+0000000000000000 0000000000000000 0 0 0
+[ 1] .text PROGBITS 0000000000000000 00000040
+000000000000001a 0000000000000000 AX 0 0 1&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;It is less formatted. After formatting, we will get something like this &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Section Headers:
+[Nr] Name Type Address Offset Size EntSize Flags Link Info Align
+[ 0] NULL 0000000000000000 00000000 0000000000000000 0000000000000000 0 0 0
+[ 1] .text PROGBITS 0000000000000000 00000040 000000000000001a 0000000000000000 AX 0 0 1&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Have a look at all of the attributes here. You will find that most of these attributes are having a fixed size. For example, the &lt;code&gt;Address&lt;/code&gt; field is always made up of 16 hexadecimal digits, so as the &lt;code&gt;Size&lt;/code&gt; field.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The only field we are concerned about is the &lt;code&gt;Name&lt;/code&gt; field. This field practically has no bounds. Name of a section has to be verbose for practical reasons. Verbosity often comes at the price of length. But, not all the fields need that much verbosity. For example, there is &lt;code&gt;.text&lt;/code&gt; and &lt;code&gt;.rela.eh_frame&lt;/code&gt; . This creates a tension.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The &lt;code&gt;Name&lt;/code&gt; field has to be long enough to contain the longest possible values. But the longest possible range is never really utilized fully. This leads to increase in size, which leads to wastage.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;For example, the longest entry in the &amp;ldquo;section headers&amp;rdquo; section in the output above (&lt;code&gt;readelf -a&lt;/code&gt;) is 15 characters long. We have 12 sections in total. &lt;code&gt;12*15 = 180 bytes&lt;/code&gt; . &lt;code&gt;Name&lt;/code&gt; has to be 15 characters long for each entry. On the contrary, how many bytes are actually used? &lt;code&gt;87 bytes&lt;/code&gt; ONLY. &lt;code&gt;93 bytes&lt;/code&gt; are wasted space.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;ul&gt;
+&lt;li&gt;This was just one table. There are other tables as well which uses the same &lt;code&gt;Name&lt;/code&gt; field and similar values. If separate tables were created, that would lead to an awful lot of wastage of space.&lt;/li&gt;
+&lt;li&gt;If we have to change these name entries, we have to change it everywhere they are used. Imagine how much compute would get wasted just to manage these names.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;What is the solution? &lt;strong&gt;Minimize the maximum wastage.&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;What if we create a &lt;strong&gt;central name registry&lt;/strong&gt; and ask everyone to refer to it, instead of storing it individually?&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Only the central registry would have to face the space problem. This would drastically reduce the overall wastage of space.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;If any name needs a change, you have to change it once and it would be reflected everywhere else.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Plus, since these names are independent now, we can altogether remove these &lt;strong&gt;central tables&lt;/strong&gt; when not required. You remember the output of &lt;code&gt;file&lt;/code&gt;? &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ file object_code.o
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;hello.o: ELF 64-bit LSB relocatable, x86-64, version &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;SYSV&lt;span style="color:#f92672"&gt;)&lt;/span&gt;, not stripped&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;This &amp;ldquo;not stripped&amp;rdquo; part is actually about removing stuff which is not really required. Removing these string tables is one of the things that happen when turning an elf from &amp;ldquo;not stripped&amp;rdquo; to &amp;ldquo;stripped&amp;rdquo;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Why remove? Because these are required only by toolchains and during debugging. A binary ready for production doesn&amp;rsquo;t really need it, which is why it is stripped.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;ul&gt;
+&lt;li&gt;So, &lt;code&gt;Section header string table index: 12&lt;/code&gt; means the section header string table, which contains string names to all of these sections in the section header, is at the 12th entry inside section headers table.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It was huge! Anyways, you can take some rest before continuing further.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Section Headers&lt;span class="hx:absolute hx:-mt-20" id="section-headers"&gt;&lt;/span&gt;
+&lt;a href="#section-headers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;An ELF is structured into various sections, and &amp;ldquo;section headers&amp;rdquo; form a table that contains metadata about each of these sections, including its type, size, and where in the ELF file the section is located.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;[Nr]&lt;/code&gt; is the index field.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Name&lt;/code&gt; field in a section header is an offset into the &lt;code&gt;.shstrtab&lt;/code&gt; (section header string table), which stores actual section names as strings. A parser program, like &lt;code&gt;readelf&lt;/code&gt; in our case, uses this offset to locate and display the human-readable name of the section.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Type&lt;/code&gt; defines the type of the section.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;PROGBITS&lt;/code&gt; contains actual code/data from the source.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RELA&lt;/code&gt; holds relocation entries with addends.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;BSS&lt;/code&gt; is used for uninitialized data, which occupies no space in file.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;SYMTAB&lt;/code&gt; stands for symbol table. More on this later.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;STRTAB&lt;/code&gt; stands for string table. More on this later.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;NULL&lt;/code&gt; type exists for alignment purposes. Computers index from 0 (like index in arrays) and ELF has preserved that. But to avoid confusion, it has kept the 0th index to NULL and starts everything from 1.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;Offset&lt;/code&gt; is the position of a section inside the ELF.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Address&lt;/code&gt; is the virtual address at which the section is loaded inside the virtual address space. This address can be absolute or relative.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It is absolute when the elf is linked as a &lt;strong&gt;non-PIE executable.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;It is relative [to the address where the binary is loaded] when the elf is linked as a &lt;strong&gt;position-independent executable.&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;The 00&amp;hellip;00 is a placeholder value as it is resolved at runtime.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;Size&lt;/code&gt; of the section in hexadecimal bytes.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;EntSize&lt;/code&gt; is the size of each individual entry within the section, if the section stores a table of uniform entries. If the section just holds raw data, it is 0.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Flags&lt;/code&gt; in a section header specify how the section should be treated in the memory.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Link&lt;/code&gt; refers to the index of a section related to this section.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Info&lt;/code&gt; is for extra information.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Align&lt;/code&gt; refers to the required alignment of the section in memory and/or file. We can gloss over it, for now.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;There are no section groups, program headers and the dynamic section. Lets examine why.&lt;/p&gt;
+&lt;p&gt;Section group is a mechanism to &lt;strong&gt;group related sections&lt;/strong&gt; so that linker program can treat them as a &lt;strong&gt;single unit&lt;/strong&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We need not to think about these.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Program headers (which is a topic for later discussion) define how the binary is going to be mapped in the memory.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you remember the ELF header section, the object code is of type &lt;code&gt;REL&lt;/code&gt;, which stands for relocatable.&lt;/li&gt;
+&lt;li&gt;Program headers define loadable segments for the OS.&lt;/li&gt;
+&lt;li&gt;When a file can&amp;rsquo;t be loaded, why program headers would be there?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The dynamic section tells the dynamic linker (interpreter program) what it needs to know to link the binary at runtime.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;An object code is not dynamically linked. There is no reason for the dynamic section to be there.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;All of these are inserted by the dynamic linker program, which is&lt;/strong&gt; &lt;code&gt;ld&lt;/code&gt; &lt;strong&gt;in our case. That is why they are absent in the object code.&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Relocation Entries&lt;span class="hx:absolute hx:-mt-20" id="relocation-entries"&gt;&lt;/span&gt;
+&lt;a href="#relocation-entries" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Relocations are instructions for the linker/loader program (&lt;code&gt;ld-linux.so&lt;/code&gt;).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In simple words, a relocation entry asks to replace the mentioned placeholder offset with the real address or offset for this symbol.&lt;/li&gt;
+&lt;li&gt;What gets relocated is the symbol. There are cross-references to symbols in shared libraries which are required to be resolved. The process that resolves them is called relocation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Relocation entries are of two types.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Relocation with addend (&lt;code&gt;RELA&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Relocation without addend (&lt;code&gt;REL&lt;/code&gt;)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;code&gt;.rela.text&lt;/code&gt; is read as relocation (with addend) for text (code) section.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.rela.eh_frame&lt;/code&gt; is read as relocation (with addend) for exception handling frame section.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Lets start with attributes.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;at offset 0x168/0x198&lt;/code&gt; means these relocation entries start at 168/198 hexadecimal bytes from the position the binary is located at.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Offset&lt;/code&gt; is the address in a section where the relocation has to be applied.
+&lt;ul&gt;
+&lt;li&gt;Offset 0x7 &lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Info&lt;/code&gt; encodes the symbol index and relocation type.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Type&lt;/code&gt; refers to the kind of relocation to apply.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Sym. Value&lt;/code&gt; is the value of the symbol before relocation.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Sym. Name + Addend&lt;/code&gt; is the symbol name with addend.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;This marks the end of inspecting into object code. I know we have not figured out the relocation part and the &lt;code&gt;.symtab&lt;/code&gt; part yet. It is because it is impossible to be done right now. Relocation is not a single concept. It&amp;rsquo;s a group of various small concepts combined before you reach the boss. Plus, relocation can&amp;rsquo;t be understood solely at object level. You need to be at link level to fully comprehend it.&lt;/p&gt;
+&lt;p&gt;For these reasons, it is in the best of our interest to avoid it for the time being. We are avoiding it right now so that we don&amp;rsquo;t end up glossing over it. But very soon we will get to it.&lt;/p&gt;
+&lt;p&gt;Take rest and we&amp;rsquo;ll continue again.&lt;/p&gt;</description></item></channel></rss>

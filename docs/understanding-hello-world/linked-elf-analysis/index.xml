@@ -1,0 +1,1610 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>All Things Low Level –</title><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/</link><description>Recent content on All Things Low Level</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/index.xml" rel="self" type="application/rss+xml"/><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/after-relocation/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/after-relocation/</guid><description>
+&lt;h1&gt;After Relocation&lt;/h1&gt;&lt;p&gt;After &lt;code&gt;.rela.dyn&lt;/code&gt; entries are processed, the interpreter looks at the PLT entries. Since lazy binding is enabled by default, relocations for &lt;code&gt;.rela.plt&lt;/code&gt; are deferred.&lt;/p&gt;
+&lt;p&gt;The interpreter now sets up the PLT stubs to point to the dynamic resolver (&lt;code&gt;_dl_runtime_resolve&lt;/code&gt;) via the global offset table, skips &lt;code&gt;JMPREL&lt;/code&gt; and leaves the &lt;code&gt;.got.plt&lt;/code&gt; entries unresolved.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;.init_array&lt;/code&gt; is a section used to store pointers to initialization functions (constructors) that run before &lt;code&gt;main()&lt;/code&gt;. It&amp;rsquo;s mostly relevant in C++ or programs with global constructors. For simple C programs like &lt;code&gt;hello world&lt;/code&gt;, it&amp;rsquo;s typically unused or trivial, and doesn&amp;rsquo;t affect the understanding of relocations, GOT/PLT, or dynamic linking — so it&amp;rsquo;s safe to skip for now.&lt;/p&gt;
+&lt;p&gt;Now the interpreter program calls the &lt;code&gt;INIT&lt;/code&gt; function (from &lt;code&gt;INIT&lt;/code&gt; dynamic tag).&lt;/p&gt;
+&lt;p&gt;After it is done with &lt;code&gt;INIT&lt;/code&gt;, it transfers the control to the program&amp;rsquo;s entry point which &lt;code&gt;_start&lt;/code&gt; .&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;_start&lt;/code&gt; calls `&lt;code&gt;__libc_start_main()`&lt;/code&gt; , which calls &lt;code&gt;main&lt;/code&gt; .&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;main&lt;/code&gt; does its work and return the exit code in the accumulator register. Remember this instruction? &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;114c: b8 00 00 00 00 mov eax,0x0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The control is given back to the `&lt;code&gt;__libc_start_main()`&lt;/code&gt; function, which receives the exit code and calls the &lt;code&gt;exit(return_value)&lt;/code&gt; function from &lt;code&gt;libc&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;exit()&lt;/code&gt; runs, calls destructors from &lt;code&gt;.fini-array&lt;/code&gt; and finally, the exit syscall comes in effect to terminate the program.&lt;/p&gt;
+&lt;p&gt;The kernel receives the control back, does some cleanup and sends &lt;code&gt;SIGCHLD&lt;/code&gt; to the parent process.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Ladies and gentlemen, this marks the end of statically analyzing the hello world binary. ~35 days of chaos, but worth it.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/full-disassembly/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/full-disassembly/</guid><description>
+&lt;h1&gt;Full Disassembly&lt;/h1&gt;&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;While analyzing the object code, we have checked out full disassembly of the compiled file. We can do that here as well.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;objdump linked_elf -D -M intel&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Shocked, right! The disassembly is 800 lines long. The first and the immediate question is &lt;strong&gt;WHERE ALL THIS ASSEMBLY IS COMING FROM?&lt;/strong&gt;&lt;/p&gt;
+&lt;h2&gt;The Big Picture&lt;span class="hx:absolute hx:-mt-20" id="the-big-picture"&gt;&lt;/span&gt;
+&lt;a href="#the-big-picture" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Our source code is a tiny part of the bigger picture.&lt;/p&gt;
+&lt;p&gt;There exist a complete infrastructure that runs this &lt;em&gt;hello world&lt;/em&gt; thing. And the build process is what that constructs this infrastructure, step-by-step.&lt;/p&gt;
+&lt;p&gt;In short, it is all compiler (&lt;code&gt;gcc&lt;/code&gt;) generated.&lt;/p&gt;
+&lt;h2&gt;What is this infrastructure really about? What does it look like?&lt;span class="hx:absolute hx:-mt-20" id="what-is-this-infrastructure-really-about-what-does-it-look-like"&gt;&lt;/span&gt;
+&lt;a href="#what-is-this-infrastructure-really-about-what-does-it-look-like" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;That&amp;rsquo;s a very important question to ask, not a idea to gloss over just because it is complex to answer.&lt;/p&gt;
+&lt;p&gt;At the end of the day, everything is just code. There are bunch of object files that makes up the invisible infrastructure.&lt;/p&gt;
+&lt;p&gt;The next question would be, &lt;em&gt;how does all of this code become one single entity?&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;That&amp;rsquo;s the job of linking. It&amp;rsquo;s not the only thing that the linker do, but one of the things.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Each object code has its own ELF structure. When the linker combines them, a unified structure comes out, which is our final binary.&lt;/p&gt;
+&lt;h2&gt;What to do with this disassembly?&lt;span class="hx:absolute hx:-mt-20" id="what-to-do-with-this-disassembly"&gt;&lt;/span&gt;
+&lt;a href="#what-to-do-with-this-disassembly" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This disassembly exposes almost everything, therefore, it is a roadmap for us. But to read that roadmap, we have to understand the things it points to.&lt;/p&gt;
+&lt;p&gt;There is no meaning in reading it line by line. We will use it in the process to make sense of what we are doing and why we are doing it.&lt;/p&gt;
+&lt;p&gt;Although I could have avoid it now because we are going to visit it anyway, but I don&amp;rsquo;t want to make those visits look strange. &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It is possible that someone had visited it earlier, it would mess with their mind. This is the reason why I decided to left an explanation before it consumes that learner.&lt;/li&gt;
+&lt;li&gt;Throughout the process, we are going to use the &lt;strong&gt;full disassembly&lt;/strong&gt;. It&amp;rsquo;s an incredible tool at our disposal.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With that in mind, we can move now.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/global-offset-table/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/global-offset-table/</guid><description>
+&lt;h1&gt;Global Offset Table&lt;/h1&gt;&lt;p&gt;So far, we know that when we are talking about relocation, we are updating a placeholder value at an offset in the loaded segments by the actual runtime address of the symbol.&lt;/p&gt;
+&lt;p&gt;But, there is a problem. To update means to write. To write something, you need write permission, correct? Is the &lt;code&gt;.text&lt;/code&gt; section writable? Or, should it be writable?&lt;/p&gt;
+&lt;p&gt;See, the symbols we have resolved so far, like the &lt;code&gt;__libc_start_main&lt;/code&gt; function symbol, these are called by the &lt;code&gt;_start&lt;/code&gt; symbol. And they are a part of the &lt;code&gt;.text&lt;/code&gt; section. We know that &lt;code&gt;.text&lt;/code&gt; is not limited to our source code only. But, if the &lt;code&gt;.text&lt;/code&gt; section is writable, doesn&amp;rsquo;t that pose a security risk?&lt;/p&gt;
+&lt;p&gt;First of all, is the &lt;code&gt;.text&lt;/code&gt; section writable? &lt;strong&gt;No&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;How to find whether a section is writable or not? &lt;strong&gt;Check the `Flags` attribute in the section headers table&lt;/strong&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;[14] .text PROGBITS 0000000000001050 00001050 0000000000000103 0000000000000000 AX 0 0 16&lt;/code&gt; &lt;/li&gt;
+&lt;li&gt;The flags are &lt;code&gt;AX&lt;/code&gt; here, which means &lt;code&gt;allocate&lt;/code&gt; and &lt;code&gt;execute&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;This section is clearly not writable.&lt;/li&gt;
+&lt;li&gt;Also, the segment it belongs to, which is the 2nd &lt;code&gt;LOAD&lt;/code&gt; segment in the program headers table (checkout section to segment mapping just below the program headers table), that is also not writable. &lt;code&gt;LOAD 0x0000000000001000 0x0000000000001000 0x0000000000001000 0x000000000000015d 0x000000000000015d R E 0x1000&lt;/code&gt; &lt;/li&gt;
+&lt;li&gt;It says &lt;code&gt;RE&lt;/code&gt;, which means, &lt;code&gt;read-only&lt;/code&gt; and &lt;code&gt;executable&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Second, should a section like &lt;code&gt;.text&lt;/code&gt; be writable?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The obvious answer would be &lt;strong&gt;NO.&lt;/strong&gt; That poses a security threat. It shouldn&amp;rsquo;t be writable at runtime.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Then where is relocation happening? Where we are patching the &lt;strong&gt;actual runtime address&lt;/strong&gt;?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Take this entry &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;000000003fc0 000100000006 R_X86_64_GLOB_DAT 0000000000000000 __libc_start_main@GLIBC_2.34 &amp;#43; 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The offset is &lt;code&gt;0x3fc0&lt;/code&gt;. The section it belongs to is &lt;code&gt;.got&lt;/code&gt; . &lt;em&gt;The first shock.&lt;/em&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The segment &lt;code&gt;.got&lt;/code&gt; section belongs to is the 4th &lt;code&gt;LOAD&lt;/code&gt; segment.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Checkout the properties for this segment. &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;LOAD 0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000248 0x0000000000000250 RW 0x1000&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;R W&lt;/code&gt;? It is readable and writable. &lt;em&gt;The second shock.&lt;/em&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now we have to take help from the &lt;strong&gt;full disassembly.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Have a look at the &lt;code&gt;.text&lt;/code&gt; section, line 341 on wards.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;106b: ff 15 4f 2f 00 00 call QWORD PTR [rip&amp;#43;0x2f4f] # 3fc0 &amp;lt;__libc_start_main@GLIBC_2.34&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The above instruction is calling that &lt;code&gt;libc&lt;/code&gt; function. In the comment, we can see that it resolves to a location &lt;code&gt;0x3fc0&lt;/code&gt;. Lets visit that.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;I suggest you to use &lt;em&gt;VS Code&amp;rsquo;s Search&lt;/em&gt; functionality for this. Otherwise, I am already putting the lines numbers here.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Offset &lt;code&gt;0x3fc0&lt;/code&gt; is found at line 764. And what it points to? &lt;code&gt;.got&lt;/code&gt;. And guess what, this offset matches the one in the relocation table. &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Disassembly of section .got:
+0000000000003fc0 &amp;lt;.got&amp;gt;:
+...&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The rest of the functions in the &lt;code&gt;.rela.dyn&lt;/code&gt; table have the same story. But, here is the twist and it can only be found by people who have not lost their sanity so far. Offsets &lt;code&gt;0x3fc8 0x3fd0 3fd8 3fe0&lt;/code&gt; are nowhere to be found in the &lt;code&gt;.got&lt;/code&gt; section. Just a call in their respective sections but no entry in &lt;code&gt;.got&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;If you have found that, here is the answer. Global offset table is a runtime thing. It is meant to be filled dynamically, which is why no placeholder offsets are present in the &lt;code&gt;.got&lt;/code&gt; disassembly as it is meaningless. We can also notice that the only sections which have got placeholder addresses are the ones which are &lt;code&gt;read-only&lt;/code&gt;, and &lt;code&gt;.got&lt;/code&gt; is &lt;code&gt;writable&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We had a look at the disassembly. Can you infer anything from it? Why is it like this?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;.text&lt;/code&gt; section is not writable. So, it points to entries in a section which is writable.&lt;/li&gt;
+&lt;li&gt;The section which is writable is responsible for providing the real runtime address of the symbol.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;.text&lt;/code&gt; section calls the symbol indirectly via this entry.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;That&amp;rsquo;s how relocations are carried out.&lt;/p&gt;
+&lt;p&gt;Enough building hype. Lets introduce global offset table now.&lt;/p&gt;
+&lt;h2&gt;Introduction to global offset table&lt;span class="hx:absolute hx:-mt-20" id="introduction-to-global-offset-table"&gt;&lt;/span&gt;
+&lt;a href="#introduction-to-global-offset-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The Global Offset Table (GOT) is a table in an ELF binary used at runtime to hold the absolute addresses of global variables and functions, allowing for position-independent code (PIC) by deferring the resolution of symbol addresses until execution.&lt;/p&gt;
+&lt;p&gt;Each entry in this table is an address. When it is created, it is a placeholder address, later, when it is resolved, it becomes the actual runtime address of that symbol.&lt;/p&gt;
+&lt;p&gt;The one thing that makes global offset table and procedure linkage table intimidating is the absence of the ability to visualize it. It is simple to say that &lt;strong&gt;it is just a pointer table&lt;/strong&gt; but &lt;strong&gt;how does it really look like?&lt;/strong&gt; That changes the game.&lt;/p&gt;
+&lt;h2&gt;Structure of GOT&lt;span class="hx:absolute hx:-mt-20" id="structure-of-got"&gt;&lt;/span&gt;
+&lt;a href="#structure-of-got" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Global offset table is logically divided into two parts. But it is one entity at the lowest level.&lt;/p&gt;
+&lt;p&gt;We are building the binary with default options, i.e &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;gcc hello.c -o hello_elf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Default options use eager binding for startup functions and lazy binding for source code functions. And the distinction in global offset table is based on this binding principle only.&lt;/p&gt;
+&lt;p&gt;The global offset table starts from the eager binding section. This section is very simple as there is no requirement for anything extra. So, it is all offset entries.&lt;/p&gt;
+&lt;p&gt;When the eager binding section ends, lazy binding section starts. And here we need certain entries before the actual relocation entries using PLT can come. After those entries, regular relocation entries start.&lt;/p&gt;
+&lt;p&gt;The best we can do to actually visualize how the global offset table looks like is to see the one for our binary. Since it is a runtime thing, we can&amp;rsquo;t actually see it right now, as we are doing static analysis. But that should not hinder our understanding, right?&lt;/p&gt;
+&lt;p&gt;What we are going to do is, we are going to utilize the full disassembly of the &lt;code&gt;.got&lt;/code&gt; section, relocation tables along with the theory to form a structure. By the way, we will verify it later when we do the dynamic analysis.&lt;/p&gt;
+&lt;h2&gt;Finding the structure of global offset table&lt;span class="hx:absolute hx:-mt-20" id="finding-the-structure-of-global-offset-table"&gt;&lt;/span&gt;
+&lt;a href="#finding-the-structure-of-global-offset-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;Supplies&lt;span class="hx:absolute hx:-mt-20" id="supplies"&gt;&lt;/span&gt;
+&lt;a href="#supplies" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Relocation entries&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Relocation section &amp;#39;.rela.dyn&amp;#39; at offset 0x550 contains 8 entries:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000003dd0 000000000008 R_X86_64_RELATIVE 1130
+000000003dd8 000000000008 R_X86_64_RELATIVE 10f0
+000000004010 000000000008 R_X86_64_RELATIVE 4010
+000000003fc0 000100000006 R_X86_64_GLOB_DAT 0000000000000000 __libc_start_main@GLIBC_2.34 &amp;#43; 0
+000000003fc8 000200000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_deregisterTM[...] &amp;#43; 0
+000000003fd0 000400000006 R_X86_64_GLOB_DAT 0000000000000000 __gmon_start__ &amp;#43; 0
+000000003fd8 000500000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_registerTMCl[...] &amp;#43; 0
+000000003fe0 000600000006 R_X86_64_GLOB_DAT 0000000000000000 __cxa_finalize@GLIBC_2.2.5 &amp;#43; 0
+Relocation section &amp;#39;.rela.plt&amp;#39; at offset 0x610 contains 1 entry:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000004000 000300000007 R_X86_64_JUMP_SLO 0000000000000000 puts@GLIBC_2.2.5 &amp;#43; 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The disassembly of the &lt;code&gt;_start&lt;/code&gt; symbol to find where is &lt;code&gt;__libc_start_main&lt;/code&gt; coming from.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Disassembly of section .text:
+0000000000001050 &amp;lt;_start&amp;gt;:
+1050: 31 ed xor ebp,ebp
+1052: 49 89 d1 mov r9,rdx
+1055: 5e pop rsi
+1056: 48 89 e2 mov rdx,rsp
+1059: 48 83 e4 f0 and rsp,0xfffffffffffffff0
+105d: 50 push rax
+105e: 54 push rsp
+105f: 45 31 c0 xor r8d,r8d
+1062: 31 c9 xor ecx,ecx
+1064: 48 8d 3d ce 00 00 00 lea rdi,[rip&amp;#43;0xce] # 1139 &amp;lt;main&amp;gt;
+106b: ff 15 4f 2f 00 00 call QWORD PTR [rip&amp;#43;0x2f4f] # 3fc0 &amp;lt;__libc_start_main@GLIBC_2.34&amp;gt;
+1071: f4 hlt
+1072: 66 2e 0f 1f 84 00 00 cs nop WORD PTR [rax&amp;#43;rax*1&amp;#43;0x0]
+1079: 00 00 00
+107c: 0f 1f 40 00 nop DWORD PTR [rax&amp;#43;0x0]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Global offset table section&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Disassembly of section .got:
+0000000000003fc0 &amp;lt;.got&amp;gt;:
+...
+Disassembly of section .got.plt:
+0000000000003fe8 &amp;lt;_GLOBAL_OFFSET_TABLE_&amp;gt;:
+3fe8: e0 3d loopne 4027 &amp;lt;_end&amp;#43;0x7&amp;gt;
+...
+3ffe: 00 00 add BYTE PTR [rax],al
+4000: 36 10 00 ss adc BYTE PTR [rax],al
+4003: 00 00 add BYTE PTR [rax],al
+4005: 00 00 add BYTE PTR [rax],al
+...&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Lets dive in!&lt;span class="hx:absolute hx:-mt-20" id="lets-dive-in"&gt;&lt;/span&gt;
+&lt;a href="#lets-dive-in" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;We are going to start with this relocation entry.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;000000003fc0 000100000006 R_X86_64_GLOB_DAT 0000000000000000 __libc_start_main@GLIBC_2.34 &amp;#43; 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;The offset is &lt;code&gt;0x3fc0&lt;/code&gt;. If we locate it in the full disassembly, we can find that it points to the global offset table itself.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;If we go to the disassembly of the &lt;code&gt;_start&lt;/code&gt; symbol, we can find this instruction telling that &lt;em&gt;the call to this function symbol points to this offset in the disassembly.&lt;/em&gt; And the offset is again &lt;code&gt;0x3fc0&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;106b: ff 15 4f 2f 00 00 call QWORD PTR [rip&amp;#43;0x2f4f] # 3fc0 &amp;lt;__libc_start_main@GLIBC_2.34&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This means that the first entry in the global offset table is allocated to &lt;code&gt;__libc_start_main&lt;/code&gt; symbol.&lt;/p&gt;
+&lt;p&gt;And it should not be hard to think that the rest of the entries in the &lt;code&gt;.rela.dyn&lt;/code&gt; table follows the same trend. Just because it is a runtime table, those entries don&amp;rsquo;t exist.&lt;/p&gt;
+&lt;p&gt;We know that, each address in 64-bit architecture is 8-byte long. That means, addresses should be separated by 8 units. &lt;/p&gt;
+&lt;p&gt;With that in mind, the eager binding part of the global offset table should look like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;GOT[0] -&amp;gt; *(__libc_start_main) -&amp;gt; 0x3fc0 (placeholder) -&amp;gt; [Actual Runtime Address]
+GOT[1] -&amp;gt; *(_ITM_deregisterTM) -&amp;gt; 0x3fc8 (placeholder) -&amp;gt; [Actual Runtime Address]
+GOT[2] -&amp;gt; *(__gmon_start__) -&amp;gt; 0x3fd0 (placeholder) -&amp;gt; [Actual Runtime Address]
+GOT[3] -&amp;gt; *(_ITM_registerTMCl) -&amp;gt; 0x3fd8 (placeholder) -&amp;gt; [Actual Runtime Address]
+GOT[4] -&amp;gt; *(__cxa_finalize) -&amp;gt; 0x3fe0 (placeholder) -&amp;gt; [Actual Runtime Address]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Now comes the lazy binding part.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;To do lazy binding, you need to know certain things. Since we have not touched on lazy binding yet, we will keep it simple.&lt;/li&gt;
+&lt;li&gt;There are 3 entries required to be reserved for lazy binding in the global offset table. These are offsets to &lt;code&gt;.dynamic&lt;/code&gt; segment, link_map, and the runtime resolver function.&lt;/li&gt;
+&lt;li&gt;Link map is a data structure which tracks all the loaded objects and runtime resolver function is the function that find those symbols in the loaded shared objects and resolve their runtime address.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Since the last entry was at &lt;code&gt;0x3fe0&lt;/code&gt; offset, the next entry should start at &lt;code&gt;0x3fe8&lt;/code&gt;, right? Have a look at the disassembly for &lt;code&gt;.got.plt&lt;/code&gt; section. Just look at the offset, the disassembly is garbage.&lt;/p&gt;
+&lt;p&gt;That means, the lazy binding section in the global offset table should look like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;GOT[5] -&amp;gt; *(.dynamic) -&amp;gt; 0x3fe8 -&amp;gt; [Actual Runtime Address]
+GOT[6] -&amp;gt; *(link_map) -&amp;gt; 0x3ff0 -&amp;gt; [Actual Runtime Address]
+GOT[7] -&amp;gt; *(runtime resolver) -&amp;gt; 0x3ff8 -&amp;gt; [Actual Runtime Address]
+GOT[8] -&amp;gt; *(puts) -&amp;gt; 0x4000 -&amp;gt; [Actual Runtime Address]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Combining both of them, the final structure should emerge something like this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;---------- ------------------------ ---------- --------------------------
+| GOT[0] | -&amp;gt; | *(__libc_start_main) | -&amp;gt; | 0x3fc0 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[1] | -&amp;gt; | *(_ITM_deregisterTM) | -&amp;gt; | 0x3fc8 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[2] | -&amp;gt; | *(__gmon_start__) | -&amp;gt; | 0x3fd0 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[3] | -&amp;gt; | *(_ITM_registerTMCl) | -&amp;gt; | 0x3fd8 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[4] | -&amp;gt; | *(__cxa_finalize) | -&amp;gt; | 0x3fe0 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[5] | -&amp;gt; | *(.dynamic) | -&amp;gt; | 0x3fe8 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[6] | -&amp;gt; | *(link_map) | -&amp;gt; | 0x3ff0 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[7] | -&amp;gt; | *(runtime) | -&amp;gt; | 0x3ff8 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------
+| GOT[8] | -&amp;gt; | *(puts) | -&amp;gt; | 0x4000 | -&amp;gt; | Actual Runtime Address |
+---------- ------------------------ ---------- --------------------------&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;That&amp;rsquo;s it.&lt;/p&gt;
+&lt;h3&gt;A Generalized Structure&lt;span class="hx:absolute hx:-mt-20" id="a-generalized-structure"&gt;&lt;/span&gt;
+&lt;a href="#a-generalized-structure" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;----------------------------------------------------------------------------------------
+| // Eager Binding Division -&amp;gt; .got at offset 0x0000 (RELA) (.rela.dyn) |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[0] | -&amp;gt; | *(func/symb 1) | -&amp;gt; | 0x0000 | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[1] | -&amp;gt; | *(func/symb 2) | -&amp;gt; | 0x0008 | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[2] | -&amp;gt; | *(func/symb 3) | -&amp;gt; | 0x0010 | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[3] | -&amp;gt; | *(func/symb 4) | -&amp;gt; | 0x0018 | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[4] | -&amp;gt; | *(func/symb 5) | -&amp;gt; | 0x0020 | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+| .... |
+| .... |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[N] | -&amp;gt; | *(func/symb N) | -&amp;gt; | 0x.... | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+|--------------------------------------------------------------------------------------|
+| // Lazy Binding Division -&amp;gt; .got.plt at offset 0x0028 (JMPREL) (.rela.plt) |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[0] | -&amp;gt; | *(.dynamic) | -&amp;gt; | 0x0028 | -&amp;gt; | Actual Runtime Address | | &amp;lt;- Reserved for enabling lazy binding
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[1] | -&amp;gt; | *(link_map) | -&amp;gt; | 0x0030 | -&amp;gt; | Actual Runtime Address | | &amp;lt;- Reserved for enabling lazy binding
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[2] | -&amp;gt; | *(_dl_runtime_resolve) | -&amp;gt; | 0x0038 | -&amp;gt; | Actual Runtime Address | | &amp;lt;- Reserved for enabling lazy binding
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[3] | -&amp;gt; | *(func 1) | -&amp;gt; | 0x0040 | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[4] | -&amp;gt; | *(func 2) | -&amp;gt; | 0x0048 | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+| .... |
+| .... |
+| ---------- -------------------------- ---------- -------------------------- |
+| | GOT[M] | -&amp;gt; | *(func M) | -&amp;gt; | 0x.... | -&amp;gt; | Actual Runtime Address | |
+| ---------- -------------------------- ---------- -------------------------- |
+----------------------------------------------------------------------------------------&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;But, this table is still incomplete. And we will complete it in the next section, which is procedure linkage table.&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;I took ~5 days to write understand global offset table and write this article. Its painful, chaotic, confusing, agitating, frustrating and what not. But it is worth it.&lt;/p&gt;
+&lt;p&gt;Thank you. Next we would go through PLT as it is necessary to understand &lt;code&gt;.rela.plt&lt;/code&gt; based relocations.&lt;/p&gt;
+&lt;p&gt;Until then, take rest.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/part-ii-analyzing-section-headers/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/part-ii-analyzing-section-headers/</guid><description>
+&lt;h1&gt;Analyzing Section Headers&lt;/h1&gt;&lt;h2&gt;What are sections?&lt;span class="hx:absolute hx:-mt-20" id="what-are-sections"&gt;&lt;/span&gt;
+&lt;a href="#what-are-sections" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Sections are formally defined logical divisions inside an ELF file in the ELF specification. They describe how an ELF file organizes its contents for linking, loading, and debugging.&lt;/p&gt;
+&lt;p&gt;These are the section headers in our binary.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Section Headers:
+[Nr] Name Type Address Offset Size EntSize Flags Link Info Align
+[ 0] NULL 0000000000000000 00000000 0000000000000000 0000000000000000 0 0 0
+[ 1] .note.gnu.pr[...] NOTE 0000000000000350 00000350 0000000000000020 0000000000000000 A 0 0 8
+[ 2] .note.gnu.bu[...] NOTE 0000000000000370 00000370 0000000000000024 0000000000000000 A 0 0 4
+[ 3] .interp PROGBITS 0000000000000394 00000394 000000000000001c 0000000000000000 A 0 0 1
+[ 4] .gnu.hash GNU_HASH 00000000000003b0 000003b0 0000000000000024 0000000000000000 A 5 0 8
+[ 5] .dynsym DYNSYM 00000000000003d8 000003d8 00000000000000a8 0000000000000018 A 6 1 8
+[ 6] .dynstr STRTAB 0000000000000480 00000480 000000000000008d 0000000000000000 A 0 0 1
+[ 7] .gnu.version VERSYM 000000000000050e 0000050e 000000000000000e 0000000000000002 A 5 0 2
+[ 8] .gnu.version_r VERNEED 0000000000000520 00000520 0000000000000030 0000000000000000 A 6 1 8
+[ 9] .rela.dyn RELA 0000000000000550 00000550 00000000000000c0 0000000000000018 A 5 0 8
+[10] .rela.plt RELA 0000000000000610 00000610 0000000000000018 0000000000000018 AI 5 24 8
+[11] .init PROGBITS 0000000000001000 00001000 0000000000000017 0000000000000000 AX 0 0 4
+[12] .plt PROGBITS 0000000000001020 00001020 0000000000000020 0000000000000010 AX 0 0 16
+[13] .plt.got PROGBITS 0000000000001040 00001040 0000000000000008 0000000000000008 AX 0 0 8
+[14] .text PROGBITS 0000000000001050 00001050 0000000000000103 0000000000000000 AX 0 0 16
+[15] .fini PROGBITS 0000000000001154 00001154 0000000000000009 0000000000000000 AX 0 0 4
+[16] .rodata PROGBITS 0000000000002000 00002000 0000000000000012 0000000000000000 A 0 0 4
+[17] .eh_frame_hdr PROGBITS 0000000000002014 00002014 000000000000002c 0000000000000000 A 0 0 4
+[18] .eh_frame PROGBITS 0000000000002040 00002040 00000000000000ac 0000000000000000 A 0 0 8
+[19] .note.ABI-tag NOTE 00000000000020ec 000020ec 0000000000000020 0000000000000000 A 0 0 4
+[20] .init_array INIT_ARRAY 0000000000003dd0 00002dd0 0000000000000008 0000000000000008 WA 0 0 8
+[21] .fini_array FINI_ARRAY 0000000000003dd8 00002dd8 0000000000000008 0000000000000008 WA 0 0 8
+[22] .dynamic DYNAMIC 0000000000003de0 00002de0 00000000000001e0 0000000000000010 WA 6 0 8
+[23] .got PROGBITS 0000000000003fc0 00002fc0 0000000000000028 0000000000000008 WA 0 0 8
+[24] .got.plt PROGBITS 0000000000003fe8 00002fe8 0000000000000020 0000000000000008 WA 0 0 8
+[25] .data PROGBITS 0000000000004008 00003008 0000000000000010 0000000000000000 WA 0 0 8
+[26] .bss NOBITS 0000000000004018 00003018 0000000000000008 0000000000000000 WA 0 0 1
+[27] .comment PROGBITS 0000000000000000 00003018 000000000000001f 0000000000000001 MS 0 0 1
+[28] .symtab SYMTAB 0000000000000000 00003038 0000000000000360 0000000000000018 29 18 8
+[29] .strtab STRTAB 0000000000000000 00003398 00000000000001db 0000000000000000 0 0 1
+[30] .shstrtab STRTAB 0000000000000000 00003573 000000000000011a 0000000000000000 0 0 1
+Key to Flags:
+W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+L (link order), O (extra OS processing required), G (group), T (TLS),
+C (compressed), x (unknown), o (OS specific), E (exclude),
+D (mbind), l (large), p (processor specific)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; You may not find your output like this because I have formatted it manually so that it is clear and makes sense.&lt;/p&gt;
+&lt;p&gt;We are already familiar with the attributes of this table, so we&amp;rsquo;ll skip that. Lets have a look at these sections.&lt;/p&gt;
+&lt;h2&gt;Baseline Understanding Of Sections&lt;span class="hx:absolute hx:-mt-20" id="baseline-understanding-of-sections"&gt;&lt;/span&gt;
+&lt;a href="#baseline-understanding-of-sections" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;h2&gt;What is their significance?&lt;span class="hx:absolute hx:-mt-20" id="what-is-their-significance"&gt;&lt;/span&gt;
+&lt;a href="#what-is-their-significance" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Sections are used by the linker to organize our code/data/symbols etc. Lets usage an analogy to understand the importance of their existence.&lt;/p&gt;
+&lt;p&gt;Consider an ELF as a room, containing so many different types of things. There are clothes, pens and paper, bottle, bag, notebooks etc. And everything is scattered.&lt;/p&gt;
+&lt;p&gt;To make sense of them, you decided to clear the floor and put everything categorized on the floor.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;You put papers together.&lt;/li&gt;
+&lt;li&gt;You put notebooks together.&lt;/li&gt;
+&lt;li&gt;You put pens together.&lt;/li&gt;
+&lt;li&gt;You put jeans together.&lt;/li&gt;
+&lt;li&gt;You put shirts together.&lt;/li&gt;
+&lt;li&gt;You put books together.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;This resembles sections.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Now we have so many things, a little bit organized. But, further organization can be made.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Books, papers and pens are related things. They are all stationary. So, they can be put together in the bookshelf.&lt;/li&gt;
+&lt;li&gt; Jeans, shirts, t-shirts, lower, jacket etc&amp;hellip;. all of them are clothes. So, they can be put together in the wardrobe.&lt;/li&gt;
+&lt;li&gt;And so on&amp;hellip;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;This further categorization is what segments are.&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When you have to look for fiction books, or course books, you don&amp;rsquo;t go to different place. They are within the same bookshelf.&lt;/li&gt;
+&lt;li&gt;When you want a lower or a jacket, you don&amp;rsquo;t go to separate places again. They are within the same wardrobe. You want party clothes or comfy clothes, all of them are in the same wardrobe.&lt;/li&gt;
+&lt;li&gt;The idea behind segments is that you group sections logically to the point that no further categorization can be made and all the related things can be accessed at one place in a logical manner.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Ultimately, do you end up accessing the clothes individually or through the wardrobe? The answer is through the wardrobe.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Sections are just kind of intermediaries. They are used initially to do things but they are not the ones that are ultimately used in the end.&lt;/li&gt;
+&lt;li&gt;Segments, on the other hand, evolve from sections and these are what that get used at runtime.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Once these segments are created, program headers come into existence.&lt;/p&gt;
+&lt;h2&gt;How does it fit in the bigger picture?&lt;span class="hx:absolute hx:-mt-20" id="how-does-it-fit-in-the-bigger-picture"&gt;&lt;/span&gt;
+&lt;a href="#how-does-it-fit-in-the-bigger-picture" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;As we have read recently that the infrastructure we are understanding is basically made up of various object files, which get combined with our source code and the final binary becomes an executable. &lt;/p&gt;
+&lt;p&gt;Those object files are also ELF at the end of the day. They will also have sections like &lt;code&gt;.text&lt;/code&gt; and &lt;code&gt;.got&lt;/code&gt; . To form a combined binary, these sections are combined in a thoughtful way and a final version of that section emerges.&lt;/p&gt;
+&lt;p&gt;Therefore, the &lt;code&gt;.text&lt;/code&gt; section we see in the final elf binary doesn&amp;rsquo;t only contain our source code, but the source code from various shared object files.&lt;/p&gt;
+&lt;p&gt;Just for knowledge, some of these files include &lt;code&gt;crt1.o&lt;/code&gt;, &lt;code&gt;crtn.o&lt;/code&gt; etc.&lt;/p&gt;
+&lt;p&gt;This can be verified by looking at the full disassembly.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Line 341 on wards starts the disassembly of &lt;code&gt;.text&lt;/code&gt; section.&lt;/li&gt;
+&lt;li&gt;First, we have &lt;code&gt;_start&lt;/code&gt;. Then &lt;code&gt;deregister_tm_clones&lt;/code&gt;, &lt;code&gt;register_tm_clones&lt;/code&gt;, &lt;code&gt;__do_global_dtors_aux&lt;/code&gt;, &lt;code&gt;frame_dummy&lt;/code&gt; and, at last, &lt;code&gt;main&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;All these are coming from the shared object files.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Conclusion&lt;span class="hx:absolute hx:-mt-20" id="conclusion"&gt;&lt;/span&gt;
+&lt;a href="#conclusion" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;Sections are used at build time.&lt;/li&gt;
+&lt;li&gt;Segments are used at runtime.&lt;/li&gt;
+&lt;li&gt;The final binary is a mixture of our source code and shared object files.&lt;/li&gt;
+&lt;/ol&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/preparation-for-symbol-resolution/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/preparation-for-symbol-resolution/</guid><description>
+&lt;h1&gt;Preparation For Symbol Resolution&lt;/h1&gt;&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We are using &lt;code&gt;printf()&lt;/code&gt; to print &lt;code&gt;Hello, World!\n&lt;/code&gt; in the output screen. But where is &lt;code&gt;printf()&lt;/code&gt;?&lt;/p&gt;
+&lt;p&gt;I have not written it. So where is it coming from? &lt;code&gt;glibc&lt;/code&gt;? Yes.&lt;/p&gt;
+&lt;p&gt;What is &lt;code&gt;glibc&lt;/code&gt;? A shared library? Yes.&lt;/p&gt;
+&lt;p&gt;Great. &lt;code&gt;printf()&lt;/code&gt; is coming from &lt;code&gt;glibc&lt;/code&gt;. But our source code and the &lt;code&gt;glibc&lt;/code&gt; are two distinct things. How will my source code know where is &lt;code&gt;glibc&lt;/code&gt; and where is &lt;code&gt;printf()&lt;/code&gt; in it?&lt;/p&gt;
+&lt;p&gt;We also know that our source code is just a tiny part of the infrastructure that runs it. I didn&amp;rsquo;t write that infrastructure. That infra would also require various functions and other things. Where are those things coming from?&lt;/p&gt;
+&lt;p&gt;The answer is symbol resolution. And we are going to discuss the same in this article.&lt;/p&gt;
+&lt;h2&gt;Setting Up The Grounds&lt;span class="hx:absolute hx:-mt-20" id="setting-up-the-grounds"&gt;&lt;/span&gt;
+&lt;a href="#setting-up-the-grounds" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;From assembly, we know that a lot of things are just symbols of different kinds.&lt;/p&gt;
+&lt;p&gt;The instruction &lt;code&gt;call puts@PLT&lt;/code&gt; is a call to a function symbol &lt;code&gt;puts&lt;/code&gt; via the procedure linkage table or &lt;code&gt;PLT&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Often, these symbols are located in code written beyond the current file or something entirely written by a different person. To use these symbols, there has to be a way through which these are made available to our binary and our binary knows where they are.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Symbols&lt;/strong&gt; are the entities which are required to be resolved. &lt;strong&gt;Relocation&lt;/strong&gt; is the process that resolves the final runtime address of these symbols.&lt;/p&gt;
+&lt;h2&gt;What is required for relocation?&lt;span class="hx:absolute hx:-mt-20" id="what-is-required-for-relocation"&gt;&lt;/span&gt;
+&lt;a href="#what-is-required-for-relocation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;What are all the symbols that require relocation? These are those symbols whose runtime address is not known.&lt;/li&gt;
+&lt;li&gt;Relocation entries which define the metadata about these symbols.&lt;/li&gt;
+&lt;li&gt;A process to manage symbol resolution.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Symbol Tables&lt;span class="hx:absolute hx:-mt-20" id="symbol-tables"&gt;&lt;/span&gt;
+&lt;a href="#symbol-tables" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;A symbol table is a metadata table about symbols. That&amp;rsquo;s it.&lt;/p&gt;
+&lt;p&gt;There are two symbol tables in our binary. These are &lt;code&gt;.symtab&lt;/code&gt; and &lt;code&gt;.dynsym&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Symbol table &amp;#39;.dynsym&amp;#39; contains 7 entries:
+Num: Value Size Type Bind Visibility Ndx Name
+0: 0000000000000000 0 NOTYPE LOCAL DEFAULT UND
+1: 0000000000000000 0 FUNC GLOBAL DEFAULT UND _[...]@GLIBC_2.34 (2)
+2: 0000000000000000 0 NOTYPE WEAK DEFAULT UND _ITM_deregisterT[...]
+3: 0000000000000000 0 FUNC GLOBAL DEFAULT UND puts@GLIBC_2.2.5 (3)
+4: 0000000000000000 0 NOTYPE WEAK DEFAULT UND __gmon_start__
+5: 0000000000000000 0 NOTYPE WEAK DEFAULT UND _ITM_registerTMC[...]
+6: 0000000000000000 0 FUNC WEAK DEFAULT UND [...]@GLIBC_2.2.5 (3)
+Symbol table &amp;#39;.symtab&amp;#39; contains 36 entries:
+Num: Value Size Type Bind Vis Ndx Name
+0: 0000000000000000 0 NOTYPE LOCAL DEFAULT UND
+1: 0000000000000000 0 FILE LOCAL DEFAULT ABS Scrt1.o
+2: 00000000000020ec 32 OBJECT LOCAL DEFAULT 19 __abi_tag
+3: 0000000000000000 0 FILE LOCAL DEFAULT ABS crtstuff.c
+4: 0000000000001080 0 FUNC LOCAL DEFAULT 14 deregister_tm_clones
+5: 00000000000010b0 0 FUNC LOCAL DEFAULT 14 register_tm_clones
+6: 00000000000010f0 0 FUNC LOCAL DEFAULT 14 __do_global_dtors_aux
+7: 0000000000004018 1 OBJECT LOCAL DEFAULT 26 completed.0
+8: 0000000000003dd8 0 OBJECT LOCAL DEFAULT 21 __do_global_dtor[...]
+9: 0000000000001130 0 FUNC LOCAL DEFAULT 14 frame_dummy
+10: 0000000000003dd0 0 OBJECT LOCAL DEFAULT 20 __frame_dummy_in[...]
+11: 0000000000000000 0 FILE LOCAL DEFAULT ABS hello.c
+12: 0000000000000000 0 FILE LOCAL DEFAULT ABS crtstuff.c
+13: 00000000000020e8 0 OBJECT LOCAL DEFAULT 18 __FRAME_END__
+14: 0000000000000000 0 FILE LOCAL DEFAULT ABS
+15: 0000000000003de0 0 OBJECT LOCAL DEFAULT 22 _DYNAMIC
+16: 0000000000002014 0 NOTYPE LOCAL DEFAULT 17 __GNU_EH_FRAME_HDR
+17: 0000000000003fe8 0 OBJECT LOCAL DEFAULT 24 _GLOBAL_OFFSET_TABLE_
+18: 0000000000000000 0 FUNC GLOBAL DEFAULT UND __libc_start_mai[...]
+19: 0000000000000000 0 NOTYPE WEAK DEFAULT UND _ITM_deregisterT[...]
+20: 0000000000004008 0 NOTYPE WEAK DEFAULT 25 data_start
+21: 0000000000000000 0 FUNC GLOBAL DEFAULT UND puts@GLIBC_2.2.5
+22: 0000000000004018 0 NOTYPE GLOBAL DEFAULT 25 _edata
+23: 0000000000001154 0 FUNC GLOBAL HIDDEN 15 _fini
+24: 0000000000004008 0 NOTYPE GLOBAL DEFAULT 25 __data_start
+25: 0000000000000000 0 NOTYPE WEAK DEFAULT UND __gmon_start__
+26: 0000000000004010 0 OBJECT GLOBAL HIDDEN 25 __dso_handle
+27: 0000000000002000 4 OBJECT GLOBAL DEFAULT 16 _IO_stdin_used
+28: 0000000000004020 0 NOTYPE GLOBAL DEFAULT 26 _end
+29: 0000000000001050 34 FUNC GLOBAL DEFAULT 14 _start
+30: 0000000000004018 0 NOTYPE GLOBAL DEFAULT 26 __bss_start
+31: 0000000000001139 26 FUNC GLOBAL DEFAULT 14 main
+32: 0000000000004018 0 OBJECT GLOBAL HIDDEN 25 __TMC_END__
+33: 0000000000000000 0 NOTYPE WEAK DEFAULT UND _ITM_registerTMC[...]
+34: 0000000000000000 0 FUNC WEAK DEFAULT UND __cxa_finalize@G[...]
+35: 0000000000001000 0 FUNC GLOBAL HIDDEN 11 _init&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Understanding The Attributes&lt;span class="hx:absolute hx:-mt-20" id="understanding-the-attributes"&gt;&lt;/span&gt;
+&lt;a href="#understanding-the-attributes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;h3&gt;What are these two tables used for?&lt;span class="hx:absolute hx:-mt-20" id="what-are-these-two-tables-used-for"&gt;&lt;/span&gt;
+&lt;a href="#what-are-these-two-tables-used-for" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;h3&gt;String Table&lt;span class="hx:absolute hx:-mt-20" id="string-table"&gt;&lt;/span&gt;
+&lt;a href="#string-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;String table is the general table which serves as the central table for symbol names, just like we talked about the section header string table.&lt;/p&gt;
+&lt;p&gt;To access it, run&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ readelf ./linked_elf -p .strtab
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;String dump of section &lt;span style="color:#e6db74"&gt;&amp;#39;.strtab&amp;#39;&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 1&lt;span style="color:#f92672"&gt;]&lt;/span&gt; Scrt1.o
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 9&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __abi_tag
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 13&lt;span style="color:#f92672"&gt;]&lt;/span&gt; crtstuff.c
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 1e&lt;span style="color:#f92672"&gt;]&lt;/span&gt; deregister_tm_clones
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 33&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __do_global_dtors_aux
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 49&lt;span style="color:#f92672"&gt;]&lt;/span&gt; completed.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 55&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __do_global_dtors_aux_fini_array_entry
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 7c&lt;span style="color:#f92672"&gt;]&lt;/span&gt; frame_dummy
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 88&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __frame_dummy_init_array_entry
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; a7&lt;span style="color:#f92672"&gt;]&lt;/span&gt; hello.c
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; af&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __FRAME_END__
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; bd&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _DYNAMIC
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; c6&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __GNU_EH_FRAME_HDR
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; d9&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _GLOBAL_OFFSET_TABLE_
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; ef&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __libc_start_main@GLIBC_2.34
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 10c&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _ITM_deregisterTMCloneTable
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 128&lt;span style="color:#f92672"&gt;]&lt;/span&gt; puts@GLIBC_2.2.5
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 139&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _edata
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 140&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _fini
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 146&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __data_start
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 153&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __gmon_start__
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 162&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __dso_handle
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 16f&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _IO_stdin_used
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 17e&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _end
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 183&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __bss_start
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 18f&lt;span style="color:#f92672"&gt;]&lt;/span&gt; main
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 194&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __TMC_END__
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 1a0&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _ITM_registerTMCloneTable
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 1ba&lt;span style="color:#f92672"&gt;]&lt;/span&gt; __cxa_finalize@GLIBC_2.2.5
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#f92672"&gt;[&lt;/span&gt; 1d5&lt;span style="color:#f92672"&gt;]&lt;/span&gt; _init&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Relocation Entries&lt;span class="hx:absolute hx:-mt-20" id="relocation-entries"&gt;&lt;/span&gt;
+&lt;a href="#relocation-entries" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Relocations are instructions for the linker/loader program (&lt;code&gt;ld-linux.so&lt;/code&gt;).&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In simple words, a relocation entry asks to replace the mentioned placeholder offset with the real address or offset for this symbol.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Primarily, there are two kinds of relocation entries.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Relocation with addend, &lt;code&gt;RELA&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Relocation without addend, &lt;code&gt;REL&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;An addend is a constant value added to the symbol&amp;rsquo;s address during relocation.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When this constant is stored in the relocation entry itself, we call it &lt;code&gt;RELA&lt;/code&gt;, which means, &amp;ldquo;Relocation with Addend&amp;rdquo;.&lt;/li&gt;
+&lt;li&gt;When this constant is embedded in the section being relocated, we call it &lt;code&gt;REL&lt;/code&gt;, which means, &amp;ldquo;Relocation without Addend&amp;rdquo;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There are two relocation tables in our binary, &lt;code&gt;.rela.dyn&lt;/code&gt; and &lt;code&gt;.rela.plt&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;.rela.dyn&lt;/code&gt; is for general data/function pointer relocations.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;.rela.plt&lt;/code&gt; is for function calls through the PLT, typically used for lazy binding.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These are the relocation entries in our binary.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Relocation section &amp;#39;.rela.dyn&amp;#39; at offset 0x550 contains 8 entries:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000003dd0 000000000008 R_X86_64_RELATIVE 1130
+000000003dd8 000000000008 R_X86_64_RELATIVE 10f0
+000000004010 000000000008 R_X86_64_RELATIVE 4010
+000000003fc0 000100000006 R_X86_64_GLOB_DAT 0000000000000000 __libc_start_main@GLIBC_2.34 &amp;#43; 0
+000000003fc8 000200000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_deregisterTM[...] &amp;#43; 0
+000000003fd0 000400000006 R_X86_64_GLOB_DAT 0000000000000000 __gmon_start__ &amp;#43; 0
+000000003fd8 000500000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_registerTMCl[...] &amp;#43; 0
+000000003fe0 000600000006 R_X86_64_GLOB_DAT 0000000000000000 __cxa_finalize@GLIBC_2.2.5 &amp;#43; 0
+Relocation section &amp;#39;.rela.plt&amp;#39; at offset 0x610 contains 1 entry:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000004000 000300000007 R_X86_64_JUMP_SLO 0000000000000000 puts@GLIBC_2.2.5 &amp;#43; 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;Understanding The Attributes&lt;span class="hx:absolute hx:-mt-20" id="understanding-the-attributes-1"&gt;&lt;/span&gt;
+&lt;a href="#understanding-the-attributes-1" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Addend is probably the only foreign term here. Next we are going to understand that. But before that we need to clear a small concept.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/procedure-linkage-table/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/procedure-linkage-table/</guid><description>
+&lt;h1&gt;Procedure Linkage Table&lt;/h1&gt;&lt;h2&gt;Problem Statement&lt;span class="hx:absolute hx:-mt-20" id="problem-statement"&gt;&lt;/span&gt;
+&lt;a href="#problem-statement" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Now we are inside the &lt;code&gt;main&lt;/code&gt; symbol and our code i executing. The program reached the instruction where a call to puts is made. Just think about how it would get resolved?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Right now, the control is in the hands of &lt;code&gt;main&lt;/code&gt;. And &lt;code&gt;puts&lt;/code&gt; is hiding somewhere in the shared libraries.&lt;/li&gt;
+&lt;li&gt;It is essential that the interpreter program has the control, so that we can use the runtime resolver function to find &lt;code&gt;puts&lt;/code&gt;. Right? Where we would get it?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The global offset table is designed to contain offsets only. How will you encapsulate the logic for finding &lt;code&gt;puts&lt;/code&gt; or any function that needs lazy binding?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;You may say that the GOT entry can point to the interpreter program.&lt;/li&gt;
+&lt;li&gt;In that case, how will you jump to the runtime resolver function? How will you tell the runtime resolver function which symbol is needed to be found?&lt;/li&gt;
+&lt;li&gt;A single entry in the global offset table can&amp;rsquo;t afford to do all of this.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So, whats the solution, then?&lt;/p&gt;
+&lt;h2&gt;Introduction To Procedure Linkage Table&lt;span class="hx:absolute hx:-mt-20" id="introduction-to-procedure-linkage-table"&gt;&lt;/span&gt;
+&lt;a href="#introduction-to-procedure-linkage-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The Procedure Linkage Table is a section in an ELF binary used to support dynamic function calls to external (shared library) functions. It acts as an indirect jump table, allowing a program to call shared library functions whose actual memory addresses are not known until runtime, typically resolved through lazy binding.&lt;/p&gt;
+&lt;p&gt;The global offset table stores pointers to both function symbols and global variables, but procedure linkage table is used for external functions only.&lt;/p&gt;
+&lt;p&gt;Procedure linkage table is tightly coupled with the global offset table.&lt;/p&gt;
+&lt;h3&gt;Why it is called procedure linkage table? Is there any meaning?&lt;span class="hx:absolute hx:-mt-20" id="why-it-is-called-procedure-linkage-table-is-there-any-meaning"&gt;&lt;/span&gt;
+&lt;a href="#why-it-is-called-procedure-linkage-table-is-there-any-meaning" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Just like the global offset table is a table where each entry is designed to be an offset to the actual runtime address of a symbol, the procedure linkage table is also meaningful in its name.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;It is a table of stubs that handle runtime linkage of procedures (functions) in a dynamically linked environment.&lt;/em&gt;&lt;/p&gt;
+&lt;h2&gt;Structure of Procedure Linkage Table&lt;span class="hx:absolute hx:-mt-20" id="structure-of-procedure-linkage-table"&gt;&lt;/span&gt;
+&lt;a href="#structure-of-procedure-linkage-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;h3&gt;First of all, what is stub?&lt;span class="hx:absolute hx:-mt-20" id="first-of-all-what-is-stub"&gt;&lt;/span&gt;
+&lt;a href="#first-of-all-what-is-stub" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;I have understood stub as &lt;em&gt;a piece of instructions, consistent across all entries.&lt;/em&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; &amp;#43;------------------------------&amp;#43;
+PLT[0] -&amp;gt; | push *GOT[link_map] | ; jump to the entry in GOT which points to thedynamic linker
+| jmp RESOLVER_FUNC | ; usually _dl_runtime_resolve()
+&amp;#43;------------------------------&amp;#43;
+&amp;#43;------------------------------&amp;#43;
+PLT[1] -&amp;gt; | jmp *GOT[FUNC1] | ; jump to resolved address of FUNC(1)
+| push FUNC1_INDEX | ; index for FUNC(1) in .rela.plt
+| jmp plt[0] | ; fallback to resolver
+&amp;#43;------------------------------&amp;#43;
+&amp;#43;------------------------------&amp;#43;
+PLT[2] -&amp;gt; | jmp *GOT[FUNC2] | ; jump to resolved address of FUNC(2)
+| push FUNC2_INDEX | ; index for FUNC(2) in .rela.plt
+| jmp plt[0] | ; fallback to resolver
+&amp;#43;------------------------------&amp;#43;
+...
+&amp;#43;------------------------------&amp;#43;
+PLT[N] -&amp;gt; | jmp *GOT[FUNCN] | ; jump to resolved address of FUNC(N)
+| push FUNCN_INDEX | ; index for FUNC(N) in .rela.plt
+| jmp plt[0] | ; fallback to resolver
+&amp;#43;------------------------------&amp;#43;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;code&gt;PLT[0]&lt;/code&gt; is reserved for providing the base for relocation. &lt;code&gt;PLT[1 to n]&lt;/code&gt; onward are the actual relocation entries requiring lazy binding.&lt;/p&gt;
+&lt;h2&gt;Understanding `puts` Relocation&lt;span class="hx:absolute hx:-mt-20" id="understanding-puts-relocation"&gt;&lt;/span&gt;
+&lt;a href="#understanding-puts-relocation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;0000000000001139 &amp;lt;main&amp;gt;:
+1139: 55 push rbp
+113a: 48 89 e5 mov rbp,rsp
+113d: 48 8d 05 c0 0e 00 00 lea rax,[rip&amp;#43;0xec0] # 2004 &amp;lt;_IO_stdin_used&amp;#43;0x4&amp;gt;
+1144: 48 89 c7 mov rdi,rax
+1147: e8 e4 fe ff ff call 1030 &amp;lt;puts@plt&amp;gt;
+114c: b8 00 00 00 00 mov eax,0x0
+1151: 5d pop rbp
+1152: c3 ret&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Disassembly of section .plt:
+0000000000001020 &amp;lt;puts@plt-0x10&amp;gt;:
+1020: ff 35 ca 2f 00 00 push QWORD PTR [rip&amp;#43;0x2fca] # 3ff0 &amp;lt;_GLOBAL_OFFSET_TABLE_&amp;#43;0x8&amp;gt;
+1026: ff 25 cc 2f 00 00 jmp QWORD PTR [rip&amp;#43;0x2fcc] # 3ff8 &amp;lt;_GLOBAL_OFFSET_TABLE_&amp;#43;0x10&amp;gt;
+102c: 0f 1f 40 00 nop DWORD PTR [rax&amp;#43;0x0]
+0000000000001030 &amp;lt;puts@plt&amp;gt;:
+1030: ff 25 ca 2f 00 00 jmp QWORD PTR [rip&amp;#43;0x2fca] # 4000 &amp;lt;puts@GLIBC_2.2.5&amp;gt;
+1036: 68 00 00 00 00 push 0x0
+103b: e9 e0 ff ff ff jmp 1020 &amp;lt;_init&amp;#43;0x20&amp;gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Disassembly of section .got:
+0000000000003fc0 &amp;lt;.got&amp;gt;:
+...
+Disassembly of section .got.plt:
+0000000000003fe8 &amp;lt;_GLOBAL_OFFSET_TABLE_&amp;gt;:
+3fe8: e0 3d loopne 4027 &amp;lt;_end&amp;#43;0x7&amp;gt;
+...
+3ffe: 00 00 add BYTE PTR [rax],al
+4000: 36 10 00 ss adc BYTE PTR [rax],al
+4003: 00 00 add BYTE PTR [rax],al
+4005: 00 00 add BYTE PTR [rax],al
+...&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Relocation section &amp;#39;.rela.plt&amp;#39; at offset 0x610 contains 1 entry:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000004000 000300000007 R_X86_64_JUMP_SLO 0000000000000000 puts@GLIBC_2.2.5 &amp;#43; 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;PLT stub for puts()
+jmp *GOT[puts]
+push puts_idx
+jmp plt[0]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;When the &lt;code&gt;main&lt;/code&gt; has control, and it is executing instructions one-by-one, it eventually encounters the call to puts via plt. This can be verified from the disassembly of &lt;code&gt;main&lt;/code&gt; .&lt;/p&gt;
+&lt;p&gt;Since &lt;code&gt;main&lt;/code&gt; has the control, the control has to be passed to dynamic linker (interpreter) program so that the runtime resolver function (&lt;code&gt;_dl_runtime_resolve()&lt;/code&gt;) can be called which would eventually find the address of &lt;code&gt;puts&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Offset &lt;code&gt;0x1030&lt;/code&gt; resolves to the plt stub for &lt;code&gt;puts&lt;/code&gt; function. The instruction at this offset jumps to an entry in the plt section of the global offset table, which is at the offset &lt;code&gt;0x4000&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Although the disassembly at &lt;code&gt;0x4000&lt;/code&gt; is garbage because it is filled at runtime, but we know that offset &lt;code&gt;0x4000&lt;/code&gt; is where the relocation for &lt;code&gt;puts&lt;/code&gt; has to be done. This can be confirmed from the relocation entry in the &lt;code&gt;.rela.plt&lt;/code&gt; table.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;When the interpreter program was creating PLT stubs and corresponding entries in the global offset table, each &lt;code&gt;.got.plt&lt;/code&gt; entry points to the PLT stub it corresponds to. This might be confusing so lets understand the flow here.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When a call to &lt;code&gt;puts&lt;/code&gt; is made via plt, it goes through the the PLT stub.&lt;/li&gt;
+&lt;li&gt;The first instruction in the plt stub points to the global offset table, which is logical as if the address is resolved, no relocation should be repeated. It is done in accordance to calls after lazy binding is done.&lt;/li&gt;
+&lt;li&gt;Its global offset table entry points to the next instruction in its PLT stub. This instruction pushes the symbol index for &lt;code&gt;puts&lt;/code&gt; from the &lt;code&gt;.rela.plt&lt;/code&gt; relocation table. We can notice that it is &lt;code&gt;push 0x0&lt;/code&gt;, which is a placeholder value, which gets resolved at runtime.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now that the symbol index is pushed on the stack, the third and the final instruction in the plt stub executes, offset &lt;code&gt;0x103b&lt;/code&gt;, which jumps to the &lt;code&gt;PLT[0]&lt;/code&gt; stub at offset &lt;code&gt;0x1020&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The instruction at offset &lt;code&gt;0x1020&lt;/code&gt; is pushing something on the stack. It is an entry in the global offset table, which corresponds to the &lt;code&gt;link_map&lt;/code&gt; . &lt;code&gt;link_map&lt;/code&gt; is the resolver data, required by the runtime resolver function to resolve the symbol.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The instruction at &lt;code&gt;0x1026&lt;/code&gt; points to the runtime resolver function entry in the global offset table. The interpreter jumps on this and marks the start of actual find and patch process for &lt;code&gt;puts&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;After this, the control is given to main again and a call to puts is successfully made.&lt;/p&gt;
+&lt;h2&gt;Possible Look Of Our `.got.plt` And `.plt` Section&lt;span class="hx:absolute hx:-mt-20" id="possible-look-of-our-gotplt-and-plt-section"&gt;&lt;/span&gt;
+&lt;a href="#possible-look-of-our-gotplt-and-plt-section" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;[ERASER.IO DRAWING]&lt;/p&gt;
+&lt;h2&gt;Final Structure Of The Global Offset Table&lt;span class="hx:absolute hx:-mt-20" id="final-structure-of-the-global-offset-table"&gt;&lt;/span&gt;
+&lt;a href="#final-structure-of-the-global-offset-table" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;&amp;#43;--------------------------------------------------------------------------------------&amp;#43;
+| // Eager Binding Division -&amp;gt; .got at offset 0x0000 (RELA) (.rela.dyn) |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[0] | -&amp;gt; | *(func/symb 1) | -&amp;gt; | 0x0000 | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[1] | -&amp;gt; | *(func/symb 2) | -&amp;gt; | 0x0008 | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[2] | -&amp;gt; | *(func/symb 3) | -&amp;gt; | 0x0010 | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[3] | -&amp;gt; | *(func/symb 4) | -&amp;gt; | 0x0018 | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[4] | -&amp;gt; | *(func/symb 5) | -&amp;gt; | 0x0020 | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| .... |
+| .... |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[N] | -&amp;gt; | *(func/symb N) | -&amp;gt; | 0x.... | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+|--------------------------------------------------------------------------------------|
+| // Lazy Binding Division -&amp;gt; .got.plt at offset 0x0028 (JMPREL) (.rela.plt) |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[0] | -&amp;gt; | *(.dynamic) | -&amp;gt; | 0x0028 | -&amp;gt; | Actual Runtime Address | | &amp;lt;- Reserved for enabling lazy binding
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[1] | -&amp;gt; | *(link_map) | -&amp;gt; | 0x0030 | -&amp;gt; | Actual Runtime Address | | &amp;lt;- Reserved for enabling lazy binding
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[2] | -&amp;gt; | *(_dl_runtime_resolve) | -&amp;gt; | 0x0038 | -&amp;gt; | Actual Runtime Address | | &amp;lt;- Reserved for enabling lazy binding
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[3] | -&amp;gt; | *(PLT stub for func 1) | -&amp;gt; | 0x0040 | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[4] | -&amp;gt; | *(PLT stub for func 2) | -&amp;gt; | 0x0048 | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| .... |
+| .... |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+| | GOT[M] | -&amp;gt; | *(PLT stub for func M) | -&amp;gt; | 0x.... | -&amp;gt; | Actual Runtime Address | |
+| &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; &amp;#43;--------&amp;#43; &amp;#43;------------------------&amp;#43; |
+&amp;#43;--------------------------------------------------------------------------------------&amp;#43;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/relocation-part-1/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/relocation-part-1/</guid><description>
+&lt;h1&gt;Relocations - Part 1&lt;/h1&gt;&lt;h2&gt;Setup&lt;span class="hx:absolute hx:-mt-20" id="setup"&gt;&lt;/span&gt;
+&lt;a href="#setup" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;You remember the dynamic section?&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Dynamic section at offset 0x2de0 contains 26 entries:
+Tag Type Name/Value
+0x0000000000000001 (NEEDED) Shared library: [libc.so.6]
+0x000000000000000c (INIT) 0x1000
+0x000000000000000d (FINI) 0x1154
+0x0000000000000019 (INIT_ARRAY) 0x3dd0
+0x000000000000001b (INIT_ARRAYSZ) 8 (bytes)
+0x000000000000001a (FINI_ARRAY) 0x3dd8
+0x000000000000001c (FINI_ARRAYSZ) 8 (bytes)
+0x000000006ffffef5 (GNU_HASH) 0x3b0
+0x0000000000000005 (STRTAB) 0x480
+0x0000000000000006 (SYMTAB) 0x3d8
+0x000000000000000a (STRSZ) 141 (bytes)
+0x000000000000000b (SYMENT) 24 (bytes)
+0x0000000000000015 (DEBUG) 0x0
+0x0000000000000003 (PLTGOT) 0x3fe8
+0x0000000000000002 (PLTRELSZ) 24 (bytes)
+0x0000000000000014 (PLTREL) RELA
+0x0000000000000017 (JMPREL) 0x610
+0x0000000000000007 (RELA) 0x550
+0x0000000000000008 (RELASZ) 192 (bytes)
+0x0000000000000009 (RELAENT) 24 (bytes)
+0x000000006ffffffb (FLAGS_1) Flags: PIE
+0x000000006ffffffe (VERNEED) 0x520
+0x000000006fffffff (VERNEEDNUM) 1
+0x000000006ffffff0 (VERSYM) 0x50e
+0x000000006ffffff9 (RELACOUNT) 3
+0x0000000000000000 (NULL) 0x0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;We can classify the entries in the &lt;code&gt;Type&lt;/code&gt; field based on when the interpreter goes to them.&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;So far, we know that the first thing that the interpreter does is to load the shared libraries.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In our case, it is &lt;code&gt;libc.so.6&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;After all the shared libraries are loaded, the interpreter goes about relocation.&lt;/p&gt;
+&lt;p&gt;We know that we have two relocation tables in our binary. Also, there are two entries in the dynamic section regarding relocation, these include &lt;code&gt;JMPREL&lt;/code&gt; and &lt;code&gt;RELA&lt;/code&gt;. The question is, which one the interpreter is going to go at first?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;To find the answer to this question, we have to understand a simple concept, called &lt;strong&gt;binding&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Binding&lt;span class="hx:absolute hx:-mt-20" id="binding"&gt;&lt;/span&gt;
+&lt;a href="#binding" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Binding refers to process of resolving the actual address of a symbol. Although binding can be of various types, we are concerned about two types for now.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Eager Binding:&lt;/strong&gt; Here, the symbol is resolved immediately.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Lazy Binding:&lt;/strong&gt; Here, the symbol is resolved only when it is required for the first time.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Every entry in the &lt;code&gt;.rela.dyn&lt;/code&gt; table undergoes eager binding because it includes symbols which are primarily used in the startup code, the code which gets run before the &lt;code&gt;main()&lt;/code&gt; of our source code.&lt;/p&gt;
+&lt;p&gt;Every entry in the &lt;code&gt;.rela.plt&lt;/code&gt; table undergoes lazy binding because it includes symbols which are primarily used in the actual source code of the binary.&lt;/p&gt;
+&lt;p&gt;But why does lazy binding exist?&lt;/p&gt;
+&lt;p&gt;Lets have a look at the following code.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt;&lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt;&lt;span style="color:#75715e"&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; input;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Enter 0 to exit OR 1 to sleep: &amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;scanf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;%d&amp;#34;&lt;/span&gt;, &lt;span style="color:#f92672"&gt;&amp;amp;&lt;/span&gt;input);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (input&lt;span style="color:#f92672"&gt;==&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Exiting.....&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;else&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;sleep&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;10&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Sleeping for 10 seconds.....&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Exiting.....&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Now, it entirely depends upon the user input whether sleep function has to be execute or not.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you resolve it before it is used, it will create a very minute delay as the startup code will execute late. But it is unnoticeable.&lt;/li&gt;
+&lt;li&gt;Big code bases have thousands of such conditions. I hope the delay would be significant there?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Lets have a look at this another piece of code.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdlib.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;unistd.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; argc, &lt;span style="color:#66d9ef"&gt;char&lt;/span&gt; &lt;span style="color:#f92672"&gt;*&lt;/span&gt;argv[]) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; input &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;atoi&lt;/span&gt;(argv[&lt;span style="color:#ae81ff"&gt;1&lt;/span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;if&lt;/span&gt; (input &lt;span style="color:#f92672"&gt;==&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;else&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;sleep&lt;/span&gt;(&lt;span style="color:#ae81ff"&gt;10&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Sleeping for 10 seconds.....&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;Exiting.....&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;\n&lt;/span&gt;&lt;span style="color:#e6db74"&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;return&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This one is slightly modified. It takes input as an argument.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Here, even &lt;code&gt;printf()&lt;/code&gt;&amp;rsquo;s usage is dependent on the argument completely.&lt;/li&gt;
+&lt;li&gt;What if the user input 0? &lt;code&gt;printf()&lt;/code&gt; would never run, right? Then what is the point of resolving its address?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Lazy binding is a solution to this problem.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note: The address is resolved when the symbol is referenced for the first time. After that, no more resolution is required.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;There also exist a very genuine question that big code bases have too many functions, and if the address for every symbol in the source code is resolved like this, isn&amp;rsquo;t this going to create a runtime overhead?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Absolutely right.&lt;/li&gt;
+&lt;li&gt;I mentioned earlier that there exist multiple kinds of binding, but we are concerned about two for now. Lazy binding is a solution, not the only solution. And as we will advance we will learn about them later as well.&lt;/li&gt;
+&lt;li&gt;But keep this in mind that this binary only requires the knowledge of these two. So, we are not going to touch them soon.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;I guess we have find the answer to our question. The interpreter would go to &lt;code&gt;RELA&lt;/code&gt; entries first because they require eager binding. So, what we are waiting for?&lt;/p&gt;
+&lt;h2&gt;Introducing Relocations&lt;span class="hx:absolute hx:-mt-20" id="introducing-relocations"&gt;&lt;/span&gt;
+&lt;a href="#introducing-relocations" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The interpreter uses the &lt;code&gt;RELA&lt;/code&gt; entry to jump to the &lt;code&gt;.rela.dyn&lt;/code&gt; relocation table. &lt;code&gt;RELA&lt;/code&gt; entry in the dynamic section has a value of &lt;code&gt;0x550&lt;/code&gt; and we can verify that the &lt;code&gt;.rela.dyn&lt;/code&gt; table is also located at the same offset by this line &lt;code&gt;Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:&lt;/code&gt; .&lt;/p&gt;
+&lt;p&gt;To revise, a relocation entry can be read as: &lt;em&gt;at offset in the section, replace the placeholder address of the symbol with its actual address.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;These are the relocation entries in the &lt;code&gt;.rela.dyn&lt;/code&gt; table.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Relocation section &amp;#39;.rela.dyn&amp;#39; at offset 0x550 contains 8 entries:
+Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000003dd0 000000000008 R_X86_64_RELATIVE 1130
+000000003dd8 000000000008 R_X86_64_RELATIVE 10f0
+000000004010 000000000008 R_X86_64_RELATIVE 4010
+000000003fc0 000100000006 R_X86_64_GLOB_DAT 0000000000000000 __libc_start_main@GLIBC_2.34 &amp;#43; 0
+000000003fc8 000200000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_deregisterTM[...] &amp;#43; 0
+000000003fd0 000400000006 R_X86_64_GLOB_DAT 0000000000000000 __gmon_start__ &amp;#43; 0
+000000003fd8 000500000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_registerTMCl[...] &amp;#43; 0
+000000003fe0 000600000006 R_X86_64_GLOB_DAT 0000000000000000 __cxa_finalize@GLIBC_2.2.5 &amp;#43; 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The &lt;code&gt;Info&lt;/code&gt; field is 8 bytes long, although here it is 6 bytes, which is I am also wondering why readelf is not showing the remaining 2 bytes, but leave it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The upper 8-bytes refers to the symbol index value and the lower 8-bytes refers to the relocation type.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;`R_X86_64_RELATIVE` Relocation&lt;span class="hx:absolute hx:-mt-20" id="r_x86_64_relative-relocation"&gt;&lt;/span&gt;
+&lt;a href="#r_x86_64_relative-relocation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000003dd0 000000000008 R_X86_64_RELATIVE 1130&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Its symbol index is 0 and the relocation type is 8, which resolves to &lt;code&gt;R_X86_64_RELATIVE&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Entries of type 8 doesn&amp;rsquo;t require any symbol lookup.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;Offset&lt;/code&gt; is where we have to write the result. And the result is calculated as follows: &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;*(Offset) = Base Address of the binary &amp;#43; Addend&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;In simple words, take the base address of the binary and add the value in the &lt;code&gt;Sym. Name + Addend&lt;/code&gt; field to it. Now write the obtained value at the mentioned offset. Relocation is done.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;relocation_address = base_addr &amp;#43; 0x3dd0;
+value_to_write = base_addr &amp;#43; 1130;
+*(relocation_address) = value_to_write&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The remaining two entries are relocated in the same manner.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;000000003dd8 000000000008 R_X86_64_RELATIVE 10f0
+000000004010 000000000008 R_X86_64_RELATIVE 4010&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h3&gt;`R_X86_64_GLOB_DAT` Relocation&lt;span class="hx:absolute hx:-mt-20" id="r_x86_64_glob_dat-relocation"&gt;&lt;/span&gt;
+&lt;a href="#r_x86_64_glob_dat-relocation" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt; Offset Info Type Sym. Value Sym. Name &amp;#43; Addend
+000000003fc0 000100000006 R_X86_64_GLOB_DAT 0000000000000000 __libc_start_main@GLIBC_2.34 &amp;#43; 0
+000000003fc8 000200000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_deregisterTM[...] &amp;#43; 0
+000000003fd0 000400000006 R_X86_64_GLOB_DAT 0000000000000000 __gmon_start__ &amp;#43; 0
+000000003fd8 000500000006 R_X86_64_GLOB_DAT 0000000000000000 _ITM_registerTMCl[...] &amp;#43; 0
+000000003fe0 000600000006 R_X86_64_GLOB_DAT 0000000000000000 __cxa_finalize@GLIBC_2.2.5 &amp;#43; 0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Lets take the first entry here.&lt;/p&gt;
+&lt;p&gt;The symbol index is 1 and relocation type is 6.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;R_X86_64_GLOB_DAT&lt;/code&gt; does require symbol lookup.&lt;/li&gt;
+&lt;li&gt;This is a global data relocation, commonly used for symbol pointers in the GOT (Global Offset Table).&lt;br&gt;
+Its purpose is to fill a pointer with the runtime address of a symbol — typically function pointers or global variables imported from shared libraries.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The symbol is &lt;code&gt;__libc_start_main.&lt;/code&gt; &lt;/p&gt;
+&lt;p&gt;The relocation logic is &lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;*(base_addr &amp;#43; 0x3fc0) = address_of(__libc_start_main)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The symbol is looked up in all the loaded shared libraries using the dynamic symbol table and the symbol hash tables. Once the runtime address is found in memory, the address is written in place of &lt;code&gt;0x3fc0&lt;/code&gt; in the global offset table. And the relocation is done.&lt;/p&gt;
+&lt;p&gt;The term &lt;strong&gt;global offset table&lt;/strong&gt; is new here.&lt;/p&gt;
+&lt;p&gt;We are done with &lt;code&gt;.rela.dyn&lt;/code&gt; relocations.&lt;/p&gt;
+&lt;p&gt;Now the interpreter jumps to the &lt;code&gt;JUMPREL&lt;/code&gt; entry in the dynamic section and finds &lt;code&gt;.rela.plt&lt;/code&gt;. The real chaos starts here.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;PLT entries are about lazy binding, by default.&lt;/li&gt;
+&lt;li&gt;For lazy binding, we need to understand global offset table (GOT) and procedure linkage table (PLT). Both of which are really complex and confusing.&lt;/li&gt;
+&lt;li&gt;Since it is fairly long, it deserves its own separate place. Therefore, we are dividing this article into two parts.&lt;/li&gt;
+&lt;li&gt;Here ends the first part.&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/step-1-analyzing-elf-headers/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/step-1-analyzing-elf-headers/</guid><description>
+&lt;h1&gt;Step 1: Analyzing ELF Headers&lt;/h1&gt;&lt;h2&gt;Understanding ELF Headers&lt;span class="hx:absolute hx:-mt-20" id="understanding-elf-headers"&gt;&lt;/span&gt;
+&lt;a href="#understanding-elf-headers" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;These are the ELF headers from the object code.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ readelf ./object_code.o -h
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;ELF Header:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Magic: 7f &lt;span style="color:#ae81ff"&gt;45&lt;/span&gt; 4c &lt;span style="color:#ae81ff"&gt;46&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;02&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;01&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;01&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Class: ELF64
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Data: 2&lt;span style="color:#960050;background-color:#1e0010"&gt;&amp;#39;&lt;/span&gt;s complement, little endian
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Version: &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;current&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; OS/ABI: UNIX - System V
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; ABI Version: &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Type: REL &lt;span style="color:#f92672"&gt;(&lt;/span&gt;Relocatable file&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Machine: Advanced Micro Devices X86-64
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Version: 0x1
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Entry point address: 0x0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Start of program headers: &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes into file&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Start of section headers: &lt;span style="color:#ae81ff"&gt;536&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes into file&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Flags: 0x0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Size of this header: &lt;span style="color:#ae81ff"&gt;64&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Size of program headers: &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Number of program headers: &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Size of section headers: &lt;span style="color:#ae81ff"&gt;64&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Number of section headers: &lt;span style="color:#ae81ff"&gt;13&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Section header string table index: &lt;span style="color:#ae81ff"&gt;12&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;These are the ELF headers from the linked elf.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-bash" data-lang="bash"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;$ readelf ./linked_elf -h
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;ELF Header:
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Magic: 7f &lt;span style="color:#ae81ff"&gt;45&lt;/span&gt; 4c &lt;span style="color:#ae81ff"&gt;46&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;02&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;01&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;01&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;00&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Class: ELF64
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Data: 2&lt;span style="color:#960050;background-color:#1e0010"&gt;&amp;#39;&lt;/span&gt;s complement, little endian
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Version: &lt;span style="color:#ae81ff"&gt;1&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;current&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; OS/ABI: UNIX - System V
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; ABI Version: &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Type: DYN &lt;span style="color:#f92672"&gt;(&lt;/span&gt;Position-Independent Executable file&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Machine: Advanced Micro Devices X86-64
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Version: 0x1
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Entry point address: 0x1050
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Start of program headers: &lt;span style="color:#ae81ff"&gt;64&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes into file&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Start of section headers: &lt;span style="color:#ae81ff"&gt;13968&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes into file&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Flags: 0x0
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Size of this header: &lt;span style="color:#ae81ff"&gt;64&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Size of program headers: &lt;span style="color:#ae81ff"&gt;56&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Number of program headers: &lt;span style="color:#ae81ff"&gt;14&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Size of section headers: &lt;span style="color:#ae81ff"&gt;64&lt;/span&gt; &lt;span style="color:#f92672"&gt;(&lt;/span&gt;bytes&lt;span style="color:#f92672"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Number of section headers: &lt;span style="color:#ae81ff"&gt;31&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; Section header string table index: &lt;span style="color:#ae81ff"&gt;30&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Lets examine the differences.&lt;/p&gt;
+&lt;p&gt;The first difference is obviously in &lt;code&gt;Type&lt;/code&gt;. And we have already spotted this difference in the output of &lt;code&gt;file&lt;/code&gt; just before.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It has changed from &lt;code&gt;REL&lt;/code&gt; to &lt;code&gt;DYN&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;This means that this ELF is dynamically linked and is ready to be executed.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We know that object code can&amp;rsquo;t be loaded in memory, which is why it is not an executable.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Here, the value in the &lt;code&gt;Entry point address&lt;/code&gt; field has changed from &lt;code&gt;0x0&lt;/code&gt; to &lt;code&gt;0x1050&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;It is because an object code which has undergo linking has everything necessary to be loaded into memory, which we will talk about very soon.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;0x1050&lt;/code&gt; is the starting virtual address at which execution begins when the OS transfers the control to the ELF.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;As we have discussed earlier, program headers are used by the &lt;code&gt;dynamic linker/loader&lt;/code&gt; program at runtime to resolve cross-references. And it is build time linker program that actually creates those headers in the final executable ELF.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We can notice that &lt;code&gt;Start of program headers&lt;/code&gt; entry has a value of &lt;code&gt;64 (bytes into file)&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;We know that the ELF header is of the size 64-bytes on 64-bit architecture. So, 0-63 bytes in the ELF are occupied by ELF headers.&lt;/li&gt;
+&lt;li&gt;At the 64th byte, program headers start.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Number of program headers&lt;/code&gt; entry is also populated. There are 14 program headers.&lt;/li&gt;
+&lt;li&gt;They are found together in the program headers table, which we are going to refer to as PHT.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Size of program headers&lt;/code&gt; entry is also populated. It is 56 bytes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;What&amp;rsquo;s interesting to see here is &lt;strong&gt;section headers&lt;/strong&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Earlier section headers started from 536 bytes into the ELF. This time, it is 13968 bytes into the file. Maybe it is a part of restructuring as a lot of things have been added.&lt;/li&gt;
+&lt;li&gt;Wait, the number of section headers has moved from 13 to 31. And the size is still the same, 64 bytes. How&amp;rsquo;s that possible?&lt;/li&gt;
+&lt;li&gt;The answer is, compilation (.asm to .o) lay downs only a partial structure. Linking completes the object code. These extra section headers are about the things which were absent earlier.&lt;/li&gt;
+&lt;li&gt;If you notice, &lt;code&gt;.note.GNU-stack&lt;/code&gt; is not present in the linked ELF. This is because it is empty in size and that means &amp;ldquo;non-executable stack&amp;rdquo;. It is not needed in the final binary so it got stripped.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;Section header string table index: 30&lt;/code&gt; we need not to talk about. We have invested great amount of time understanding this.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The entry at index 30 in the section headers table is where the string table for section headers is located.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;What to do about this?&lt;span class="hx:absolute hx:-mt-20" id="what-to-do-about-this"&gt;&lt;/span&gt;
+&lt;a href="#what-to-do-about-this" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When this linked elf (or binary) is executed in the terminal, the first thing that happens is the kernel checks if the binary can be loaded into the memory.&lt;/p&gt;
+&lt;p&gt;If the binary can&amp;rsquo;t be loaded into memory, it doesn&amp;rsquo;t poses relevant information required to setup the environment in which it can be executed.&lt;/p&gt;
+&lt;p&gt;To find this, the kernel checks up the ELF headers. The &lt;code&gt;Type&lt;/code&gt; header we have talked about recently is the one that is checked. If the value is &lt;code&gt;REL&lt;/code&gt;, it can&amp;rsquo;t be loaded.&lt;/p&gt;
+&lt;p&gt;Since our elf is linked now, it has the value of &lt;code&gt;DYN&lt;/code&gt; in the &lt;code&gt;Type&lt;/code&gt; field, which means that it has necessary information required to setup the environment for execution.&lt;/p&gt;
+&lt;p&gt;Therefore, the first task is done.&lt;/p&gt;
+&lt;h2&gt;What is the next step?&lt;span class="hx:absolute hx:-mt-20" id="what-is-the-next-step"&gt;&lt;/span&gt;
+&lt;a href="#what-is-the-next-step" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Now the kernel goes to the program headers, which are present just after the ELF headers at offset 0x64 in the binary.&lt;/p&gt;
+&lt;p&gt;What are we waiting for? Lets go there. But before that, we need to clear our mind about something.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/step-2-analyzing-program-headers-table/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/step-2-analyzing-program-headers-table/</guid><description>
+&lt;h1&gt;Analyzing Program Headers Table&lt;/h1&gt;&lt;p&gt;Program headers are a set of structures in an ELF file that describe how to create a process image in memory. These are used by the runtime dynamic linker/loader program (or, the interpreter program).&lt;/p&gt;
+&lt;h2&gt;Setup&lt;span class="hx:absolute hx:-mt-20" id="setup"&gt;&lt;/span&gt;
+&lt;a href="#setup" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Program Headers:
+Type Offset VirtAddr PhysAddr FileSiz MemSiz Flags Align
+PHDR 0x0000000000000040 0x0000000000000040 0x0000000000000040 0x0000000000000310 0x0000000000000310 R 0x8
+INTERP 0x0000000000000394 0x0000000000000394 0x0000000000000394 0x000000000000001c 0x000000000000001c R 0x1
+└─ [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+LOAD 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000628 0x0000000000000628 R 0x1000
+LOAD 0x0000000000001000 0x0000000000001000 0x0000000000001000 0x000000000000015d 0x000000000000015d R E 0x1000
+LOAD 0x0000000000002000 0x0000000000002000 0x0000000000002000 0x000000000000010c 0x000000000000010c R 0x1000
+LOAD 0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000248 0x0000000000000250 RW 0x1000
+DYNAMIC 0x0000000000002de0 0x0000000000003de0 0x0000000000003de0 0x00000000000001e0 0x00000000000001e0 RW 0x8
+NOTE 0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020 R 0x8
+NOTE 0x0000000000000370 0x0000000000000370 0x0000000000000370 0x0000000000000024 0x0000000000000024 R 0x4
+NOTE 0x00000000000020ec 0x00000000000020ec 0x00000000000020ec 0x0000000000000020 0x0000000000000020 R 0x4
+GNU_PROPERTY 0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020 R 0x8
+GNU_EH_FRAME 0x0000000000002014 0x0000000000002014 0x0000000000002014 0x000000000000002c 0x000000000000002c R 0x4
+GNU_STACK 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000 RW 0x10
+GNU_RELRO 0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000230 0x0000000000000230 R 0x1
+Section to Segment mapping:
+Segment Sections...
+00
+01 .interp
+02 .note.gnu.property .note.gnu.build-id .interp .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt
+03 .init .plt .plt.got .text .fini
+04 .rodata .eh_frame_hdr .eh_frame .note.ABI-tag
+05 .init_array .fini_array .dynamic .got .got.plt .data .bss
+06 .dynamic
+07 .note.gnu.property
+08 .note.gnu.build-id
+09 .note.ABI-tag
+10 .note.gnu.property
+11 .eh_frame_hdr
+12
+13 .init_array .fini_array .dynamic .got&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Understanding The Attributes&lt;span class="hx:absolute hx:-mt-20" id="understanding-the-attributes"&gt;&lt;/span&gt;
+&lt;a href="#understanding-the-attributes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Each program header maps to a segment. &lt;code&gt;Type&lt;/code&gt; refers to the type of that segment.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;PHDR&lt;/code&gt;: Program header table&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LOAD&lt;/code&gt;: Loadable segment&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DYNAMIC&lt;/code&gt;: Dynamic linking info, where is the dynamic section in the binary&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;INTERP&lt;/code&gt;: Path to dynamic linker&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;NOTE&lt;/code&gt;: Auxiliary information (e.g., build ID, security notes)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GNU_STACK&lt;/code&gt;: Stack permissions&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GNU_RELRO&lt;/code&gt;: Read-only after relocation&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GNU_EH_FRAME&lt;/code&gt;: Exception handling info&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;Offset&lt;/code&gt; is the location of this segment within the ELF binary.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;VirtualAddr&lt;/code&gt; is the virtual memory address where the segment should be mapped in memory during execution.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;PhysAddr&lt;/code&gt; is usually ignored by modern OS. Same as &lt;code&gt;VirtAddr&lt;/code&gt; or meaningless.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;FileSize&lt;/code&gt; is the size of the segment in the binary.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;MemSize&lt;/code&gt; is the size of the segment in memory after loading.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Flags&lt;/code&gt; refer to memory access permissions.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;R&lt;/code&gt;: Readable&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;W&lt;/code&gt;: Writable&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;E&lt;/code&gt;: Executable&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;Align&lt;/code&gt; refers to the required alignment for the segment in memory and in the file.&lt;/p&gt;
+&lt;h2&gt;How Program Headers Are Read?&lt;span class="hx:absolute hx:-mt-20" id="how-program-headers-are-read"&gt;&lt;/span&gt;
+&lt;a href="#how-program-headers-are-read" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;So far, the kernel has verified that the ELF has necessary information required to be executed.&lt;/p&gt;
+&lt;p&gt;Now the kernel is at the program headers table. &lt;/p&gt;
+&lt;h3&gt;Setup Virtual Address Space (Process Image)&lt;span class="hx:absolute hx:-mt-20" id="setup-virtual-address-space-process-image"&gt;&lt;/span&gt;
+&lt;a href="#setup-virtual-address-space-process-image" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;It is looking for all the entries of type &lt;code&gt;LOAD&lt;/code&gt;, so that it can map those segments into the virtual address space.&lt;/p&gt;
+&lt;p&gt;Each entry in the program headers table map exactly in the same order with the entries inside the &lt;strong&gt;section to segment mapping&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;LOAD&lt;/code&gt; segments are at indices 2, 3, 4 and 5. The segments corresponding to them are these:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;02 .note.gnu.property .note.gnu.build-id .interp .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt
+03 .init .plt .plt.got .text .fini
+04 .rodata .eh_frame_hdr .eh_frame .note.ABI-tag
+05 .init_array .fini_array .dynamic .got .got.plt .data .bss &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;hr&gt;
+&lt;p&gt;Is there any logic behind such segmentation of sections? Yes. If we have a look at the section headers table, we can find that:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;section 1-10 have the same flags, &lt;code&gt;A&lt;/code&gt; except the 10th one, which had &lt;code&gt;I&lt;/code&gt; as well. And they are made in one segment. These include read-only metadata.&lt;/li&gt;
+&lt;li&gt;section 11-15 are all &lt;code&gt;AX&lt;/code&gt;, which are allocated and executable,&lt;/li&gt;
+&lt;li&gt;section 16-19 are all with &lt;code&gt;A&lt;/code&gt; flag. These include read-only data, and&lt;/li&gt;
+&lt;li&gt;section 20-26 are with &lt;code&gt;WX&lt;/code&gt; flags. These include writable and allocated data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Every segment is carefully containing sections with same permissions. Also, each segment is page-aligned (typically 4 KB) to simplify mapping and protect boundaries.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;&amp;ldquo;Is any dynamic interpreter required?&amp;rdquo;&lt;span class="hx:absolute hx:-mt-20" id="is-any-dynamic-interpreter-required"&gt;&lt;/span&gt;
+&lt;a href="#is-any-dynamic-interpreter-required" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;After loading all the &lt;code&gt;LOAD&lt;/code&gt; segments, the kernel looks if there is a requirement for a dynamic linker program. Since our binary is linked dynamically, it contains an &lt;code&gt;INTERP&lt;/code&gt; entry.&lt;/p&gt;
+&lt;p&gt;This &lt;code&gt;INTERP&lt;/code&gt; segment points to the &lt;strong&gt;path of the interpreter&lt;/strong&gt;, which is stored as a string in the &lt;code&gt;.interp&lt;/code&gt; section of the ELF file. The kernel reads the interpreter path from there, locates the dynamic linker program on the disk and loads it as a separate ELF, repeating the entire ELF loading process for it.&lt;/p&gt;
+&lt;p&gt;After the interpreter (dynamic linker) is loaded, the kernel sets up the process stack and transfers control to the dynamic linker&amp;rsquo;s entry point, not the main program.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The process stack setup includes argv, envp, and auxv (auxiliary vectors with ELF info).&lt;/li&gt;
+&lt;li&gt;We need not to worry about it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now the kernel gives control to the entry point of the dynamic linker (or the interpreter) program.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3&gt;Introducing The Interpreter&lt;span class="hx:absolute hx:-mt-20" id="introducing-the-interpreter"&gt;&lt;/span&gt;
+&lt;a href="#introducing-the-interpreter" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;First of all, the &lt;strong&gt;interpreter program&lt;/strong&gt; and the &lt;strong&gt;dynamic linker/loader&lt;/strong&gt; are the same thing. And we use it interchangeably. &lt;em&gt;So, don&amp;rsquo;t get confused&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;The name of this program is &lt;code&gt;ld-linux&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Anyways, the interpreter looks for the dynamic section within the program headers table of our binary. Since the binary is already mapped into the memory, all the access is via the virtual address space. So, the interpreter goes to &lt;code&gt;0x3de0&lt;/code&gt; address in the virtual address space of our binary to find the &lt;code&gt;dynamic&lt;/code&gt; section.&lt;/p&gt;
+&lt;p&gt;Here comes the crazy part. Now sit tight and read carefully, otherwise you might end up glossing over something and it will not settle properly.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Our binary and the interpreter program, both share the same virtual address space.&lt;/li&gt;
+&lt;li&gt;Although the interpreter program is loaded as a separate ELF and it undergoes everything separately, it is not a separate process.&lt;/li&gt;
+&lt;li&gt;Although the &lt;code&gt;execve&lt;/code&gt; syscall starts by loading our binary, but when the kernel finds out that it requires an interpreter, it shifts to loading the interpreter instead.&lt;/li&gt;
+&lt;li&gt;And by that time, the loadable segments are already mapped out in the virtual address space.&lt;/li&gt;
+&lt;li&gt;So, everything that is required is practically loaded already. And the interpreter just have to act on it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;What does the interpreter program do?&lt;span class="hx:absolute hx:-mt-20" id="what-does-the-interpreter-program-do"&gt;&lt;/span&gt;
+&lt;a href="#what-does-the-interpreter-program-do" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h3&gt;&lt;p&gt;Now the interpreter went on the &lt;code&gt;0x3de0&lt;/code&gt; location within the virtual address space and found the dynamic section there.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/step-3-interpreter-in-action/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/step-3-interpreter-in-action/</guid><description>
+&lt;h1&gt;Step 3: Interpreter In Action&lt;/h1&gt;&lt;h2&gt;Setup&lt;span class="hx:absolute hx:-mt-20" id="setup"&gt;&lt;/span&gt;
+&lt;a href="#setup" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This is the &lt;code&gt;.dynamic&lt;/code&gt; section.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;Dynamic section at offset 0x2de0 contains 26 entries:
+Tag Type Name/Value
+0x0000000000000001 (NEEDED) Shared library: [libc.so.6]
+0x000000000000000c (INIT) 0x1000
+0x000000000000000d (FINI) 0x1154
+0x0000000000000019 (INIT_ARRAY) 0x3dd0
+0x000000000000001b (INIT_ARRAYSZ) 8 (bytes)
+0x000000000000001a (FINI_ARRAY) 0x3dd8
+0x000000000000001c (FINI_ARRAYSZ) 8 (bytes)
+0x000000006ffffef5 (GNU_HASH) 0x3b0
+0x0000000000000005 (STRTAB) 0x480
+0x0000000000000006 (SYMTAB) 0x3d8
+0x000000000000000a (STRSZ) 141 (bytes)
+0x000000000000000b (SYMENT) 24 (bytes)
+0x0000000000000015 (DEBUG) 0x0
+0x0000000000000003 (PLTGOT) 0x3fe8
+0x0000000000000002 (PLTRELSZ) 24 (bytes)
+0x0000000000000014 (PLTREL) RELA
+0x0000000000000017 (JMPREL) 0x610
+0x0000000000000007 (RELA) 0x550
+0x0000000000000008 (RELASZ) 192 (bytes)
+0x0000000000000009 (RELAENT) 24 (bytes)
+0x000000006ffffffb (FLAGS_1) Flags: PIE
+0x000000006ffffffe (VERNEED) 0x520
+0x000000006fffffff (VERNEEDNUM) 1
+0x000000006ffffff0 (VERSYM) 0x50e
+0x000000006ffffff9 (RELACOUNT) 3
+0x0000000000000000 (NULL) 0x0&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Understanding the attributes&lt;span class="hx:absolute hx:-mt-20" id="understanding-the-attributes"&gt;&lt;/span&gt;
+&lt;a href="#understanding-the-attributes" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;The &lt;code&gt;Tag&lt;/code&gt; field identifies the purpose of each entry. It&amp;rsquo;s an enum-like value defined in the ELF specification, used by the dynamic linker to understand what kind of information the entry holds.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;Type&lt;/code&gt; field again is an interpretation of the underlying unique numeric identifier which has a special meaning defined in the ELF specification. All in all, it identifies the type of entry.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;Name/Value&lt;/code&gt; field is the most complicated one here.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When it comes to a shared library, this attribute holds a string name.&lt;/li&gt;
+&lt;li&gt;When it comes to anything related to size, it stores a size.&lt;/li&gt;
+&lt;li&gt;When it comes to offset, it stores &lt;code&gt;0x&lt;/code&gt; prefixed addresses.&lt;/li&gt;
+&lt;li&gt;It only stores offset or size. It is the elf-parser that resolves it to string names, if possible.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Understanding Each Entry Type&lt;span class="hx:absolute hx:-mt-20" id="understanding-each-entry-type"&gt;&lt;/span&gt;
+&lt;a href="#understanding-each-entry-type" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Lots of information we have no idea about. Don&amp;rsquo;t stress about it. We will go through everything. Nothing would be left.&lt;/p&gt;
+&lt;h2&gt;How does the interpreter reads them?&lt;span class="hx:absolute hx:-mt-20" id="how-does-the-interpreter-reads-them"&gt;&lt;/span&gt;
+&lt;a href="#how-does-the-interpreter-reads-them" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;First, it walks through each entry until it hits the &lt;code&gt;NULL&lt;/code&gt; termination entry. And stores pointers to key entries for later use.&lt;/p&gt;
+&lt;p&gt;Second, all the entries of type &lt;code&gt;NEEDED&lt;/code&gt; refers to the shared libraries, so it reads the name of the library from &lt;code&gt;.dynstr&lt;/code&gt; table and loads the shared library. And it handles transitive dependencies recursively..&lt;/p&gt;
+&lt;p&gt;Third, it maps relocation-related sections into memory for later processing during symbol resolution and relocation.&lt;/p&gt;
+&lt;p&gt;Fourth, cross-references are relocated.&lt;/p&gt;
+&lt;p&gt;Fifth, it sets up the procedure linkage table for lazy binding.&lt;/p&gt;
+&lt;p&gt;Sixth, it uses &lt;code&gt;DT_VERNEED&lt;/code&gt;, &lt;code&gt;DT_VERNEEDNUM&lt;/code&gt;, &lt;code&gt;DT_VERSYM&lt;/code&gt; to check symbol versions match between binary and shared libraries.&lt;/p&gt;
+&lt;p&gt;Seventh, constructors are called, &lt;code&gt;INIT&lt;/code&gt; and &lt;code&gt;INIT_ARRAY&lt;/code&gt; .&lt;/p&gt;
+&lt;p&gt;Finally, our source gets the control.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;This was an high level overview of how the interpreter works. Now, its time to learn relocations. And don&amp;rsquo;t worry. All the things that were left unresolved here will start to get resolved from relocations on wards.&lt;/p&gt;
+&lt;p&gt;Take rest.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/what-are-addends/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/what-are-addends/</guid><description>
+&lt;h1&gt;What Are Addends?&lt;/h1&gt;&lt;p&gt;An addend is a constant value added to the symbol&amp;rsquo;s address during relocation.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;When this constant is stored in the relocation entry itself, we call it &lt;code&gt;RELA&lt;/code&gt;, which means, &amp;ldquo;Relocation with Addend&amp;rdquo;.&lt;/li&gt;
+&lt;li&gt;When this constant is embedded in the section being relocated, we call it &lt;code&gt;REL&lt;/code&gt;, which means, &amp;ldquo;Relocation without Addend&amp;rdquo;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To understand the logic behind addend, lets have a look at this example.&lt;/p&gt;
+&lt;h2&gt;Example C Program&lt;span class="hx:absolute hx:-mt-20" id="example-c-program"&gt;&lt;/span&gt;
+&lt;a href="#example-c-program" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;This program creates an integer array of size 5. Then it uses a for-loop to iterate over it. While iterating over each element, it uses pointer dereferencing directly rather than subscripting the array variable using square brackets, like this &lt;code&gt;array_ptr[i]&lt;/code&gt; .&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; array_ptr[] &lt;span style="color:#f92672"&gt;=&lt;/span&gt; {&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;7&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;for&lt;/span&gt; (&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; i &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;; i &lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;5&lt;/span&gt;; i&lt;span style="color:#f92672"&gt;++&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;%d, &amp;#34;&lt;/span&gt;, &lt;span style="color:#f92672"&gt;*&lt;/span&gt;(array_ptr &lt;span style="color:#f92672"&gt;+&lt;/span&gt; i));
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2&gt;Problem Statement&lt;span class="hx:absolute hx:-mt-20" id="problem-statement"&gt;&lt;/span&gt;
+&lt;a href="#problem-statement" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We need to focus on the &lt;code&gt;*(array_ptr + i)&lt;/code&gt; part.&lt;/p&gt;
+&lt;p&gt;To access the 4th element (index = 3), either we do &lt;code&gt;array_ptr[3]&lt;/code&gt; or &lt;code&gt;*(array_ptr + 3)&lt;/code&gt;. In both the cases, it resolves to the latter one, we know that.&lt;/p&gt;
+&lt;p&gt;The thing is, this is not a direct access to the 4th element? Think about it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We are using the base address at which the array is loaded in the memory and from there we are counting 4 boxes. Right?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;On 64-bit systems, an integer is made up of 4-bytes.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;But memory doesn&amp;rsquo;t exist in chunks of 4. It is 1-1-1-1. But we&amp;rsquo;re accessing it in the form of 4. The &lt;code&gt;4&lt;/code&gt; here is a beautiful abstraction. And beneath that lies the mess.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We are adding [0, 1, 2, 3, 4] to the base pointer to obtain the address of the next consecutive elements in the array, but effectively we need [0, 4, 8, 12, 16] to reach those positions, right? How is that managed?&lt;/p&gt;
+&lt;h2&gt;The Solution? Introduce Addends!&lt;span class="hx:absolute hx:-mt-20" id="the-solution-introduce-addends"&gt;&lt;/span&gt;
+&lt;a href="#the-solution-introduce-addends" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Effectively, we are doing &lt;code&gt;*(array_ptr + 0/4/8/12/16)&lt;/code&gt;, and this &lt;code&gt;0, 4, 8, 12, 16&lt;/code&gt; is what the addend conceptually is. It is what we are adding to obtain the desired element from the base offset.&lt;/p&gt;
+&lt;p&gt;The base address of the symbol is resolved by the &lt;code&gt;array_ptr&lt;/code&gt; part and the addend is calculated via the formula &lt;code&gt;i * sizeof(int)&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Therefore, an addend is a constant value that is required to obtain the final runtime address of a symbol correctly.&lt;/p&gt;
+&lt;h2&gt;How does that relate with symbol resolution?&lt;span class="hx:absolute hx:-mt-20" id="how-does-that-relate-with-symbol-resolution"&gt;&lt;/span&gt;
+&lt;a href="#how-does-that-relate-with-symbol-resolution" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;We are going to find this in the next article when we explore how relocations actually happen.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Take rest.&lt;/p&gt;</description></item><item><title/><link>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/why-arrays-in-c-follow-0-based-indexing/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hi-anki.github.io/gitbook/docs/understanding-hello-world/linked-elf-analysis/why-arrays-in-c-follow-0-based-indexing/</guid><description>
+&lt;h1&gt;Why arrays in C follow 0-based indexing?&lt;/h1&gt;&lt;h2&gt;Premise&lt;span class="hx:absolute hx:-mt-20" id="premise"&gt;&lt;/span&gt;
+&lt;a href="#premise" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;When we do counting, we start from 1, not 0. So why do computers count from 0? Or, why does C count from 0, instead 1?&lt;/p&gt;
+&lt;p&gt;There exist various programming languages which use 1-based indexing as well.&lt;/p&gt;
+&lt;p&gt;This question always arises when someone studies arrays, but rarely get answered properly. At least I wasn&amp;rsquo;t answered when I was learning arrays. &lt;/p&gt;
+&lt;p&gt;Let’s try to understand it properly this time.&lt;/p&gt;
+&lt;h2&gt;Why?&lt;span class="hx:absolute hx:-mt-20" id="why"&gt;&lt;/span&gt;
+&lt;a href="#why" class="subheading-anchor" aria-label="Permalink for this section"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Lets have a look at this code.&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;#include&lt;/span&gt; &lt;span style="color:#75715e"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span style="color:#75715e"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; &lt;span style="color:#a6e22e"&gt;main&lt;/span&gt;(&lt;span style="color:#66d9ef"&gt;void&lt;/span&gt;){
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; array_ptr[] &lt;span style="color:#f92672"&gt;=&lt;/span&gt; {&lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;4&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;7&lt;/span&gt;, &lt;span style="color:#ae81ff"&gt;6&lt;/span&gt;, &lt;span style="color:#f92672"&gt;-&lt;/span&gt;&lt;span style="color:#ae81ff"&gt;2&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;for&lt;/span&gt; (&lt;span style="color:#66d9ef"&gt;int&lt;/span&gt; i &lt;span style="color:#f92672"&gt;=&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;0&lt;/span&gt;; i &lt;span style="color:#f92672"&gt;&amp;lt;&lt;/span&gt; &lt;span style="color:#ae81ff"&gt;5&lt;/span&gt;; i&lt;span style="color:#f92672"&gt;++&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#a6e22e"&gt;printf&lt;/span&gt;(&lt;span style="color:#e6db74"&gt;&amp;#34;%d, &amp;#34;&lt;/span&gt;, &lt;span style="color:#f92672"&gt;*&lt;/span&gt;(array_ptr &lt;span style="color:#f92672"&gt;+&lt;/span&gt; i));
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This program creates an integer array of size 5. &lt;/p&gt;
+&lt;p&gt;Then it uses a for-loop to iterate over it.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;While iterating over each element, it uses pointer dereferencing directly rather than subscripting the array variable using square brackets, like this &lt;code&gt;array_ptr[i]&lt;/code&gt; .&lt;/li&gt;
+&lt;li&gt;But it doesn&amp;rsquo;t matter.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We are iterating from 0 to 4, not 1 to 5, why?&lt;/p&gt;
+&lt;p&gt;When we are counting on fingers, we can simply point at &lt;code&gt;{0, 4, 7, 6, -2}&lt;/code&gt; by 1, 2, 3, 4 and 5. But how a computer is supposed to do this? That&amp;rsquo;s where the problem lies.&lt;/p&gt;
+&lt;p&gt;Suppose the array is loaded at address 1000 (in decimals). That means,&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1000 stores 0,&lt;/li&gt;
+&lt;li&gt;1001 stores 4,&lt;/li&gt;
+&lt;li&gt;1002 stores 7,&lt;/li&gt;
+&lt;li&gt;1003 stores 6, and&lt;/li&gt;
+&lt;li&gt;1004 stores -2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Assume memory addresses increase by 1 unit just for simplicity. In practice, an &lt;code&gt;int&lt;/code&gt; usually occupies 4 bytes on 64-bit systems, so addresses jump accordingly.&lt;/p&gt;
+&lt;p&gt;Now, &lt;code&gt;array[1]&lt;/code&gt; would ideally refer to the first element in terms of normal mathematics. And &lt;code&gt;array[5]&lt;/code&gt; would ideally refer to the fifth element.&lt;/p&gt;
+&lt;p&gt;But, we know that arrays are just pointers in C.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The variable name itself refers to the starting point of the array, which is the first element in the array in terms of normal mathematics.&lt;/li&gt;
+&lt;li&gt;And internally the system uses pointer dereferencing to obtain the value stored at a memory address. So, &lt;code&gt;array[i]&lt;/code&gt; gets translated to &lt;code&gt;*(array + i)&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now if we want to access the first element, in terms of normal mathematics, the value of &lt;code&gt;i&lt;/code&gt; is going to be &lt;code&gt;1&lt;/code&gt; , isn&amp;rsquo;t it?&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;But the variable &lt;code&gt;array&lt;/code&gt; itself points to the first element in the array!&lt;/li&gt;
+&lt;li&gt;That&amp;rsquo;s the issue we are dealing with.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The computer requires a consistent way to obtain consecutive addresses. And normal mathematics collide with how memory works.&lt;/p&gt;
+&lt;p&gt;If you were to use the normal way, you can&amp;rsquo;t generalize a formula to obtain the consecutive address because of how we treat the first element and how the computer sees it.&lt;/p&gt;
+&lt;p&gt;But, it we point the first element by 0, the problem is solved. Because, we are not adding anything to base address, yet it works. It helps in generalizing a formula which we know as this:&lt;/p&gt;
+&lt;div class="hextra-code-block hx:relative hx:mt-6 hx:first:mt-0 hx:group/code"&gt;
+&lt;div&gt;&lt;pre&gt;&lt;code&gt;address of element ith = base_address_of_array &amp;#43; (i-1)*sizeof(data_type)
+base address = 1000, i = 4, data type is INT, sizeof(INT) is 4
+=&amp;gt; address of 4th element = 1000 &amp;#43; (4-1)*4 = 1000 &amp;#43; 12 = 1012
+where 4th is in terms of normal mathematics&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class="hextra-code-copy-btn-container hx:opacity-0 hx:transition hx:group-hover/code:opacity-100 hx:flex hx:gap-1 hx:absolute hx:m-[11px] hx:right-0 hx:top-0"&gt;
+&lt;button
+class="hextra-code-copy-btn hx:group/copybtn hx:cursor-pointer hx:transition-all hx:active:opacity-50 hx:bg-primary-700/5 hx:border hx:border-black/5 hx:text-gray-600 hx:hover:text-gray-900 hx:rounded-md hx:p-1.5 hx:dark:bg-primary-300/10 hx:dark:border-white/10 hx:dark:text-gray-400 hx:dark:hover:text-gray-50"
+title="Copy code"
+&gt;
+&lt;div class="hextra-copy-icon hx:group-[.copied]/copybtn:hidden hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;div class="hextra-success-icon hx:hidden hx:group-[.copied]/copybtn:block hx:pointer-events-none hx:h-4 hx:w-4"&gt;&lt;/div&gt;
+&lt;/button&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;hr&gt;
+&lt;p&gt;That is why 0-based indexing is used by computers.&lt;/p&gt;</description></item></channel></rss>
