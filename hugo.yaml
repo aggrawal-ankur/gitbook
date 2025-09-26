@@ -1,6 +1,7 @@
 baseURL: https://hi-anki.github.io/gitbook
 languageCode: en-us
 title: All Things Low Level
+enableGitInfo: true
 
 module:
   imports:
@@ -11,6 +12,9 @@ params:
     section: "."
   page:
     width: wide
+
+  displayUpdatedDate: true
+  dateFormat: "January 2, 2006"
 
 menu:
   main:
