@@ -1,0 +1,37 @@
+baseURL: https://example.org/
+languageCode: en-us
+title: All Things Low Level
+
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+params:
+  sidebar:
+    section: "."
+  page:
+    width: wide
+
+menu:
+  main:
+    - name: Write Ups
+      pageRef: /docs
+      weight: 1
+    - name: Blogs
+      pageRef: /blogs
+      weight: 2
+    - name: GitHub
+      url: "https://github.com/hi-anki/gitbook"
+      weight: 3
+    - name: Search
+      weight: 4
+      params:
+        type: search
+    - name: Theme Toggle
+      weight: 5
+      params:
+        type: theme-toggle
+
+footer:
+  displayCopyright: false
+  displayPoweredBy: false
