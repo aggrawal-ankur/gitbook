@@ -31,7 +31,7 @@ The same idea is applied either it is normal logical operations or bitwise opera
 In C, we use:
 
 | Operation   | Symbol |
-| ----------- | ------ |
+| :--- | :--- |
 | AND         | &&     |
 | OR          | \|\|   |
 | NOT         | !      |
@@ -204,7 +204,7 @@ We can use one a single int to compress multiple information and use bit shifts 
 ## Conclusion
 
 | Bitwise Operation | Symbol in C | Instruction In x64 Assembly | Description |
-| --------------------- | --------------- | -------------------------------------- | ------------------------------------------------------- |
+| :--- | :--- | :--- | :--- |
 | Bitwise AND           | `&`             | `and reg, reg/mem/imm`                 | Keeps only common `1` bits                              |
 | Bitwise OR            | `\|`            | `or reg, reg/mem/imm`                  |                                                         |
 | Bitwise XOR           | `^`             | `xor reg, reg/mem/imm`                 | Sets bit if different                                   |

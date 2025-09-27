@@ -11,7 +11,15 @@ Primarily we have 4 number systems. They are: binary, octal, decimal and hexadec
 
 Normally we use the decimal number system.
 
-<table><thead style="text-align:left"><tr><th width="158">Property</th><th width="139">Binary System</th><th width="137">Octal System</th><th width="148">Decimal System</th><th>Hexadecimal System</th></tr></thead><tbody><tr><td>Base</td><td>2 (<code>2^1</code>)</td><td>8 (<code>2^3</code>)</td><td>10</td><td>16 (<code>2^4</code>)</td></tr><tr><td>Allowed Digits</td><td>0, 1 <br>(called bits)</td><td>0, 1, 2, 3, 4, 5, 6, 7</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8 9, A, B, C, D, E, F</td></tr><tr><td>Bits Required To Represent (derived from base)</td><td>1</td><td>3</td><td></td><td>4</td></tr><tr><td>Prefix</td><td>0b</td><td>0o</td><td>0d</td><td>0x</td></tr><tr><td>Example (11)</td><td>0b00001011</td><td>13</td><td>11</td><td>0xb</td></tr></tbody></table>
+
+| Property | Binary System | Octal System | Decimal System | Hexadecimal System |
+| :--- | :--- | :--- | :--- | :--- |
+| Base | 2 (2^1) | 8 (2^3) | 10 | 16 (2^4) |
+| Allowed Digits | 0, 1(called bits) | 0, 1, 2, 3, 4, 5, 6, 7 | 0, 1, 2, 3, 4, 5, 6, 7, 8 9 | 0, 1, 2, 3, 4, 5, 6, 7, 8 9, A, B, C, D, E, F |
+| Bits Required To Represent (derived from base) | 1 | 3 |  | 4 |
+| Prefix | 0b | 0o | 0d | 0x |
+| Example (11) | 0b00001011 | 13 | 11 | 0xb |
+
 
 1 Byte = 8 Bits
 
@@ -51,7 +59,13 @@ There is no name for "negative integers only" in computer science.
 
 Fractions are popularly known as **floating point integers**.
 
-<table><thead style="text-align:left"><tr><th width="211">Property</th><th width="270">Unsigned Integer</th><th>Signed Integer</th></tr></thead><tbody><tr><td>Definition</td><td>All positive integers including 0.</td><td>Both positive and negative integers.</td></tr><tr><td>Range</td><td>0 to total combinations possible with the number of bits - 1.<br><br><code>[0, -1 + 2^n]</code></td><td><code>[(-2)^(n-1), -1 + 2^(n-1)]</code></td></tr><tr><td>Example<br>(1-Byte can represent 256 combinations)</td><td><code>[0, 255]</code></td><td><code>[-128, +127]</code></td></tr></tbody></table>
+
+| Property | Unsigned Integer | Signed Integer |
+| :--- | :--- | :--- |
+| Definition | All positive integers including 0. | Both positive and negative integers. |
+| Range | 0 to total combinations possible with the number of bits - 1.[0, -1 + 2^n] | [(-2)^(n-1), -1 + 2^(n-1)] |
+| Example(1-Byte can represent 256 combinations) | [0, 255] | [-128, +127] |
+
 
 In unsigned integers, it is simple.
 
@@ -383,7 +397,7 @@ Subtraction process starts the same, from right towards left.
 Here is a simple table to condense this information.
 
 | Attribute  | Value At Bit | Value At Bit | Value At Bit | Value At Bit |
-| ---------- | ------------ | ------------ | ------------ | ------------ |
+| :--- | :--- | :--- | :--- | :--- |
 | Index      | 3            | 2            | 1            | 0            |
 | Weight     | 2^3 = 8      | 2^2 = 4      | 2^1 = 2      | 2^0 = 1      |
 | Minuend    | 1            | 0            | 0            | 0            |

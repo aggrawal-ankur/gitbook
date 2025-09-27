@@ -80,7 +80,7 @@ Our program cannot perform privileged operations directly. Instead, it uses **sy
 Linux supports hundreds of syscalls. Here are a few common ones:
 
 | Purpose          | Syscall | Syscall Number |
-| ---------------- | ------- | -------------- |
+| :--- | :--- | :--- |
 | Read from a file | `read`  | 0              |
 | Write to a file  | `write` | 1              |
 | Open a file      | `open`  | 2              |

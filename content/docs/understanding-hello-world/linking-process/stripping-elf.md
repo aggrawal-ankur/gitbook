@@ -40,4 +40,3 @@ If a section is not referenced by runtime execution and not marked `SHF_ALLOC`, 
 
 
 
-

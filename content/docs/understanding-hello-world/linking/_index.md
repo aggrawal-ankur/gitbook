@@ -65,4 +65,3 @@ Complete output of `readelf` can be found at [GitHub](https://github.com/hi-anki
 4. [step-2-analyzing-program-headers-table.md](step-2-analyzing-program-headers-table.md "mention")
 
 
-

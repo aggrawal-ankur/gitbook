@@ -26,7 +26,17 @@ mov rax, 1
 
 There are hundreds of instructions in assembly. But the core ones are as follows.
 
-<table><thead style="text-align:left"><tr><th width="156">Category</th><th width="309">Purpose</th><th>Common Instructions</th></tr></thead><tbody><tr><td><strong>Data Movement</strong></td><td>Move data between register and memory.</td><td><code>mov</code>, <code>lea</code>, <code>xchg</code></td></tr><tr><td><strong>Arithmetic</strong></td><td>Mathematical operations</td><td><code>add</code>, <code>sub</code>, <code>mul</code>, <code>div</code>, <code>inc</code>, <code>dec</code></td></tr><tr><td><strong>Logic/Bitwise</strong></td><td>Logical or bit manipulation</td><td><code>and</code>, <code>or</code>, <code>xor</code>, <code>not</code>, <code>shl</code>, <code>shr</code></td></tr><tr><td><strong>Control Flow</strong></td><td>Changing execution path (conditionals and iteration)</td><td><code>jmp</code>, <code>je</code>, <code>jne</code>, <code>call</code>, <code>ret</code></td></tr><tr><td><strong>Comparison/Test</strong></td><td>Set CPU flags based on results</td><td><code>cmp</code>, <code>test</code></td></tr><tr><td><strong>Stack Operations</strong></td><td>Push and Pop</td><td><code>push</code>, <code>pop</code></td></tr><tr><td><strong>System/Interrupt</strong></td><td>Interacting with the OS or hardware</td><td><code>syscall</code>, <code>int</code></td></tr></tbody></table>
+
+| Category | Purpose | Common Instructions |
+| :--- | :--- | :--- |
+| Data Movement | Move data between register and memory. | mov,lea,xchg |
+| Arithmetic | Mathematical operations | add,sub,mul,div,inc,dec |
+| Logic/Bitwise | Logical or bit manipulation | and,or,xor,not,shl,shr |
+| Control Flow | Changing execution path (conditionals and iteration) | jmp,je,jne,call,ret |
+| Comparison/Test | Set CPU flags based on results | cmp,test |
+| Stack Operations | Push and Pop | push,pop |
+| System/Interrupt | Interacting with the OS or hardware | syscall,int |
+
 
 ## CPU Flags
 
@@ -37,7 +47,7 @@ When an instruction modifies the flags, other instructions can check the state o
 Example:
 
 | Flag               | Description                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------- |
+| :--- | :--- |
 | **ZF** (Zero Flag) | Set to 1 if the result of an operation is zero; otherwise, it’s 0.                                |
 | **SF** (Sign Flag) | Set to 1 if the result of an operation is negative (the most significant bit of the result is 1). |
 

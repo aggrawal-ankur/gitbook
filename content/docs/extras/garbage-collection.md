@@ -1,2 +1,1 @@
 # What Is Garbage Collection?
-

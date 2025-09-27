@@ -174,7 +174,7 @@ After this, the control is given to main again and a call to puts is successfull
 | +--------+    +------------------------+    +--------+    +------------------------+ |
 | | GOT[N] | -> | *(func/symb N)         | -> | 0x.... | -> | Actual Runtime Address | |
 | +--------+    +------------------------+    +--------+    +------------------------+ |
-|--------------------------------------------------------------------------------------|
+| :--- |
 | // Lazy Binding Division -> .got.plt at offset 0x0028 (JMPREL) (.rela.plt)           |
 | +--------+    +------------------------+    +--------+    +------------------------+ |
 | | GOT[0] | -> | *(.dynamic)            | -> | 0x0028 | -> | Actual Runtime Address | | <- Reserved for enabling lazy binding 

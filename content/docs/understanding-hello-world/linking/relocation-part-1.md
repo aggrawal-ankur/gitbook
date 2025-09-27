@@ -40,7 +40,18 @@ Dynamic section at offset 0x2de0 contains 26 entries:
 
 We can classify the entries in the `Type` field based on when the interpreter goes to them.
 
-<table><thead style="text-align:left"><tr><th width="160">Phase Of Action</th><th width="336">Type Used</th><th>Significance</th></tr></thead><tbody><tr><td>1</td><td>NEEDED</td><td>Load shared libraries</td></tr><tr><td>2</td><td>JMPREL, RELA</td><td>Relocation Time</td></tr><tr><td>-</td><td>GNU_HASH, STRTAB, SYMTAB</td><td>Lookup data for relocation</td></tr><tr><td>-</td><td>STRSZ, SYMENT, DEBUG, PLTGOT, PLTRELSZ, PLTREL, RELASZ, RELAENT</td><td>Metadata for relocation</td></tr><tr><td>-</td><td>FLAGS_1, VERNEED, VERNEEDNUM, VERSYM, RELACOUNT</td><td>Some more info</td></tr><tr><td>3</td><td>INIT, INIT_ARRAY, INIT_ARRAYSZ</td><td>Setup before main</td></tr><tr><td>-</td><td>FINI, FINI_ARRAY, FINI_ARRAYSZ</td><td>Setup after main</td></tr><tr><td>4</td><td>NULL</td><td>End</td></tr></tbody></table>
+
+| Phase Of Action | Type Used | Significance |
+| :--- | :--- | :--- |
+| 1 | NEEDED | Load shared libraries |
+| 2 | JMPREL, RELA | Relocation Time |
+| - | GNU_HASH, STRTAB, SYMTAB | Lookup data for relocation |
+| - | STRSZ, SYMENT, DEBUG, PLTGOT, PLTRELSZ, PLTREL, RELASZ, RELAENT | Metadata for relocation |
+| - | FLAGS_1, VERNEED, VERNEEDNUM, VERSYM, RELACOUNT | Some more info |
+| 3 | INIT, INIT_ARRAY, INIT_ARRAYSZ | Setup before main |
+| - | FINI, FINI_ARRAY, FINI_ARRAYSZ | Setup after main |
+| 4 | NULL | End |
+
 
 So far, we know that the first thing that the interpreter does is to load the shared libraries.
 

@@ -49,7 +49,31 @@ The processor accesses the handler procedure through an entry in the **interrupt
 
 The IA-32 Architecture defines 18 predefined interrupts and exceptions and 224 user defined interrupts.
 
-<table><thead style="text-align:left"><tr><th width="84">Vector</th><th width="139">Mnemonic</th><th width="404">Description</th><th>Type</th></tr></thead><tbody><tr><td>0</td><td>#DE</td><td>Divide Error (div by zero or quotient too large)</td><td>Fault</td></tr><tr><td>1</td><td>#DB</td><td>Debug (single-step, hardware breakpoints)</td><td>Fault/Trap</td></tr><tr><td>2</td><td>NMI</td><td>Non-maskable Interrupt (NMI)</td><td>Interrupt</td></tr><tr><td>3</td><td>#BP</td><td>Breakpoint (<code>INT3</code> instruction)</td><td>Trap</td></tr><tr><td>4</td><td>#OF</td><td>Overflow (<code>INTO</code> instruction)</td><td>Trap</td></tr><tr><td>5</td><td>#BR</td><td>BOUND Range Exceeded (BOUND instruction)</td><td>Fault</td></tr><tr><td>6</td><td>#UD</td><td>Invalid Opcode</td><td>Fault</td></tr><tr><td>7</td><td>#NM</td><td>Device not available</td><td>Fault</td></tr><tr><td>8</td><td>#DF</td><td>Double Fault</td><td>Abort</td></tr><tr><td>9</td><td>— (Legacy Coprocessor)</td><td>Coprocessor Segment Overrun</td><td>Fault</td></tr><tr><td>10</td><td>#TS</td><td>Invalid TSS</td><td>Fault</td></tr><tr><td>11</td><td>#NP</td><td>Segment Not Present</td><td>Fault</td></tr><tr><td>12</td><td>#SS</td><td>Stack Segment Fault</td><td>Fault</td></tr><tr><td>13</td><td>#GP</td><td>General Protection Fault</td><td>Fault</td></tr><tr><td>14</td><td>#PF</td><td>Page Fault</td><td>Fault</td></tr><tr><td>15</td><td>Intel Reserved</td><td>Reserved</td><td>—</td></tr><tr><td>16</td><td>#MF</td><td>x87 FPU Floating-Point Error (Math Fault)</td><td>Fault</td></tr><tr><td>17</td><td>#AC</td><td>Alignment Check (only in ring 3, CR0.AM=1)</td><td>Fault</td></tr><tr><td>18</td><td>#MC</td><td>Machine Check</td><td>Abort</td></tr><tr><td>19</td><td>#XM/#XF</td><td>SIMD Floating-Point Exception (SSE, AVX)</td><td>Fault</td></tr><tr><td>20–31</td><td></td><td>Reserved for future Intel use</td><td></td></tr></tbody></table>
+
+| Vector | Mnemonic | Description | Type |
+| :--- | :--- | :--- | :--- |
+| 0 | #DE | Divide Error (div by zero or quotient too large) | Fault |
+| 1 | #DB | Debug (single-step, hardware breakpoints) | Fault/Trap |
+| 2 | NMI | Non-maskable Interrupt (NMI) | Interrupt |
+| 3 | #BP | Breakpoint (INT3instruction) | Trap |
+| 4 | #OF | Overflow (INTOinstruction) | Trap |
+| 5 | #BR | BOUND Range Exceeded (BOUND instruction) | Fault |
+| 6 | #UD | Invalid Opcode | Fault |
+| 7 | #NM | Device not available | Fault |
+| 8 | #DF | Double Fault | Abort |
+| 9 | — (Legacy Coprocessor) | Coprocessor Segment Overrun | Fault |
+| 10 | #TS | Invalid TSS | Fault |
+| 11 | #NP | Segment Not Present | Fault |
+| 12 | #SS | Stack Segment Fault | Fault |
+| 13 | #GP | General Protection Fault | Fault |
+| 14 | #PF | Page Fault | Fault |
+| 15 | Intel Reserved | Reserved | — |
+| 16 | #MF | x87 FPU Floating-Point Error (Math Fault) | Fault |
+| 17 | #AC | Alignment Check (only in ring 3, CR0.AM=1) | Fault |
+| 18 | #MC | Machine Check | Abort |
+| 19 | #XM/#XF | SIMD Floating-Point Exception (SSE, AVX) | Fault |
+| 20–31 |  | Reserved for future Intel use |  |
+
 
 When the trap flag in `RFLAGS` is set, which is the 8th bit, the CPU generates a debug exception (#DB) after every instruction. This is the hardware single-step mode.
 

@@ -57,7 +57,41 @@ We are already familiar with the attributes of this table, so we'll skip that. L
 
 ## Baseline Understanding Of Sections
 
-<table><thead style="text-align:left"><tr><th width="178">Name</th><th width="97">Type</th><th width="277">Explanation</th><th>View</th></tr></thead><tbody><tr><td>Section 0</td><td>NULL</td><td>This section is empty. It is their just of alignment purposes. Nothing much. That's why it is of type NULL and everything is zeroed out.</td><td></td></tr><tr><td><code>.note.gnu.property</code></td><td><code>NOTE</code></td><td>Metadata for hardware/ABI features (e.g., IBT, SHSTK).</td><td><code>readelf -n</code></td></tr><tr><td><code>.note.gnu.build-id</code></td><td><code>NOTE</code></td><td>Unique hash/fingerprint of the binary for debug symbol matching.</td><td><code>readelf -n</code></td></tr><tr><td><code>.interp</code></td><td><code>PROGBITS</code></td><td><p>Path to the dynamic loader program (<code>ld.so</code>) for resolving cross-references.</p><p><code>PROGBITS</code> means a section that holds <strong>raw data</strong> to be loaded into memory, such as code, constants, or initialized variables.</p></td><td><code>readelf -p .interp</code></td></tr><tr><td><code>.gnu.hash</code></td><td><code>GNU_HASH</code></td><td>Hash table for faster dynamic symbol lookup.<br><strong>We need not to dive into this much.</strong></td><td>NA</td></tr><tr><td><code>.dynsym</code></td><td><code>DYNSYM</code></td><td>Dynamic symbol table used at runtime linking by the interpreter program (<code>ld-linux</code>).</td><td>NA</td></tr><tr><td><code>.dynstr</code></td><td><code>STRTAB</code></td><td>String table for names in <code>.dynsym</code>.</td><td><code>readelf -p .dynstr</code></td></tr><tr><td><code>.gnu.version</code></td><td><code>VERSYM</code></td><td>Version info for each dynamic symbol.</td><td>NA</td></tr><tr><td><code>.gnu.version_r</code></td><td><code>VERNEED</code></td><td>Declares required versions of shared libraries.</td><td>NA</td></tr><tr><td><code>.rela.dyn</code></td><td><code>RELA</code></td><td>Relocation entries for global data and non-PLT addresses.</td><td></td></tr><tr><td><code>.rela.plt</code></td><td><code>RELA</code></td><td>Relocation entries via PLT.</td><td></td></tr><tr><td><code>.init</code></td><td><code>PROGBITS</code></td><td>Code run before <code>main()</code> (init routine).</td><td>NA</td></tr><tr><td><code>.plt</code></td><td><code>PROGBITS</code></td><td>Procedure Linkage Table — stubs for external function calls.</td><td>NA</td></tr><tr><td><code>.plt.got</code></td><td><code>PROGBITS</code></td><td>Used in lazy binding (jump to GOT entries).</td><td>NA</td></tr><tr><td><code>.text</code></td><td><code>PROGBITS</code></td><td>Main executable code section.</td><td>NA</td></tr><tr><td><code>.fini</code></td><td><code>PROGBITS</code></td><td>Code run after <code>main()</code> returns (cleanup).</td><td>NA</td></tr><tr><td><code>.rodata</code></td><td><code>PROGBITS</code></td><td>Read-only static data (e.g., strings, constants).</td><td><code>readelf -p .rodata</code></td></tr><tr><td><code>.eh_frame_hdr</code></td><td><code>PROGBITS</code></td><td>Header for exception handling frames.</td><td></td></tr><tr><td><code>.eh_frame</code></td><td><code>PROGBITS</code></td><td>Stack unwinding info for exceptions or debugging.</td><td></td></tr><tr><td><code>.note.ABI-tag</code></td><td><code>NOTE</code></td><td>Identifies the target OS/ABI version.</td><td></td></tr><tr><td><code>.init_array</code></td><td><code>INIT_ARRAY</code></td><td>List of constructor function pointers (run before <code>main</code>).</td><td></td></tr><tr><td><code>.fini_array</code></td><td><code>FINI_ARRAY</code></td><td>List of destructor function pointers (run after <code>main</code>).</td><td></td></tr><tr><td><code>.dynamic</code></td><td><code>DYNAMIC</code></td><td>Table used by the dynamic linker to resolve symbols/relocations.</td><td></td></tr><tr><td><code>.got</code></td><td><code>PROGBITS</code></td><td>Global Offset Table for storing resolved addresses.</td><td></td></tr><tr><td><code>.got.plt</code></td><td><code>PROGBITS</code></td><td>GOT entries specifically for <code>.plt</code> lazy binding.</td><td></td></tr><tr><td><code>.data</code></td><td><code>PROGBITS</code></td><td>Writable static/global data.</td><td></td></tr><tr><td><code>.bss</code></td><td><code>NOBITS</code></td><td>Uninitialized global/static data (zeroed at runtime).</td><td></td></tr><tr><td><code>.comment</code></td><td><code>PROGBITS</code></td><td>Compiler version or build metadata (ignored at runtime).</td><td></td></tr><tr><td><code>.symtab</code></td><td><code>SYMTAB</code></td><td>Full symbol table (for static linking/debugging).</td><td></td></tr><tr><td><code>.strtab</code></td><td><code>STRTAB</code></td><td>String table for names in <code>.symtab</code>.</td><td><code>readelf -p .strtab</code></td></tr><tr><td><code>.shstrtab</code></td><td><code>STRTAB</code></td><td>String table for section names themselves.</td><td><code>readelf -p .shstrtab</code></td></tr></tbody></table>
+
+| Name | Type | Explanation | View |
+| :--- | :--- | :--- | :--- |
+| Section 0 | NULL | This section is empty. It is their just of alignment purposes. Nothing much. That's why it is of type NULL and everything is zeroed out. |  |
+| .note.gnu.property | NOTE | Metadata for hardware/ABI features (e.g., IBT, SHSTK). | readelf -n |
+| .note.gnu.build-id | NOTE | Unique hash/fingerprint of the binary for debug symbol matching. | readelf -n |
+| .interp | PROGBITS | Path to the dynamic loader program (ld.so) for resolving cross-references.PROGBITSmeans a section that holdsraw datato be loaded into memory, such as code, constants, or initialized variables. | readelf -p .interp |
+| .gnu.hash | GNU_HASH | Hash table for faster dynamic symbol lookup.We need not to dive into this much. | NA |
+| .dynsym | DYNSYM | Dynamic symbol table used at runtime linking by the interpreter program (ld-linux). | NA |
+| .dynstr | STRTAB | String table for names in.dynsym. | readelf -p .dynstr |
+| .gnu.version | VERSYM | Version info for each dynamic symbol. | NA |
+| .gnu.version_r | VERNEED | Declares required versions of shared libraries. | NA |
+| .rela.dyn | RELA | Relocation entries for global data and non-PLT addresses. |  |
+| .rela.plt | RELA | Relocation entries via PLT. |  |
+| .init | PROGBITS | Code run beforemain()(init routine). | NA |
+| .plt | PROGBITS | Procedure Linkage Table — stubs for external function calls. | NA |
+| .plt.got | PROGBITS | Used in lazy binding (jump to GOT entries). | NA |
+| .text | PROGBITS | Main executable code section. | NA |
+| .fini | PROGBITS | Code run aftermain()returns (cleanup). | NA |
+| .rodata | PROGBITS | Read-only static data (e.g., strings, constants). | readelf -p .rodata |
+| .eh_frame_hdr | PROGBITS | Header for exception handling frames. |  |
+| .eh_frame | PROGBITS | Stack unwinding info for exceptions or debugging. |  |
+| .note.ABI-tag | NOTE | Identifies the target OS/ABI version. |  |
+| .init_array | INIT_ARRAY | List of constructor function pointers (run beforemain). |  |
+| .fini_array | FINI_ARRAY | List of destructor function pointers (run aftermain). |  |
+| .dynamic | DYNAMIC | Table used by the dynamic linker to resolve symbols/relocations. |  |
+| .got | PROGBITS | Global Offset Table for storing resolved addresses. |  |
+| .got.plt | PROGBITS | GOT entries specifically for.pltlazy binding. |  |
+| .data | PROGBITS | Writable static/global data. |  |
+| .bss | NOBITS | Uninitialized global/static data (zeroed at runtime). |  |
+| .comment | PROGBITS | Compiler version or build metadata (ignored at runtime). |  |
+| .symtab | SYMTAB | Full symbol table (for static linking/debugging). |  |
+| .strtab | STRTAB | String table for names in.symtab. | readelf -p .strtab |
+| .shstrtab | STRTAB | String table for section names themselves. | readelf -p .shstrtab |
+
 
 ## What is their significance?
 

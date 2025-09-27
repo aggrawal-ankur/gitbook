@@ -1,6 +1,7 @@
 baseURL: https://aggrawal-ankur.github.io/gitbook
 languageCode: en-us
 title: All Things Low Level
+
 enableGitInfo: true
 
 module:
@@ -39,8 +40,3 @@ menu:
 footer:
   displayCopyright: false
   displayPoweredBy: false
-
-markup:
-  goldmark:
-    renderer:
-      unsafe: true

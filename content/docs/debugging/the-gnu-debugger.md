@@ -170,11 +170,23 @@ Few things before the exciting part.
 
 ### Stopping The Debugee
 
-<table><thead style="text-align:left"><tr><th width="188">Command</th><th>Description</th><th>Debug Information Required?</th></tr></thead><tbody><tr><td><code>break &#x3C;source_line></code></td><td>Creates a breakpoint at a memory location.</td><td>Not required strictly but works best when provided.</td></tr><tr><td><code>watch &#x3C;var></code></td><td>Creates a watchpoint at a memory location.</td><td>Not required strictly but works best when provided.</td></tr><tr><td><code>catch &#x3C;event></code></td><td>Creates a catchpoint for an event.</td><td>No</td></tr></tbody></table>
+
+| Command | Description | Debug Information Required? |
+| :--- | :--- | :--- |
+| break <source_line> | Creates a breakpoint at a memory location. | Not required strictly but works best when provided. |
+| watch <var> | Creates a watchpoint at a memory location. | Not required strictly but works best when provided. |
+| catch <event> | Creates a catchpoint for an event. | No |
+
 
 ### Accessing The Source Code
 
-<table><thead style="text-align:left"><tr><th width="196">Command</th><th width="349">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>list</code></td><td>Lists 10 lines after or around the original C source code.</td><td>Yes</td></tr><tr><td><code>disassemble &#x3C;symbol></code></td><td>Dumps the assembler code for the specified symbol.</td><td>No</td></tr><tr><td><code>disassemble /s &#x3C;sym></code></td><td>Dumps assembly along with the C source it belongs to.</td><td>Yes</td></tr></tbody></table>
+
+| Command | Description | Debug information Required? |
+| :--- | :--- | :--- |
+| list | Lists 10 lines after or around the original C source code. | Yes |
+| disassemble <symbol> | Dumps the assembler code for the specified symbol. | No |
+| disassemble /s <sym> | Dumps assembly along with the C source it belongs to. | Yes |
+
 
 Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we can tell gdb to use intel syntax as well.
 
@@ -184,7 +196,18 @@ Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we ca
 
 ### Stack Management
 
-<table><thead style="text-align:left"><tr><th width="148">Command</th><th width="410">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>backtrace</code> or <code>bt</code></td><td>Tells which stack frame we are in.</td><td></td></tr><tr><td><code>bt full</code></td><td>The complete stack frame with arguments and values.</td><td></td></tr><tr><td><code>info frame</code></td><td>Information for the current stack frame.</td><td></td></tr><tr><td><code>info args</code></td><td>Arguments passed to this function frame.</td><td></td></tr><tr><td><code>info locals</code></td><td>Local variables on the stack frame.</td><td></td></tr><tr><td><code>info frame &#x3C;></code></td><td>Information for the selected stack frame.</td><td></td></tr><tr><td><code>up</code></td><td>To change stack frame away from <code>main</code></td><td></td></tr><tr><td><code>down</code></td><td>To change stack frame towards <code>main</code>.</td><td></td></tr></tbody></table>
+
+| Command | Description | Debug information Required? |
+| :--- | :--- | :--- |
+| backtraceorbt | Tells which stack frame we are in. |  |
+| bt full | The complete stack frame with arguments and values. |  |
+| info frame | Information for the current stack frame. |  |
+| info args | Arguments passed to this function frame. |  |
+| info locals | Local variables on the stack frame. |  |
+| info frame <> | Information for the selected stack frame. |  |
+| up | To change stack frame away frommain |  |
+| down | To change stack frame towardsmain. |  |
+
 
 ### Execution State Information
 
@@ -192,7 +215,20 @@ Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we ca
 
 **Note:** All the commands here are frame-specific. When you change the current stack frame, the values will change. So remember that and save yourself headaches.
 
-<table><thead style="text-align:left"><tr><th width="194">Command</th><th>Description</th></tr></thead><tbody><tr><td><code>info registers</code></td><td>State of registers or the selected stack frame at that instant.</td></tr><tr><td><code>info registers &#x3C;reg></code></td><td>To inspect a specific register.</td></tr><tr><td><code>info all-registers</code></td><td>State of all the registers at that instant.<br><br>Quite extensive so not required as a beginner.</td></tr><tr><td><code>info breakpoints</code></td><td>Lists all the breakpoints, catchpoints and watchpoints.</td></tr><tr><td><code>info checkpoints</code></td><td>Lists all the checkpoints.</td></tr><tr><td><code>info watchpoints</code></td><td>Lists all the watchpoints.</td></tr><tr><td><code>info files</code></td><td>All the target files gdb is debugging in this session.</td></tr><tr><td><code>info sharedlibrary</code></td><td>All the shared libraries in use.</td></tr><tr><td><code>info source</code></td><td>Information of the source binary.</td></tr><tr><td><code>info inferiors</code></td><td>GDB can debug multiple sources at once, to see all the programs loaded in the current gdb session, we use this.</td></tr></tbody></table>
+
+| Command | Description |
+| :--- | :--- |
+| info registers | State of registers or the selected stack frame at that instant. |
+| info registers <reg> | To inspect a specific register. |
+| info all-registers | State of all the registers at that instant.Quite extensive so not required as a beginner. |
+| info breakpoints | Lists all the breakpoints, catchpoints and watchpoints. |
+| info checkpoints | Lists all the checkpoints. |
+| info watchpoints | Lists all the watchpoints. |
+| info files | All the target files gdb is debugging in this session. |
+| info sharedlibrary | All the shared libraries in use. |
+| info source | Information of the source binary. |
+| info inferiors | GDB can debug multiple sources at once, to see all the programs loaded in the current gdb session, we use this. |
+
 
 ### Managerial Commands
 
@@ -200,7 +236,23 @@ All the i-suffixed commands operate on machine instruction. Their equivalent wit
 
 * Therefore, the i-suffixed ones work even when there are no debug symbols, because they don't rely on them.
 
-<table><thead style="text-align:left"><tr><th width="133">Command</th><th width="450">Description</th><th>Debug information Required?</th></tr></thead><tbody><tr><td><code>attach pid</code></td><td>Attach gdb to a running process (inferior).<br>Make sure the security policies allow it.</td><td>NA</td></tr><tr><td><code>detach pid</code></td><td>Used to detach an already attached inferior.</td><td>NA</td></tr><tr><td><code>run</code> , <code>r</code> </td><td>To start the debugee process inside gdb.<br><code>run</code> alone is not enough as it will just execute the whole binary, so we have to manually create a breakpoint before using <code>run</code>.</td><td>NA</td></tr><tr><td><code>start</code></td><td>With <code>run</code> we need to create a breakpoint manually, but <code>start</code> creates a <em>temporary breakpoint</em> at the <code>main</code> function/symbol itself and completes the execution until that break.</td><td>Yes</td></tr><tr><td><code>starti</code></td><td>Starts the inferior and stops at the first machine instruction.</td><td>No</td></tr><tr><td><code>advance &#x3C;loc></code></td><td>Continues the program up to the specified location.<br>Can be used to execute multiple instructions together.</td><td>Not required strictly.</td></tr><tr><td><code>continue</code><br><code>fg</code>, <code>c</code></td><td>Continues the debugee process after a breakpoint is debugged.</td><td>NA</td></tr><tr><td><code>next</code></td><td>Executes the next line in the C source and stop.<br>If the next line is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td><td>Yes</td></tr><tr><td><code>step</code></td><td>Executes the next line in the C source and stop.<br>If the next line is a function call, it steps into it.<br>The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td><td>Yes</td></tr><tr><td><code>nexti</code></td><td>Executes the next machine instruction.<br>If the next instruction is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.<br>[N] can be passed to step thru N lines.</td><td>No</td></tr><tr><td><code>stepi</code></td><td>Executes the next machine instruction.<br>If the next line is a function call, it steps into it.<br>The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.<br>[N] can be passed to step thru N lines.</td><td>No</td></tr><tr><td><code>finish</code></td><td>Execute the process until the selected frame returns.</td><td>NA</td></tr><tr><td><code>kill</code></td><td>Kill the inferior being debugged.</td><td>NA</td></tr></tbody></table>
+
+| Command | Description | Debug information Required? |
+| :--- | :--- | :--- |
+| attach pid | Attach gdb to a running process (inferior).Make sure the security policies allow it. | NA |
+| detach pid | Used to detach an already attached inferior. | NA |
+| run,r | To start the debugee process inside gdb.runalone is not enough as it will just execute the whole binary, so we have to manually create a breakpoint before usingrun. | NA |
+| start | Withrunwe need to create a breakpoint manually, butstartcreates atemporary breakpointat themainfunction/symbol itself and completes the execution until that break. | Yes |
+| starti | Starts the inferior and stops at the first machine instruction. | No |
+| advance <loc> | Continues the program up to the specified location.Can be used to execute multiple instructions together. | Not required strictly. |
+| continue, fg,c | Continues the debugee process after a breakpoint is debugged. | NA |
+| next | Executes the next line in the C source and stop.If the next line is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.[N] can be passed to step thru N lines. | Yes |
+| step | Executes the next line in the C source and stop.If the next line is a function call, it steps into it.The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.[N] can be passed to step thru N lines. | Yes |
+| nexti | Executes the next machine instruction.If the next instruction is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.[N] can be passed to step thru N lines. | No |
+| stepi | Executes the next machine instruction.If the next line is a function call, it steps into it.The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.[N] can be passed to step thru N lines. | No |
+| finish | Execute the process until the selected frame returns. | NA |
+| kill | Kill the inferior being debugged. | NA |
+
 
 This write up is already quite dense so we'll leave it as is. In the next one, we will explore gdb fully practically, no theory.
 

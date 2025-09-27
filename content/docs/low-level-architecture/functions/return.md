@@ -533,6 +533,14 @@ What did we learn?
 
 ***
 
-<table><thead style="text-align:left"><tr><th width="200">Struct Size / Type</th><th width="233">Registers Used</th><th>Notes / ABI Behavior</th></tr></thead><tbody><tr><td>Scalar / int / pointer</td><td><code>rax</code></td><td>Single value returned directly.</td></tr><tr><td>2×int / 8-byte struct</td><td><code>rax</code></td><td>Packed into <code>rax</code>.</td></tr><tr><td>3×int / 12-byte struct</td><td><code>rax</code> + <code>rdx</code></td><td>First 8 bytes → <code>rax</code>, last 4 bytes → <code>rdx</code>.</td></tr><tr><td>4×int / 16-byte struct</td><td><code>rax</code> + <code>rdx</code></td><td>Two 8-byte halves → <code>rax</code>/<code>rdx</code>.</td></tr><tr><td>>16 bytes</td><td>Caller allocates storage; pointer passed in <code>rdi</code> (sret)</td><td>Callee fills struct in caller-provided memory. <code>rax</code> may return the pointer.</td></tr></tbody></table>
+
+| Struct Size / Type | Registers Used | Notes / ABI Behavior |
+| :--- | :--- | :--- |
+| Scalar / int / pointer | rax | Single value returned directly. |
+| 2×int / 8-byte struct | rax | Packed intorax. |
+| 3×int / 12-byte struct | rax+rdx | First 8 bytes →rax, last 4 bytes →rdx. |
+| 4×int / 16-byte struct | rax+rdx | Two 8-byte halves →rax/rdx. |
+| >16 bytes | Caller allocates storage; pointer passed inrdi(sret) | Callee fills struct in caller-provided memory.raxmay return the pointer. |
+
 
 And we are done with returning complex data.

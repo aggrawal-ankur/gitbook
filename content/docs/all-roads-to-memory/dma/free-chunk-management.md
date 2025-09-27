@@ -24,7 +24,13 @@ When chunks are not in use, they are treated as nodes of either of these.
 
 Bins are categorized as following:
 
-<table><thead style="text-align:left"><tr><th width="155">Name</th><th>Use</th></tr></thead><tbody><tr><td>Small Bins</td><td>For exact size classes (multiples of 8, up to 256 bytes).<br>Implemented using doubly-linked circular list.</td></tr><tr><td>Unsorted Bins<br>(Cache Bins)</td><td>Acts as a temporary holding for newly freed chunks. Helps in quick reuse and reduces bin searching overhead.<br>Implemented using doubly-linked circular lists.</td></tr><tr><td>Tree Bins<br>(Large bins)</td><td>Implemented using bitwise digital trees.<br>Used for managing very large size free chunks (typically > 256 bytes).</td></tr></tbody></table>
+
+| Name | Use |
+| :--- | :--- |
+| Small Bins | For exact size classes (multiples of 8, up to 256 bytes).Implemented using doubly-linked circular list. |
+| Unsorted Bins(Cache Bins) | Acts as a temporary holding for newly freed chunks. Helps in quick reuse and reduces bin searching overhead.Implemented using doubly-linked circular lists. |
+| Tree Bins(Large bins) | Implemented using bitwise digital trees.Used for managing very large size free chunks (typically > 256 bytes). |
+
 
 This categorization of bins helps balancing rapid allocation, memory usage and fragmentation.
 
@@ -221,7 +227,11 @@ If a malloc request matches the the size of designated victim (`dvsize`), it sav
 
 ***
 
-<table><thead style="text-align:left"><tr><th width="278">Declaration (in malloc_state)</th><th>Meaning</th></tr></thead><tbody><tr><td>binmap_t smallmap, treemap</td><td>An <code>unsigned int</code> (32-bit) value whose bits are masked to represent the state of small/tree bins. It is like a heat map for for bins, telling which one is free and which on has nodes in it.</td></tr></tbody></table>
+
+| Declaration (in malloc_state) | Meaning |
+| :--- | :--- |
+| binmap_t smallmap, treemap | Anunsigned int(32-bit) value whose bits are masked to represent the state of small/tree bins. It is like a heat map for for bins, telling which one is free and which on has nodes in it. |
+
 
 ## Rules For Coalescing
 

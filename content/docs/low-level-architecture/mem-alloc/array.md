@@ -254,7 +254,18 @@ Normally integer is sized 4-bytes, so the total requirement is given by `n*4` by
 
 Now we have to calculate padding. Lets see how much padding is required for `n ∈ {1....8}`
 
-<table><thead style="text-align:left"><tr><th width="246">Value of n</th><th>Bytes required</th><th>Padding Bytes</th></tr></thead><tbody><tr><td>1</td><td>1*4 = 4</td><td>16 - 4 = 12</td></tr><tr><td>2</td><td>2*4 = 8</td><td>16 - 8 = 8</td></tr><tr><td>3</td><td>3*4 = 12</td><td>16 - 12 = 4</td></tr><tr><td>4</td><td>4*4 = 16</td><td>16 - 16 = 0</td></tr><tr><td>5</td><td>5*4 = 20</td><td>32 - 20 = 12</td></tr><tr><td>6</td><td>6*4 = 24</td><td>32 - 24 = 8</td></tr><tr><td>7</td><td>7*4 = 28</td><td>32 - 28 = 4</td></tr><tr><td>8</td><td>8*4 = 32</td><td>32 - 32 = 0</td></tr></tbody></table>
+
+| Value of n | Bytes required | Padding Bytes |
+| :--- | :--- | :--- |
+| 1 | 1*4 = 4 | 16 - 4 = 12 |
+| 2 | 2*4 = 8 | 16 - 8 = 8 |
+| 3 | 3*4 = 12 | 16 - 12 = 4 |
+| 4 | 4*4 = 16 | 16 - 16 = 0 |
+| 5 | 5*4 = 20 | 32 - 20 = 12 |
+| 6 | 6*4 = 24 | 32 - 24 = 8 |
+| 7 | 7*4 = 28 | 32 - 28 = 4 |
+| 8 | 8*4 = 32 | 32 - 32 = 0 |
+
 
 This shows that the value for padding for a 4-byte integer belongs to `{0, 4, 8, 12}` . Plus, when the total bytes required are greater than the closest 16-divisible digit, we take the next 16-divisible digit.
 

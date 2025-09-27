@@ -92,11 +92,27 @@ Symbol table '.symtab' contains 36 entries:
 
 ### Understanding The Attributes
 
-<table><thead style="text-align:left"><tr><th width="138">Attribute</th><th width="277">Description</th><th>Extra Information</th></tr></thead><tbody><tr><td><code>Num</code></td><td>Symbol number (index in the symbol table).</td><td></td></tr><tr><td><code>Value</code></td><td>Symbol's value (usually an address or offset, depending on section context)</td><td></td></tr><tr><td><code>Size</code></td><td>Size of the symbol in bytes (zero for undefined size or functions sometimes)</td><td></td></tr><tr><td><code>Type</code></td><td>What kind of symbol it is (<code>FUNC</code>, <code>OBJECT</code>, <code>SECTION</code>, etc.)</td><td></td></tr><tr><td><code>Bind</code></td><td>Symbol binding: how it is linked (<code>LOCAL</code>, <code>GLOBAL</code>, <code>WEAK</code>, etc.)</td><td><code>LOCAL</code>: Visible only within this object.<br><code>GLOBAL</code>: Externally visible and usable by others.<br><code>WEAK</code>: Like global but with lower priority.</td></tr><tr><td><code>Visibility</code></td><td>Symbol visibility: how it is seen across objects (<code>DEFAULT</code>, <code>HIDDEN</code>, etc.)</td><td><code>DEFAULT</code>: Visible to all.<br><code>HIDDEN</code>: Internal, not exported.<br><code>PROTECTED</code>: Visible, but not preemptable.</td></tr><tr><td><code>Ndx</code></td><td>Section index: which section the symbol is defined in (<code>UND</code>, number, etc.)</td><td><code>UND</code>: Undefined, needs resolution.<br><code>INT_VAL</code>: The section it is defined in.<br><code>ABS</code>: Absolute symbol, not tied to any section.<br><code>COMMON</code>: Uninitialized global.</td></tr><tr><td><code>Name</code></td><td>The symbol's name (looked up via the string table)</td><td></td></tr></tbody></table>
+
+| Attribute | Description | Extra Information |
+| :--- | :--- | :--- |
+| Num | Symbol number (index in the symbol table). |  |
+| Value | Symbol's value (usually an address or offset, depending on section context) |  |
+| Size | Size of the symbol in bytes (zero for undefined size or functions sometimes) |  |
+| Type | What kind of symbol it is (FUNC,OBJECT,SECTION, etc.) |  |
+| Bind | Symbol binding: how it is linked (LOCAL,GLOBAL,WEAK, etc.) | LOCAL: Visible only within this object.GLOBAL: Externally visible and usable by others.WEAK: Like global but with lower priority. |
+| Visibility | Symbol visibility: how it is seen across objects (DEFAULT,HIDDEN, etc.) | DEFAULT: Visible to all.HIDDEN: Internal, not exported.PROTECTED: Visible, but not preemptable. |
+| Ndx | Section index: which section the symbol is defined in (UND, number, etc.) | UND: Undefined, needs resolution.INT_VAL: The section it is defined in.ABS: Absolute symbol, not tied to any section.COMMON: Uninitialized global. |
+| Name | The symbol's name (looked up via the string table) |  |
+
 
 ### What are these two tables used for?
 
-<table><thead style="text-align:left"><tr><th width="116">Table</th><th width="540">Purpose</th><th>In short</th></tr></thead><tbody><tr><td><code>.symtab</code></td><td>Full symbol table for internal use by the linker (includes all symbols: static, local, global). Not needed at runtime.</td><td>Link-time</td></tr><tr><td><code>.dynsym</code></td><td>Minimal symbol table used by the dynamic linker at runtime (includes only dynamic/global symbols needed for relocation or symbol resolution).</td><td>Run-time</td></tr></tbody></table>
+
+| Table | Purpose | In short |
+| :--- | :--- | :--- |
+| .symtab | Full symbol table for internal use by the linker (includes all symbols: static, local, global). Not needed at runtime. | Link-time |
+| .dynsym | Minimal symbol table used by the dynamic linker at runtime (includes only dynamic/global symbols needed for relocation or symbol resolution). | Run-time |
+
 
 ### String Table
 
@@ -182,6 +198,15 @@ Relocation section '.rela.plt' at offset 0x610 contains 1 entry:
 
 ### Understanding The Attributes
 
-<table><thead style="text-align:left"><tr><th width="148">Attribute</th><th>Description</th></tr></thead><tbody><tr><td><code>Offset</code></td><td>Location in the section where the relocation has to be applied.</td></tr><tr><td><code>Info</code></td><td>Encodes the relocation type and symbol index (e.g., high bits: symbol, low bits: type).</td></tr><tr><td><code>Type</code></td><td>Relocation type, how to apply the relocation.</td></tr><tr><td><code>Sym. Value</code></td><td>The value of the referenced symbol (from the symbol table), if applicable</td></tr><tr><td><code>Sym. Name</code></td><td>Name of the symbol being relocated against (can be empty for some types like <code>RELATIVE</code>)</td></tr><tr><td><code>Addend</code></td><td>Constant value added to the relocation calculation (explicit in <code>.rela.*</code>)</td></tr></tbody></table>
+
+| Attribute | Description |
+| :--- | :--- |
+| Offset | Location in the section where the relocation has to be applied. |
+| Info | Encodes the relocation type and symbol index (e.g., high bits: symbol, low bits: type). |
+| Type | Relocation type, how to apply the relocation. |
+| Sym. Value | The value of the referenced symbol (from the symbol table), if applicable |
+| Sym. Name | Name of the symbol being relocated against (can be empty for some types likeRELATIVE) |
+| Addend | Constant value added to the relocation calculation (explicit in.rela.*) |
+
 
 Addend is probably the only foreign term here. Next we are going to understand that. But before that we need to clear a small concept.

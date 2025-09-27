@@ -35,4 +35,3 @@ For the time being, practical means that we are going to study an implementation
 
 
 
-

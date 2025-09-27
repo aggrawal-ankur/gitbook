@@ -81,7 +81,17 @@ The output of readelf is significantly smaller for the dynamically linked elf.
 
 ### File Header
 
-<table><thead style="text-align:left"><tr><th width="232">Property</th><th>Dynamically Linked</th><th>Statically Linked</th></tr></thead><tbody><tr><td>OS/ABI</td><td>UNIX - System V</td><td>UNIX - GNU</td></tr><tr><td>Type</td><td>ET_DYN</td><td>EX_EXEC</td></tr><tr><td>Entry Point Address</td><td>0x1050</td><td>0x401600</td></tr><tr><td>Start of Shdrs</td><td>13968</td><td>756760</td></tr><tr><td>Program Headers Count</td><td>14</td><td>11</td></tr><tr><td>Section Headers Count</td><td>31</td><td>26</td></tr><tr><td>Shstrtab Index</td><td>30</td><td>25</td></tr></tbody></table>
+
+| Property | Dynamically Linked | Statically Linked |
+| :--- | :--- | :--- |
+| OS/ABI | UNIX - System V | UNIX - GNU |
+| Type | ET_DYN | EX_EXEC |
+| Entry Point Address | 0x1050 | 0x401600 |
+| Start of Shdrs | 13968 | 756760 |
+| Program Headers Count | 14 | 11 |
+| Section Headers Count | 31 | 26 |
+| Shstrtab Index | 30 | 25 |
+
 
 The most interesting part here is the difference in ABI. This means, an operating system supports multiple ABI contracts?
 
@@ -170,7 +180,7 @@ rodata.cst32
 Comparing the size for section headers,
 
 | Header        | Dynamically Linked | Statically Linked |
-| ------------- | ------------------ | ----------------- |
+| :--- | :--- | :--- |
 | `.rela.plt`   | 0x18               | 0x210             |
 | `.plt`        | 0x20               | 0xb0              |
 | `.text`       | 0x103              | 0x74ff9           |

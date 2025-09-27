@@ -17,7 +17,7 @@ As long as we are out of these two contexts, we can use a register as we want. A
 ## Function Call Convention
 
 | Argument   | Register | Description      |
-| ---------- | -------- | ---------------- |
+| :--- | :--- | :--- |
 | Syscall #  | `rax`    | Identifier       |
 | Argument 1 | `rdi`    | First parameter  |
 | Argument 2 | `rsi`    | Second parameter |
@@ -28,7 +28,23 @@ As long as we are out of these two contexts, we can use a register as we want. A
 
 ## Syscall Convention
 
-<table><thead style="text-align:left"><tr><th width="323">Register</th><th>Purpose / Convention</th></tr></thead><tbody><tr><td><code>rax</code></td><td>Accumulator; return values, syscall #</td></tr><tr><td><code>rbx</code></td><td>Base register; often callee-saved</td></tr><tr><td><code>rcx</code></td><td>Counter for loops, shifts</td></tr><tr><td><code>rdx</code></td><td>Data register; I/O, syscall args</td></tr><tr><td><code>rsi</code></td><td>Source index; memory ops, args</td></tr><tr><td><code>rdi</code></td><td>Destination index; memory ops, args</td></tr><tr><td><code>rbp</code></td><td>Base pointer; stack frame reference</td></tr><tr><td><code>rsp</code></td><td>Stack pointer; top of the stack</td></tr><tr><td><code>r8</code></td><td>5th syscall argument</td></tr><tr><td><code>r9</code></td><td>6th syscall argument</td></tr><tr><td><code>r10</code></td><td>4th syscall argument</td></tr><tr><td><code>r11</code></td><td>Temporary scratch for syscall</td></tr><tr><td><code>r12</code>–<code>r15</code></td><td>Callee-saved; general-purpose</td></tr></tbody></table>
+
+| Register | Purpose / Convention |
+| :--- | :--- |
+| rax | Accumulator; return values, syscall # |
+| rbx | Base register; often callee-saved |
+| rcx | Counter for loops, shifts |
+| rdx | Data register; I/O, syscall args |
+| rsi | Source index; memory ops, args |
+| rdi | Destination index; memory ops, args |
+| rbp | Base pointer; stack frame reference |
+| rsp | Stack pointer; top of the stack |
+| r8 | 5th syscall argument |
+| r9 | 6th syscall argument |
+| r10 | 4th syscall argument |
+| r11 | Temporary scratch for syscall |
+| r12–r15 | Callee-saved; general-purpose |
+
 
 **Note:** _Caller_ is the function that makes a call to another function. The function that is being called is termed as _callee_.
 

@@ -56,4 +56,3 @@ The same result is seen for char, float and double except that you can notice so
 ## Pointer Dereferencing
 
 
-

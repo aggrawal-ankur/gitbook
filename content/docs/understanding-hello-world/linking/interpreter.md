@@ -53,7 +53,37 @@ The `Name/Value` field is the most complicated one here.
 
 ## Understanding Each Entry Type
 
-<table data-header-hidden><thead style="text-align:left"><tr><th width="148"></th><th></th></tr></thead><tbody><tr><td><strong>Tag</strong></td><td><strong>Purpose</strong></td></tr><tr><td><code>NEEDED</code></td><td>Tells the linker a shared library is needed; value is offset into <code>.dynstr</code> pointing to the lib name (e.g. <code>"libc.so.6"</code>). Multiple entries can exist.</td></tr><tr><td><code>INIT</code></td><td>Address of a function to run before <code>main()</code>.</td></tr><tr><td><code>FINI</code></td><td>Address of a function to run after <code>main()</code> returns, or <code>exit()</code> is called.</td></tr><tr><td><code>INIT_ARRAY</code></td><td>Address of an array of constructor function pointers to run before <code>main()</code> (more flexible than <code>INIT</code>).</td></tr><tr><td><code>INIT_ARRAYSZ</code></td><td>Size in bytes of the <code>INIT_ARRAY</code>.</td></tr><tr><td><code>FINI_ARRAY</code></td><td>Address of an array of destructor function pointers to run on exit.</td></tr><tr><td><code>FINI_ARRAYSZ</code></td><td>Size in bytes of the <code>FINI_ARRAY</code>.</td></tr><tr><td><code>GNU_HASH</code></td><td>Address of the GNU-style hash table used for fast symbol lookup (alternative to <code>HASH</code>).</td></tr><tr><td><code>STRTAB</code></td><td>Address of the string table used for dynamic symbols (like lib names, function names).</td></tr><tr><td><code>SYMTAB</code></td><td>Address of the dynamic symbol table (function/variable names, sizes, bindings).</td></tr><tr><td><code>STRSZ</code></td><td>Size in bytes of the string table pointed to by <code>STRTAB</code>.</td></tr><tr><td><code>SYMENT</code></td><td>Size of each symbol table entry.</td></tr><tr><td><code>DEBUG</code></td><td>Reserved for debugger use; ignored at runtime.</td></tr><tr><td><code>PLTGOT</code></td><td>Address of the Global Offset Table (GOT) used for dynamic symbol resolution.</td></tr><tr><td><code>PLTRELSZ</code></td><td>Size in bytes of the <code>.rela.plt</code> section.</td></tr><tr><td><code>PLTREL</code></td><td>Type of relocation used in the PLT (<code>RELA</code> or <code>REL</code>).</td></tr><tr><td><code>JMPREL</code></td><td>Address of relocation entries for procedure linkage table (PLT) — e.g. <code>.rela.plt</code>.</td></tr><tr><td><code>RELA</code></td><td>Address of relocation entries with addends — e.g. <code>.rela.dyn</code>.</td></tr><tr><td><code>RELASZ</code></td><td>Size in bytes of the <code>.rela.dyn</code> section.</td></tr><tr><td><code>RELAENT</code></td><td>Size of each entry in <code>.rela.dyn</code>.</td></tr><tr><td><code>FLAGS_1</code></td><td>Flags providing additional behavior control to the dynamic linker (e.g. <code>DF_1_NOW</code>, <code>DF_1_GLOBAL</code>).</td></tr><tr><td><code>VERNEED</code></td><td>Address of the version dependency table (which symbol versions are needed from shared libs).</td></tr><tr><td><code>VERNEEDNUM</code></td><td>Number of entries in the version dependency table.</td></tr><tr><td><code>VERSYM</code></td><td>Address of the version symbol table — gives the version of each symbol in the symbol table.</td></tr><tr><td><code>RELACOUNT</code></td><td>Number of <code>RELA</code> relocations not part of PLT — for optimization.</td></tr><tr><td><code>NULL</code></td><td><strong>Terminator</strong> — marks the end of the dynamic section. No further entries are processed after this.</td></tr></tbody></table>
+
+|  |  |
+|  |
+| Tag | Purpose |
+| NEEDED | Tells the linker a shared library is needed; value is offset into.dynstrpointing to the lib name (e.g."libc.so.6"). Multiple entries can exist. |
+| INIT | Address of a function to run beforemain(). |
+| FINI | Address of a function to run aftermain()returns, orexit()is called. |
+| INIT_ARRAY | Address of an array of constructor function pointers to run beforemain()(more flexible thanINIT). |
+| INIT_ARRAYSZ | Size in bytes of theINIT_ARRAY. |
+| FINI_ARRAY | Address of an array of destructor function pointers to run on exit. |
+| FINI_ARRAYSZ | Size in bytes of theFINI_ARRAY. |
+| GNU_HASH | Address of the GNU-style hash table used for fast symbol lookup (alternative toHASH). |
+| STRTAB | Address of the string table used for dynamic symbols (like lib names, function names). |
+| SYMTAB | Address of the dynamic symbol table (function/variable names, sizes, bindings). |
+| STRSZ | Size in bytes of the string table pointed to bySTRTAB. |
+| SYMENT | Size of each symbol table entry. |
+| DEBUG | Reserved for debugger use; ignored at runtime. |
+| PLTGOT | Address of the Global Offset Table (GOT) used for dynamic symbol resolution. |
+| PLTRELSZ | Size in bytes of the.rela.pltsection. |
+| PLTREL | Type of relocation used in the PLT (RELAorREL). |
+| JMPREL | Address of relocation entries for procedure linkage table (PLT) — e.g..rela.plt. |
+| RELA | Address of relocation entries with addends — e.g..rela.dyn. |
+| RELASZ | Size in bytes of the.rela.dynsection. |
+| RELAENT | Size of each entry in.rela.dyn. |
+| FLAGS_1 | Flags providing additional behavior control to the dynamic linker (e.g.DF_1_NOW,DF_1_GLOBAL). |
+| VERNEED | Address of the version dependency table (which symbol versions are needed from shared libs). |
+| VERNEEDNUM | Number of entries in the version dependency table. |
+| VERSYM | Address of the version symbol table — gives the version of each symbol in the symbol table. |
+| RELACOUNT | Number ofRELArelocations not part of PLT — for optimization. |
+| NULL | Terminator— marks the end of the dynamic section. No further entries are processed after this. |
+
 
 Lots of information we have no idea about. Don't stress about it. We will go through everything. Nothing would be left.
 

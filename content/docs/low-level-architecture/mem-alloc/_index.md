@@ -26,7 +26,14 @@ Primarily there are 4 things associated with a variable.
 
 Storage class answers all of this.
 
-<table><thead style="text-align:left"><tr><th width="123">Storage Class</th><th width="201">Scope &#x26;&#x26; Lifetime</th><th width="179">Default Value (when uninitialized))</th><th>Location</th></tr></thead><tbody><tr><td>auto</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>Stack</td></tr><tr><td>register</td><td>Block scope<br><br>Until the block lives</td><td>Garbage (undefined)</td><td>CPU register (if available)</td></tr><tr><td>static</td><td>File Scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr><tr><td>extern</td><td>Program scope<br><br>Until the program exists in the memory</td><td>0</td><td><code>.data</code> (if initialized non-zero)<br><br><code>.bss</code> (if zero-initialized; or not initialized)</td></tr></tbody></table>
+
+| Storage Class | Scope && Lifetime | Default Value (when uninitialized)) | Location |
+| :--- | :--- | :--- | :--- |
+| auto | Block scopeUntil the block lives | Garbage (undefined) | Stack |
+| register | Block scopeUntil the block lives | Garbage (undefined) | CPU register (if available) |
+| static | File ScopeUntil the program exists in the memory | 0 | .data(if initialized non-zero).bss(if zero-initialized; or not initialized) |
+| extern | Program scopeUntil the program exists in the memory | 0 | .data(if initialized non-zero).bss(if zero-initialized; or not initialized) |
+
 
 Every variable has a storage class associated with it, but usually it is not visible.
 
@@ -154,4 +161,10 @@ If you use `readelf` and inspect the ELF structure of a binary, either you are g
 
 ### Final Mental Model
 
-<table><thead style="text-align:left"><tr><th width="94">Scope</th><th width="156">Default Storage Class</th><th width="147">Explicitly Mentioned</th><th width="145">Storage Location</th><th>Lifetime</th></tr></thead><tbody><tr><td>Block</td><td><code>auto</code></td><td>-</td><td>Stack</td><td>Block</td></tr><tr><td>Block</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td><td>Until the program dies</td></tr><tr><td>File</td><td>-</td><td><code>static</code></td><td><code>.data/.bss</code></td><td>Until the program dies</td></tr><tr><td>Global</td><td><code>extern</code></td><td>-</td><td><code>.data/.bss</code></td><td>Until the program dies</td></tr></tbody></table>
+
+| Scope | Default Storage Class | Explicitly Mentioned | Storage Location | Lifetime |
+| :--- | :--- | :--- | :--- | :--- |
+| Block | auto | - | Stack | Block |
+| Block | - | static | .data/.bss | Until the program dies |
+| File | - | static | .data/.bss | Until the program dies |
+| Global | extern | - | .data/.bss | Until the program dies |

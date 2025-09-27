@@ -113,7 +113,7 @@ So these bytes look daunting. Lets simplify them.
 Therefore:
 
 | Page Tables                | Bytes Managed         | Simplified Size |
-| -------------------------- | --------------------- | --------------- |
+| :--- | :--- | :--- |
 | Plain Page Table           | 2097152 bytes         | 2 MiB           |
 | Page Directory Table       | 1073741824 bytes      | 1 GiB           |
 | Page Directory Index Table | 549755813888 bytes    | 512 GiB         |

@@ -111,7 +111,7 @@ These headers include information (metadata) that identifies a file as an ELF.
 *   Here we have 16 pairs of hexadecimal digits, each representing 1-byte. Therefore, it is 16-bytes long.
 
     | Magic Number Part | Explanation                                                      |
-    | ----------------- | ---------------------------------------------------------------- |
+| :--- | :--- |
     | `7f 45 4c 46`     | This is an ELF file.                                             |
     | `02`              | Architecture is 64-bit (`01` for 32-bit).                        |
     | `01`              | Bits are stored in little-endian notation (`02` for big-endian). |

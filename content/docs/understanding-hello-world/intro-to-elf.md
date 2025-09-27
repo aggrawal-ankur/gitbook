@@ -8,7 +8,7 @@ An executable file is a type of computer file containing instructions that the c
 Executable files differ greatly on Windows and Linux. The reason is that both the environments are designed differently.
 
 | Property                   | Linux                                        | Windows                                 |
-| -------------------------- | -------------------------------------------- | --------------------------------------- |
+| :--- | :--- | :--- |
 | Binary File Format         | Executable and Linkable File Format (or ELF) | Portable Executable File Format (or PE) |
 | File Extension             | No extension required                        | `.exe`, `.dll`                          |
 | System Call Interface      | Linux System Calls (`syscall`)               | Windows NT syscall layer or WinAPI      |
@@ -39,7 +39,14 @@ Regardless of the type of ELF, the structure of an ELF file remains mostly the s
 
 An ELF file can be divided into 4 parts.
 
-<table><thead style="text-align:left"><tr><th width="222">Part</th><th>Importance</th></tr></thead><tbody><tr><td>ELF Header</td><td>Identifies the file as ELF and file metadata.</td></tr><tr><td>Program Header Table</td><td>Used by the dynamic loader at runtime.</td></tr><tr><td>Section Header Table</td><td>Used by the linker at build time.</td></tr><tr><td>Data (segments/sections)</td><td>Includes things which are referred by the above 2 tables, such as code/data/bss and others.</td></tr></tbody></table>
+
+| Part | Importance |
+| :--- | :--- |
+| ELF Header | Identifies the file as ELF and file metadata. |
+| Program Header Table | Used by the dynamic loader at runtime. |
+| Section Header Table | Used by the linker at build time. |
+| Data (segments/sections) | Includes things which are referred by the above 2 tables, such as code/data/bss and others. |
+
 
 If you assembly this code and stop before linking, you'll get an object file.
 

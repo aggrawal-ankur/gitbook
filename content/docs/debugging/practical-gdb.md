@@ -16,4 +16,3 @@ I started my low level journey on May 01, 2025. Today, it is September 25, 2025.
 So the idea is to make a list of all the concepts I have studied so far, write small programs to implement them, load them inside gdb and examine how that theory is implemented practically, to verify if what I read was right or not.
 
 The list below includes everything.
-
