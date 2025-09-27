@@ -38,9 +38,9 @@ n! = n * (n - 1) * (n - 2) * .... * (n - (n-1))
 
 For example - `5! = 120`, which is calculated as:
 
-* `5 * (5 - 1) * (5 - 2) * (5 - 3) * (5 - 4)`&#x20;
-* `5 * 4 * 3 * 2 * 1`&#x20;
-* `120`&#x20;
+* `5 * (5 - 1) * (5 - 2) * (5 - 3) * (5 - 4)`
+* `5 * 4 * 3 * 2 * 1`
+* `120`
 
 A loop based program would be:
 
@@ -59,8 +59,8 @@ int factorial(int n){
 
 To do this with recursion, we need a base condition and recursive condition.
 
-* Base condition: `0! = 1`.
-* Recursive condition: `n * func(n - 1)`&#x20;
+* Base condition: `0! = 1`
+* Recursive condition: `n * func(n - 1)`
 
 The idea is that each recursive call reduces the value of `n`  until it becomes 0. When it becomes zero, return is triggered. And the final return computes `n!` .
 
@@ -285,13 +285,13 @@ This is a compressed view of stack.
 The top stack frame is `rbp=3808` , and is `rsp=3792` here. Let's look at assembly.
 
 * If `(n==0)` , we set `eax=1` (which is the return value) and jump to `.L3` .
-*   The `leave` instruction resets the stack pointer by using `rbp`&#x20;
+*   The `leave` instruction resets the stack pointer by using `rbp`.
 
     ```
     mov rsp, 3808
     ```
 
-    and pops the old base pointer (located in `rsp`) into `rbp`, which changes the current base pointer to the previous stack frame.&#x20;
+    and pops the old base pointer (located in `rsp`) into `rbp`, which changes the current base pointer to the previous stack frame.
 
     ```
     mov rbp, [3808]        ; [3808] = 3840
@@ -299,7 +299,7 @@ The top stack frame is `rbp=3808` , and is `rsp=3792` here. Let's look at assemb
     ```
 
     Now `rsp=3816` and `rbp=3840` .
-*   When we do `pop rip`, it is:&#x20;
+*   When we do `pop rip`, it is:
 
     ```
     mov rip, [3816]
@@ -438,7 +438,7 @@ Now we are inside the `rbp=3936` stack frame.
     imul eax, 4
     ```
 
-    &#x20;`eax` is 6, so the result in `eax` would be 24.
+    `eax` is 6, so the result in `eax` would be 24.
 *   After this, `.L3` is called.
 
     ```
@@ -474,7 +474,7 @@ Now we are inside the `rbp=3968` stack frame.
     imul eax, 5
     ```
 
-    &#x20;`eax` is 24, so the result in `eax` would be 120.
+    `eax` is 24, so the result in `eax` would be 120.
 *   After this, `.L3` is called.
 
     ```
@@ -503,9 +503,9 @@ Sigh. It was crazy, isn't it? Conclusion is still remaining.
 
 ## Conclusion
 
-The only conclusion that is worth reading is that,&#x20;
+The only conclusion that is worth reading is that,
 
-_<mark style="color:$danger;">it's a hoax that low level systems are complex and impossible to understand without the help of some C God. It's a hoax that you can't draw theory, visualize theory. Any idea that restricts you from doing the work to build deep understanding is just a hoax. It takes time and it takes energy, but the output is worth every bit of effort.</mark>_
+*it's a hoax that low level systems are complex and impossible to understand without the help of some C God. It's a hoax that you can't draw theory, visualize theory. Any idea that restricts you from doing the work to build deep understanding is just a hoax. It takes time and it takes energy, but the output is worth every bit of effort.*
 
 It took me a whole day to build this understanding and stack art, roughly \~7h accumulated.
 

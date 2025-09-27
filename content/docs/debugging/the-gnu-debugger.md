@@ -170,23 +170,19 @@ Few things before the exciting part.
 
 ### Stopping The Debugee
 
-
 | Command | Description | Debug Information Required? |
 | :--- | :--- | :--- |
 | break <source_line> | Creates a breakpoint at a memory location. | Not required strictly but works best when provided. |
 | watch <var> | Creates a watchpoint at a memory location. | Not required strictly but works best when provided. |
 | catch <event> | Creates a catchpoint for an event. | No |
 
-
 ### Accessing The Source Code
-
 
 | Command | Description | Debug information Required? |
 | :--- | :--- | :--- |
 | list | Lists 10 lines after or around the original C source code. | Yes |
 | disassemble <symbol> | Dumps the assembler code for the specified symbol. | No |
 | disassemble /s <sym> | Dumps assembly along with the C source it belongs to. | Yes |
-
 
 Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we can tell gdb to use intel syntax as well.
 
@@ -195,7 +191,6 @@ Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we ca
 ```
 
 ### Stack Management
-
 
 | Command | Description | Debug information Required? |
 | :--- | :--- | :--- |
@@ -208,13 +203,11 @@ Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we ca
 | up | To change stack frame away frommain |  |
 | down | To change stack frame towardsmain. |  |
 
-
 ### Execution State Information
 
 **Requirement**: An inferior which has been stopped for inspection.
 
 **Note:** All the commands here are frame-specific. When you change the current stack frame, the values will change. So remember that and save yourself headaches.
-
 
 | Command | Description |
 | :--- | :--- |
@@ -229,13 +222,11 @@ Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we ca
 | info source | Information of the source binary. |
 | info inferiors | GDB can debug multiple sources at once, to see all the programs loaded in the current gdb session, we use this. |
 
-
 ### Managerial Commands
 
 All the i-suffixed commands operate on machine instruction. Their equivalent with no `i` in them operates on C source lines.
 
 * Therefore, the i-suffixed ones work even when there are no debug symbols, because they don't rely on them.
-
 
 | Command | Description | Debug information Required? |
 | :--- | :--- | :--- |
@@ -253,7 +244,6 @@ All the i-suffixed commands operate on machine instruction. Their equivalent wit
 | finish | Execute the process until the selected frame returns. | NA |
 | kill | Kill the inferior being debugged. | NA |
 
-
 This write up is already quite dense so we'll leave it as is. In the next one, we will explore gdb fully practically, no theory.
 
 ## Conclusion
@@ -264,7 +254,7 @@ If you have read my previous write ups, you might remember it, but if you don't,
 
 _**No one is born with knowledge and understanding. You do the work and you build it. That's the recipe.**_
 
-_**In 2025, you have a proper**_ [_**GDB manual**_](https://sourceware.org/gdb/current/onlinedocs/gdb.pdf)_**, spread across 994 pages. You have awesome reference cards. GDB itself comes with a built-in `help` .Make use of these resources.**_&#x20;
+_**In 2025, you have a proper**_ [_**GDB manual**_](https://sourceware.org/gdb/current/onlinedocs/gdb.pdf)_**, spread across 994 pages. You have awesome reference cards. GDB itself comes with a built-in `help` .Make use of these resources.**_
 
 _**This is the age of AI, ask AI chatbots what is this?, why it is like this? They will help you.**_
 
