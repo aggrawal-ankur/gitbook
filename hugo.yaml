@@ -1,4 +1,4 @@
-baseURL: https://hi-anki.github.io/gitbook
+baseURL: https://aggrawal-ankur.github.io/gitbook
 languageCode: en-us
 title: All Things Low Level
 enableGitInfo: true
@@ -25,7 +25,7 @@ menu:
       pageRef: /blogs
       weight: 2
     - name: GitHub
-      url: "https://github.com/hi-anki/gitbook"
+      url: "https://github.com/aggrawal-ankur/gitbook"
       weight: 3
     - name: Search
       weight: 4
