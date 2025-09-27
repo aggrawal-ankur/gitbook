@@ -7,7 +7,7 @@ _**26, 27 September 2025**_
 
 ***
 
-The first idea that we are going to verify is:
+We are going to start with the almighty:
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; "_memory is a flat array of byte addressable blocks_".
 
@@ -26,7 +26,7 @@ int main() {
 
 The variable `x` is of size 32-bits (or 4 bytes) and it is storing a hexadecimal value.
 
-0x12345678 = 305419896
+0x12345678 = 0d305419896
 
 ---
 
@@ -64,28 +64,29 @@ The examine command has the following syntax:
 ```
 
 - FORMAT specifies how we want to inspect memory.
-- ADDRESS refers to the memory location we want to inspect.
+- ADDRESS refers to the memory location we want to start the inspection from.
 
 ### The FORMAT Argument
 
 It is made up of three arguments.
 
-1. How many times?
-2. How to interpret?
-3. How much at once?
+- How many times?
+- How to interpret?
+- How much at once?
+
 
 Let's explore them one by one.
-- **Note: Moving in reverse order is a decisive choice, not a wrongdoing.**
+- **Note: Moving in reverse order is a decisive choice, not a mistake.**
 
 ---
 The third argument specifies how much memory we want to inspect starting from the ADDRESS argument.
 
 | Valid Values | Description |
 | :--- | :--- |
-| b (byte) | Inspect "one block" of memory from the starting ADDRESS. |
-| h (halfword) | Inspect "two blocks" of memory from the starting ADDRESS. |
-| w (word) | Inspect "four blocks" of memory from the starting ADDRESS. |
-| g (giant) | Inspect "eight blocks" of memory from the starting ADDRESS. |
+| b (byte) | Inspect "one block" in memory from the starting ADDRESS. |
+| h (halfword) | Inspect "two blocks" in memory from the starting ADDRESS. |
+| w (word) | Inspect "four blocks" in memory from the starting ADDRESS. |
+| g (giant) | Inspect "eight blocks" in memory from the starting ADDRESS. |
 
 ---
 
@@ -109,6 +110,7 @@ The second argument in FORMAT specifies "how to interpret the value at that memo
 ---
 
 The first argument in FORMAT specifies how many times we want to repeat the act of "memory inspection".
+- This one is a bit confusing and is best understood with an example.
 
 That's all we need to understand about the "examine" command.
 
@@ -148,7 +150,7 @@ Let's talk about assembly.
 
 ---
 
-Run this instruction so that memory is reserved for our variable.
+Run this instruction so that memory gets reserved for our variable.
 ```bash
 (gdb) next
 5         return 0;
@@ -156,16 +158,16 @@ Run this instruction so that memory is reserved for our variable.
 
 Lets examine the memory location now.
 
-### print Command
+### The print Command
 
 "Examine" is for granular access to memory, so using it first might look like we are manipulating facts. That's why we are using `print` which has no shenanigans.
 ```bash
 (gdb) print x
 $1 = 305419896
 ```
+- **Note: print defaults to decimal.**
 
 This shows that memory is allocated correctly.
-  - **Note: print defaults to decimal.**
 
 To get the address of `x`:
 ```bash
@@ -178,14 +180,14 @@ Now we can use "examine".
 
 ### "examine x"
 
-Examine provides multiple ways to access memory and this feature of it will prove that memory is byte addressable and when you store any arbitrary integer of any predefined size, it is distributed evenly on those byte addressable locations and it is the interpretation part that makes it a number.
+Examine provides multiple ways to inspect memory and this feature of it will prove that memory is byte addressable and when you store any arbitrary thing of any predefined size, it is distributed evenly on those byte addressable locations and it is the interpretation part that makes it human readable.
 
-According to the theory we have studied, 0x12345678 as a 32-bit integer would look like `00010010001101000101011001111000` in binary. Let's verify.
+According to the theory we have studied, 0x12345678 as a 32-bit integer would look like `00010010001101000101011001111000` in binary. Let's see.
 
 - We have to interpret the "value at memory" as binary, so we will use `t`.
-- Since it is a 32-bit value, we need to explore 32-bits in total.
-- 32-bits are basically 4-bytes. So we have to explore 4 bytes.
-- When we are exploring "bytes", we use `b` as the size. Since we are exploring 4-bytes, 4 is the number of times we want "examine" to examine the memory starting from 0x7fffffffdc4c.
+- Since it is a 32-bit value, we need to explore 32-bits in total. 32-bits are basically 4-bytes. So we have to explore 4 bytes.
+- When we are exploring "bytes", we use `b` as the size.
+- Since we are exploring 4-bytes, 4 is the number of times we want "examine" to examine the memory starting from 0x7fffffffdc4c.
 
 With that in mind, our command would be:
 
@@ -208,8 +210,7 @@ We are more comfortable with big-endian, but the computer prefers little-endian,
 ```
 
 Matching it with the output of gdb, and it works.
-
-If the memory was laid differently, how is it possible that exploring four consecutive byte addressable locations gave us the exact binary stream for 0x12345678 ?
+- If the memory was laid differently, how is it possible that exploring four consecutive byte addressable locations gave us the exact binary stream for 0x12345678 ?
 
 Still not convincing enough? Let's "examine" a little more.
 
@@ -233,7 +234,7 @@ Take this:
 0x7fffffffdc4c: 0x12345678
 ```
 
-Now, lets explore this byte-by-byte.
+Lets explore this byte-by-byte.
 ```bash
 (gdb) x/4xb &x
 
