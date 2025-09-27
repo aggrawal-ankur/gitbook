@@ -3,7 +3,7 @@ title: Memory Is Byte Addressable
 weight: 6
 ---
 
-_**26 September 2025**_
+_**26, 27 September 2025**_
 
 ***
 
@@ -70,6 +70,14 @@ The examine command has the following syntax:
 
 It is made up of three arguments.
 
+1. How many times?
+2. How to interpret?
+3. How much at once?
+
+Let's explore them one by one.
+- **Note: Moving in reverse order is a decisive choice, not a wrongdoing.**
+
+---
 The third argument specifies how much memory we want to inspect starting from the ADDRESS argument.
 
 | Valid Values | Description |
@@ -128,9 +136,11 @@ We know that `main` is just a procedure, so when we set a breakpoint on `main`, 
 
 In terms of C, the execution is stopped at the "C instruction" which is about to reserve a memory for the "variable x".
 
-In terms of assembly, which is a close representation of machine instructions, "not exact", `main` is a leaf function. So, no need to subtract bytes on the stack as the ABI (System V on Linux 64) guarantees to provide 128 bytes of unused memory.
-- That means, we would have only one instruction which subtracts `rbp` to reserve space for the "variable x" on stack. We can verify that on godbolt.org as well.
-- So in terms of x64 assembly, the execution is stopped right at the instruction which is to reserve memory for the "variable x", which would be somthing like this:
+Let's talk about assembly.
+
+- `main` is a leaf function. The ABI (System V on Linux 64) guarantees to provide 128 bytes of red zone. 
+- That means, we would have only one instruction which uses `rbp` relative addressing to store "variable x" on stack. We can verify that on godbolt.org as well.
+- So in terms of x64 assembly, the execution is stopped right at the instruction which stores the constant ("variable x") on the stack:
   ```asm
   mov DWORD PTR [rbp-4], 305419896
   ```
@@ -184,18 +194,20 @@ With that in mind, our command would be:
 
 0x7fffffffdc4c: 01111000        01010110        00110100        00010010
 ```
+- We get four pairs of 8-bits which correspond to 1-byte each.
+- x64 uses little-endian system, which is why they appear in reverse order.
 
 If we make pairs of 8 in the above mentioned binary representation of 0x12345678, we get:
 ```
 00010010 00110100 01010110 01111000
 ```
 
-Since computers store and access memory in little-endian, because that is more efficient to them, but we see values in big-endian, lets reverse the order of pairs we have created.
+We are more comfortable with big-endian, but the computer prefers little-endian, so let's reverse the order of pairs.
 ```
 01111000 01010110 00110100 00010010
 ```
 
-Matching it with the output of gdb, its the same.
+Matching it with the output of gdb, and it works.
 
 If the memory was laid differently, how is it possible that exploring four consecutive byte addressable locations gave us the exact binary stream for 0x12345678 ?
 
@@ -203,9 +215,9 @@ Still not convincing enough? Let's "examine" a little more.
 
 ---
 
-32-bits of 4-bytes is basically a "word" for gdb, so `x/1bw` should also work?
+32-bits of 4-bytes is basically a "word" for gdb, so `x/1tw` should also work?
 ```bash
-(gdb) x/1bw &x
+(gdb) x/1tw &x
 
 0x7fffffffdc4c: 00010010001101000101011001111000
 ```
@@ -242,9 +254,9 @@ Want to go even further?
 (gdb) x/1xb 0x7fffffffdc4c+3
 0x7fffffffdc4f: 0x12
 ```
-- All these address are 1 byte apart (4c:76, 4d:77, 4e:78, 4f:79).
+- All these address are 1 byte apart (0x4c:76, 0x4d:77, 0x4e:78, 0x4f:79).
 - If the memory is not byte addressable, how incrementing by 1 is providing the next part of the value?
 
-This proves that memory indeed is a flat-array of byte addressable blocks and the illusion of data types is created by splitting the binary stream for that data into chunks of 8 and interpretation rules ensures management on the human side.
-
 ## Conclusion
+
+Examine gives us raw access to memory: you specify how many blocks to read, how to interpret them, and how many times to repeat. What it reveals is that memory is a flat array of byte-addressable blocks. Data types are not a property of memory itself — they are conventions for grouping and interpreting those bytes.
