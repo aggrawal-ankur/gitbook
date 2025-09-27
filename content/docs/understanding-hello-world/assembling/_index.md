@@ -1,8 +1,7 @@
 ---
-description: Now we are going to unleash into ELF structures.
+title: "Assemble: Assembly To Object Code"
+weight: 6
 ---
-
-# Object Code Analysis
 
 ## What is object code?
 

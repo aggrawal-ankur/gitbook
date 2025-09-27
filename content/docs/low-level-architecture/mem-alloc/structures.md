@@ -1,4 +1,7 @@
-# Structures
+---
+title: Structures
+weight: 6
+---
 
 _**2,3, 5, 22 September 2025**_
 

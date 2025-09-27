@@ -1,4 +1,7 @@
-# Analyzing Program Headers Table
+---
+title: "Step 3: Analyzing Program Headers Table"
+weight: 4
+---
 
 Program headers are a set of structures in an ELF file that describe how to create a process image in memory. These are used by the runtime dynamic linker/loader program (or, the interpreter program).
 

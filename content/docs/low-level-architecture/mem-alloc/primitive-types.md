@@ -1,10 +1,9 @@
 ---
-description: >-
-  We have 4 primitive data types: char, int, float, double. But we will take
-  `int` as reference. Rules are same for others.
+title: Primitive Types
+weight: 2
 ---
 
-# Primitive Types
+We have 4 primitive data types: char, int, float, double. But we will take `int` as reference. Rules are same for others.
 
 _**27, 28, 29, 30 August 2025**_
 

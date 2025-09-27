@@ -1,4 +1,7 @@
-# Pointers
+---
+title: Pointers
+weight: 3
+---
 
 ## General Trivia
 

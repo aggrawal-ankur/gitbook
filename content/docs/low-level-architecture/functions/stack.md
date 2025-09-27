@@ -1,4 +1,7 @@
-# Introduction
+---
+title: Introduction To Stack And Functions
+weight: 1
+---
 
 _**August 15 and 16, 2025**_
 
@@ -135,7 +138,7 @@ A procedure is composed of four core components:
 
 The clever use of stack is about implementing stack frames and return context, which requires some general purpose registers, reserved for some specific purposes in the System V ABI.
 
-<table><thead><tr><th width="153">Pointer Register</th><th>Purpose</th></tr></thead><tbody><tr><td><code>rsp</code></td><td>Stack pointer register; holds a pointer to the top of the stack.</td></tr><tr><td><code>rbp</code></td><td>Base pointer register; holds a pointer to the start of a stack frame, acts as a stable pointer as <code>rsp</code> is volatile.</td></tr><tr><td><code>rip</code></td><td>Global instruction pointer register; holds the address of the next instruction.</td></tr></tbody></table>
+<table><thead style="text-align:left"><tr><th width="153">Pointer Register</th><th>Purpose</th></tr></thead><tbody><tr><td><code>rsp</code></td><td>Stack pointer register; holds a pointer to the top of the stack.</td></tr><tr><td><code>rbp</code></td><td>Base pointer register; holds a pointer to the start of a stack frame, acts as a stable pointer as <code>rsp</code> is volatile.</td></tr><tr><td><code>rip</code></td><td>Global instruction pointer register; holds the address of the next instruction.</td></tr></tbody></table>
 
 ### Stack Frame
 

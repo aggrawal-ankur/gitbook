@@ -1,4 +1,7 @@
-# Type Definition
+---
+title: Type Definition
+weight: 8
+---
 
 _**September 07, 2025**_
 

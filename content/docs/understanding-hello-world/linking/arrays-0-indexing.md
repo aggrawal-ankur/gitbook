@@ -1,4 +1,7 @@
-# Why arrays in C follow 0-based indexing?
+---
+title: Why arrays in C follow 0-based indexing?
+weight: 7
+---
 
 ## Premise
 

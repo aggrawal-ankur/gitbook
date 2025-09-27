@@ -1,4 +1,7 @@
-# C -> Assembly
+---
+title: "Compilation: Turning C Into Assembly"
+weight: 5
+---
 
 Let's start our journey with the output of compilation.
 
@@ -10,8 +13,7 @@ gcc -S -masm=intel hello.c -o hello_asm.s
 
 Previously, we've learned that `void main();` is a wrong signature for main function. But if we compile the code with `void main();` signature, we get an almost similar assembly.
 
-{% code title="C_source_to_assembly.asm" %}
-```nasm
+```asm
     .file     "hello.c"
     .intel_syntax noprefix
     .text
@@ -42,12 +44,10 @@ main:
     .ident	"GCC: (Debian 14.2.0-19) 14.2.0"
     .section	.note.GNU-stack,"",@progbits
 ```
-{% endcode %}
 
 And this is the assembly generated for `int main(void);` signature.
 
-{% code title="C_source_to_assembly.asm" %}
-```nasm
+```asm
     .file     "hello.c"
     .intel_syntax noprefix
     .text
@@ -78,7 +78,6 @@ main:
     .ident	"GCC: (Debian 14.2.0-19) 14.2.0"
     .section	.note.GNU-stack,"",@progbits
 ```
-{% endcode %}
 
 It's clear that only line 21 is different, from `nop` to `mov eax, 0`.
 
@@ -118,7 +117,7 @@ If you are not learning passively, you are definitely wondering what about `.cfi
 
 There is something that is missing here. Can you spot it? There is no exit syscall. There is nothing like
 
-```nasm
+```asm
 mov rax, 60
 xor rdi, rdi
 syscall
@@ -133,8 +132,7 @@ Exit is never controlled by our source code.&#x20;
 
 If we visit [https://godbolt.org/](https://godbolt.org/) and paste our source code there, we can find that the assembly generated there is very different. Something like this:
 
-{% code title="asm_from_godbolt_org.asm" %}
-```nasm
+```asm
 .LC0:
     .string "Hello, World!"
 main:
@@ -146,7 +144,6 @@ main:
     pop   rbp
     ret
 ```
-{% endcode %}
 
 In the right section, where the assembly part is displayed, you can find a clickable link to **Libraries**. Above that is green tick. Click on that and you will find that different options are passed to the compiler to optimize the command.
 

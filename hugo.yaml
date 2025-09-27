@@ -39,3 +39,8 @@ menu:
 footer:
   displayCopyright: false
   displayPoweredBy: false
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true

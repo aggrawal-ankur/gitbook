@@ -66,5 +66,5 @@ FORMAT is made up of three arguments.
 
 The third argument specifies how much memory we want to inspect.
 
-<table><thead><tr><th width="488">Description</th><th>Argument</th></tr></thead><tbody><tr><td>To inspect only one block in the memory, or only the address passed as argument.</td><td><code>b</code></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr></tbody></table>
+<table><thead style="text-align:left"><tr><th width="488">Description</th><th>Argument</th></tr></thead><tbody><tr><td>To inspect only one block in the memory, or only the address passed as argument.</td><td><code>b</code></td></tr><tr><td></td><td></td></tr><tr><td></td><td></td></tr></tbody></table>
 

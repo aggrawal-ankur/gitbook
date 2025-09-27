@@ -1,6 +1,7 @@
-# Step 1: Analyzing ELF Headers
-
-## Understanding ELF Headers
+---
+title: "Step 1: Analyzing ELF Headers"
+weight: 1
+---
 
 These are the ELF headers from the object code.
 

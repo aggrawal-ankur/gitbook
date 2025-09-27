@@ -1,4 +1,7 @@
-# After Relocation
+---
+title: After Relocation
+weight: 12
+---
 
 After `.rela.dyn` entries are processed, the interpreter looks at the PLT entries. Since lazy binding is enabled by default, relocations for `.rela.plt` are deferred.
 

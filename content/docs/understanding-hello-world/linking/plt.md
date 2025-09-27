@@ -1,4 +1,7 @@
-# Procedure Linkage Table
+---
+title: Procedure Linkage Table
+weight: 11
+---
 
 ## Problem Statement
 

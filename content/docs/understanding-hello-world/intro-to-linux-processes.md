@@ -1,4 +1,7 @@
-# A Brief Introduction To Processes In Linux
+---
+title: A Brief Introduction To Linux Processes
+weight: 3
+---
 
 ## Premise
 

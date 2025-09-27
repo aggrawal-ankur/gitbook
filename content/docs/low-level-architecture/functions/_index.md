@@ -1,5 +1,5 @@
 ---
-title: Functions And Stack
+title: Stack And Functions
 weight: 4
 ---
 

@@ -1,6 +1,7 @@
-# \`objdump\` Perspective
-
-## Introduction To \`objdump\`
+---
+title: Introduction To objdump
+weight: 1
+---
 
 `objdump` or object dump, is a GNU development tool, which specializes in displaying information from object files.
 

@@ -1,8 +1,9 @@
 ---
-description: How the illusion of data types is created?
+title: Data Types
+weight: 1
 ---
 
-# Data Types
+How the illusion of data types is created?
 
 _**August 18, 2025**_
 
@@ -12,7 +13,7 @@ _**August 18, 2025**_
 
 ### Major Data Types In C
 
-<table><thead><tr><th width="226">Class</th><th>Types</th></tr></thead><tbody><tr><td>Primitive</td><td>char, int, float, double, void</td></tr><tr><td>Derived</td><td>array, pointer, function</td></tr><tr><td>User-defined (Complex)</td><td>struct, union, enum, typedef</td></tr></tbody></table>
+<table><thead style="text-align:left"><tr><th width="226">Class</th><th>Types</th></tr></thead><tbody><tr><td>Primitive</td><td>char, int, float, double, void</td></tr><tr><td>Derived</td><td>array, pointer, function</td></tr><tr><td>User-defined (Complex)</td><td>struct, union, enum, typedef</td></tr></tbody></table>
 
 Note: `void` is only meaningful in functions and pointers.
 
@@ -20,7 +21,7 @@ Note: `void` is only meaningful in functions and pointers.
 
 Size is architecture specific and we are talking about 64-bit only.
 
-<table><thead><tr><th width="258">Data Type</th><th width="491">Size</th></tr></thead><tbody><tr><td>char</td><td>1-byte</td></tr><tr><td>int</td><td>4-byte</td></tr><tr><td>float</td><td>4-byte</td></tr><tr><td>double</td><td>8-byte</td></tr><tr><td>array</td><td>sizeof(data_type) * number_of_blocks</td></tr><tr><td>pointer</td><td>size of the address on an architecture, 8-byte here.</td></tr></tbody></table>
+<table><thead style="text-align:left"><tr><th width="258">Data Type</th><th width="491">Size</th></tr></thead><tbody><tr><td>char</td><td>1-byte</td></tr><tr><td>int</td><td>4-byte</td></tr><tr><td>float</td><td>4-byte</td></tr><tr><td>double</td><td>8-byte</td></tr><tr><td>array</td><td>sizeof(data_type) * number_of_blocks</td></tr><tr><td>pointer</td><td>size of the address on an architecture, 8-byte here.</td></tr></tbody></table>
 
 `char` is generally 1-byte across all architectures and implementations while `int` is implementation depended. Although the common size of `int` is 4-bytes on 64-bit but there is a complete header file called `inttypes.h` which provides so many int.
 

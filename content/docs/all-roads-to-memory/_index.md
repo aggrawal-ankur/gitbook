@@ -3,8 +3,6 @@ title: All Roads To Memory
 weight: 4
 ---
 
-# All Roads To Memory
-
 _**August 9, 2025 (init write up)**_
 
 _**September 13, 2025 (rewriting that because of dynamic memory allocation)**_

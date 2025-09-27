@@ -1,14 +1,15 @@
-# Why main Function Shouldn't Be Of Type \`void\` ?
+---
+title: Why main Function Shouldn't Be Of Type void ?
+weight: 4
+---
 
-{% code title="hello.c" %}
-```c
+```c {filename="hello.c"}
 #include <stdio.h>
 
 void main(){
   printf("Hello, World!\n");
 }
 ```
-{% endcode %}
 
 But when I started analyzing it, I found out that `void` signature for main function is not valid. And I was shocked.
 

@@ -1,4 +1,7 @@
-# Linked ELF Analysis
+---
+title: "Linking: Object Code To Executable Binary"
+weight: 7
+---
 
 ## Setup
 

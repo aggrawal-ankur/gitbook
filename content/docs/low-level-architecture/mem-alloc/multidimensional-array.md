@@ -1,4 +1,7 @@
-# Multidimensional Array
+---
+title: Multidimensional Array
+weight: 5
+---
 
 ## General Trivia
 

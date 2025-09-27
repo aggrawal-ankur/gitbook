@@ -1,4 +1,7 @@
-# What Are Addends?
+---
+title: What Are Addends?
+weight: 8
+---
 
 An addend is a constant value added to the symbol's address during relocation.
 

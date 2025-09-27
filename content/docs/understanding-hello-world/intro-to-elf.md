@@ -1,10 +1,7 @@
 ---
-description: >-
-  This article explores Executable & Linkable File Format (popularly known as
-  ELF).
+title: A Brief Introduction To ELF
+weight: 2
 ---
-
-# A Brief Introduction To ELF
 
 An executable file is a type of computer file containing instructions that the computer's processor can directly execute.
 
@@ -42,19 +39,17 @@ Regardless of the type of ELF, the structure of an ELF file remains mostly the s
 
 An ELF file can be divided into 4 parts.
 
-<table><thead><tr><th width="222">Part</th><th>Importance</th></tr></thead><tbody><tr><td>ELF Header</td><td>Identifies the file as ELF and file metadata.</td></tr><tr><td>Program Header Table</td><td>Used by the dynamic loader at runtime.</td></tr><tr><td>Section Header Table</td><td>Used by the linker at build time.</td></tr><tr><td>Data (segments/sections)</td><td>Includes things which are referred by the above 2 tables, such as code/data/bss and others.</td></tr></tbody></table>
+<table><thead style="text-align:left"><tr><th width="222">Part</th><th>Importance</th></tr></thead><tbody><tr><td>ELF Header</td><td>Identifies the file as ELF and file metadata.</td></tr><tr><td>Program Header Table</td><td>Used by the dynamic loader at runtime.</td></tr><tr><td>Section Header Table</td><td>Used by the linker at build time.</td></tr><tr><td>Data (segments/sections)</td><td>Includes things which are referred by the above 2 tables, such as code/data/bss and others.</td></tr></tbody></table>
 
 If you assembly this code and stop before linking, you'll get an object file.
 
-{% code title="hello.c" %}
-```c
+```c {filename="hello.c"}
 #include <stdio.h>
 ​
 int main(void){
   printf("Hello, World!\n");
 }
 ```
-{% endcode %}
 
 ```bash
 gcc -c hello.c hello_object.o

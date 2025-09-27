@@ -1,13 +1,11 @@
 ---
-description: Here we'll uncover the C build process behind those ‘magical’ commands.
+title: Build Process In C
+weight: 1
 ---
-
-# Build Process In C
 
 To compile this source, we can use a variety of compilers.
 
-{% code title="hello.c" %}
-```c
+```c {filename="hello.c"}
 #include <stdio.h>
 ​
 int main(){
@@ -15,7 +13,6 @@ int main(){
   return 0;
 }
 ```
-{% endcode %}
 
 Here we are using `gcc`.
 

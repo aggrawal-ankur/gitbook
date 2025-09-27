@@ -1,6 +1,7 @@
-# Full Disassembly
-
-## Premise
+---
+title: Full Disassembly
+weight: 2
+---
 
 While analyzing the object code, we have checked out full disassembly of the compiled file. We can do that here as well.
 

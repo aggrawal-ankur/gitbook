@@ -1,4 +1,7 @@
-# Parameter Passing
+---
+title: Parameter Passing
+weight: 3
+---
 
 _**5 September 2025**_
 
