@@ -30,7 +30,7 @@ Over time, GitBook began failing at the very things it was good at:
 Since I had already explored alternatives, I switched immediately:
 
 1. Picked Hugo with the Hextra theme for its balance of speed, flexibility, and polish. Learned them and started migration.
-2. Migration took 8h 14m total (6h 44m on Sept 26, plus 1h 30m on Sept 2 for prep work).
+2. Migration took 8h 14m total (6h 44m on September 26, 2025 and 3h 22m on September 27, 2025).
 
 Now my site is stable, extensible, and independent of a hosted editor.
 
