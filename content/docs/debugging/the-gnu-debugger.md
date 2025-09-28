@@ -1,6 +1,6 @@
 ---
 title: The GNU Debugger
-weight: 4
+weight: 3
 ---
 
 _**24, 25 September 2025**_

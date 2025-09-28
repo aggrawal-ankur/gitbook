@@ -1,6 +1,6 @@
 ---
 title: What Powers Debuggers? — 2
-weight: 3
+weight: 2
 ---
 _**23 September 2025**_
 

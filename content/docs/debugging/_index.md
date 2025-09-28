@@ -5,6 +5,8 @@ weight: 5
 
 _**21 September 2025**_
 
+***22, 23 September 2025 (merged the next article)***
+
 ***
 
 The most popular debugger on Linux is the GNU Debugger, bettern known as gdb. There are two way to learn it.
@@ -24,3 +26,17 @@ You might have guessed it already, we are going for the second method. And I hav
    - The second method is to understand debugging as a concept and gdb as one of its implementations. Learning debugging as a concept is a **transferable skill**, as the fundamentals don't change across systems and architecture. The rules remains the same, only the implementation changes.
 
 The more you can prioritize on **transferable skills**, the more you are consciously choosing to pay upfront to avoid chaos later. And here we do exactly that.
+
+---
+
+At its core, _**debugging**_ can be defined as a process of actively observing and controlling a program to understand what it’s doing, why it’s doing it, and how to manipulate it.
+
+A **debugger** is like a sentinel being who can observe everything about a process and change it against its will. It's like _S2 Loki (A Marvel Studious TV Series)_.
+
+Any debugger primarily does these three things:
+
+* Stop execution at a known point (breakpoints, signals, traps)
+* Inspect program state (memory, registers, stack, variables)
+* Modify execution if needed (change variable values, registers, or program counter)
+
+To understand debuggers, we have to understand what enables debugging. Otherwise, gdb will feel black magic.
