@@ -19,21 +19,24 @@ params:
 
 menu:
   main:
+    - name: Learning Process Optimization
+      pageRef: /blogs/learning-process
+      weight: 1
     - name: Write Ups
       pageRef: /docs
-      weight: 1
+      weight: 2
     - name: Blogs
       pageRef: /blogs
-      weight: 2
+      weight: 3
     - name: GitHub
       url: "https://github.com/aggrawal-ankur/gitbook"
-      weight: 3
-    - name: Search
       weight: 4
+    - name: Search
+      weight: 5
       params:
         type: search
     - name: Theme Toggle
-      weight: 5
+      weight: 6
       params:
         type: theme-toggle
 
