@@ -30,4 +30,4 @@ This will benefit us in two ways:
 
 Below is the list of all the "theory" we are going to relive/verify with gdb. **Note: The list is updated progressively with each exploration.**
 
-1. [Memory is a flat-array of byte addressable block](./memory-is-byte-addressable.md)
+1. [Memory is a flat-array of byte addressable blocks](./memory-is-byte-addressable.md)
