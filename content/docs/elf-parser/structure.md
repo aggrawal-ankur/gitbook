@@ -1,9 +1,7 @@
 ---
-title: Idea & Structure
+title: Project Design
 weight: 1
 ---
-
-## Project Design
 
 The whole project can be divided into two parts.
 
