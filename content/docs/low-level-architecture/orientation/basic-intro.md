@@ -7,26 +7,20 @@ Learning assembly is not similar to learning yet another programming language. T
 
 ## Memory (RAM)
 
-Imagine a room of personal-lockers inside of a bank. Every locker is the same.
-
-1. Same size and color,
-2. Same capacity,
-3. Same access mechanism, and
-4. An addressing system to uniquely identify them.
+Imagine a room of personal-lockers inside a bank. Every locker has the same size, color, capacity, access mechanism and all the lockers are managed by an addressing system, which uniquely identifies them.
 
 A locker can contain anything, but what identifies them commonly is **valuables**. A person can keep gold or silver items while another person can keep the photos of their family. Items are different but both of them identifies as a _valuable_.
 
-Similarly, memory is a huge collection of boxes, which have common properties, like:
-
-1. They are fixed in capacity, 1 byte (or 8-bits).
-2. Each box is identified by a unique number, called **memory address**.
+Similarly, computer memory is a huge collection of boxes, where each box has the same capacity of 1 byte (or 8-bits) and all the boxes are uniquely identified by **memory addresses**.
 
 Just as a locker itself can't identify its contents, everything is just a valuable, the same is with memory.
 
-* Everything is raw bytes. What defines a byte as an integer, a decimal, an emoji, an alphabet is the interpretation of that byte (or a group of bytes).
+* Everything is just raw bytes. What defines a byte as an integer, a decimal, an emoji, an alphabet is the interpretation of that byte (or a group of bytes).
 * Previously, we have read that **context** and **interpretation** is what that rules assembly. We can see it in practice here.
 * A byte can be interpreted as digit, as an alphabet. When those same bytes are grouped, and interpreted, their meaning changes.
-* Context decides the kind of interpretation required in order to get the right meaning out of those bytes.
+* Context decides the kind of interpretation required in order to get the right meaning out of those bytes. That's how the "illusion of data types" is created.
+
+**Note: The illusion of data types is quite dense and uncovering it is not as simple as it looks. Throughout  this journey, we will understand it and uncover it. Remember not to hurry**
 
 ## Central Processing Unit
 
@@ -82,8 +76,8 @@ Just like memory, registers also hold bits. It's up to you to interpret them cor
 
 Mainly, there are two types of registers:
 
-1. **General Purpose Registers**, this is where the main action happens. Addition, subtraction, multiplication, comparisons, and other operations generally use GPRs. They are expansive and are very less in number. There are 16 GPRs in x86\_64 (amd64 or 64-bit) architecture.
-2. **Special Purpose Registers**, self-explanatory?
+- **General Purpose Registers**, this is where the main action happens. Addition, subtraction, multiplication, comparisons, and other operations generally use GPRs. They are expansive and are very less in number. There are 16 GPRs in x86\_64 (amd64 or 64-bit) architecture.
+- **Special Purpose Registers**, self-explanatory. 
 
 ## Size/Width Of A Register
 
@@ -94,6 +88,8 @@ It is architecture dependent. 32-bit systems has a word size of 32-bits or 4-byt
 Word is the size of the registers in a particular CPU architecture.
 
 "Word" is the fundamental unit of CPU. Just like _m/s_ is for velocity.
+
+**Note: "Word" as a terminology is used quite loosely across different things. Therefore, remembering the context in which we are using it is paramount to prevent confusion. In this low level journey, the context is only assembly so anywhere we use "word", refers to assembly only.**
 
 ## What is 32-bit && 64-bit?
 
@@ -120,7 +116,7 @@ Take this, there are handful of firms that research on semiconductor chips, but 
 
 ## Assembly-Time vs Run-Time
 
-Assembler directives mean nothing to the CPU. They exist to streamline development. Assembler resolves them into machine understandable things while assembling the code. This is called assembly-time management. (Checkout [a-high-level-overview-of-build-process-in-c.md](../../understanding-hello-world/a-high-level-overview-of-build-process-in-c.md "mention"))
+Assembler directives mean nothing to the CPU. They exist to streamline development. The assembler resolves them into machine understandable things while assembling the source into object code. This is called assembly-time management.
 
 There are things that are consistent across all the assemblers because the CPU directly understand them. These are runtime managed things.
 

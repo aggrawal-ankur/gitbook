@@ -3,16 +3,14 @@ title: Historical Introduction
 weight: 1
 ---
 
-Assembly is a low-level programming language, which provides direct-access over computer hardware. It almost maps one-to-one with machine instructions.
+Assembly is a low-level programming language, which provides direct-access over computer hardware. It maps almost one-to-one with machine instructions.
 
 Assembly is the closest we can get to the CPU while still understanding what's going on.
 
 What distinguishes assembly from other programming languages is that **every CPU architecture** (like x86, ARM, MIPS, RISC-V) has its **own assembly language**.
 
-Why different flavors of assembly exist?
-
-* Because of the **Instruction Set Architecture (ISA)**.
-* Each CPU has its own set of instructions, which creates demand for specific-assembly.
+Different flavors of assembly exist because every CPU has a different **Instruction Set Architecture (ISA)**.
+- In simple words, ISA lists all the capabilities of a CPU.
 
 ----
 
@@ -24,7 +22,7 @@ The x86 ISA is a **Intel's proprietary**, but other companies (notably **AMD**) 
 
 All these processors share the same **Instruction Set Architecture (ISA)** and are collectively known as **x86**.
 
-The original **8086** was a **16-bit** processor. Intel extended it to **32-bit**, known as **IA-32** (or x86\_32). Then in **2003**, AMD extended the architecture to **64-bit**, releasing **AMD64**. Intel later adopted the same ISA, calling their version **Intel 64** — both are **functionally identical**.
+The original **8086** was a **16-bit** processor. Intel extended it to **32-bit**, known as **IA-32** (or x86_32). Then in **2003**, AMD extended the architecture to **64-bit**, releasing **AMD64**. Intel later adopted the same ISA, calling their version **Intel 64** — both are **functionally identical**.
 
 Since Intel designed the architecture, they also defined the original syntax for its assembly — known as, **Intel syntax**. This style is widely used in **Microsoft** development tools and the **Windows** ecosystem.
 
@@ -48,17 +46,27 @@ When **Linux** was created in **1991**, it relied heavily on GNU tools like **GC
 
 ## Which Syntax We Are Going To Use?
 
-We are learning assembly, not syntaxes. The only thing that matters here is an assembler. Because an assembly code heavily uses assembler directives. That's it.
+We are learning assembly, not syntaxes. The only thing that matters here is the assembler program. Because assembly programs are assembler dependent.
 
-We will write intel syntax and use GAS. Because, the operand style matches the mathematical style, `LHS = RHS`.
+- Right now, if you write a hello world program in C and compile it with `gcc`, it works. You use `clang`, it works again. But that's not the case with assembly.
+- If you use netwide assembler, your assembly program would be different then the person who used GNU assembler.
+- This difference is based on assembler directives. Each assembler has different set of directives. So the idea remains the same, only the implementation changes.
+- But the object code generated after assembling the assembly source remains the same, whether you use `nasm` or `as`. Check out the [C build process](../../understanding-hello-world/build-process-in-c.md) article if you are feeling uneasy.
+
+Take assemblers as different dialects of a language.
+- One uses "Hi", the other uses "Hello".
+- In the end, both are processed as "greeting" by the other person.
+
+We will use GNU assembler because we are on Linux 64-bit as the GNU toolchain is readily available here. But we will write intel syntax as it is more clear and the operand style matches the mathematical style.
 
 ```
-// Intel
+// Intel Syntax
 mnemonic destination, source
 
-// AT&T
+// AT&T Syntax
 mnemonic source, destination
 ```
+  - Don't worry about mnemonic, we will understand them soon.
 
 **Learn Assembly, Not Syntaxes.**
 
@@ -73,10 +81,15 @@ High level languages abstract the core functionality. Their core purpose is to p
 Assembly, on the other hand, is completely raw. There's no abstraction. Everything is open and the programmer has to write every single instruction themselves.
 
 This exposes the reality that even a simple "Hello, World!" program requires multiple low-level steps before it can actually run.
+  - Just to prove the depth of this statement, check out the hello world series [here](../../understanding-hello-world/_index.md)
+  - This series proves that even hello-ing the world is not simple when you account the low level angle.
+
+Anyways, let's come back to assembly.
 
 ### 2. Platform Dependency
 
-We are used to download python for our windows, Linux or mac machine and start coding. We don't have to worry about how CPU will understand our hand writing.
+Languages like python are easy to download. Just grab the right installer for your OS and start coding. We don't have to worry about how CPU will understand our hand writing because that's taken care by the developer.
+- Python code written on Mac works flawlesely on Windows, two completely different operating systems.
 
 But assembly doesn't work like that. It is **architecture-dependent**. Assembly written for x86 will not work on ARM.
 
@@ -86,18 +99,16 @@ Assembly gives you **maximum control**, at the cost of **convenience**.
 
 What is convenience?
 
-* **Pretty and verbose named variables**? Not in assembly. You work directly with memory and registers.
+* **Pretty and verbose named variables**? Nah. You work with memory and registers directly.
 * **Data types**? Everything is just bytes. It's up to **you** to interpret the bytes as intended.
 * **Control flow**? Nothing is built in. You implement it using jump instructions.
-* **Loops**? You use jump statements to create them as well.
-* **I/O**? Use direct syscalls. No dedicated `printf` and `scanf`
+* **Loops**? Jump statements.
+* **I/O**? Direct syscalls. No printf/scanf.
 * **Data Structures**? **Functions**? **DO. IT. YOURSELF.**
 
-You have got every raw material, and building anything is your responsibility.
+You are given all the raw material, and building anything is your responsibility.
 
 ----
-
-How these things exist then? We will explore each of them soon.
 
 ## Fun Fact
 
