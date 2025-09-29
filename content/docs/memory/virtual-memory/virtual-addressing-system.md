@@ -5,6 +5,8 @@ weight: 2
 
 _**August 11 and 12, 2025**_
 
+***September 29, 2025 (moved to vas.md)***
+
 ***
 
 ## A Virtual Address
@@ -56,62 +58,3 @@ The virtual address space is split into two halves for user space and kernel spa
 * The middle region (`x00007FFFFFFFFFFF to 0xFFFF800000000000`) is unused guard space.
 
 **Note: The split is logical and exist only in virtual memory, except the hardware enforced rules.**
-
-### What are user space and kernel space really?
-
-In simple words, user space and kernel space are two logical distinctions within the virtual memory layout.
-
-This logical distinction is achieved by access control (privileges) and protection rights, which are enforced both at the hardware level (CPU) and the software level (OS).
-
-User space is the portion where unprivileged jobs are managed and kernel space is where privileged jobs are managed.
-
-A definition which is quite popular is that user space is where **user mode** applications run and kernel space is where the **OS Kernel** runs or privileged tasks are executed. This doesn't sound accurate to me for one reason.
-
-* A task is usually made up of multiple atomic jobs. And we can verify this with assembly. An action as simple as printing something to standard output can involve multiple steps.
-* A task itself can't be tagged as privileged or unprivileged. The atomic jobs that actually do something are the ones that can be actually tagged.
-* For example, running _VS Code_ is a user space action but within that are several thousands of actions, many of which aren't possible without privileged access. Like writing code, which is an I/O operation inside a file, which is a privileged job.
-* Therefore, it is a little ambiguous to say that "_user space runs user mode applications and kernel space runs elevated tasks_" or something like that. Saying that "_user space executes unprivileged jobs and kerne space executes privileged jobs_" is far more accurate in my opinion.
-
-### Why this distinction exist?
-
-There is no limit on what you can execute, which creates problems. There malwares and other program threatening the functioning of the hardware.
-
-This distinction ensures that programs can be contained by default. Its a version of _**deny by default, allow by exception**_ strategy. Anything is considered unsafe before it passes the kernel's checks.
-
-And any attempt to access privileged area doesn't get unnoticed. And if it is inappropriate, the system denies it.
-
-There is a proper mechanism through which the execution mode switches from user space to kernel space, when required.
-
-### Analogy
-
-Consider an office space with employees of different kinds. And there is a room for the boos.
-
-The boss's room is what kernel space is really is. Only privileged access is allowed and rest has to undergo a process to come there.
-
-Then there is general area which is accessible to everyone as long as they are an employee in the company. This is out user space.
-
-When you need to something that requires permission from the boss, you go through a standard process, which is exactly how the execution context changes from user space to kernel space when required.
-
-### Hardware Enforced Privilege Levels
-
-**Rings** are hardware-enforced CPU privilege levels, which forms a core part of how modern processors (like x64) separates trusted code (kernel) from untrusted (user) code.
-
-CPUs implement multiple **protection rings** numbered 0 to 3, with:
-
-* **Ring 0 = highest privilege (kernel mode)**
-* **Ring 3 = lowest privilege (user mode)**
-* **Rings 1 and 2** exist but are rarely used in mainstream Linux.
-
-System calls cause a CPU privilege level switch from Ring 3 → Ring 0.
-
-
-
-
-
-
-
-
-
-
-
-
