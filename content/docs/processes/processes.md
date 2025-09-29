@@ -1,84 +1,79 @@
 ---
-title: Introduction To  LinuxProcesses
+title: Introduction To Linux Processes
+weight: 1
 ---
 
-A process is an instance of a running program. Every time you execute a command or run a program, the Linux kernel creates a process to run it.
+To execute a binary, Linux kernel creates a **process**.
 
-Every process gets a virtual address space (VAS), which is mostly made up of the program image.
+*A **process** is a running instance of a binary.*
 
-* A virtual memory address (VMA) is the same as the name of a street and the physical memory address (PMA) is the actual GPS coordinates.
-* Two cities can have a "main street" but their coordinates would be unique.
-* Every process gets its own isolated address space, thanks to virtual memory. So your program might access 0x400000, but that doesn't mean that's the physical address.
-* The OS + hardware's MMU (Memory Management Unit) maps VMA to PMA.
-* Without the MMU, all processes would share the same memory space — like roommates with no walls.
+So far, we know that:
+
+- Every process gets its own isolated address space, thanks to virtual memory. This gives processes an illusion that they have the whole memory.
+- A virtual memory address (VMA) is the same as the name of a street and the physical memory address (PMA) is the actual GPS coordinates. Two cities can have a "main street" but their coordinates would be unique.
+- The OS + hardware's MMU (Memory Management Unit) maps VMA to PMA. Without the MMU, all processes would share the same memory space — like roommates with no walls.
   * A bug in one process could overwrite another process's memory.
   * With MMU, each process gets its own private virtual address space. It's still messy on ground level but easier for management. It's a nice abstraction.
 
-***
+Let's move further.
 
 ## Process Hierarchy
 
 Processes follow a tree like structure in linux.
 
 * The first process is `init` or `systemd`, depending on the system, which is started by the kernel. It's PID is 1, and PPID is 0.
-* Every process is created by another process (its parent process).
 * Every process is a descendant of the `init` process.
-* Processes follow a parent-child relationship. Although each process is independent in nature, and the execution of a sub-process doesn't hinder the execution of the parent process, still, the child process is linked with the parent process and it has to report its exit status.
+* Processes follow a parent-child relationship. Every new process (child process) is created by an existing process (parent process).
+* Although each process is independent in nature and the execution of a child process doesn't hinder the execution of the parent process or vice-versa, still, the child process is linked with the parent process and it has to report its exit status.
 
 To view the tree like structure of processes, use `pstree`.
 
+---
+
 Why does process hierarchy exists? Why can't processes be truly independent?
 
-* To understand this, we need to understand how processes are created.
-
-***
+- To understand this, we need to understand how processes are created.
 
 ## Process Creation
 
 It is a 4 step "process".
 
-
 | Step | Description | Syscall |
 | :--- | :--- | :--- |
 | 1 | Clone the current process | fork() |
-| 2 | Replaces the process image with the new program in the cloned process | exec() |
+| 2 | Replace the process image of the cloned process with the new binary. | exec() |
 | 3 | Parent waits for the child to finish | wait() |
-| 4 | Process finishes and returns the status to the parent | exit() |
+| 4 | Child finishes and returns the status to the parent | exit() |
 
+Each process may require some helper processes.
 
-Each process may require other helper processes.
-
-* For example, when I did `pstree`, I found that VS Code is not a standalone process. It has a lot of sub-processes. Like the terminal opened within VS Code comes under it, not as a fully independent process with no parent.
+* For example, when I did `pstree`, I found that VS Code is not a standalone process. It has a lot of child processes. Like the terminal opened within VS Code comes appears as a child process under the VS Code process.
 * The same is with Firefox and everything else.
 
 Hierarchical structure is not just a design philosophy, but a very logical decision.
 
-* It is a proper way to manage which process spawned which sub-process.
-* We fork the calling process (parent process), keep the identifying metadata as it is and replace the old process image with the new one. This ensures that the child process has proper links to the parent process, without any hustle.
+* It's a very efficient way to organize all the processes in the system.
+* We fork the current process (parent process), keep the identifying metadata as it is and replace the old process image with the new one. This ensures that the child process has proper links to the parent process, without any hustle.
 
-Every process is independent in its execution. But it is answerable to the parent process so that it knows if the sub-process exited successfully or it acquired any problem.
+Why the child process needs to be linked with the parent process?
 
-* Just like children, who are although independent but they are always answerable to their parents.
-
-***
+- Every process is isolated and independent in its execution. But how will the parent process know if the child process is completed and has exited?
+- That's why this "linkage" exist. It ensures that the parent process (like VS Code) has enough information about the state of the child processes they spawn (terminals, file I/O) so that they can make better decisions to manage them.
 
 ## Key Properties Of A Process
 
-| Property                 | Description                                                   |
+| Property | Description |
 | :--- | :--- |
-| PID (Process ID)         | Unique identifier of a process.                               |
-| PPID (Parent Process ID) | Unique identifier of the process that created the PID process |
-| UID (User ID)            | Who owns the process                                          |
-| State                    | Running, sleeping, zombie etc....                             |
-| Memory Info              | RAM consumption                                               |
-| Executable code and data | What it’s running and working with                            |
+| PID (Process ID)         | Unique identifier of a process. |
+| PPID (Parent Process ID) | Unique identifier of the process that created the PID process. |
+| UID (User ID)            | The user who owns the process. |
+| State                    | Running, sleeping, zombie etc. |
+| Memory Info              | RAM consumption                |
+| Executable code and data | What it is running and working with. |
 
-***
+## A Theoretical Example
 
-## A Real Example
-
-We are going to run an ELF binary made from this C code and see how Linux does all the magic.
-
+We are going to run a binary made from this C program.
 ```c
 #include <stdio.h>
 #include <unistd.h>    // sleep()
@@ -90,25 +85,21 @@ int main(void){
 ```
 
 To get the final ELF binary:
-
 ```bash
 gcc main.c -o main_elf
 ```
 
-### Step1 - Call The Binary
+### Call The Binary
 
-To call or execute the binary (`main_elf`), we need a shell (or terminal).
+To call/execute the binary (`main_elf`), we need a shell (or terminal).
 
 I have opened my shell, which is zsh.
-
 ```bash
 $ echo $SHELL
-
 /usr/bin/zsh
 ```
 
-`zsh` itself is a "running" process.
-
+`zsh` itself is a "running" process. We can verify that with `ps`.
 ```zsh
 $ ps
   
@@ -117,18 +108,16 @@ PID       TTY       TIME         CMD
 49852     pts/0     00:00:00     ps
 ```
 
-Run the binary in background so that we can retain the shell session.
-
+We will run the binary in background so that we can retain the shell session and the capability to examine it.
 ```bash
 $ ./main_elf &
 
 [1] 52184
 ```
 
-`ps` \~
-
+With ps, we can see all the child processes of the current terminal session.
 ```bash
-$ ps                
+$ ps               
 
 PID       TTY       TIME         CMD
 41027     pts/0     00:00:02     zsh
@@ -139,7 +128,7 @@ PID       TTY       TIME         CMD
 Since main\_elf is executed within zsh, zsh must be the parent of main\_elf? Lets verify this.
 
 ```bash
-$ ps -T -o pid,ppid,cmd
+$ ps -o pid,ppid,cmd
 
 PID     PPID    CMD
 41027   40797   /usr/bin/zsh -i
@@ -147,59 +136,121 @@ PID     PPID    CMD
 59559   41027   ps -T -o pid,ppid,cmd
 ```
 
-* `-T` shows processes for the current terminal session.
-* `-o` helps in custom formatting.
+- `-o` helps in custom formatting.
 
-This proves that the `zsh` process was forked and the child process (main\_elf) born from it.
+Notice the PID of zsh process is the PPID of the main_elf process. This proves the parent-child relationship between `zsh` and `main_elf`.
 
-Until now, we can say that a base template for the child process is created.
+This also proves that `fork()` was called on the zsh process.
 
-* Now we have to find the evidence for the process image replacement.
+---
 
-***
-
-### Step2 - Correct (Replace) The Process Image In The Child Process (Fork)
-
-A fork is a near-clone of the parent process. But the child process is a different program than the parent. Therefore, the process image must have been changed.
+A fork is a near-clone of the parent process. It is not an exact clone because things like PPID (and other metadata) are different for obvious reasons.
+- But the child process have a different binary than the parent. Therefore, the process image must be replaced.
 
 `strace` is a Linux utility which helps in tracing all the syscalls a process has executed.
 
 If we run our program with `strace`, like this:
-
 ```bash
-strace ./main_elf
+$ strace ./main_elf
+
+execve("./out", ["./out"], 0x7ffe0b2853a0 /* 56 vars */) = 0
+brk(NULL)                               = 0x561db0e70000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4405902000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=79019, ...}) = 0
+mmap(NULL, 79019, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f44058ee000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0p\236\2\0\0\0\0\0"..., 832) = 832
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 840, 64) = 840
+fstat(3, {st_mode=S_IFREG|0755, st_size=2003408, ...}) = 0
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 840, 64) = 840
+mmap(NULL, 2055800, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f44056f8000
+mmap(0x7f4405720000, 1462272, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x28000) = 0x7f4405720000
+mmap(0x7f4405885000, 352256, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x18d000) = 0x7f4405885000
+mmap(0x7f44058db000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1e2000) = 0x7f44058db000
+mmap(0x7f44058e1000, 52856, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f44058e1000
+close(3)                                = 0
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f44056f5000
+arch_prctl(ARCH_SET_FS, 0x7f44056f5740) = 0
+set_tid_address(0x7f44056f5a10)         = 22924
+set_robust_list(0x7f44056f5a20, 24)     = 0
+rseq(0x7f44056f5680, 0x20, 0, 0x53053053) = 0
+mprotect(0x7f44058db000, 16384, PROT_READ) = 0
+mprotect(0x561d7a7b4000, 4096, PROT_READ) = 0
+mprotect(0x7f440593e000, 8192, PROT_READ) = 0
+prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+munmap(0x7f44058ee000, 79019)           = 0
+fstat(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(0x88, 0x1), ...}) = 0
+getrandom("\xf5\x5d\x3a\x53\x4e\x3d\x5b\x81", 8, GRND_NONBLOCK) = 8
+brk(NULL)                               = 0x561db0e70000
+brk(0x561db0e91000)                     = 0x561db0e91000
+clock_nanosleep(CLOCK_REALTIME, 0, {tv_sec=1, tv_nsec=0}, 0x7ffc48c784e0) = 0
+write(1, "Hello, World!", 13)           = 13
+exit_group(0)                           = ?
++++ exited with 0 +++
 ```
 
-we can find a long list of output, which starts from `execve`.
+It gives us lead to the next thing, `execve`.
 
-What is `execve`?
+### What is execve?
 
-* In simple words, `execve` is a syscall which executes a binary.
-* In real terms, `execve` is a syscall which executes a binary passed in the `pathname` argument by replacing the process image of the current process (not the child process, the current process).
-* `execve` is designed to be paired with `fork` in order to fit Linux's hierarchical process structure.
-* This is the signature of the `execve` syscall, `int execve(const char *pathname, char *const _Nullable argv[], char *const _Nullable envp[]);`
-  * `pathname` is the name of the binary.
-  * `argv[]` is a `NULL` terminated array of arguments passed to the binary.
-  * `envp[]` is a `NULL` terminated array of environment variables required in the process image.
+It is a syscall which executes a binary passed to it as an argument. It does that by replacing the process image of the current process (not the child process, the current process) with the new binary, effectively running a different program without creating a new process.
+- `execve` is designed to be paired with `fork()` in order to fit Linux hierarchical process structure.
 
-***
+This is the signature of the `execve` syscall:
+```c
+int execve(const char *pathname, char *const _Nullable argv[], char *const _Nullable envp[]);
+```
 
-What is a process image?
+Welcome to C lessons once again.
 
-* Just imagine how crazy and chaotic it would get to manage millions of process inside a single RAM, with all demanding various services including stack and heap.
-* This is why an abstraction known as virtual address space (VAS) exist. Every process is executed in an isolated environment called virtual address space.
-* A process image is the complete in-memory layout of a program after it has been loaded into memory by the OS.
-* It is the answer to the question, "What the process looks like in the RAM?" A process image is the memory representation of a program at runtime.
-* It includes code, data, stack, heap, environment, memory-mapped regions, loaded libraries etc....
-* It is created by the kernel during `execve()`, based on the ELF layout.
+- `_Nullable` means the array should have `NULL` as the last value.
 
-This is the whole process that `execve` syscall carries out.
+- `const char*` means "pointer to a constant character stream". The pointer can be changed to point to a different memory address, but the value stored at the address it points to cannot be changed using this pointer.
 
-The kernel opens the binary (`main_elf`) using virtual file system (VFS).
+- `char *const` means "constant pointer to a character stream". The pointer itself is constant and cannot be changed to point to a different memory address. However, the value stored at the address it points to can be modified.
 
-* It reads the ELF Header (first 64 bytes) to confirm that it is an ELF file, and find the `e_type`, `e_entry` and Program Headers Table (PHT) for carrying out its job.
+Applying this lesson to the execve signature, we can say that:
 
-What is VFS and Why the kernel is using it?
+- `pathname` is the name of the binary. It is of type `const char*`, ensuring that it can't be changed.
+
+- `argv[]` is a *pointer* to a *null-terminated array* of *character pointers*. These pointers point to null-terminated strings that serve as the command-line arguments for the new program.
+  - The first value, `argv[0]` must be the name of the binary being run, by convention.
+  - The last value must be `NULL` to signify its end.
+
+- `envp[]` is a pointer to a null-terminated array of character pointers. These pointers reference null-terminated strings that define the new program's environment variables.
+  - Each string is typically in the format "KEY=VALUE".
+  - The last value must be `NULL` to signify its end.
+
+On success, execve returns nothing.
+
+On failure, it returns -1.
+
+---
+
+Rest of the syscalls are not required to be understood right now.
+
+### What is a process image?
+
+Just imagine how crazy it would be to manage millions of processes inside a single RAM (or a bunch of RAM if you are rich), with all demanding various services constantly.
+  - That's why an abstraction called virtual address space (VAS) exist. Every process gets an isolated environment.
+
+A process image is the runtime representation of a binary in the virtual address space after it has been loaded into memory (RAM) by the OS for execution.
+
+As we know it already, binaries follow ELF format on Linux, which is a specification that standardize the format for executables on Linux so that they can be easily loaded in the memory.
+
+### How execve works?
+
+Let's understand how execve manage to replace the process image in the cloned process.
+
+The kernel opens the binary (`main_elf`) using virtual file system (VFS). It reads the ELF Header (the first 64 bytes) to confirm it is an ELF, and find the `e_type`, `e_entry` and `e_phoff` fields. Although we know it, but let's revise.
+  - e_type: type of elf (REL, EXEC, DYN)
+  - e_entry: where the binary is loaded in VAS.
+  - e_phoff: the location of program headers.
+
+What is VFS?
 
 * It's an abstraction layer inside the Linux kernel that provides a uniform interface to access all kinds of file systems — regardless of their actual formats or physical devices.
 * There exist multiple file systems, like ext4, btrfs, zfs, hfs, ntfs, fat32 and so on.... If there is no VFS, the kernel has to learn to speak in all the different file systems.
