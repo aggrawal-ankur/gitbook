@@ -3,9 +3,9 @@ title: Virtual Address Space
 weight: 1
 ---
 
-_**August 12, 2025 (init)**_
+_**11, 12 August 2025 (init)**_
 
-***September 29, 2025 (rewrite)***
+***29, 30 September 2025 (rewrite and merge)***
 
 ---
 
@@ -13,6 +13,40 @@ Virtual Address Space (or VAS) is divided into two parts.
 
 - Kernel Space
 - User Space
+
+```
+High Address
+                    Top Of Virtual Address Space
+
+0xFFFFFFFFFFFFFFFF *-----------------------------* End Of Kernel Space ↓
+                   |                             |
+                   |        Kernel Space         |
+                   |                             |
+                   |       Size: ~128 TiB        |
+                   |                             |
+                   |         Upper Half          |
+                   |                             |
+0xFFFF800000000000 *-----------------------------* Start Of Kernel Space ↑
+                   |                             |
+                   |    Unused / Guard Space     |
+                   |                             |
+0x0000800000000000 *-----------------------------* End of User Space ↓
+                   |                             |
+                   |         User Space          |
+                   |                             |
+                   |       Size: ~128 TiB        |
+                   |                             |
+                   |         Lower Half          |
+                   |                             |
+0x0000000000400000 *-----------------------------* Start Of User Space ↑
+                   |                             |
+                   |     Reserved / Unmapped     |
+                   |                             |
+0x0000000000000000 *-----------------------------*
+
+                   Bottom Of Virtual Address Space
+Low Address
+```
 
 ## Why this division?
 
@@ -61,6 +95,8 @@ CPUs implement multiple **protection rings** numbered 0 to 3, with:
 
 ***TO BE WRITTEN***
 
+***AND ITS LAYOUT***
+
 ## User Space
 
 The user space is divided into:
@@ -71,48 +107,7 @@ The user space is divided into:
 - Mmap: Memory mapped region.
 - Stack: To manage function frames (arguments and local variables)
 
-## Big Picture Overview
-
-```
-High Address
-                    Top Of Virtual Address Space
-
-0xFFFFFFFFFFFFFFFF *-----------------------------* End Of Kernel Space ↓
-                   |                             |
-                   |        Kernel Space         |
-                   |                             |
-                   |       Size: ~128 TiB        |
-                   |                             |
-                   |         Upper Half          |
-                   |                             |
-0xFFFF800000000000 *-----------------------------* Start Of Kernel Space ↑
-                   |                             |
-                   |    Unused / Guard Space     |
-                   |                             |
-0x0000800000000000 *-----------------------------* End of User Space ↓
-                   |                             |
-                   |         User Space          |
-                   |                             |
-                   |       Size: ~128 TiB        |
-                   |                             |
-                   |         Lower Half          |
-                   |                             |
-0x0000000000400000 *-----------------------------* Start Of User Space ↑
-                   |                             |
-                   |     Reserved / Unmapped     |
-                   |                             |
-0x0000000000000000 *-----------------------------*
-
-                   Bottom Of Virtual Address Space
-Low Address
-```
-
-## Kernel Space Layout
-
-***TO BE WRITTEN***
-
-## User Space Layout
-
+This is the layout of user space:
 ```
 0x0000800000000000 *-----------------------------* End of User Space ↓
                    |   Stack (grows downward) ↓  |
@@ -156,8 +151,6 @@ Remember, this doesn't change the address management in stack. A push would stil
 
 Anyways, "why stack was put at the top of the user space" is a question I genuinely I have no answer. But if I find anything interesting, I will update this block.
 
-***
-
 ### Why the stack is fast and heap is slow?
 
 This question is not completely answerable as it is based on comparison.
@@ -167,3 +160,57 @@ We can explore why stack is fast because we are familiar with it. But we don't k
 Although we know why stack is fast because it is based on sequential allocation. But what makes heap slow is not known.
 
 When we will explore dynamic memory allocation, it will become obvious.
+
+## How it connects?
+
+We know that a binary follows ELF format (on Linux) which basically tells the OS how to load that binary into memory.
+
+In other words, Virtual address space is the runtime representation of a binary.
+
+## Virtual Address
+
+Total number of bits we have are 64. But not all the 64-bits are required to manage addresses now. It would be huge to manage 2^64 addresses.
+
+So, we stick to 48-bit virtual addresses. The rest of the 16-bits are sign extension of the 47th bit. We'll explore what that means in a while.
+
+A virtual address is divided into several pieces. More precisely, the bits in the a virtual address are grouped together to represent different parts of the 4-level paging system that we have discussed previously.
+
+At high level, a virtual address is structured like this:
+
+```
++--------------+ +--------------+ +--------------+ +------------+ +----------------------+
+| PML4: 9-bits | | PDPT: 9-bits | | PDIT: 9-bits | | PT: 9-bits | | Page Offset: 12-bits |
++--------------+ +--------------+ +--------------+ +------------+ +----------------------+
+47            39 38            30 29            21 20          12 11                     0
+```
+
+### Why like this?
+
+All the 4 page tables have 512 entries, which require a minimum of 9-bits to represent. So, 9-bits are reserved for them.
+
+Page offset is the actual byte being addressed within the page. Since there are 4096 bytes in total, 12-bit are required at minimum to represent them.
+
+### Some Good-To-Know Things
+
+A virtual address is in big endian notation, so most significant bits are in left and least significant bits in the right.
+
+As long as we are dealing with pen paper math, there is no need for bit shifts. But with programming, bit shifting becomes important for extracting values the right way and avoiding falling at edge cases.
+
+Each process gets a virtual address space, which has 256 TiB worth of addressable space, most of which is empty. Yes, the calculation we have done previously is applied individually to every single process.
+
+* The program never runs out of virtual address spaces. It only runs out of mappings in the physical memory.
+
+**Note: Addressable space ≠ Usable space.**
+
+## Address Range Split
+
+The virtual address space is split into two halves for user space and kernel space.
+
+```
+0x0000000000000000  →  0x00007FFFFFFFFFFF  (Lower half, ~128 TiB)   → User space
+0xFFFF800000000000  →  0xFFFFFFFFFFFFFFFF  (Upper half, ~128 TiB)   → Kernel space
+```
+
+* The middle region (`x00007FFFFFFFFFFF to 0xFFFF800000000000`) is unused guard space.
+
+**Note: The split is logical and exist only in virtual memory, except the hardware enforced rules.**

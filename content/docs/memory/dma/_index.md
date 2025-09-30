@@ -1,6 +1,6 @@
 ---
 title: Dynamic Memory Allocation
-weight: 2
+weight: 4
 ---
 
 _**9, 10, 15 September 2025**_
