@@ -534,6 +534,27 @@ execve(args[0], args, envp);
 * `execlp(file, arg0, ...., argN, NULL)`: combines `execl + $PATH`
 * `execle(path, arg0, ..., NULL, envp)`: varargs + custom env
 
-And that is a beginners introduction to a Linux process.
+---
+
+## A Note
+
+This process hierarchy is exactly the reason why the **ISO C Standard** defines `main` function of type `int`.
+  - The two valid signatures for main function:
+    ```c
+    int main(void);
+    int main(int argc, char *argv[]);
+    ```
+  - Both returns 0 by default, which denotes successful execution.
+  - It can be verified with this [document](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2310.pdf) on page 24, section "5.1.2.2.1" under "Program Startup" heading.
+
+I have mentioned this when there was absolutely no need because many old tutorial used it. I too studied the `void main(){}` signature ~5 years back when I started my programming journey.
+  - Even in my colleges, professors still use the `void main(){}` signature.
+  - My own college professors used it.
+
+I don't have a reason why it is popular. But I thought it is harmless to mention this.
+
+## Conclusion
+
+That ends the beginners introduction to a Linux process.
 
 Thank You very much.
