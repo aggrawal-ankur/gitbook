@@ -1,4 +1,5 @@
 ---
+id: 32490ce1c9a646d2a505ee9bc1b0cda6
 title: Practical GDB
 weight: 4
 ---
@@ -37,4 +38,4 @@ Once we establish a baseline mental model for debugging, we will explore ASLR as
 
 Below is the list of all the "theory" we are going to relive/verify with gdb. **Note: The list is updated progressively with each exploration.**
 
-1. [Memory is a flat-array of byte addressable blocks](./memory-is-byte-addressable.md)
+1. {{< doclink "7b2345107d0e4d3ab0e3369174a52eb1" "Memory is a flat-array of byte addressable blocks." >}}

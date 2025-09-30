@@ -1,4 +1,5 @@
 ---
+id: 85fa67f76e174da39fbde619a1a87e85
 title: Global Offset Table
 weight: 10
 ---

@@ -1,4 +1,7 @@
-# Welcome To The World Of Low Level Systems
+---
+id: 83cfb3664b484ece818542bb1114b567
+title: Welcome To The World Of Low Level Systems
+---
 
 Hi. My name is **Ankur Agrawal** and I love low level systems and reverse engineering.
 
@@ -13,6 +16,8 @@ English is not my first language and I am not here to write perfect English. So,
 If you read my notes consistently, you'll often notice significant changes in the structure and organization of both the files and the content in them because I absolutely love knowledge management.
 
 To me, knowledge management is paramount. I keep on organizing and polishing so that I can keep finding patches in my understanding and remove them. It's not a bug, it's a important feature in my whole functioning.
+
+Understanding low level systems in a linear fashion is simply not possible. I have tried my best to organize my write ups in a sequential manner but it's just not possible. No matter how much I try to organize, it doesn't really work like that. It's a web. But that doesn't stop me either.
 
 This is the reason why links are often broken. Earlier I used to publish using GitBook, which used to manage links itself. Now I am on my own.
 

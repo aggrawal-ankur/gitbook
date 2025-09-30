@@ -1,4 +1,5 @@
 ---
+id: 22f99fb0de5843079c208e3ff1d107f7
 title: Data Types
 weight: 1
 ---

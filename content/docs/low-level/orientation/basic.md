@@ -1,4 +1,5 @@
 ---
+id: b8516479f38741c3a6f5eed37f6914ec
 title: Basic Computer Theory
 weight: 2
 ---

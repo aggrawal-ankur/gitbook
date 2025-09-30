@@ -1,0 +1,8 @@
+{{ $id := .Get 0 }}
+{{ $text := .Get 1 }}
+{{ $map := site.Data.links }}
+{{ with index $map $id }}
+  <a href="{{ . }}">{{ $text }}</a>
+{{ else }}
+  <span style="color:red">BROKEN LINK: {{ $id }}</span>
+{{ end }}

@@ -1,4 +1,5 @@
 ---
+id: 74f6fea8f48c45c9af3f0037a3c4d69d
 title: Introduction To objdump
 weight: 1
 ---
@@ -25,8 +26,7 @@ It can be found here at [GitHub](https://github.com/hi-anki/reverse-engineering/
 The full disassembly is 69 lines long. But wait, the assembly generated from source was only 29 lines long!
 
 * As we have read before, assembling lays down the base at which linking can be performed.
-  * Refer to [a-high-level-overview-of-build-process-in-c.md](../a-high-level-overview-of-build-process-in-c.md "mention")
-* Our source is a tiny part of the picture.
+* Our source is just a tiny part of the picture.
 * The instructions for printing the string are in the `.text` section, while the string itself is a read-only data and thus it is stored in the `.rodata` section.
 * `.comment` and `.eh_frame` are compiler sections.
 

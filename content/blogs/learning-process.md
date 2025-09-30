@@ -1,10 +1,11 @@
 ---
+id: c3f2f51ba3c54daf8f0ac0c1daa8c5a4
 title: Learning Process Optimization
 sidebar:
   exclude: true
 ---
 
-_**Got the idea to manage this on 17 September 2025, 5:30 PM**_
+_**Got the idea to write this on 17 September 2025, 5:30 PM**_
 
 ***
 
@@ -54,9 +55,9 @@ Take stack. You can use `gdb` to look for a process's running stack but it is ju
 
 * Everyone just says that a process's stack is just like a stack of plates, but can you prove that? Without any cryptic looking addresses which just haunt beginners?
 * Why not? You can absolutely do that. And you don't need fancy canvas tools to draw stack. Just use ASCII. And by the way, just open VS Code and paste any ASCII art from my write ups, it looks absolutely gorgeous.
-* [How stack frame looks like?](https://ankuragrawal.gitbook.io/home/x64-assembly/functions/stack#how-is-a-stack-frame-structured)
 
-[Virtual memory layout](https://ankuragrawal.gitbook.io/home/all-roads-to-memory/virtual-memory-layout)
+* {{< doclink "3a6396d0fd41408ab6f4e7cc0b452d38" "How the stack frame looks like?" >}}
+* {{< doclink "632446e0d44244308a8146eabf6433b3" "Virtual memory layout" >}}
 
 **You absolutely don't need fancy tools to draw theory. Theory shouldn't be daunting.**
 
@@ -70,8 +71,8 @@ It reduce the mental overhead of "too much information, not my cup of tea". Plus
 
 That's why if there is a possibility to explain something using a table, I am always up for that and it is very much reflected in my notes.
 
-* [Doug Lea's memory model](https://ankuragrawal.gitbook.io/home/all-roads-to-memory/dynamic-memory-allocation/doug-leas-memory-model)
-* [Types of bins](https://ankuragrawal.gitbook.io/home/all-roads-to-memory/dynamic-memory-allocation/chunk-management#types-of-bins)
+* {{< doclink "68860c0125cc44f0bb05de46ee9fb6c3" "Doug Lea's memory model" >}}
+* {{< doclink "5b14ef9b921c4b3b839676cc42601d21" "Types of bins" >}}
 
 ***
 

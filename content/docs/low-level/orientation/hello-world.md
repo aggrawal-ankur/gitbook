@@ -1,4 +1,5 @@
 ---
+id: 5a9c9fd5c95549a08ea4b2d39aacc189
 title: Hello, World!
 weight: 7
 ---

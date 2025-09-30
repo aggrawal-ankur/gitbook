@@ -1,4 +1,5 @@
 ---
+id: bab39b08c80046e387d7f34d6394e070
 title: Primitive Types
 weight: 2
 ---

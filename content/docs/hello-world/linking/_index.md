@@ -1,4 +1,5 @@
 ---
+id: 7f2ea64082764610b828b6935c4a15f1
 title: "Linking: Object Code To Executable Binary"
 weight: 7
 ---
@@ -52,16 +53,3 @@ I have omitted the `BuildId` thing. It has no use.
 ## What really happens during linking?
 
 This question is really hard to answer for me at this point. Why not to see it directly?
-
-## Macro Level Roadmap
-
-Complete output of `readelf` can be found at [GitHub](https://github.com/hi-anki/reverse-engineering/blob/main/program1/assets/complete_elf_headers).
-
-1. [step-1-analyzing-elf-headers.md](step-1-analyzing-elf-headers.md "mention")
-2. Before moving to the next step, it would be nice to clear a doubt, if it exists. [full-disassembly.md](full-disassembly.md "mention")
-3. The next step is analyzing program headers table but it has got some prerequisites.
-   1. [part-ii-analyzing-section-headers.md](part-ii-analyzing-section-headers.md "mention")
-   2. [a-brief-introduction-to-processes-in-linux.md](../a-brief-introduction-to-processes-in-linux.md "mention")
-4. [step-2-analyzing-program-headers-table.md](step-2-analyzing-program-headers-table.md "mention")
-
-

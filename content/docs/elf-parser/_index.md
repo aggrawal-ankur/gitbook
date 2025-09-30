@@ -1,11 +1,12 @@
 ---
+id: bcc66e8c953b422480cc7f21902e3805
 title: ELF Parser Project
 weight: 3
 ---
 
 Hey, what's up?
 
-## Why This Project?&#x20;
+## Why This Project?
 
 After finishing the static analysis of the Hello World binary (with some parts still left), I needed a break. But I don't want to stop learning.
 

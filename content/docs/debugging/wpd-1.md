@@ -1,4 +1,5 @@
 ---
+id: 6c40d67971f54377b365a2fe95333bf3
 title: What Powers Debuggers? — 1
 weight: 1
 ---

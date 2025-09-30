@@ -1,4 +1,5 @@
 ---
+id: 1bae5007b0f24126b43395d4b1777cc9
 title: Low Level Architecture
 weight: 1
 ---

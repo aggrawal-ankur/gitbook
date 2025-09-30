@@ -1,4 +1,5 @@
 ---
+id: 5b14ef9b921c4b3b839676cc42601d21
 title: Free Chunk Management
 weight: 6
 ---
@@ -204,7 +205,7 @@ Depending on the system (32-bit/64-bit), the allocator will carve a chunk of siz
 
 These \~4k bytes are unallocated. Where do they live?
 
-* Remember program break we read about in syscalls section? [Link](dma-syscalls.md).
+* Remember program break from the syscalls section? {{< doclink "4dad5e63422947e2b702845a0ed95963" "Link" >}}
 * The program break is just after the data segment. When we extend the heap, the kernel releases more memory than requested, and that memory is not used all at once, but it is allocated to the allocator.
 * The program break is the partition between the used arena and the unallocated arena.
 * When 24 bytes are used in the arena, the program break would be at the 25th bit.

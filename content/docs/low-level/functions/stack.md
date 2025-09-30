@@ -1,4 +1,5 @@
 ---
+id: 3a6396d0fd41408ab6f4e7cc0b452d38
 title: Introduction To Stack And Functions
 weight: 1
 ---

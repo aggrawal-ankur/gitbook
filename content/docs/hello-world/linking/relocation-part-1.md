@@ -1,4 +1,5 @@
 ---
+id: 8bf1c94a19df485485fe7e3861821065
 title: Relocations - Part 1
 weight: 9
 ---

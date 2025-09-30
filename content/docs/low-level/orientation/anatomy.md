@@ -1,4 +1,5 @@
 ---
+id: 9824226a64634b89aa3ee67f60047e69
 title: Anatomy Of An Assembly Program
 weight: 5
 ---

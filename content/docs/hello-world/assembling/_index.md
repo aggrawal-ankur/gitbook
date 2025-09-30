@@ -1,4 +1,5 @@
 ---
+id: 203d1929b23e43889ec4efc90aa826bd
 title: "Assemble: Assembly To Object Code"
 weight: 6
 ---
@@ -40,9 +41,6 @@ Any file of type ELF can't be opened with standard text editors as they are not 
 
 We will inspect our file from the perspective of `objdump` and `readelf`. These are enough.
 
-This section is long enough which is why it is divided into two separate articles, one is for `objdump` and the other one is for `readelf`.
-
-1. [objdump-perspective.md](objdump-perspective.md "mention")
-2. [readelf-perspective.md](readelf-perspective.md "mention")
+This section is long enough which is why it is divided into two separate articles, one for `objdump` and one for `readelf`.
 
 **Note: The output of certain commands is slightly modified. Otherwise, it would be confusing to understand what it actually means.**

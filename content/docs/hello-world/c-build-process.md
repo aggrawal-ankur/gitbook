@@ -1,4 +1,5 @@
 ---
+id: 7ca52ec23a2c419b8bae36efade4dae0
 title: Build Process In C
 weight: 1
 ---
@@ -50,7 +51,7 @@ This step produces an intermediate `.i` file, a raw C file where all preprocessi
 
 **Note:** If you look at `hello.i` and `stdio.h` side by side, you'll see it isn't a direct copy. That’s because the header file contains various macros, and preprocessing continues until all directives are resolved.
 
-For more information on preprocessing, check out [preprocessing-directives.md](../x64-assembly/preprocessing-directives.md "mention").
+For more information on preprocessing, check out {{< doclink "42957ab7594145f0b492a14d2f38a783" "preprocessing directives" >}}
 
 ## Compilation
 

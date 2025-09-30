@@ -1,4 +1,5 @@
 ---
+id: 68860c0125cc44f0bb05de46ee9fb6c3
 title: Doug Lea's Memory Model
 weight: 3
 ---

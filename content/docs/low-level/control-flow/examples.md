@@ -1,4 +1,8 @@
-# Examples
+---
+id: fe6eda248c6a44d8bfb318ee01ce17fa
+title: Examples
+---
+
 
 Let's see how if, else if and else, for loop, while loop and do while loop exist.
 

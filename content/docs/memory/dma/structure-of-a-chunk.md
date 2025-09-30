@@ -1,4 +1,5 @@
 ---
+id: cce8e80c3d334b0d85942b848383a868
 title: Structure Of A Chunk
 weight: 5
 ---

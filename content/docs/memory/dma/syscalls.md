@@ -1,4 +1,5 @@
 ---
+id: 4dad5e63422947e2b702845a0ed95963
 title: Linux Syscalls For DMA
 weight: 1
 ---
@@ -9,7 +10,7 @@ _**10 September 2025**_
 
 ## User Space Layout
 
-This is the virtual address space layout for user space memory. For more information, checkout [virtual-memory-layout.md](../introduction/virtual-memory-layout.md "mention")
+This is the virtual address space layout for user space memory.
 
 ```
   User Space Memory Layout

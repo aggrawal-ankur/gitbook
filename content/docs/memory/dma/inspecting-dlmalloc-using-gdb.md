@@ -1,4 +1,5 @@
 ---
+id: 541b36bd3e7947d5a876102fc9531bbc
 title: Inspecting dlmalloc Using GDB
 weight: 7
 ---

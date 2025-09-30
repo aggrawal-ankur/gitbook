@@ -1,4 +1,5 @@
 ---
+id: e5a0bbb59138438fa3d33b51fc92a158
 title: Historical Introduction
 weight: 1
 ---
@@ -51,7 +52,7 @@ We are learning assembly, not syntaxes. The only thing that matters here is the 
 - Right now, if you write a hello world program in C and compile it with `gcc`, it works. You use `clang`, it works again. But that's not the case with assembly.
 - If you use netwide assembler, your assembly program would be different then the person who used GNU assembler.
 - This difference is based on assembler directives. Each assembler has different set of directives. So the idea remains the same, only the implementation changes.
-- But the object code generated after assembling the assembly source remains the same, whether you use `nasm` or `as`. Check out the [C build process](../../understanding-hello-world/build-process-in-c.md) article if you are feeling uneasy.
+- But the object code generated after assembling the assembly source remains the same, whether you use `nasm` or `as`. Check out the {{< doclink "7ca52ec23a2c419b8bae36efade4dae0" "C build process" >}} write up if you are feeling uneasy.
 
 Take assemblers as different dialects of a language.
 - One uses "Hi", the other uses "Hello".
@@ -81,7 +82,7 @@ High level languages abstract the core functionality. Their core purpose is to p
 Assembly, on the other hand, is completely raw. There's no abstraction. Everything is open and the programmer has to write every single instruction themselves.
 
 This exposes the reality that even a simple "Hello, World!" program requires multiple low-level steps before it can actually run.
-  - Just to prove the depth of this statement, check out the hello world series [here](../../understanding-hello-world/_index.md)
+  - Just to prove the depth of this statement, check out the hello world series {{< doclink "243880d83f464517a201007716ffc581" "here" >}}
   - This series proves that even hello-ing the world is not simple when you account the low level angle.
 
 Anyways, let's come back to assembly.

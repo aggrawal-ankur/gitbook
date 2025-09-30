@@ -1,4 +1,5 @@
 ---
+id: 0bd577c839fd40099acbf80aeb5cdcb1
 title: The Idea Behind "Invisible Symbols"
 weight: 8
 ---

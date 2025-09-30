@@ -1,4 +1,5 @@
 ---
+id: f7b8cc4c1a6f4ebb8124944fbf283068
 title: The GNU Debugger
 weight: 3
 ---
@@ -34,7 +35,7 @@ Type "apropos word" to search for commands related to "word".
 
 This means we are in a gdb session. But the source binary has not become a process yet.
 
-Passing the source binary name ensures that the source binary can be run as a child process for gdb so that there are no problems on the permission side, as discussed in the previous write up [wpd-2.md](wpd-2.md "mention")
+Passing the source binary name ensures that the source binary can be run as a child process for gdb so that there are no problems on the permission side, as discussed in the previous write up {{< doclink "dbfd38c8b6c64c299e06428a83b15ad9" "what powers debuggers - 2" >}}
 
 We will learn attaching to a running process later.
 
@@ -62,7 +63,7 @@ GDB can modify the execution state as well to test how arbitrary or even precisi
 
 The execution state is often tied to a specific call stack. When you change the call stack, the execution state changes as well.
 
-_We have already explored process state in detail in the previous article,_ [wpd-2.md](wpd-2.md "mention")
+_We have already explored process state in detail in the previous article,_ {{< doclink "dbfd38c8b6c64c299e06428a83b15ad9" "what powers debuggers - 2" >}}
 
 ### 3. Debug Information
 

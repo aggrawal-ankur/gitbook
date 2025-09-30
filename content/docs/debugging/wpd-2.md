@@ -1,7 +1,9 @@
 ---
+id: dbfd38c8b6c64c299e06428a83b15ad9
 title: What Powers Debuggers? — 2
 weight: 2
 ---
+
 _**23 September 2025**_
 
 ***

@@ -1,4 +1,5 @@
 ---
+id: 63e42846d5c6477db540fc829e20bb29
 title: Why I Moved from GitBook to GitHub Pages (Hugo + Hextra)
 sidebar:
   exclude: false
