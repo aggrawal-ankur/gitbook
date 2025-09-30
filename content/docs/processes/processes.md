@@ -74,7 +74,7 @@ Why the child process needs to be linked with the parent process?
 ## A Theoretical Example
 
 We are going to run a binary made from this C program.
-```c
+```c {filename=binary}
 #include <stdio.h>
 #include <unistd.h>    // sleep()
 
@@ -86,12 +86,12 @@ int main(void){
 
 To get the final ELF binary:
 ```bash
-gcc main.c -o main_elf
+gcc binary.c -o binary
 ```
 
 ### Call The Binary
 
-To call/execute the binary (`main_elf`), we need a shell (or terminal).
+To call/execute the binary (`binary`), we need a shell (or terminal).
 
 I have opened my shell, which is zsh.
 ```bash
@@ -110,7 +110,7 @@ PID       TTY       TIME         CMD
 
 We will run the binary in background so that we can retain the shell session and the capability to examine it.
 ```bash
-$ ./main_elf &
+$ ./binary &
 
 [1] 52184
 ```
@@ -121,7 +121,7 @@ $ ps
 
 PID       TTY       TIME         CMD
 41027     pts/0     00:00:02     zsh
-52184     pts/0     00:00:00     main_elf
+52184     pts/0     00:00:00     binary
 52325     pts/0     00:00:00     ps
 ```
 
@@ -132,13 +132,13 @@ $ ps -o pid,ppid,cmd
 
 PID     PPID    CMD
 41027   40797   /usr/bin/zsh -i
-59461   41027   ./main_elf
+59461   41027   ./binary
 59559   41027   ps -T -o pid,ppid,cmd
 ```
 
 - `-o` helps in custom formatting.
 
-Notice the PID of zsh process is the PPID of the main_elf process. This proves the parent-child relationship between `zsh` and `main_elf`.
+Notice the PID of zsh process is the PPID of the binary process. This proves the parent-child relationship between `zsh` and `binary`.
 
 This also proves that `fork()` was called on the zsh process.
 
@@ -151,7 +151,7 @@ A fork is a near-clone of the parent process. It is not an exact clone because t
 
 If we run our program with `strace`, like this:
 ```bash
-$ strace ./main_elf
+$ strace ./binary
 
 execve("./out", ["./out"], 0x7ffe0b2853a0 /* 56 vars */) = 0
 brk(NULL)                               = 0x561db0e70000
@@ -194,10 +194,23 @@ exit_group(0)                           = ?
 
 It gives us lead to the next thing, `execve`.
 
-### What is execve?
+### Update The Process Image
 
-It is a syscall which executes a binary passed to it as an argument. It does that by replacing the process image of the current process (not the child process, the current process) with the new binary, effectively running a different program without creating a new process.
+Imagine millions of processes inside a single RAM (or a bunch of RAM if you are rich), with all demanding various services constantly.
+  - That's why an abstraction called virtual address space (VAS) exist to streamline that chaos.
+
+A process image is the runtime representation of a binary in the virtual address space after it has been loaded into memory (RAM) by the OS for execution.
+
+As we know it already, binaries follow ELF format on Linux, which is a specification that standardize the format for executables on Linux so that they can be easily loaded in the memory.
+
+---
+
+After forking(cloning) the current process, the process image in the cloned process needs to be changed. This is done by `execve`.
+
+`execve` is a syscall which executes a binary passed to it as an argument. It does that by replacing the process image of the current process (not the child process, the current process) with the new binary, effectively running a different program without creating a new process.
+
 - `execve` is designed to be paired with `fork()` in order to fit Linux hierarchical process structure.
+- First we fork the current process, then we run execve on it so that it can undergo a process image replacement.
 
 This is the signature of the `execve` syscall:
 ```c
@@ -230,180 +243,105 @@ On failure, it returns -1.
 
 ---
 
-Rest of the syscalls are not required to be understood right now.
-
-### What is a process image?
-
-Just imagine how crazy it would be to manage millions of processes inside a single RAM (or a bunch of RAM if you are rich), with all demanding various services constantly.
-  - That's why an abstraction called virtual address space (VAS) exist. Every process gets an isolated environment.
-
-A process image is the runtime representation of a binary in the virtual address space after it has been loaded into memory (RAM) by the OS for execution.
-
-As we know it already, binaries follow ELF format on Linux, which is a specification that standardize the format for executables on Linux so that they can be easily loaded in the memory.
-
-### How execve works?
+Rest of the syscalls in the strace output are not required to be understood right now.
 
 Let's understand how execve manage to replace the process image in the cloned process.
 
-The kernel opens the binary (`main_elf`) using virtual file system (VFS). It reads the ELF Header (the first 64 bytes) to confirm it is an ELF, and find the `e_type`, `e_entry` and `e_phoff` fields. Although we know it, but let's revise.
+#### How execve works?
+
+The kernel opens the binary (`binary`) using virtual file system (VFS). It reads the ELF Header (the first 64 bytes) to confirm it is an ELF, and find the `e_type`, `e_entry` and `e_phoff` fields. Although we know it, but let's revise.
   - e_type: type of elf (REL, EXEC, DYN)
   - e_entry: where the binary is loaded in VAS.
   - e_phoff: the location of program headers.
 
 What is VFS?
+  - There exist multiple file systems, like ext4, btrfs, zfs, hfs, ntfs, fat32 and so on...
+  - Virtual filesystem is a uniform inform interface to access them, regardless of their differences.
 
-* It's an abstraction layer inside the Linux kernel that provides a uniform interface to access all kinds of file systems — regardless of their actual formats or physical devices.
-* There exist multiple file systems, like ext4, btrfs, zfs, hfs, ntfs, fat32 and so on.... If there is no VFS, the kernel has to learn to speak in all the different file systems.
-* VFS knows how to talk to different file systems and provide the kernel with a consistent interface.
+---
 
-The kernel loads the binary into memory by reading the PHT.
+After opening the binary, the kernel loads the binary into memory by reading program headers table. We aldready know this from ELF, but let's revise.
 
-* It maps each segment defined in the PHT into memory regions using `mmap()` (memory map) syscall and sets the permissions (R, W, X) accordingly.
-*   This is the PHT for our ELF:
+- Sections organize stuff within the binary. And segments organize those sections.
+- We can have multiple sections of clothing inside one single showroom. That showroom is a segment that organizes multiple clothing sections.
+- It maps each segment defined in the PHT into memory regions using `mmap()` (memory map) syscall and sets the memory protection permissions (R, W, X) accordingly.
 
-    ```bash
-    $ readelf -l main_elf
+This is the PHT for our ELF:
 
-    Elf file type is DYN (Position-Independent Executable file)
-    Entry point 0x1060
-    There are 14 program headers, starting at offset 64
+```bash
+$ readelf -l binary
 
-    Program Headers:
-      Type           Offset             VirtAddr           PhysAddr           FileSiz            MemSiz              Flags  Align
-      PHDR           0x0000000000000040 0x0000000000000040 0x0000000000000040 0x0000000000000310 0x0000000000000310  R      0x8
-      INTERP         0x0000000000000394 0x0000000000000394 0x0000000000000394 0x000000000000001c 0x000000000000001c  R      0x1
-                     [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
-      LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000660 0x0000000000000660  R      0x1000
-      LOAD           0x0000000000001000 0x0000000000001000 0x0000000000001000 0x0000000000000179 0x0000000000000179  R E    0x1000
-      LOAD           0x0000000000002000 0x0000000000002000 0x0000000000002000 0x000000000000010c 0x000000000000010c  R      0x1000
-      LOAD           0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000250 0x0000000000000258  RW     0x1000
-      DYNAMIC        0x0000000000002de0 0x0000000000003de0 0x0000000000003de0 0x00000000000001e0 0x00000000000001e0  RW     0x8
-      NOTE           0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020  R      0x8
-      NOTE           0x0000000000000370 0x0000000000000370 0x0000000000000370 0x0000000000000024 0x0000000000000024  R      0x4
-      NOTE           0x00000000000020ec 0x00000000000020ec 0x00000000000020ec 0x0000000000000020 0x0000000000000020  R      0x4
-      GNU_PROPERTY   0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020  R      0x8
-      GNU_EH_FRAME   0x0000000000002014 0x0000000000002014 0x0000000000002014 0x000000000000002c 0x000000000000002c  R      0x4
-      GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000  RW     0x10
-      GNU_RELRO      0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000230 0x0000000000000230  R      0x1
+Elf file type is DYN (Position-Independent Executable file)
+Entry point 0x1060
+There are 14 program headers, starting at offset 64
 
-    Section to Segment mapping:
-      Segment Sections...
-      00     
-      01     .interp 
-      02     .note.gnu.property .note.gnu.build-id .interp .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt 
-      03     .init .plt .plt.got .text .fini 
-      04     .rodata .eh_frame_hdr .eh_frame .note.ABI-tag 
-      05     .init_array .fini_array .dynamic .got .got.plt .data .bss 
-      06     .dynamic 
-      07     .note.gnu.property 
-      08     .note.gnu.build-id 
-      09     .note.ABI-tag 
-      10     .note.gnu.property 
-      11     .eh_frame_hdr 
-      12     
-      13     .init_array .fini_array .dynamic .got
-    ```
+Program Headers:
+  Type           Offset             VirtAddr           PhysAddr           FileSiz            MemSiz              Flags  Align
+  PHDR           0x0000000000000040 0x0000000000000040 0x0000000000000040 0x0000000000000310 0x0000000000000310  R      0x8
+  INTERP         0x0000000000000394 0x0000000000000394 0x0000000000000394 0x000000000000001c 0x000000000000001c  R      0x1
+                 [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000660 0x0000000000000660  R      0x1000
+  LOAD           0x0000000000001000 0x0000000000001000 0x0000000000001000 0x0000000000000179 0x0000000000000179  R E    0x1000
+  LOAD           0x0000000000002000 0x0000000000002000 0x0000000000002000 0x000000000000010c 0x000000000000010c  R      0x1000
+  LOAD           0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000250 0x0000000000000258  RW     0x1000
+  DYNAMIC        0x0000000000002de0 0x0000000000003de0 0x0000000000003de0 0x00000000000001e0 0x00000000000001e0  RW     0x8
+  NOTE           0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020  R      0x8
+  NOTE           0x0000000000000370 0x0000000000000370 0x0000000000000370 0x0000000000000024 0x0000000000000024  R      0x4
+  NOTE           0x00000000000020ec 0x00000000000020ec 0x00000000000020ec 0x0000000000000020 0x0000000000000020  R      0x4
+  GNU_PROPERTY   0x0000000000000350 0x0000000000000350 0x0000000000000350 0x0000000000000020 0x0000000000000020  R      0x8
+  GNU_EH_FRAME   0x0000000000002014 0x0000000000002014 0x0000000000002014 0x000000000000002c 0x000000000000002c  R      0x4
+  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000  RW     0x10
+  GNU_RELRO      0x0000000000002dd0 0x0000000000003dd0 0x0000000000003dd0 0x0000000000000230 0x0000000000000230  R      0x1
 
-**Note: It is slightly formatted so that we can see it clearly.**
+Section to Segment mapping:
+  Segment Sections...
+  00     
+  01     .interp 
+  02     .note.gnu.property .note.gnu.build-id .interp .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt 
+  03     .init .plt .plt.got .text .fini 
+  04     .rodata .eh_frame_hdr .eh_frame .note.ABI-tag 
+  05     .init_array .fini_array .dynamic .got .got.plt .data .bss 
+  06     .dynamic 
+  07     .note.gnu.property 
+  08     .note.gnu.build-id 
+  09     .note.ABI-tag 
+  10     .note.gnu.property 
+  11     .eh_frame_hdr 
+  12     
+  13     .init_array .fini_array .dynamic .got
+```
+  - **Note: It is slightly formatted so that we can see it clearly.**
 
-Program headers table describes how the operating system should load the ELF binary into the memory. It maps parts of the binary file into memory regions with specific permissions and purposes.
+All the offsets are relative to the location where the binary is loaded, where "the binary is loaded" means the address from which the binary starts to exist in the VAS.
 
-A simple decode of this cryptic table is:
+Program headers table describes how the OS should load the ELF binary into the memory. It loads parts of the binary into VAS with specified permissions.
 
-*   Type: PHDR
+Explanation of entries in PHT.
 
-    ```
-    Offset:  0x40
-    VirtAddr:0x40
-    Size:    0x310
-    Flags:   R
-    ```
-
-    This describes where in the memory the program headers themselves are located.
-
-    The loader reads this to get all other segment info.
-*   Type: INTERP
-
-    ```
-    Offset: 0x394
-    VirtAddr: 0x394
-    Size: 0x1c
-    Flags: R
-    [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
-    ```
-
-    Specifies the dynamic linker to load and run this PIE executable.
-
-    This linker will resolve symbols and apply relocations before main() runs.
-*   Type: LOAD Segments, The actual loadable code/data in the binary
-
-    ```bash
-    # LOAD 1
-    Offset: 0x0
-    VirtAddr: 0x0
-    FileSiz: 0x660
-    Flags: R
-    ```
-
-    The R flag shows that this is a read only section, contains the initial part of ELF.
-
-    ```bash
-    # LOAD 2
-    Offset: 0x1000
-    VirtAddr: 0x1000
-    Size:    0x179
-    Flags:   R E
-    ```
-
-    This is a read + executable section. This implies that it contains the actual code segment
-
-    ```bash
-    # LOAD 3
-    Offset: 0x2000
-    VirtAddr: 0x2000
-    Size:    0x10c
-    Flags:   R
-    ```
-
-    Another readonly segment, which may contain constants and other ro-data.
-
-    ```bash
-    # LOAD 4
-    Offset: 0x2dd0
-    VirtAddr: 0x3dd0
-    Size: File=0x250, Mem=0x258
-    Flags: RW
-    ```
-
-    This section is both readable and writeable. This is where .data, .bss, etc.... are stored.
-*   Type: DYNAMIC
-
-    ```bash
-    Offset: 0x2de0
-    VirtAddr: 0x3de0
-    Size: 0x1e0
-    Flags: RW
-    ```
-
-    Contains relocations, library names, symbol tables, etc...., which are used by the dynamic linker to perform symbol resolution and relocation at runtime.
-* Type: Note Segments and GNU\_PROPERTY, for metadata handling. Nothing explosive.
-* Type: GNU\_EH\_FRAME, exception handling frame, used by debuggers and during crashes.
-* Type: GNU\_STACK, specifies stack permissions.
-* Type GNU\_RELRO, a region that is read-only after relocation.
-
-The kernel finds the `LOAD` segments and maps them into memory.
-
-All the offsets are relative to the location where the binary would be actually loaded.
+| Type      | Description |
+| :-------- | :--- |
+| PHDR      | The location of program headers in VAS.|
+|           | 0x40 is 0d64, which means PHT lives just after elf headers. |
+| INTERP    | Specifies the dynamic linker to load and run this PIE executable. This linker will resolve symbols and apply relocations before main() runs. |
+| LOAD      | The actual loadable code/data in the binary. |
+|           | Only R flag means it is a read-only section. There can be multiple such sections, eg: strings in printf identifies as rodata. |
+|           | Our code is usually represented by the RE segment.
+|           | The RW section is where mutable stuff goes, like data/bss.
+| DYNAMIC   | Contains relocations, library names, symbol tables, etc., which are used by the dynamic linker to perform symbol resolution and relocation at runtime. |
+| GNU_STACK | Specifies stack permissions. |
+| GNU_RELRO | A region that is read-only after relocation. |
+| Note, GNU_PROPERTY | Metadata |
+| GNU_EH_FRAME | Exception handling frame, used by debuggers. |
 
 Now our program is loaded in the memory, but we're not executing yet.
 
-#### Handle Dynamic Linking
+#### Dynamic Linking
 
-Since the PHT has `INTERP` header, this tells the kernel to run this interpreter `lib64/ld-linux-x86-64.so.2` before jumping to the entry point in the binary.
+Since the PHT has `INTERP` header, the kernel has to run this interpreter `lib64/ld-linux-x86-64.so.2` before jumping to the entry point in the binary.
 
 The kernel now loads the dynamic linker/loader (`ld-linux-x86-64.so.2`) into the memory.
-
-The dynamic linker is the first code that will run in this process.
+  - It exist as a shared object.
+  - The dynamic linker is the first code that will run in this process.
 
 Now the kernel set up the stack, `rip` to `ld-linux`'s entry point and returns the control to user space.
 
@@ -411,57 +349,43 @@ And the child process is finally alive.
 
 `ld-linux` now:
 
-1. Parses the `.dynamic` section (`readelf -S main_elf`)
+1. Parses the `.dynamic` section (`readelf -S binary`)
 2. Finds the required shared libraries, like `libc.so.6`
 3. Loads them into the memory using `mmap()`.
 4. Applies relocations to the code.
-5. Finally, jumps to our ELF binary's real entry point (not `main`, but `_start`).
+5. At last it jumps to our binary's entry point (not `main`, but `_start`).
 
 #### Entry point Management && Program Execution
 
 The dynamic linker jumps to `_start` in our binary (provided by crt1.o).
 
-`_start` sets up the runtime.
+`_start` sets up C runtime.
 
-Then it calls `__libc_start_main()`, a libc function that initializes more stuff and finally calls the `main()` .
+Then it calls `__libc_start_main()`, a libc function that initializes more stuff and finally calls the `main()`.
 
 Now the program runs.
 
-* `printf()` is a call into `libc`.
-* `sleep()` sleeps the process for 400 seconds using `nanosleep` syscall.
+- `printf()` is a call into `libc`.
+- `sleep()` sleeps the process for 400 seconds using `nanosleep` syscall.
 
-***
+### End Of The Program
 
-### Step3 - End Of The Program
+After main() finishes, the control goes back to `__libc_start_main()`, which handles the final cleanup and calls `exit()`.
 
-After main() ends, control goes back to `__libc_start_main()`, which handles the final cleanup and calls `exit()`.
+The kernel cleans up the process resources and returns the exit code to the parent (zsh).
 
-The kernel:
+That's how it works!
 
-* Cleans up the process resources.
-* Returns the exit code to parent (zsh).
+## A Practical Example
 
-***
+We are going to create a program which manually calls fork, execve, wait and exit to manage the `binary` we have created previously as a child process.
 
-## Lets Manage An Actual Process Using C
-
-Downloadable source code of the program can be found at [here](https://github.com/hi-anki/process-creation-in-linux/blob/main/process.c).
-
-```c
-// Standard I/O: printf() and perror()
-#include <stdio.h>
-
-// General Utils: exit()
-#include <stdlib.h>
-
-// POSIX OS API: fork(), execvp(), getpid(), getppid()
-#include <unistd.h>
-
-// Defines data types used in system calls: pid_t, the data type for process IDs
-#include <sys/types.h>
-
-// Provides macros and functions for waiting on child processes: waitpid(), WIFEXITED(), WEXITSTATUS()
-#include <sys/wait.h>
+```c {filename=process.c}
+#include <stdio.h>         // Standard I/O: printf() and perror()
+#include <stdlib.h>        // General Utils: exit()
+#include <unistd.h>        // POSIX API: fork(), execvp(), getpid(), getppid()
+#include <sys/types.h>     // Defines data types used in system calls: pid_t (the data type for process IDs)
+#include <sys/wait.h>      // Provides macros and functions for waiting on child processes: waitpid(), WIFEXITED(), WEXITSTATUS()
 
 int main() {
   pid_t pid;
@@ -470,17 +394,17 @@ int main() {
   printf("  PPID: %d\n", getppid());
   printf("  PID : %d\n", getpid());
   printf("---------------------------\n");
-  
+
   // 1. Process creation (fork)
   printf("Calling fork.....\n");
   pid = fork();
-  
+
   if (pid == -1) {
     perror("fork failed");
     printf("`p_proc`: return value from fork(): %d\n", pid);
     exit(EXIT_FAILURE);
   }
-  
+
   if (pid == 0) {
     printf("Cloned Process `c_proc`:\n");
     printf("  PPID: %d\n", getppid());
@@ -489,7 +413,7 @@ int main() {
     printf("---------------------------\n");
 
     // 2. Image replacement using exec
-    char *args[] = {"./main_elf", NULL};
+    char *args[] = {"./binary", NULL};
     if (execvp(args[0], args) == -1) {
       perror("exec failed");
       exit(EXIT_FAILURE);
@@ -500,7 +424,7 @@ int main() {
     // Parent process
     int status;
     waitpid(pid, &status, 0);  // Wait for child to finish
-    
+
     if (WIFEXITED(status)) {
       printf("Child exited with status %d\n", WEXITSTATUS(status));
       printf("---------------------------\n");
@@ -516,72 +440,68 @@ int main() {
 
 Lets understand this program.
 
-`pid_t` is a type definition, defined in`POSIX` to hold process IDs. It allows the kernel and user-space programs to use a consistent and portable data type for managing process IDs.
+`pid_t` is a type definition, defined in the `POSIX` API to hold process IDs. It allows the kernel and user-space programs to use a portable data type for managing process IDs.
 
-* The `pid` variable is very important. Understanding this small and harmless looking part is very important.
-* The confusion is paired with `fork`, so we'll learn it there.
+`fork()` is used to clone the process that calls fork.
+  - If the calling process is cloned successfully, it returns 0 to the **cloned process** and the process ID of the cloned process to the calling process (which is now the parent process).
+  - If cloning failed, it returns `-1` to the calling process.
 
-***
-
-`fork()` function is used to clone the calling process. Tell me, where would `fork` send its return value?
-
-* To the calling process? or, To the cloned process?
-* The answer is, both. And this is where the question how the parent process maintains its state arises from.
-
-&#x20;It returns
-
-* `0` to the **cloned process** if the calling process is cloned successfully and the process ID of the cloned process to the calling process (which is now the parent process).
-* `-1` to the **parent process**, if an error occurred and cloning didn't succeed.
-
-Remember, `fork()` makes a near-clone of the calling process. Only certain things are different.
+`getpid()` and `getppid()` are relative to the process that has invoked them.
+  - `getpid()` gives the process ID of the current process.
+  - `getppid()` gives the ID of the parent process of the current process.
 
 ***
 
-The functions `getpid()` and `getppid()` are used to obtain the child process ID and the parent process ID, respectively.
+The execve syscall is wrapped around `exec` prefixed functions in the GNU C library. They provide a variety of ways to use the execve syscall.
 
-* These functions are relative to the process that has invoked them.
-* This is why `getpid()` before forking the process returned the process ID of the current process, which became the parent process after forking.
+This is the signature of `execvp()`:
+```c
+int execvp(const char *file, char *const argv[]);
+```
+  - Arg1 is the name of the binary.
+  - Arg2 is the argument set, where the first element must be the binary name, by convention.
 
-***
+Why not `execvp(argv)` directly? Remember,
+  - `sys.argv[0]` is reserved to the filename in python.
+  - `$0` is reserved for the script name in bash. The same principle is followed here.
 
-The `exec()` family of functions replaces the current process image with a new process image. Under the hood, they all use the mighty `execve` syscall.
+The `exec()` family of functions returns only when an error occur, just like the syscall, which is -1.
+  - More on exec family of function later in the write up.
 
-* The `char *argv[]` argument is an array of pointers to null-terminated strings that represent the argument list available to the new program.
-* The first argument, by convention, should point to the filename associated with the file being executed. The array of pointers must be terminated by a `null` pointer.
-*   `execvp()` is wrapper build upon `execve` syscall. Internally, it is just:
+The `waitpid()` function is like `async()` function in JavaScript, which waits for a longer process to finish and then adjusts the results appropriately, without stopping the current execution.
 
-    ```c
-    int execvp(const char *file, char *const argv[]);
-    ```
-* The first argument is a pointer to the binary which is to be executed and the second argument is an array to the arguments provided to the binary.
-* Why not `execvp(argv)` directly?
-  * Remember, `sys.argv[0]` is reserved to the filename in python. `$0` is reserved for the script name in bash. The same principle is followed here.
-* The `exec()` family of functions returns only when an error has occurred, which is -1, which is why we are running the binary through `execvp` and matching if the return value is -1, to indicate failure or success.
-* The `waitpid()` function is like `async()` function in JavaScript, which waits for a longer process to finish and then adjusts the results appropriately, without stopping the current thread.
-* After that some cleanup happens and we are done.
+After that some cleanup happens and we are done.
 
 ***
 
-Now, lets understand the flow of execution, that's the most important thing here.
+Lets understand the flow of execution.
 
-* Lets name the process of the calling C program as `p_proc` and the process of the binary it is calling internally as `c_proc` .
-* The calling process is cloned.
-* We know that process are independent in their execution context, which means that `p_proc` and `c_proc` will be running independently.
-  * If we print something just after cloning the process, there is no guarantee if the first print came from the parent or the child because the child has a copy of the file descriptors and it depends on scheduling algorithms that which on goes first.
-* Both the processes continue executing the same code from the point where fork() returned. Lets look at the execution of `p_proc` first.
-  * The `pid` variable for the calling process would have a random 4-5 digit unsigned value, which is definitely not equal to -1. Therefore, it never goes in the first `if` block.
-  * Also, it is not 0. So, it never goes in the second `if` block as well.
-  * Remaining `else` block. Here, it will find `waitpid()`, which will tell it to wait until the cloned process ends up.
+We are naming the parent (process.c) as `p_proc` and the child (binary.c) as `c_proc`.
+
+The calling process is cloned.
+
+We know that processes are independent in their execution, which means `p_proc` and `c_proc` will be running independently.
+  - If we print something just after cloning the process, there is no guarantee if the first print came from the parent or the child because the child is a near-copy of the parent and the process image is not changed yet.
+  - It depends on scheduling algorithms that which goes first.
+
+Both the processes continue executing the same code from the point where fork() returned. Lets look at the execution of `p_proc` first.
+  - If fork succeeded in cloning, the `pid` variable for the calling process would have a random **unsigned value**, representing the process ID of the cloned process. So the parent process never goes in the first `if` block.
+  - It is not 0 as well. So, it never goes in the second `if` block.
+  - It will go in the `else` block. Here, it will find `waitpid()`, which will tell it to wait until the cloned process ends up.
     * If you comment this part, this means, the parent didn't wait until the child finished. Such a process is called zombie process. Such processes are adopted by `init`.
     * You'll only see `Hello, World!` and no `sleep(10)` effect.
     * But wait. After 10 seconds, you'll see that too, but in a new prompt.
-    * Here the parent process finished. Lets focus on the child now.&#x20;
-* The `c_proc` receives `0` in its `pid` variable. Thus, it qualifies to go inside the second `if` block.
-  * And everything happens as stated before in `execve` section.
-  * But remember, both the processes are executing independently. But because of `waitpid()`, the parent waits for the child to finish and cleans up everything.
-* That's how it works.
+    * Here the parent process finished.
 
-## \`exec\` Family Of Functions
+Lets focus on the child now.
+
+The `c_proc` receives `0` in its `pid` variable. So it qualifies to go inside the second `if` block.
+  * And everything happens as stated before in `execve` section.
+  * But remember, both the processes are executing independently. But because of `waitpid()`, the parent waits for the child to finish.
+
+That's how it works.
+
+## The exec Family Of Functions
 
 `execve` syscall has multiple wrappers in the form of C library functions. The questions is, which one to use when?
 
@@ -602,12 +522,12 @@ execve(args[0], args, envp);
 
 ### Functions
 
-* `execv(path, argv)`: inherits caller's environment.
+* `execv(path, argv)`: inherit caller's environment.
 * `execl(path, arg0, arg1, ..., NULL)`: Same as `execv`, except that the arguments are directly passed as varargs, rather than an array.
-* `execvp(file, argv)`: searches `$PATH` variable for the binary. Good to run programs like a shell would do, like `ls` or `./exe`
+* `execvp(file, argv)`: searches the `$PATH` variable for the binary. Good to run programs like a shell would do, like `ls` or `./exe`
 * `execlp(file, arg0, ...., argN, NULL)`: combines `execl + $PATH`
 * `execle(path, arg0, ..., NULL, envp)`: varargs + custom env
 
-And that's how we finish establishing a baseline understanding in Linux processes.
+And that is a beginners introduction to a Linux process.
 
-Thank You.
+Thank You very much.
