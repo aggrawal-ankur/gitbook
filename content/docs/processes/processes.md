@@ -3,6 +3,12 @@ title: Introduction To Linux Processes
 weight: 1
 ---
 
+Originally written in first and second week of **June 2025**.
+
+Rewrite/Polish on **29, 30 September 2025**.
+
+---
+
 To execute a binary, Linux kernel creates a **process**.
 
 *A **process** is a running instance of a binary.*
