@@ -25,6 +25,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate IDs and link mapping
+        run: |
+          python scripts/genmap.py
+
       - name: Set up Hugo
         uses: peaceiris/actions-hugo@v2
         with:
