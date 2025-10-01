@@ -1,7 +1,4 @@
----
-id: 83cfb3664b484ece818542bb1114b567
-title: Welcome To The World Of Low Level Systems
----
+# Welcome To The World Of Low Level Systems
 
 Hi. My name is **Ankur Agrawal** and I love low level systems and reverse engineering.
 
