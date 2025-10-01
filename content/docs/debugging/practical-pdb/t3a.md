@@ -1,6 +1,6 @@
 ---
 id: a91507ff9bbf4fbe82ffe1633e869b6b
-title: Hello World With GDB
+title: Hello World (Part 1)
 weight: 3
 ---
 
@@ -14,17 +14,15 @@ We have already explored `Hello World!` statically using tools like objdump and 
 
 Now its time to explore `Hello, World!` dynamically.
 
-We have explored a lot of theory statically and it's time to prove it dynamically.
-
-From the hello world exploration we had in past, we didn't just gain knowledge, we also had a few gotchas. Oone of them was "the problem of scale".
+From static exploration, we didn't just gain knowledge, we also got to know about a few gotchas. One of them was "the problem of scale".
   - During the exploration, we have felt clueless almost all the time because we didn't have any idea about the terrain.
   - But now we know the terrain, to some extent.
-  - But we also know that the runtime mapping of a binary is a little different than the binary.
+  - But we also know that the runtime mapping of a binary is a little different than the binary itself.
 
-Therefore, the first thing we will do is to map the terrain. This way, we will save our time, energy and some headaches.
+Therefore, the first thing we will do is to map the terrain. This will save our time, energy and some headaches.
   - But before that, let's do the setup for this exploration.
 
-If you have not already, you can visit the hello world write ups {{< doclink "243880d83f464517a201007716ffc581" "here" >}}.
+You can visit the old hello world write ups {{< doclink "243880d83f464517a201007716ffc581" "here" >}}
 
 ## Setup
 
@@ -52,15 +50,15 @@ Clear the window with `CTRL+L`.
 
 ## Mapping The Terrain
 
-Virtual address space layout is the "terrain" we are talking about as the binary gets completely mapped in there. So we can be confirmed that there is nothing beyond text/data/heap/mmap/stack. However, how the binary is laid out in those 5 sections is important to us.
+Virtual address space layout is the "terrain" we are talking about because that's where the binary gets mapped. Right now, we can be sure that there is nothing beyond text/data/heap/mmap/stack.
 
-### Inspecting File Information
+### File Information
 
-To know how the binary is laid in the virtual address space, we can use the `info files` command. It gives information about all the files (binaries, core dumps and running processes) loaded in the current gdb session.
-  - At minimum, this includes the source binary and the shared libraries.
-  - For every file, it lists all the regions from the binary which are mapped into the virtual address space and their address range.
+To know how the binary is mapped in VAS, we can use the `info files` command. It gives information about all the files (binaries, core dumps and running processes) loaded in the current gdb session.
+  - At basic, this includes the source binary and the shared libraries.
+  - For every file, it lists all the regions which are mapped into the VAS and their address range.
 
-Let's invoke this command. Remember, we have neither set a breakpoint, nor we have run the debugee yet.
+Let's invoke this command. Remember, no breakpoint and no run.
 ```bash
 (gdb) info files
 
@@ -95,14 +93,13 @@ Local exec file:
         0x0000000000004008 - 0x0000000000004018 is .data
         0x0000000000004018 - 0x0000000000004020 is .bss
 ```
-  - This is how the `hello` binary is laid out in the VAS.
 
 As we have invested so much time and energy in static analysis, the addresses look familiar.
-  - Yes they are and can verify that with readelf as well.
+  - Yes they are and we can verify that with readelf as well.
 
-You may ask why static addresses from the binary are used at runtime. Where is PIE and ASLR?
-  - As mentioned before starting the practical gdb sessions, GDB by default disables ASLR to ease out debugging.
-  - And we are not going to enable it as we are still in the process of establishing our mental model. Once we have one, we will surely explore hello world once again with ASLR enabled. Not just hello world, even more complex programs.
+You may ask why fixed addresses are used at runtime. Where is ASLR?
+  - As mentioned earlier, GDB disables ASLR to make the process easier, by default.
+  - As decided we are not going to enable it as we are still learning. Once we are done with the basics, we'll explore programs with ASLR enabled.
 
 Now, lets run the debugee.
 ```bash
@@ -206,13 +203,13 @@ Local exec file:
         0x00007ffff7f9d6e0 - 0x00007ffff7faae78 is .bss in /lib/x86_64-linux-gnu/libc.so.6
 ```
 
-Since we have run the debugee once, now the shared libraries have been mapped in the `mmap` region of the VAS. And these extra mappings are for them.
+Now the shared libraries have been mapped in the `mmap` region. And these extra mappings are for them.
 
 ---
 
 ### What gets mapped?
 
-Use readelf and print the program headers table.
+Let's print the program headers table.
 ```bash
 $ readelf hello -l
 
@@ -256,15 +253,15 @@ Program Headers:
    13     .init_array .fini_array .dynamic .got 
 ```
 
-Let's zoom in on the section to segment mapping part.
+Focus on the section to segment mapping part.
   - The four LOAD segments are indexed as 2, 3, 4 and 5. Let's check the mappings for these segments.
-  - If you notice, they are present in the exact order as the output of `info files` for the source binary.
-  - If you count there strength, it is 26. And the number matches with the output of `info files.`
-  - ***This proves that only the segments of type LOAD are mapped in the virtual address space.***
+  - Their order matches with the output of `info files`.
+  - They are 26 in total and the count matches as well.
+  - ***This proves that only the segments of type "LOAD" are mapped in the virtual address space.***
 
 ---
 
-### About mapped sections
+### Mapped sections
 
 Let's print the section headers table.
 ```bash
@@ -312,25 +309,24 @@ Section Headers:
   [35] .strtab           STRTAB       0000000000000000  000035b0  00000000000001db  0000000000000000         0     0     1
   [36] .shstrtab         STRTAB       0000000000000000  0000378b  000000000000016a  0000000000000000         0     0     1
 ```
-  - As always, the output is formatted for better readability
+  - As always, the output is formatted for better readability.
 
-First of all, we know that our elf used to have 31 sections. The 6 extra sections are for debug information, which were injected because of the `-g` flag.
+We remember that our elf had 31 sections. The 6 extra sections are for debug information.
 
-If you focus on the size field, that's the length of each section. Let's take an example. Take the `.text` section.
+Let's focus on the size field. It is the length of each section. For example, take `.text`.
   - The size is 0x103, which is 295 in decimal.
   - The address range for `.text` as reported by `info files` is: `0x0000000000001050 - 0x0000000000001153`.
-  - You do the math: `0x1153 - 0x1050`, you get 0x103, exactly the same thing.
-  - ***This proves that sections which are mapped are mapped exactly without any change.***
+  - "0x1153 - 0x1050" is 0x103, exactly the same.
+  - ***This proves that sections which are mapped are mapped exactly without any modification.***
 
 ---
 
-### What's in these address ranges?
+### The address ranges?
 
-Let's "examine" one of these address ranges. Let's take `.text` again.
+Let's "examine" `.text`.
 
 From our first gdb session, i.e {{< doclink "7b2345107d0e4d3ab0e3369174a52eb1" "byte addressable memory" >}}, we know that the "examine" command has an option to interpret the memory as instructions. We are going to use that.
 
-Let's do:
 ```bash
 (gdb) set disassembly-flavor intel
 (gdb) x/295ib 0x1050
@@ -411,9 +407,9 @@ Let's do:
    0x1153:      Cannot access memory at address 0x1153
 ```
 
-The output looks quite familiar once again, because we've already explored `objdump -D`. And if we run:
+The output looks quite familiar once again. Because we've already explored `objdump -D`. And if we do:
 ```bash
-$ objdump hello -D -j .text > obj
+$ objdump hello -D -j .text
 
 hello:     file format elf64-x86-64
 
@@ -501,7 +497,9 @@ Disassembly of section .text:
     1151:	5d                   	pop    rbp
     1152:	c3                   	ret
 ```
-...boom. The magic has happened. Let's decode it.
+..boom, the magic has happened.
+
+Lets diff both the assemblies.
 
 | Symbol | Lines In Runtime Disassembly | Lines In Objdump Disassembly |
 | :--- | :--- | :--- |
@@ -513,26 +511,29 @@ Disassembly of section .text:
 | main   | 8 | 8 |
 | Total | 67 | 67 + 2 |
 
-I don't know if we can get any better proof than this to the fact that *"sections which are to be mapped are mapped exactly"*.
-  - And that tells us why our decision to statically explore the "full disassembly" was the right decision.
-  - It looked pointless and time wasting 3 months back. But now it is helping us because we have burnt the fear of looking at huge disassemblies. Any disassembly examination that comes after is just extending our capacity to withstand huge disassemblies without shivering.
+I don't know if we can get any better proof for the fact that *"sections which are to be mapped are mapped exactly without any modification"*.
+  - This shows why our decision to statically explore the "full disassembly" was the right decision.
+  - It looked pointless and time wasting 3 months back. But now it is helping us because we have burnt the fear of looking at huge disassemblies.
+  - Every gdb session is just going to increase our capacity to comprehend huge disassemblies without shivering.
 
-This happens when you avoid shortcodes and I am glad we have avoided those shortcuts.
+That happens when you avoid shortcuts and I am glad we have avoided those shortcuts.
+
+---
 
 ### What to do with this information?
 
-This information alone is not going to do any wonders for us. But the best part is, the information "which we suppose to lack right now" is already with us, we just need to revise a few things.
+This information alone is not going to do any wonders. But the best part is, the information "which we supposedly lack right now" is already with us, we just need to revise a few things.
 
-We have discussed ELF quite in detail, which is why we have a rough idea about "what goes where". For example:
+We have discussed ELF quite in-detail, which is why we have a rough idea about "what goes where". For example:
   - All the printfs take at least one constant string. That string is not changing in any circumstance. This means it qualifies to be a part of `.rodata` section.
-  - With this information, whenever we see a .rodata section mapped in the VAS, we know what it will contain probably.
+  - With this information, whenever we see a .rodata section mapped in VAS, we know what it will contain probably.
   - This knowledge of "what might be there" helps us forming the right "examine" command.
   - If the data is a string, we will use `s` in type interpretation. If it is an instruction, we will use `i`. And so on..
 
-This finally completes the map of the terrain.
-
 The terrain is basically:
-  - what is mapped in the virtual address space?
+  - what is mapped in the virtual address space? and
   - which mapping requires which interpretation rules?
 
-That's it.
+That's it. We have mapped the terrain.
+
+We'll explore the practical side in the next write up.
