@@ -18,6 +18,9 @@ def gen_mapping(dir):
 
           rel_path = os.path.relpath(path, dir)
           rel_path = '/gitbook/' + os.path.splitext(rel_path)[0] + '/'
+
+          if '_index' in rel_path:
+            rel_path = rel_path.split("_index/")[0]
           mapping.append(f'  "{id}": "{rel_path}",\n')
 
   # Remove the trailing comma
