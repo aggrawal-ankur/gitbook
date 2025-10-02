@@ -1,0 +1,260 @@
+{{ define "main" }}
+<style>
+  #graph-container {
+    width: 100%;
+    /* Remove fixed min-height to respect natural flow, let content dictate */
+    /* If you want it to always be a certain height, use a percentage or fixed pixel,
+       but avoid something that causes immediate overflow on small screens.
+       For a full-width graph, often a min-height like 500px or 70vh is used,
+       but this depends on your specific Hextra layout. Let's start without it to prevent overflow. */
+    position: relative;
+    overflow: hidden; /* Crucial for clipping graph content that might temporarily go outside */
+    display: flex;
+    justify-content: center; /* center horizontally */
+    align-items: center; /* center vertically for initial layout */
+  }
+
+  #graph-container svg {
+    display: block;
+    /* Cursor indicates draggable area for background (pan) */
+    cursor: grab;
+  }
+
+  #graph-container svg.dragging {
+    cursor: grabbing;
+  }
+
+  svg text {
+    pointer-events: none; /* Text shouldn't interfere with node clicks/drags */
+    fill: var(--label-color);
+    font-weight: 500;
+    /* Text outline for better readability on varied backgrounds */
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.7), -1px -1px 0 rgba(255,255,255,0.7), 1px -1px 0 rgba(255,255,255,0.7), -1px 1px 0 rgba(255,255,255,0.7);
+  }
+
+  .dark svg text {
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.7), -1px -1px 0 rgba(0,0,0,0.7), 1px -1px 0 rgba(0,0,0,0.7), -1px 1px 0 rgba(0,0,0,0.7);
+  }
+
+  /* Node and Link Hover Effects (minimal custom style) */
+  .node-circle:hover {
+    filter: brightness(1.2);
+    cursor: pointer; /* Indicate clickability */
+  }
+
+  .link:hover {
+    stroke-width: 2px;
+    stroke-opacity: 1;
+  }
+
+  /* Define base colors for graph elements, picking up Hextra's color scheme as much as possible */
+  :root {
+    --label-color: var(--hextra-text-color, #000000); /* Try to use Hextra's text color */
+    --graph-node-color: #4299e1; /* A consistent node color */
+    --graph-link-color: #a0aec0; /* A soft grey for links */
+  }
+  .dark {
+    --label-color: var(--hextra-text-color-dark, #ffffff); /* Hextra's dark text color */
+    --graph-node-color: #63b3ed; /* Lighter blue for dark mode */
+    --graph-link-color: #718096;
+  }
+</style>
+
+<div id="graph-container"></div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("graph.json")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("graph-container");
+
+      // Function to get dynamic dimensions for responsiveness
+      const getDynamicDimensions = () => {
+        const width = container.clientWidth;
+        const height = container.clientHeight || 500; // Fallback height if container has none
+        // Calculate a radius that fits within the current container, with padding
+        const effectiveRadius = Math.min(width, height) / 2 * 0.9; // 90% of smallest dimension
+        const centerX = width / 2;
+        const centerY = height / 2;
+        return { width, height, centerX, centerY, effectiveRadius };
+      };
+
+      let { width, height, centerX, centerY, effectiveRadius } = getDynamicDimensions();
+
+      const svg = d3.select(container)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", `0 0 ${width} ${height}`); // Crucial for responsive scaling
+
+      const g = svg.append("g"); // Group for zoom/pan transformations
+
+      // Add zoom and pan functionality
+      const zoom = d3.zoom()
+        .scaleExtent([0.1, 8])
+        .on("zoom", (event) => {
+          g.attr("transform", event.transform);
+        });
+      svg.call(zoom);
+
+      // Get colors from CSS variables
+      const nodeColor = getComputedStyle(document.documentElement).getPropertyValue('--graph-node-color');
+      const linkColor = getComputedStyle(document.documentElement).getPropertyValue('--graph-link-color');
+      const labelColor = getComputedStyle(document.documentElement).getPropertyValue('--label-color');
+
+      // Initialize nodes randomly inside the effective sphere radius
+      data.nodes.forEach(d => {
+        const angle = Math.random() * 2 * Math.PI;
+        const r = Math.random() * effectiveRadius * 0.8; // Initial position within 80% of sphere
+        d.x = centerX + r * Math.cos(angle);
+        d.y = centerY + r * Math.sin(angle);
+      });
+
+      // --- Simulation Setup ---
+      const simulation = d3.forceSimulation(data.nodes)
+        .force("link", d3.forceLink(data.edges).id(d => d.id).distance(80).strength(0.7)) // Slightly shorter distance
+        .force("charge", d3.forceManyBody().strength(-200)) // Moderate repulsion
+        .force("collision", d3.forceCollide().radius(15)) // Fixed collision radius for simplicity
+        .force("radial", radialForce(centerX, centerY, effectiveRadius)) // Our main spherical force
+        .alpha(1)
+        .alphaDecay(0.01) // Slower decay for better stability
+        .alphaMin(0.001);
+
+      // --- Links ---
+      const link = g.append("g")
+        .attr("stroke", linkColor)
+        .attr("stroke-width", 1)
+        .attr("class", "links")
+        .selectAll("line")
+        .data(data.edges)
+        .join("line")
+        .attr("class", "link");
+
+      // --- Nodes ---
+      // We create a group for each node to hold the circle and the text
+      const nodeGroup = g.append("g")
+        .attr("class", "nodes")
+        .selectAll("g") // Select groups, not just circles
+        .data(data.nodes)
+        .join("g") // Join with a group element
+        .call(drag(simulation)) // Drag applies to the whole group
+        .on("click", (event, d) => {
+          event.stopPropagation(); // Prevent zoom trigger on node click
+          window.location.href = d.path;
+        });
+
+      // Append circle to each node group
+      nodeGroup.append("circle")
+        .attr("r", 8) // Your original node radius
+        .attr("fill", nodeColor)
+        .attr("stroke", nodeColor) // Add a stroke for better definition
+        .attr("stroke-width", 1.5)
+        .attr("class", "node-circle") // Apply class for styling
+        .append("title") // Simple tooltip via SVG title element
+          .text(d => `${d.label}\n${d.path || 'No path available'}`);
+
+      // Append text to each node group
+      nodeGroup.append("text")
+        .text(d => d.label)
+        .attr("font-size", 12) // Your original font size
+        .attr("dx", 12)
+        .attr("dy", 4)
+        .style("fill", labelColor)
+        .attr("class", "node-label"); // Class for potential future styling
+
+
+      // --- Tick Function ---
+      simulation.on("tick", () => {
+        link
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+
+        // Update position of the entire node group
+        nodeGroup.attr("transform", d => `translate(${d.x},${d.y})`);
+      });
+
+      // --- Drag Functionality ---
+      function drag(sim) {
+        function dragstarted(event, d) {
+          if (!event.active) sim.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+          d3.select(this).select("circle").classed("fixed", true); // Apply fixed class to the circle
+        }
+        function dragged(event, d) {
+          d.fx = event.x;
+          d.fy = event.y;
+        }
+        function dragended(event, d) {
+          if (!event.active) sim.alphaTarget(0);
+          d.fx = null; // Release the node
+          d.fy = null;
+          d3.select(this).select("circle").classed("fixed", false); // Remove fixed class
+        }
+        return d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended);
+      }
+
+      // --- Spherical Force (Radial Force) ---
+      function radialForce(cx, cy, r) {
+        return (alpha) => {
+          for (const node of data.nodes) {
+            if (node.fx != null || node.fy != null) continue; // Don't apply force to fixed nodes
+
+            const dx = node.x - cx;
+            const dy = node.y - cy;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if (dist > r) { // Pull back if outside the sphere
+              const k = (dist - r) * 0.1 * alpha;
+              node.vx -= (dx / dist) * k;
+              node.vy -= (dy / dist) * k;
+            } else if (dist < r * 0.2) { // Gently push out if too close to center (prevent collapse)
+              const k = (r * 0.2 - dist) * 0.02 * alpha;
+              node.vx += (dx / dist) * k;
+              node.vy += (dy / dist) * k;
+            }
+          }
+        };
+      }
+
+      // Handle window resize for responsiveness
+      window.addEventListener("resize", () => {
+        const newDims = getDynamicDimensions();
+        width = newDims.width;
+        height = newDims.height;
+        centerX = newDims.centerX;
+        centerY = newDims.centerY;
+        effectiveRadius = newDims.effectiveRadius;
+
+        svg.attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+        simulation.force("radial", radialForce(centerX, centerY, effectiveRadius)); // Update radial force
+        simulation.force("center", d3.forceCenter(centerX, centerY)); // Update center force
+        simulation.alpha(0.3).restart(); // Restart simulation gently
+        
+        // No explicit initial fit needed if using viewBox and dynamic sizing,
+        // D3's natural layout will respect the space, and viewBox will scale it.
+        // If the graph is very sparse, you might still want a gentle initial zoom
+        // but for now, let's remove the complex 'fit to view' logic.
+      });
+
+      // Initial fit of the graph (optional, removed for simplicity, but can be added back if desired)
+      // The viewBox and dynamic sizing should handle initial display adequately.
+      // If the graph ends up too small initially, consider uncommenting a simplified version of the fit logic.
+      // E.g., just set the transform to center it if it's very off-center.
+
+    })
+    .catch(error => {
+      console.error("Error loading graph data:", error);
+      const container = document.getElementById("graph-container");
+      container.innerHTML = "<p style='color: var(--label-color);'>Error loading graph data. Please ensure 'graph.json' exists and is correctly formatted.</p>";
+    });
+});
+</script>
+{{ end }}

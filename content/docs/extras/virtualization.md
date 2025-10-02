@@ -1,8 +1,8 @@
 ---
 id: 90ecdffb4e4e406c8ab78d72aabdf2f9
+title: Virtualization
 ---
 
-# Virtualization
 
 how to virtualize efficiently
 

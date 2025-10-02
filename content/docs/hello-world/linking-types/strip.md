@@ -1,8 +1,8 @@
 ---
 id: 228c449ca79441b68c053f707071e792
+title: Stripping ELF
 ---
 
-# Stripping ELF
 
 ## How to strip a binary?
 

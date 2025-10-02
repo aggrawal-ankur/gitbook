@@ -1,9 +1,8 @@
 ---
 id: 74446b0bfd0e4ec78cd9af32e6a6087b
-hidden: true
+title: User Input In Assembly
 ---
 
-# User Input In Assembly
 
 To take user input, we use `read` syscall.
 
