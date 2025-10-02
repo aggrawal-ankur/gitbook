@@ -173,17 +173,17 @@ Few things before the exciting part.
 
 | Command | Description | Debug Information Required? |
 | :--- | :--- | :--- |
-| break <source_line> | Creates a breakpoint at a memory location. | Not required strictly but works best when provided. |
-| watch <var> | Creates a watchpoint at a memory location. | Not required strictly but works best when provided. |
-| catch <event> | Creates a catchpoint for an event. | No |
+| break \<source_line> | Creates a breakpoint at a memory location. | Not required strictly but works best when provided. |
+| watch \<var> | Creates a watchpoint at a memory location. | Not required strictly but works best when provided. |
+| catch \<event> | Creates a catchpoint for an event. | No |
 
 ### Accessing The Source Code
 
 | Command | Description | Debug information Required? |
 | :--- | :--- | :--- |
 | list | Lists 10 lines after or around the original C source code. | Yes |
-| disassemble <symbol> | Dumps the assembler code for the specified symbol. | No |
-| disassemble /s <sym> | Dumps assembly along with the C source it belongs to. | Yes |
+| disassemble \<symbol> | Dumps the assembler code for the specified symbol. | No |
+| disassemble /s \<sym> | Dumps assembly along with the C source it belongs to. | Yes |
 
 Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we can tell gdb to use intel syntax as well.
 
@@ -200,7 +200,7 @@ Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we ca
 | info frame | Information for the current stack frame. |  |
 | info args | Arguments passed to this function frame. |  |
 | info locals | Local variables on the stack frame. |  |
-| info frame <> | Information for the selected stack frame. |  |
+| info frame \<frame_num> | Information for the selected stack frame. |  |
 | up | To change stack frame away frommain |  |
 | down | To change stack frame towardsmain. |  |
 
@@ -213,7 +213,7 @@ Since GDB is a GNU software, it defaults to AT\&T syntax for assembly. But we ca
 | Command | Description |
 | :--- | :--- |
 | info registers | State of registers or the selected stack frame at that instant. |
-| info registers <reg> | To inspect a specific register. |
+| info registers \<reg> | To inspect a specific register. |
 | info all-registers | State of all the registers at that instant.Quite extensive so not required as a beginner. |
 | info breakpoints | Lists all the breakpoints, catchpoints and watchpoints. |
 | info checkpoints | Lists all the checkpoints. |
@@ -231,12 +231,13 @@ All the i-suffixed commands operate on machine instruction. Their equivalent wit
 
 | Command | Description | Debug information Required? |
 | :--- | :--- | :--- |
+| shell \<linux-cmd> | Executes Linux commands. Helpful in scenarios like clearing the screen (`shell clear`). | NA |
 | attach pid | Attach gdb to a running process (inferior).Make sure the security policies allow it. | NA |
 | detach pid | Used to detach an already attached inferior. | NA |
 | run,r | To start the debugee process inside gdb.runalone is not enough as it will just execute the whole binary, so we have to manually create a breakpoint before usingrun. | NA |
 | start | Withrunwe need to create a breakpoint manually, butstartcreates atemporary breakpointat themainfunction/symbol itself and completes the execution until that break. | Yes |
 | starti | Starts the inferior and stops at the first machine instruction. | No |
-| advance <loc> | Continues the program up to the specified location.Can be used to execute multiple instructions together. | Not required strictly. |
+| advance \<loc> | Continues the program up to the specified location.Can be used to execute multiple instructions together. | Not required strictly. |
 | continue, fg,c | Continues the debugee process after a breakpoint is debugged. | NA |
 | next | Executes the next line in the C source and stop.If the next line is a function call, it doesn't step into it. Instead, it executes the function completely, treating it as one-single line and displays the output.[N] can be passed to step thru N lines. | Yes |
 | step | Executes the next line in the C source and stop.If the next line is a function call, it steps into it.The function call is not treated as one-single line and leaves us inside the first instruction in that procedure so we can travel thru it ourselves.[N] can be passed to step thru N lines. | Yes |
