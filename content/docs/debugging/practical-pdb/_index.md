@@ -8,11 +8,7 @@ _**25 September 2025**_
 
 ***
 
-Without wasting time, let's jump right into experiments.
-
-## Setup
-
-I started my low level journey on *May 01, 2025*. Today, it is *September 25, 2025*. It has been around 5 months. In these 5 months, I have understood lot of theoretical concepts. I tried to visualize them using ASCII and other mechanisms but I have not seen them practically.
+I started my low level journey on *May 01, 2025*. It is *September 25, 2025, ~5 months*. In these 5 months, I have understood lot of theoretical concepts. I tried to visualize them using ASCII and other mechanisms but I have not seen them practically.
 
 The idea is to go through each concept once again with the lens of gdb.
 
@@ -39,3 +35,7 @@ Once we establish a baseline mental model for debugging, we will explore ASLR as
 Below is the list of all the "theory" we are going to relive/verify with gdb. **Note: The list is updated progressively with each exploration.**
 
 1. {{< doclink "7b2345107d0e4d3ab0e3369174a52eb1" "Memory is a flat-array of byte addressable blocks." >}}
+
+{{< doclink "7b2345107d0e4d3ab0e3369174a52eb1" "" >}}
+{{< doclink "53c4e11979834a43bdeac95f8827400e" "" >}}
+{{< doclink "a91507ff9bbf4fbe82ffe1633e869b6b" "" >}}

@@ -80,4 +80,4 @@ _Since unsigned integers uses full set of bits available to store the magnitude 
 | JLE / JNG | <= | Jump if less or equal (signed) | ZF, SF, OF | (ZF = 1) OR (SF ≠ OF) |
 
 
-***
+{{< doclink "fe6eda248c6a44d8bfb318ee01ce17fa" "" >}}

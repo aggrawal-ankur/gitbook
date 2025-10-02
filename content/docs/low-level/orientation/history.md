@@ -1,6 +1,6 @@
 ---
 id: e5a0bbb59138438fa3d33b51fc92a158
-title: Historical Introduction
+title: Brief History
 weight: 1
 ---
 

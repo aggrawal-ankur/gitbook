@@ -39,3 +39,8 @@ Any debugger primarily does these three things:
 * Modify execution if needed (change variable values, registers, or program counter)
 
 To understand debuggers, we have to understand what enables debugging. Otherwise, gdb will feel black magic.
+
+{{< doclink "6c40d67971f54377b365a2fe95333bf3" "" >}}
+{{< doclink "dbfd38c8b6c64c299e06428a83b15ad9" "" >}}
+{{< doclink "f7b8cc4c1a6f4ebb8124944fbf283068" "" >}}
+{{< doclink "32490ce1c9a646d2a505ee9bc1b0cda6" "" >}}

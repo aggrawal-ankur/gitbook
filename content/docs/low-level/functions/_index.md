@@ -24,15 +24,3 @@ For the time being, practical means that we are going to study an implementation
 
 * To me, the right approach is that you study the theory, you implement it on paper (in terms of loose ideas) and then you move towards ultimate practicality.
 * Right now, we are exploring the first two parts in this process. But very soon we will explore the third one as well.
-
-
-
-
-
-
-
-
-
-
-
-

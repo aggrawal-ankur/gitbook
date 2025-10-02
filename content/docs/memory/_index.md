@@ -108,3 +108,8 @@ KB can be ambiguous as it may represent both the binary and the decimal represen
 * 1 KB is 1000 bytes while 1 KiB is 1024 bytes.
 
 We will use the `i` ones because they are more relevant here.
+
+{{< doclink "632446e0d44244308a8146eabf6433b3" "" >}}
+{{< doclink "a0c647b8b5f1463f9e90e6946c71f244" "" >}}
+{{< doclink "fa0c4991c33d40a09cd3b555bac74823" "" >}}
+{{< doclink "259f273ff0484543b8720a5d8175bdd7" "" >}}

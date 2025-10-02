@@ -162,10 +162,18 @@ If you use `readelf` and inspect the ELF structure of a binary, either you are g
 
 ### Final Mental Model
 
-
 | Scope | Default Storage Class | Explicitly Mentioned | Storage Location | Lifetime |
 | :--- | :--- | :--- | :--- | :--- |
 | Block | auto | - | Stack | Block |
 | Block | - | static | .data/.bss | Until the program dies |
 | File | - | static | .data/.bss | Until the program dies |
 | Global | extern | - | .data/.bss | Until the program dies |
+
+{{< doclink "22f99fb0de5843079c208e3ff1d107f7" "" >}}
+{{< doclink "bab39b08c80046e387d7f34d6394e070" "" >}}
+{{< doclink "ba0ff614609d4707932bbe9eb1fbbdd9" "" >}}
+{{< doclink "29652748a2bc49739d1a5e4eb7dcc475" "" >}}
+{{< doclink "133c28b7762348618fddc238b6563a35" "" >}}
+{{< doclink "25c9ecebcb0e4f528ae02375a2b61a9e" "" >}}
+{{< doclink "15fbe373203b4dc59cbb32bf23b459cf" "" >}}
+{{< doclink "583d6b17c3a346c59d56e98e9eb2488e" "" >}}

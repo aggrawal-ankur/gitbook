@@ -19,3 +19,15 @@ Assembly is not a high-level language, therefore, the usual mental models of lea
 7. Intent is more important than learning every single way of doing something. Understand what you want to achieve, then map how the generated assembly does that.
 8. What seems like an overwhelming incomprehensible black magic is just logic and compiler optimizations, where the logic becomes primitive as you go deep into trenches & understand what we are trying to do and the compiler optimizations, which are just decades of work done by intelligent beings to make code efficient stops haunting you because you understand that an **intent can be fulfilled in `n` number of ways**.
 9. Tools like Compiler explorer at [godbolt.org](https://godbolt.org) are excellent to understand the different manifestations of the same principles.
+
+{{< doclink "e5a0bbb59138438fa3d33b51fc92a158" "" >}}
+{{< doclink "b8516479f38741c3a6f5eed37f6914ec" "" >}}
+{{< doclink "959488d570f24681a3612fd5f66e670c" "" >}}
+{{< doclink "8070b094e93d4ac98501c3d89d2ca6e8" "" >}}
+{{< doclink "9824226a64634b89aa3ee67f60047e69" "" >}}
+{{< doclink "530165083f3f4ed2bd9156905c68f282" "" >}}
+{{< doclink "5a9c9fd5c95549a08ea4b2d39aacc189" "" >}}
+{{< doclink "0bd577c839fd40099acbf80aeb5cdcb1" "" >}}
+{{< doclink "21c6ac085707484d98b187fc92c4f9ab" "" >}}
+{{< doclink "297e81d11b3d4d169feb19f2c4ea66f5" "" >}}
+{{< doclink "9cdb66667d5b4cc58db3e40d4ed51fc1" "" >}}

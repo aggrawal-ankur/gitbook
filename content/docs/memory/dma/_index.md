@@ -46,3 +46,11 @@ But the father of all allocators, not the first memory allocator, but definitely
 * [This repository](https://github.com/DenizThatMenace/dlmalloc) has every version of dlmalloc.
 * [This repository](https://github.com/aradzie/dlmalloc) has a clear version of dlmalloc as the the original version uses a strange dialect of C which is not beginner friendly.
 * [This repository](https://github.com/emeryberger/Malloc-Implementations) has multiple allocator implementations under one roof.
+
+{{< doclink "4dad5e63422947e2b702845a0ed95963" "" >}}
+{{< doclink "7918f5d1358b402f8dc216ed1ab966d6" "" >}}
+{{< doclink "68860c0125cc44f0bb05de46ee9fb6c3" "" >}}
+{{< doclink "3ce161e7cb8f4147b683400a07e3d22d" "" >}}
+{{< doclink "cce8e80c3d334b0d85942b848383a868" "" >}}
+{{< doclink "5b14ef9b921c4b3b839676cc42601d21" "" >}}
+{{< doclink "541b36bd3e7947d5a876102fc9531bbc" "" >}}

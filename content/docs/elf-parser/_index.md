@@ -21,3 +21,8 @@ I used `readelf` as a reference throughout this process as it is too easy to get
 The language would be C.
 
 Here is the project repository, [GitHub](https://github.com/hi-anki/elf-dump).
+
+{{< doclink "29b944b72d1c4eb5af7c9e0d120bbbee" "" >}}
+{{< doclink "cea4a2034ad34e3a878e4686204d9ab4" "" >}}
+{{< doclink "91a02e8b8e72488ba20e581674de90b8" "" >}}
+{{< doclink "e5dd647dfdff4a5796ec8361006c1f00" "" >}}
