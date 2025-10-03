@@ -4,7 +4,6 @@
 import os, json
 
 ROOT_DIR = 'content/docs/'
-# ROOT_DIR = '/home/username_anna/Desktop/my-site/content'
 mappings = {
   "nodes": [],
   "edges": []

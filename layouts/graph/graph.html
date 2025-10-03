@@ -1,0 +1,163 @@
+{{ define "main" }}
+<link href="https://unpkg.com/vis-network@10.0.2/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="https://unpkg.com/vis-network@10.0.2/dist/vis-network.min.js"></script>
+
+<style>
+  /* Ensure the graph container takes available space but respects margins */
+  #mynetwork {
+    width: 100%;
+    height: calc(100vh - var(--navbar-height) - var(--footer-height, 0px) - 40px); /* Adjust 40px for padding/margin */
+    border: 1px solid var(--hextra-border-color); /* Use Hextra border color */
+    box-sizing: border-box;
+    margin: 20px auto; /* Center the graph container with some margin */
+    display: block; /* Ensures margin auto works */
+  }
+
+  /* Adjust node text color based on theme */
+  body[data-theme='light'] #mynetwork {
+    --vis-node-font-color: black;
+  }
+  body[data-theme='dark'] #mynetwork {
+    --vis-node-font-color: white;
+  }
+</style>
+
+<div id="mynetwork"></div>
+
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    var network;
+
+    fetch('graph.json')
+      .then(response => response.json())
+      .then(data => {
+        var nodes = new vis.DataSet(data.nodes.map(node => ({
+          id: node.id,
+          label: node.label,
+          title: node.label,
+          url: node.path + "/",
+          font: {
+            color: 'var(--vis-node-font-color)'
+          }
+        })));
+
+        var edges = new vis.DataSet(data.edges.map(edge => ({
+          from: edge.source,
+          to: edge.target
+        })));
+
+        var container = document.getElementById('mynetwork');
+        var graphData = {
+          nodes: nodes,
+          edges: edges
+        };
+
+        var options = {
+          nodes: {
+            shape: 'dot',
+            size: 16,
+            color: {
+              background: '#97C2E0',
+              border: '#2B7CE9',
+              highlight: {
+                background: '#D2E5FF',
+                border: '#2B7CE9'
+              },
+              hover: {
+                background: '#D2E5FF',
+                border: '#2B7CE9'
+              }
+            },
+            font: {
+              face: 'var(--hextra-font-sans)',
+              size: 14,
+              strokeWidth: 0,
+            },
+            borderWidth: 2,
+            scaling: {
+              min: 10,
+              max: 30,
+              label: {
+                enabled: true,
+                min: 12,
+                max: 20,
+                maxVisible: 30,
+                drawThreshold: 5
+              },
+              customScalingFunction: function (min,max,total,value) {
+                if (max === min) {
+                  return 0.5;
+                }
+                else {
+                  var scale = 1 / (max - min);
+                  return Math.max(0,(value - min)*scale);
+                }
+              }
+            }
+          },
+          edges: {
+            color: {
+              color: '#848484',
+              highlight: '#848484',
+              hover: '#848484',
+              inherit: 'from',
+              opacity: 0.5
+            },
+            width: 1,
+            smooth: {
+              enabled: true,
+              type: 'continuous'
+            }
+          },
+          physics: {
+            enabled: true,
+            barnesHut: {
+              gravitationalConstant: -2000,
+              centralGravity: 0.5,
+              springLength: 150,
+              springConstant: 0.01,
+              avoidOverlap: 0.5
+            },
+            maxVelocity: 5,
+            minVelocity: 0.01,
+            solver: 'barnesHut',
+            timestep: 0.8,
+            stabilization: {
+              enabled: true,
+              iterations: 150,
+              updateInterval: 25,
+              fit: true
+            }
+          },
+          interaction: {
+            hover: true,
+            navigationButtons: true,
+            keyboard: true
+          },
+          layout: {
+            improvedLayout: true,
+            randomSeed: 42
+          }
+        };
+
+        network = new vis.Network(container, graphData, options);
+
+        // --- REMOVED THE beforeDrawing EVENT TO HIDE THE BOUNDARY CIRCLE ---
+        // The physics settings (gravitationalConstant and centralGravity)
+        // are now solely responsible for keeping the nodes clustered centrally.
+
+        // Handle node clicks to navigate
+        network.on("click", function (params) {
+          if (params.nodes.length > 0) {
+            var clickedNodeId = params.nodes[0];
+            var node = nodes.get(clickedNodeId);
+            if (node && node.url) {
+              window.open(node.url, '_blank');
+            }
+          }
+        });
+      })
+      .catch(error => console.error('Error loading graph data:', error));
+  });
+</script>
+{{ end }}
