@@ -86,24 +86,14 @@
       "path": "../docs/hello-world/"
     },
     {
-      "id": "08e45ed19f254ab984176f939b308a36",
-      "label": "A Brief Introduction To Linux Processes",
-      "path": "../docs/hello-world/linux-processes-intro"
-    },
-    {
       "id": "9d652181ee714f7988c5ed164e4cae4e",
-      "label": "\"Compilation: Turning C Into Assembly\"",
+      "label": "Compilation",
       "path": "../docs/hello-world/compilation"
     },
     {
-      "id": "13e94d7a205c4b309f82d234663a8b8d",
-      "label": "A Brief Introduction To ELF",
-      "path": "../docs/hello-world/elf-intro"
-    },
-    {
-      "id": "7ca52ec23a2c419b8bae36efade4dae0",
-      "label": "Build Process In C",
-      "path": "../docs/hello-world/c-build-process"
+      "id": "42957ab7594145f0b492a14d2f38a783",
+      "label": "Preprocessing",
+      "path": "../docs/hello-world/pp"
     },
     {
       "id": "2dd6b2a9670b44fe85f22ce6ab568565",
@@ -121,8 +111,28 @@
       "path": "../docs/hello-world/linking-types/diffs"
     },
     {
+      "id": "3ae550fdab0b4a9194d68d355610326b",
+      "label": "Orientation",
+      "path": "../docs/hello-world/orientation/"
+    },
+    {
+      "id": "08e45ed19f254ab984176f939b308a36",
+      "label": "A Brief Introduction To Linux Processes",
+      "path": "../docs/hello-world/orientation/processes"
+    },
+    {
+      "id": "7ca52ec23a2c419b8bae36efade4dae0",
+      "label": "Build Process In C",
+      "path": "../docs/hello-world/orientation/build-process"
+    },
+    {
+      "id": "13e94d7a205c4b309f82d234663a8b8d",
+      "label": "A Brief Introduction To ELF",
+      "path": "../docs/hello-world/orientation/elf-intro"
+    },
+    {
       "id": "203d1929b23e43889ec4efc90aa826bd",
-      "label": "\"Assemble: Assembly To Object Code\"",
+      "label": "Assembling",
       "path": "../docs/hello-world/assembling/"
     },
     {
@@ -137,7 +147,7 @@
     },
     {
       "id": "7f2ea64082764610b828b6935c4a15f1",
-      "label": "\"Linking: Object Code To Executable Binary\"",
+      "label": "Linking",
       "path": "../docs/hello-world/linking/"
     },
     {
@@ -206,6 +216,11 @@
       "path": "../docs/low-level/"
     },
     {
+      "id": "98594536dd60406ca3820f14366503ac",
+      "label": "Position Independent Code (PIC)",
+      "path": "../docs/low-level/pie"
+    },
+    {
       "id": "5be27263b3f64621a3c3be53217a3f0a",
       "label": "Type Casting",
       "path": "../docs/low-level/type-casting"
@@ -226,9 +241,9 @@
       "path": "../docs/low-level/type-qualifiers"
     },
     {
-      "id": "42957ab7594145f0b492a14d2f38a783",
-      "label": "Preprocessing Directives",
-      "path": "../docs/low-level/pp"
+      "id": "773caf1fe02945b5bc61a332be9c90aa",
+      "label": "The machine instructions",
+      "path": "../docs/low-level/opcodes"
     },
     {
       "id": "c79b82a22403407fb351c39028a8ef5a",
@@ -536,8 +551,72 @@
       "target": "e5dd647dfdff4a5796ec8361006c1f00"
     },
     {
+      "source": "243880d83f464517a201007716ffc581",
+      "target": "3ae550fdab0b4a9194d68d355610326b"
+    },
+    {
+      "source": "243880d83f464517a201007716ffc581",
+      "target": "42957ab7594145f0b492a14d2f38a783"
+    },
+    {
+      "source": "243880d83f464517a201007716ffc581",
+      "target": "9d652181ee714f7988c5ed164e4cae4e"
+    },
+    {
+      "source": "243880d83f464517a201007716ffc581",
+      "target": "203d1929b23e43889ec4efc90aa826bd"
+    },
+    {
+      "source": "243880d83f464517a201007716ffc581",
+      "target": "2dd6b2a9670b44fe85f22ce6ab568565"
+    },
+    {
+      "source": "9d652181ee714f7988c5ed164e4cae4e",
+      "target": "0bfa9b05f9c345bcba55bf5d19329ce3"
+    },
+    {
+      "source": "3ae550fdab0b4a9194d68d355610326b",
+      "target": "7ca52ec23a2c419b8bae36efade4dae0"
+    },
+    {
+      "source": "3ae550fdab0b4a9194d68d355610326b",
+      "target": "13e94d7a205c4b309f82d234663a8b8d"
+    },
+    {
+      "source": "3ae550fdab0b4a9194d68d355610326b",
+      "target": "08e45ed19f254ab984176f939b308a36"
+    },
+    {
+      "source": "08e45ed19f254ab984176f939b308a36",
+      "target": "13e94d7a205c4b309f82d234663a8b8d"
+    },
+    {
       "source": "7ca52ec23a2c419b8bae36efade4dae0",
       "target": "42957ab7594145f0b492a14d2f38a783"
+    },
+    {
+      "source": "7ca52ec23a2c419b8bae36efade4dae0",
+      "target": "773caf1fe02945b5bc61a332be9c90aa"
+    },
+    {
+      "source": "13e94d7a205c4b309f82d234663a8b8d",
+      "target": "297e81d11b3d4d169feb19f2c4ea66f5"
+    },
+    {
+      "source": "13e94d7a205c4b309f82d234663a8b8d",
+      "target": "530165083f3f4ed2bd9156905c68f282"
+    },
+    {
+      "source": "13e94d7a205c4b309f82d234663a8b8d",
+      "target": "98594536dd60406ca3820f14366503ac"
+    },
+    {
+      "source": "203d1929b23e43889ec4efc90aa826bd",
+      "target": "74f6fea8f48c45c9af3f0037a3c4d69d"
+    },
+    {
+      "source": "203d1929b23e43889ec4efc90aa826bd",
+      "target": "a0f32ecb875b466eb17cc08105d28a57"
     },
     {
       "source": "1bae5007b0f24126b43395d4b1777cc9",

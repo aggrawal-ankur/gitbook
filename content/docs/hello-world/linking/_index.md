@@ -1,7 +1,7 @@
 ---
 id: 7f2ea64082764610b828b6935c4a15f1
-title: "Linking: Object Code To Executable Binary"
-weight: 7
+title: Linking
+weight: 5
 ---
 
 ## Setup
