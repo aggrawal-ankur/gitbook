@@ -1,14 +1,12 @@
 ---
 id: 8bf1c94a19df485485fe7e3861821065
-title: Relocations- P1
-weight: 9
+title: Performing Relocations
+weight: 7
 ---
 
-## Setup
+The dynamic linker does relocations. To do that, it needs to know where the relocation entries live. Therefore, it's time to revist the .dynamic section.
 
-You remember the dynamic section?
-
-```
+```bash
 Dynamic section at offset 0x2de0 contains 26 entries:
   Tag                  Type             Name/Value
  0x0000000000000001    (NEEDED)         Shared library: [libc.so.6]
@@ -41,7 +39,6 @@ Dynamic section at offset 0x2de0 contains 26 entries:
 
 We can classify the entries in the `Type` field based on when the interpreter goes to them.
 
-
 | Phase Of Action | Type Used | Significance |
 | :--- | :--- | :--- |
 | 1 | NEEDED | Load shared libraries |
@@ -52,7 +49,6 @@ We can classify the entries in the `Type` field based on when the interpreter go
 | 3 | INIT, INIT_ARRAY, INIT_ARRAYSZ | Setup before main |
 | - | FINI, FINI_ARRAY, FINI_ARRAYSZ | Setup after main |
 | 4 | NULL | End |
-
 
 So far, we know that the first thing that the interpreter does is to load the shared libraries.
 
@@ -183,7 +179,6 @@ Its symbol index is 0 and the relocation type is 8, which resolves to `R_X86_64_
 
 * Entries of type 8 doesn't require any symbol lookup.
 *   `Offset` is where we have to write the result. And the result is calculated as follows:&#x20;
-
     ```
     *(Offset) = Base Address of the binary + Addend
     ```

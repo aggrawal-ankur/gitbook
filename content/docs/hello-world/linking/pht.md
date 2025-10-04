@@ -4,7 +4,7 @@ title: Program Headers
 weight: 4
 ---
 
-***Originally written in early july 2025.***
+***Originally written in early July 2025.***
 
 ***Polished on October 04, 2025***
 

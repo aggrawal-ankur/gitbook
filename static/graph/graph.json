@@ -96,18 +96,13 @@
       "path": "../docs/hello-world/pp"
     },
     {
-      "id": "2dd6b2a9670b44fe85f22ce6ab568565",
-      "label": "Static Linking v/s Dynamic Linking",
-      "path": "../docs/hello-world/linking-types/"
-    },
-    {
       "id": "228c449ca79441b68c053f707071e792",
       "label": "Stripping ELF",
       "path": "../docs/hello-world/linking-types/strip"
     },
     {
       "id": "3c66d1046644432f94ee90f8518d9216",
-      "label": "Differences",
+      "label": "Types Of Linking",
       "path": "../docs/hello-world/linking-types/diffs"
     },
     {
@@ -131,6 +126,11 @@
       "path": "../docs/hello-world/orientation/elf-intro"
     },
     {
+      "id": "3ab6125a1a954b7883574ae8a2e6ad99",
+      "label": "Types Of ELF",
+      "path": "../docs/hello-world/orientation/elf-types"
+    },
+    {
       "id": "203d1929b23e43889ec4efc90aa826bd",
       "label": "Assembling",
       "path": "../docs/hello-world/assembling/"
@@ -146,6 +146,11 @@
       "path": "../docs/hello-world/assembling/readelf"
     },
     {
+      "id": "8bf1c94a19df485485fe7e3861821065",
+      "label": "Performing Relocations",
+      "path": "../docs/hello-world/linking/relocs2"
+    },
+    {
       "id": "7f2ea64082764610b828b6935c4a15f1",
       "label": "Linking",
       "path": "../docs/hello-world/linking/"
@@ -154,11 +159,6 @@
       "id": "4c64b58f2c9048259709fbd189d92277",
       "label": "Procedure Linkage Table",
       "path": "../docs/hello-world/linking/plt"
-    },
-    {
-      "id": "98544af1a04a454ba453a9b6eb7e7f7c",
-      "label": "Addends",
-      "path": "../docs/hello-world/linking/addends"
     },
     {
       "id": "a27011754d064d3d809e59d9108a0ea8",
@@ -181,19 +181,9 @@
       "path": "../docs/hello-world/linking/full-disas"
     },
     {
-      "id": "859c0974e319471ca2f0a27bfc393f9f",
-      "label": "Why 0-based indexing?",
-      "path": "../docs/hello-world/linking/0-indexing"
-    },
-    {
       "id": "21938857c7dd43e3becd500a422764a3",
       "label": "Interpreter Program",
       "path": "../docs/hello-world/linking/interpreter"
-    },
-    {
-      "id": "8bf1c94a19df485485fe7e3861821065",
-      "label": "Relocations- P1",
-      "path": "../docs/hello-world/linking/relocs-p1"
     },
     {
       "id": "a286b3f6fb904fd182774bb9217728b8",
@@ -201,14 +191,14 @@
       "path": "../docs/hello-world/linking/file_h"
     },
     {
-      "id": "37c3bf4339444f10afc641a908538316",
-      "label": "Preparing For Symbol Resolution",
-      "path": "../docs/hello-world/linking/sym-res"
-    },
-    {
       "id": "e09b454b4e23444e98772ff7dc6aef4d",
       "label": "After Relocation",
       "path": "../docs/hello-world/linking/after-relocs"
+    },
+    {
+      "id": "37c3bf4339444f10afc641a908538316",
+      "label": "Introduction To Relocation",
+      "path": "../docs/hello-world/linking/relocs1"
     },
     {
       "id": "1bae5007b0f24126b43395d4b1777cc9",
@@ -229,6 +219,11 @@
       "id": "f53a541da504452080330c426a6c51ce",
       "label": "SIMD Instructions",
       "path": "../docs/low-level/si"
+    },
+    {
+      "id": "184c5bafc26a4209b9429c0d3b5942c9",
+      "label": "Binary Large Object (Blob)",
+      "path": "../docs/low-level/blob"
     },
     {
       "id": "bb382eafd30f4cb0aaa0289a64e315cc",
@@ -344,6 +339,11 @@
       "id": "133c28b7762348618fddc238b6563a35",
       "label": "Multidimensional Array",
       "path": "../docs/low-level/mem-alloc/md-array"
+    },
+    {
+      "id": "859c0974e319471ca2f0a27bfc393f9f",
+      "label": "0-based indexing",
+      "path": "../docs/low-level/mem-alloc/indexing"
     },
     {
       "id": "583d6b17c3a346c59d56e98e9eb2488e",

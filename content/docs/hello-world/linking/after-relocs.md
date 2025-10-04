@@ -1,7 +1,7 @@
 ---
 id: e09b454b4e23444e98772ff7dc6aef4d
 title: After Relocation
-weight: 12
+weight: 10
 ---
 
 After `.rela.dyn` entries are processed, the interpreter looks at the PLT entries. Since lazy binding is enabled by default, relocations for `.rela.plt` are deferred.
@@ -27,8 +27,6 @@ The control is given back to the \``` __libc_start_main()` `` function, which re
 `exit()` runs, calls destructors from `.fini-array` and finally, the exit syscall comes in effect to terminate the program.
 
 The kernel receives the control back, does some cleanup and sends `SIGCHLD` to the parent process.
-
-
 
 ## Conclusion
 

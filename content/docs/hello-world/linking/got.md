@@ -1,7 +1,7 @@
 ---
 id: 85fa67f76e174da39fbde619a1a87e85
 title: Global Offset Table
-weight: 10
+weight: 8
 ---
 
 So far, we know that when we are talking about relocation, we are updating a placeholder value at an offset in the loaded segments by the actual runtime address of the symbol.

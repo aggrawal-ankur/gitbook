@@ -1,8 +1,9 @@
 ---
 id: 3c66d1046644432f94ee90f8518d9216
-title: Differences
+title: Types Of Linking
 ---
 
+Static Linking vs Dynamic Linking difference table.
 
 ## Introduction
 

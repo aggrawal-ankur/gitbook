@@ -4,7 +4,7 @@ title: Linking
 weight: 5
 ---
 
-***Originally written between late june and early july 2025***
+***Originally written between late June and early July 2025***
 
 ***Polished on October 04, 2025***
 
