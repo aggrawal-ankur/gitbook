@@ -1,6 +1,6 @@
 ---
 id: 859c0974e319471ca2f0a27bfc393f9f
-title: Why arrays in C follow 0-based indexing?
+title: Why 0-based indexing?
 weight: 7
 ---
 

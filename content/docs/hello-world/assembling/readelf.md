@@ -13,12 +13,12 @@ readelf ELF FLAGS
 
 It is feature-rich just like objdump. The ones that concern us include:
 ```bash
-readelf object_code.o -a      # Everything under one roof
-readelf object_code.o -h      # ELF headers
-readelf object_code.o -l      # Program headers
-readelf object_code.o -S      # Section headers
-readelf object_code.o -s      # Symbol table
-readelf object_code.o -r      # Relocation entries
+readelf hello.o -a      # Everything under one roof
+readelf hello.o -h      # ELF headers
+readelf hello.o -l      # Program headers
+readelf hello.o -S      # Section headers
+readelf hello.o -s      # Symbol table
+readelf hello.o -r      # Relocation entries
 ```
 
 Let's start with file header.
@@ -230,4 +230,4 @@ We have explored this already.
 
 ---
 
-Here we complete analysing the object code. Next is linked ELF.
+Here we complete our object code analysis. Next is linked ELF.

@@ -15,6 +15,10 @@ The source can be compiled into x64 assembly as:
 gcc -S -masm=intel hello.c -o hello_asm.s
 ```
 
+## What happens in compilation?
+
+---
+
 If you have learned basic C a long time ao, it is highly possible that you write `void main(){}` instead of `int main()`. Many old tutorials use it, even I learned C the same way 5 years ago.
 
 But `void main(){}` is a wrong signature for main function. For more information, check out the {{< doclink "0bfa9b05f9c345bcba55bf5d19329ce3" "Linux Processes" >}} write up. Although I don't recommend as it is not required.

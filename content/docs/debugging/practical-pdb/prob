@@ -1,0 +1,2 @@
+Although we did the work, but converting hex to dec back and forth is something we can avoid using gdb's scripting possibilities.
+convert addresses to decimal or provide examine with hex values for count.
