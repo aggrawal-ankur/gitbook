@@ -1,12 +1,12 @@
 ---
 id: 21938857c7dd43e3becd500a422764a3
-title: Interpreter Program
+title: Interpreter
 weight: 5
 ---
 
 ***Originally written in early July 2025.***
 
-***Polished on October 04, 2025***
+***Polished on 04, 05 October 2025***
 
 ---
 
@@ -44,19 +44,18 @@ Dynamic section at offset 0x2de0 contains 26 entries:
 
 | Attribute | Description |
 | :-------- | :---------- |
-| Tag | A numeric identifier telling what an entry means. It is not an address, just the value is represented using hexadecimal values. |
-| Type | It is a human interpretation of the value in the Tag field. |
-| Name/Value | For a shared library, this attribute has a string name as value. |
-| | For size, it stores a size. |
-| | For integer/count, a number only |
-| | For address, it stores `0x` prefixed addresses. |
+| Tag | A numeric identifier for an entry represented using hexadecimal values. |
+| Type | A human interpretation of the numeric Tag. |
+| Name/Value | For a shared library, it is a string. |
+| | For size/count, an integer |
+| | For address, a `0x` prefixed addresses. |
 
-## Understanding Each Entry
+## Types
 
 | Tag    | Purpose |
 | :----  | :------ |
 | NEEDED | Tells the linker a shared library is needed. |
-| | The value is an offset in the .dynstr table pointing to the library's name (e.g."libc.so.6"). | 
+| | The value is an offset in the .dynstr table pointing to the library's name (e.g. libc.so.6). | 
 | | There can be multiple entries of this type. |
 | INIT | Address of the function to run before the main() from the source program runs. |
 | INIT_ARRAY   | Address of an array of constructor function pointers to run before the main() runs (more flexible than INIT). |
@@ -84,15 +83,40 @@ Dynamic section at offset 0x2de0 contains 26 entries:
 | RELACOUNT  | Number of RELA relocations not part of PLT — for optimization. |
 | NULL | Marks the end of the dynamic section. No entries are processed after this. |
 
-All this information is used in relocation. We will explore it in detail.
+This information is used in resolving external symbol references. We will explore them later in detail.
 
-## How does the interpreter reads them?
+## How they are interpreted?
 
 When the kernel calls the interpreter program and transfers control to it, it passes some information in the form of arguments, including:
   - `AT_DYNAMIC`: Address of the .dynamic section of the main program.
   - `AT_PHDR`: Pointer to the PHDR segment.
   - `AT_ENTRY`: Original program entry point.
 
-The interpreter uses the AT_DYNAMIC to locate the .dynamic section. It loops over each entry loads the shared libraries marked by the DT_NEEDED types and records pointers and other values relevant for relocation.
+The interpreter uses AT_DYNAMIC to locate the .dynamic section.
 
-Now the interpreter starts relocation.
+We can classify the entries in .dynamic section based on **when and how** the interpreter processes them.
+
+| Phase (When) | Task (How) | Entries |
+| :----------- | :--------- | :------ |
+| 0  | Control linker behavior; Affects later phases | FLAGS_1 |
+| 0  | Let debuggers (e.g. gdb) hook into the internal state of dynamic linker. | DEBUG |
+| 1  | Load shared libraries | NEEDED |
+| 2  | Perform immediate relocation | RELA, RELAENT, RELASZ, RELACOUNT |
+| 3  | Setup for delayed relocation | JMPREL, PLTREL, PLTRELSZ, PLTGOT |
+| 4  | Setup before main  | INIT, INIT_ARRAY, INIT_ARRAYSZ |
+| 5  | Cleanup after main | FINI, FINI_ARRAY, FINI_ARRAYSZ |
+| NA | Section terminator | NULL |
+
+  - GNU_HASH, STRTAB, SYMTAB, STRSZ, SYMENT, VERNEED, VERNEEDNUM, VERSYM are used in resolving external references (symbol resolution + relocation).
+
+Based on the classification above, we can map the purpose of the interpreter as:
+  - Load shared libraries.
+  - Perform immediate relocations.
+  - Set up environment for delayed relocations.
+  - Initialize the environment and transfer control to our C program.
+  - Do cleanup after main has returned.
+  - Initiate exit.
+
+---
+
+Now we have to understand how external references are resolved.

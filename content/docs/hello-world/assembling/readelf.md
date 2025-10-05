@@ -177,40 +177,6 @@ The solution is to **minimize the maximum wastage.**
 
 Therefore, the `Section header string table index: 12` entry in the ELF header specifies the index of the "section header string table" entry in the section headers table.
 
-## Relocations
-
-```bash
-$ readelf object_code.o -r
-
-Relocation section '.rela.text' at offset 0x168 contains 2 entries:
-  Offset          Info            Type         Sym. Value     Sym. Name + Addend
-000000000007  000300000002  R_X86_64_PC32   0000000000000000  .rodata - 4
-00000000000f  000500000004  R_X86_64_PLT32  0000000000000000  puts - 4
-
-Relocation section '.rela.eh_frame' at offset 0x198 contains 1 entry:
-  Offset          Info           Type          Sym. Value     Sym. Name + Addend
-000000000020  000200000002  R_X86_64_PC32   0000000000000000  .text + 0
-No processor specific unwind information to decode
-```
-
-Relocations are instructions for the linker/loader program (`ld-linux.so`).
-  - In simple words, a relocation entry asks to replace the placeholder offset with the real address for the symbol.
-  - What gets relocated is the symbol. There are cross-references to symbols in shared libraries which are required to be resolved. The process that resolves them is called *relocation*.
-
-Relocation entries are of two types.
-  - Relocation with addend (`RELA`)
-  - Relocation without addend (`REL`)
-
-`.rela.text` is read as relocation (with addend) for text (code) section.
-
-| Attribute  | Description |
-| :--------  | :---------- |
-| Offset     | The address in a section where the relocation has to be applied. |
-| Info       | Encodes the symbol index and relocation type. |
-| Type       | The kind of relocation to apply. |
-| Sym. Value | The value of the symbol before relocation. |
-| Sym. Name + Addend | The symbol address with addend.    |
-
 ## Symbol Table
 
 ```bash

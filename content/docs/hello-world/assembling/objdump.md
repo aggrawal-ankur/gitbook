@@ -175,23 +175,6 @@ The fourth section is for the section the symbol belongs to.
 
 We have used `printf()` objdump shows the object code is using `puts()`. This is because printf is a more complex function and we are not doing anything complex. So `gcc` optimized the code to use `puts`.
 
-## Relocation Entries (-r)
-
-```bash
-RELOCATION RECORDS FOR [.text]:
-OFFSET           TYPE              VALUE
-0000000000000007 R_X86_64_PC32     .rodata-0x0000000000000004
-000000000000000f R_X86_64_PLT32    puts-0x0000000000000004
-
-RELOCATION RECORDS FOR [.eh_frame]:
-OFFSET           TYPE              VALUE
-0000000000000020 R_X86_64_PC32     .text
-```
-
-Relocations are instructions for the linker/loader program (`ld-linux.so`).
-
-In simple words, a relocation entry asks to replace the placeholder offset with the real address of the symbol.
-
 ## Section Headers (-h)
 
 The output is slightly modified.

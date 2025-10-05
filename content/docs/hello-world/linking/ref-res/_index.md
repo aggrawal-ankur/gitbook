@@ -1,36 +1,98 @@
 ---
 id: 37c3bf4339444f10afc641a908538316
-title: Introduction To Relocation
+title: Resolving External References
 weight: 6
 ---
 
 ***Originally written in July 2025.***
 
-***Polished on October 04, 2025.***
+***Polished on 04, 05 October 2025.***
 
 ---
 
-## Why relocation?
+Functions like `printf()` and `scanf()` don't belong to us, but we use them in our source code. We use header files like stdio.h and stdlib to access them.
+  - But header files are just frontend APIs which make the writing process easier.
+  - When we talk about the whole infrastructure that runs C code, we can easily count hundreds of procedures and sub-routines doing the actual work.
+  - In the end, an executable binary has to exist for these functions. This is where shared libraries come into picture.
+  - We link our source code with these shared libraries to use those functions at runtime.
 
-We are using `printf()` to print `Hello, World!\n` in the output stream but we have not write the printf() ourselves. We use the standard I/O header file to access it.
+Now we have access to functions present in shared libraries. And we have to deal with one last problem. **We don't know their runtime address.**
+  - The solution to this problem is a 2-step process.
+  - First, we find the runtime address of the symbol. This process is called symbol resolution.
+  - Second, we patch the placeholder offset with this runtime address. This process is called relocation.
 
-`printf()` is just one thing. We are talking about the whole that infrastructure that runs C programs. How many functions that infrastructure would be made up of?
-  - This is where shared libraries come.
-  - Header files like standard I/O and math are just frontends that makes these functions available while writing source code.
-  - At the end of the day, printf is also a code, which needs to undergo the same build process.
-  - These functions exist in the form of shared libraries, which we link our binaries with.
+## Relocation Entries
 
-Now we have access to these functions we have not written. Yet we can't use them because we don't know where they exist in the memory. To solve this problem, we have to resolve their actual runtime address.
-  - This process of symbol resolution is called relocation.
+There are 100s of procedures and sub-routines doing the actual work.
+  - But not all of them are available as frontend APIs. They are called internally by the frontend APIs. 
+  - That's why only few symbols need relocation.
 
-## What is required for relocation?
+There are two relocation tables in our binary.
+  - `.rela.dyn` is for symbols requiring eager binding.
+  - `.rela.plt` is for symbols requiring lazy binding.
 
-1. The symbols whose runtime address is not known.
-2. Relocation entries which define the metadata about these symbols.
+These two tables cover most of the general C binaries, but relocation tables aren't limited to them. There are special cases when a different relocation table might be used. But we need not to worry about them.
+
+To understand their purpose, we have to understand binding.
+
+### Binding
+
+Now we know that multiple routines run before our program. This number is little in our binary but this can be huge in big projects. 
+
+Take two cases.
+
+Case1:
+  - There is no way an internal routine using `printf` because it is a frontend API used to put stuff on the output stream.
+  - Is it fruitful to load `printf` far before we need it? Because, first, the symbols are resolved, then they run.
+  - Now increase the scale to all the functions present in a large project. This can easily become an overhead.
+
+Case2:
+  - If I decide to call a function based on a certain condition, that creates an uncertainty that whether the symbol would be used or not.
+  - For ex: factorial is defined only for +ve integers. So we have to check positivity before using it.
+  - If you preload it and not use it, it's a waste.
+
+What if we can devise a process that intelligently determines when to resolve which symbol, we can balance speed and reliability. ***Binding*** is the answer.
+
+---
+
+Binding is the process that determines when and how external references are resolved.
+
+There are 3 types of binding we need to study right now.
+  - Load-time dynamic binding (Eager binding)
+  - Lazy PLT binding
+  - Static binding
+
+Static binding is a different beast, where everything is resolved at link-time (not load-time), in the build-process only.
+  - It requires no relocation/got/plt stuff. The most straightforward option.
+  - But that straightforward-ness comes at a cost we will study separately later.
+
+Eager binding resolves a symbol at load-time.
+  - It ensures that any code runs safely by resolving symbols which are absolutely required.
+  - This includes all non-PLT relocations.
+
+Lazy binding defers symbol resolution until the symbol is not called.
+
+CONTINUE FROM HERE
+
+### Addend
+
+There can be cases where the symbol is a specific part of a complex structure, a blob or a function.
+  - Symbol resolution calculates only the runtime base address of the symbol. It doesn't account for specifics.
+  - For basic symbols (variables/functions), this is not a problem. But for complex scenarios, this is a problem.
+
+To solve this problem, we need to add a constant value to the runtime base address of a symbol to obtain the final runtime address. This constant value is called **addend**.
+
+For simple symbols, addend is usually 0, which is reflected in the relocation tables above as well.
+
+When this addend is stored in the relocation entry, the dynamic linker computes the final value by combining the base address of the symbol with addend. Such relocation is called "relocation with addend, or RELA".
+
+When this addend is embedded in the instruction/data itself and the relocation entry only tells the dynamic linker where to patch, such a relocation is called "relocation without addend, or REL".
+  - This one doesn't make sense right now so don't scratch your head.
+  - There is no REL entry in our binary. But we will cover this later for sure.
 
 ## Symbol Table
 
-A symbol table is a metadata table about symbols. There are two symbol tables in our binary: `.symtab` and `.dynsym`.
+A symbol table is a metadata table for symbols. There are two symbol tables in our binary: `.symtab` and `.dynsym`.
 
 ```bash
 Symbol table '.dynsym' contains 7 entries:
@@ -104,7 +166,7 @@ Symbol table '.symtab' contains 36 entries:
 | | COMMON: Uninitialized global symbol. |
 | Name | Name of the symbol; An offset in the corresponding string table. |
 
-### Purpose Of These Tables
+### Purpose
 
 | Table   | Purpose |
 | :----   | :------ |
@@ -119,56 +181,3 @@ A string table is a central name registry.
 | :------ | :------ |
 | .dynsym | .dynstr |
 | .symtab | .symtab |
-
-## Relocation Entries
-
-Relocation entries are instructions for the linker/loader program (`ld-linux.so`).
-  - A relocation entry asks to replace the mentioned placeholder offset with the real address offset the symbol.
-
-There are two kinds of relocation entries.
-  - Relocation with addend, `RELA`.
-  - Relocation without addend, `REL`.
-
-There are two relocation tables in our binary, `.rela.dyn` and `.rela.plt`.
-  - `.rela.dyn` is used in eager binding.
-  - `.rela.plt` is used in lazy binding.
-
-These are the relocation entries in our binary.
-```bash
-$ readelf hello -r
-
-Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:
-  Offset          Info            Type            Sym. Value     Sym. Name + Addend
-000000003dd0  000000000008  R_X86_64_RELATIVE                      1130
-000000003dd8  000000000008  R_X86_64_RELATIVE                      10f0
-000000004010  000000000008  R_X86_64_RELATIVE                      4010
-000000003fc0  000100000006  R_X86_64_GLOB_DAT  0000000000000000  __libc_start_main@GLIBC_2.34 + 0
-000000003fc8  000200000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_deregisterTM[...] + 0
-000000003fd0  000400000006  R_X86_64_GLOB_DAT  0000000000000000  __gmon_start__ + 0
-000000003fd8  000500000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_registerTMCl[...] + 0
-000000003fe0  000600000006  R_X86_64_GLOB_DAT  0000000000000000  __cxa_finalize@GLIBC_2.2.5 + 0
-
-Relocation section '.rela.plt' at offset 0x610 contains 1 entry:
-  Offset          Info           Type           Sym. Value       Sym. Name + Addend
-000000004000  000300000007  R_X86_64_JUMP_SLO  0000000000000000  puts@GLIBC_2.2.5 + 0
-```
-
-| Attribute | Description |
-| :-------- | :---------- |
-| Offset | Location in the section where the relocation has to be applied. |
-| Info   | Encodes relocation type and symbol index (high bits: symbol, low bits: type). |
-| Type   | How to do relocation. |
-| Sym. Value | The value of the symbol (from the symbol table), if applicable |
-| Sym. Name  | Name of the symbol being relocated (can be empty for some types, like `RELATIVE`) |
-| Addend | A constant value added to the relocation calculation. |
-
-### Addend
-
-An addend is a constant value added to the base address of a symbol during relocation to obtain the final runtime address required to be patched.
-
-For simple variables and functions, addend is usually 0. But for complex structures and blobs, maybe a very specific part in that structure is required, rather than the full structure.
-  - The offset you have to travel from the base address of that symbol to obtain that precise location is what an addend is.
-
-When this addend is stored in the relocation entry, the dynamic linker computes the final value by combining the symbol address and the addend. Such relocation is called "relocation with addend, or RELA".
-
-When this addend is embedded in the instruction/data itself and the relocation entry only tells the dynamic linker where to patch, such a relocation is called "relocation without addend, or REL".
