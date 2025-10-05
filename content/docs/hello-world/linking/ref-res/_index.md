@@ -66,13 +66,15 @@ Static binding is a different beast, where everything is resolved at link-time (
   - It requires no relocation/got/plt stuff. The most straightforward option.
   - But that straightforward-ness comes at a cost we will study separately later.
 
-Eager binding resolves a symbol at load-time.
-  - It ensures that any code runs safely by resolving symbols which are absolutely required.
-  - This includes all non-PLT relocations.
+Eager binding resolves a symbol at load-time, before any instruction runs.
+  - It ensures that the minimum environment required to run anything is set up.
+  - This includes all the non-PLT relocations.
 
 Lazy binding defers symbol resolution until the symbol is not called.
+  - It improves start up time signficantly in huge programs by deferring resolution until the symbol is required.
+  - It uses PLT trampoline to resolve references when the symbol is called the first time.
 
-CONTINUE FROM HERE
+Both of these techniques have similarities and differences, which we will talk about very soon.
 
 ### Addend
 

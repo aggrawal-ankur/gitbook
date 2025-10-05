@@ -10,56 +10,18 @@ weight: 1
 
 ---
 
-The dynamic linker needs to know where the relocation entries are to resolve the external symbol references.
+The interpreter is at the .dynamic section now.
+  - It has loaded `libc.so.6`, whcih is the only shared library dependency in our program.
 
-```bash
-Dynamic section at offset 0x2de0 contains 26 entries:
-        Tag            Type              Name/Value
- 0x0000000000000001    (NEEDED)          Shared library: [libc.so.6]
- 0x000000000000000c    (INIT)            0x1000
- 0x000000000000000d    (FINI)            0x1154
- 0x0000000000000019    (INIT_ARRAY)      0x3dd0
- 0x000000000000001b    (INIT_ARRAYSZ)    8 (bytes)
- 0x000000000000001a    (FINI_ARRAY)      0x3dd8
- 0x000000000000001c    (FINI_ARRAYSZ)    8 (bytes)
- 0x000000006ffffef5    (GNU_HASH)        0x3b0
- 0x0000000000000005    (STRTAB)          0x480
- 0x0000000000000006    (SYMTAB)          0x3d8
- 0x000000000000000a    (STRSZ)           141 (bytes)
- 0x000000000000000b    (SYMENT)          24 (bytes)
- 0x0000000000000015    (DEBUG)           0x0
- 0x0000000000000003    (PLTGOT)          0x3fe8
- 0x0000000000000002    (PLTRELSZ)        24 (bytes)
- 0x0000000000000014    (PLTREL)          RELA
- 0x0000000000000017    (JMPREL)          0x610
- 0x0000000000000007    (RELA)            0x550
- 0x0000000000000008    (RELASZ)          192 (bytes)
- 0x0000000000000009    (RELAENT)         24 (bytes)
- 0x000000006ffffffb    (FLAGS_1)         Flags: PIE
- 0x000000006ffffffe    (VERNEED)         0x520
- 0x000000006fffffff    (VERNEEDNUM)      1
- 0x000000006ffffff0    (VERSYM)          0x50e
- 0x000000006ffffff9    (RELACOUNT)       3
- 0x0000000000000000    (NULL)            0x0
-```
-
-So far, we know that the first thing that the interpreter does is to load the shared libraries.
-
-* In our case, it is `libc.so.6`.
-
-After all the shared libraries are loaded, the interpreter goes about relocation.
-
-CONTINUE FROM HERE
-
-## Introducing Relocations
-
-The interpreter uses the `RELA` entry to jump to the `.rela.dyn` relocation table. `RELA` entry in the dynamic section has a value of `0x550` and we can verify that the `.rela.dyn` table is also located at the same offset by this line `Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:` .
-
-To revise, a relocation entry can be read as: _at offset in the section, replace the placeholder address of the symbol with its actual address._
+It's time for relocations. The interpreter uses:
+  - `RELA` to find `.rela.dyn` section. It is at 0x550.
+  - `RELASZ` to find the size of .rela.dyn section.
+  - `RELACOUNT` to find the number of entries in .rela.dyn section. It is 8.
+  - `RELAENT` to find the size of each entry in .rela.dyn table.
 
 These are the relocation entries in the `.rela.dyn` table.
 
-```
+```bash
 Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:
   Offset          Info            Type            Sym. Value     Sym. Name + Addend
 000000003dd0  000000000008  R_X86_64_RELATIVE                      1130
@@ -72,11 +34,24 @@ Relocation section '.rela.dyn' at offset 0x550 contains 8 entries:
 000000003fe0  000600000006  R_X86_64_GLOB_DAT  0000000000000000  __cxa_finalize@GLIBC_2.2.5 + 0
 ```
 
-The `Info` field is 8 bytes long, although here it is 6 bytes, which is I am also wondering why readelf is not showing the remaining 2 bytes, but leave it.
+| Attribute |	Description |
+| :-------- | :---------- |
+| Offset | Offset in a section where relocation is required. |
+| Info   | Encodes relocation type and symbol index. |
+| Type   | Relocation type. |
 
-* The upper 8-bytes refers to the symbol index value and the lower 8-bytes refers to the relocation type.
+There are no "Sym. Value" and "Sym. Name + Addend" fields in the raw ELF. They are just readelf's creation.
 
-### \`R\_X86\_64\_RELATIVE\` Relocation
+A relocation entry can be read as: _at offset in the section, replace the placeholder value with the runtime address._
+
+The `Info` field is 4/8 bytes in size on 32-bit/64-bit architecture. It is present in hex form and readelf missed the upper 4 bits which is why it is 6 bytes long here.
+  - The upper-half is for symbol index and the lower-half is for relocation type.
+
+Let's understand R_X86_64_RELATIVE and R_X86_64_GLOB_DAT.
+
+CONTINUE FROM HERE
+
+### R_X86_64_RELATIVE Relocation
 
 ```
   Offset          Info            Type            Sym. Value     Sym. Name + Addend
@@ -105,7 +80,7 @@ The remaining two entries are relocated in the same manner.
 000000004010  000000000008  R_X86_64_RELATIVE                      4010
 ```
 
-### \`R\_X86\_64\_GLOB\_DAT\` Relocation
+### R_X86_64_GLOB_DAT Relocation
 
 ```
   Offset          Info            Type            Sym. Value     Sym. Name + Addend
@@ -144,3 +119,29 @@ Now the interpreter jumps to the `JUMPREL` entry in the dynamic section and find
 * For lazy binding, we need to understand global offset table (GOT) and procedure linkage table (PLT). Both of which are really complex and confusing.
 * Since it is fairly long, it deserves its own separate place. Therefore, we are dividing this article into two parts.
 * Here ends the first part.
+
+---
+
+Before we end this, let's explore one thing we have deferred so far.
+
+## Relocation At Object Level vs Link Level
+
+The object code also had relocations.
+
+```bash
+$ readelf hello.o -r
+
+Relocation section '.rela.text' at offset 0x168 contains 2 entries:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+000000000007  000300000002 R_X86_64_PC32     0000000000000000 .rodata - 4
+00000000000f  000500000004 R_X86_64_PLT32    0000000000000000 puts - 4
+
+Relocation section '.rela.eh_frame' at offset 0x198 contains 1 entry:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+000000000020  000200000002 R_X86_64_PC32     0000000000000000 .text + 0
+```
+
+You may ask, *what's the point of having relocations when the code can't be loaded into memory?*
+  - That's because, these relocations lay down the foundation for what we see at link-time.
+  - In huge projects, the code exists in multiple source files. Each file is compiled and assembled separately.
+  - When we link them, all of them tell the linker that we have these external references. If there were no relocations at object level, that would be a nightmare for the linker.
