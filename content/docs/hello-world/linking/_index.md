@@ -32,10 +32,14 @@ hello_elf: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically 
 
 ## What happens in linking?
 
-## High Level Roadmap Of Execution
-
-1. Verification of magic.
-2. Checking if the ELF can be loaded or not.
-3. Locating program headers to know how to map the binary in the memory.
+---
 
 Let's explore linking.
+
+{{< doclink "a286b3f6fb904fd182774bb9217728b8" "" >}}
+{{< doclink "2ad66852fa5e40f98cac9d758c95135f" "" >}}
+{{< doclink "a27011754d064d3d809e59d9108a0ea8" "" >}}
+{{< doclink "03ae9097699f47bcac2df5d89343591e" "" >}}
+{{< doclink "21938857c7dd43e3becd500a422764a3" "" >}}
+{{< doclink "37c3bf4339444f10afc641a908538316" "" >}}
+{{< doclink "cea7ad0d7b744f2d90c08a19355bc07a" "" >}}
