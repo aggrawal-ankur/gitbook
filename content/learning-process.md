@@ -1,8 +1,6 @@
 ---
 id: c3f2f51ba3c54daf8f0ac0c1daa8c5a4
 title: Learning Process Optimization
-sidebar:
-  exclude: true
 ---
 
 _**Got the idea to write this on 17 September 2025, 5:30 PM**_
