@@ -2,6 +2,8 @@
 id: 1943e22373c34e3a9d2ff310e1781982
 title: Application Binary Interface (ABI)
 weight:
+sidebar:
+  exclude: true
 ---
 
 generic ABI (gABI)

@@ -2,6 +2,8 @@
 id: 68520c11ac874803820d4c64784efd23
 title: Types Of Relocations
 weight:
+sidebar:
+  exclude: true
 ---
 
 ***October 06, 2025***
