@@ -47,40 +47,37 @@ A relocation entry can be read as: _at offset in the section, replace the placeh
 The `Info` field is 4/8 bytes in size on 32-bit/64-bit architecture. It is present in hex form and readelf missed the upper 4 bits which is why it is 6 bytes long here.
   - The upper-half is for symbol index and the lower-half is for relocation type.
 
-Let's understand R_X86_64_RELATIVE and R_X86_64_GLOB_DAT.
+---
 
-CONTINUE FROM HERE
-
-### R_X86_64_RELATIVE Relocation
+## R_X86_64_RELATIVE
 
 ```
   Offset          Info            Type            Sym. Value     Sym. Name + Addend
 000000003dd0  000000000008  R_X86_64_RELATIVE                      1130
-```
-
-Its symbol index is 0 and the relocation type is 8, which resolves to `R_X86_64_RELATIVE`.
-
-* Entries of type 8 doesn't require any symbol lookup.
-*   `Offset` is where we have to write the result. And the result is calculated as follows:
-    ```
-    *(Offset) = Base Address of the binary + Addend
-    ```
-* In simple words, take the base address of the binary and add the value in the `Sym. Name + Addend` field to it. Now write the obtained value at the mentioned offset. Relocation is done.
-* ```
-  relocation_address = base_addr + 0x3dd0;
-  value_to_write = base_addr + 1130;
-
-  *(relocation_address) = value_to_write
-  ```
-
-The remaining two entries are relocated in the same manner.
-
-```
 000000003dd8  000000000008  R_X86_64_RELATIVE                      10f0
 000000004010  000000000008  R_X86_64_RELATIVE                      4010
 ```
+  - Let's understand the first one.
 
-### R_X86_64_GLOB_DAT Relocation
+Since readelf uses hex format to display the `Info` field, we can simply make pairs of 8 digits to obtain and the high and low bits.
+  - Since it only displays 12 digits, we will append 4 in the left side to make it a 8-byte value: 0000000000000008
+  - Now, high bits: 0x00000000 && low bits: 0x00000008
+
+So the symbol index is 0 and relocation type is 8, which is `R_X86_64_RELATIVE`.
+
+Entries of type 8 doesn't require any symbol lookup.
+
+The symbol's runtime address can be calculated as:
+```
+Base Address of the binary + Addend
+```
+  - This value needs to be patched at `0x3dd0` offset.
+
+---
+
+The remaining two entries are relocated in the same manner.
+
+## R_X86_64_GLOB_DAT
 
 ```
   Offset          Info            Type            Sym. Value     Sym. Name + Addend
@@ -90,36 +87,27 @@ The remaining two entries are relocated in the same manner.
 000000003fd8  000500000006  R_X86_64_GLOB_DAT  0000000000000000  _ITM_registerTMCl[...] + 0
 000000003fe0  000600000006  R_X86_64_GLOB_DAT  0000000000000000  __cxa_finalize@GLIBC_2.2.5 + 0
 ```
+  - Lets take the first entry.
 
-Lets take the first entry here.
+The symbol index is 1 and relocation type is 6, which is for R_X86_64_GLOB_DAT.
 
-The symbol index is 1 and relocation type is 6.
+It is a global data relocation, commonly used for symbol pointers in the GOT (Global Offset Table). This does require relocation.
 
-* `R_X86_64_GLOB_DAT` does require symbol lookup.
-* This is a global data relocation, commonly used for symbol pointers in the GOT (Global Offset Table).\
-  Its purpose is to fill a pointer with the runtime address of a symbol — typically function pointers or global variables imported from shared libraries.
+The symbol is `__libc_start_main`, which belongs to libc.so.6 shared library.
 
-The symbol is `__libc_start_main.`
-
-The relocation logic is
-
+The relocation logic is simple.
 ```
 *(base_addr + 0x3fc0) = address_of(__libc_start_main)
 ```
+  - At the offset, write the final runtime address of __libc_start_main.
 
-The symbol is looked up in all the loaded shared libraries using the dynamic symbol table and the symbol hash tables. Once the runtime address is found in memory, the address is written in place of `0x3fc0` in the global offset table. And the relocation is done.
-
-The term **global offset table** is new here.
+The symbol is looked up in all the loaded shared libraries using the dynamic symbol table and the hash tables. Once the runtime address is found in memory, the address is written in place of `0x3fc0` in the global offset table. And the relocation is done.
 
 We are done with `.rela.dyn` relocations.
 
+The term **global offset table** is new here.
+
 Now the interpreter jumps to the `JUMPREL` entry in the dynamic section and finds `.rela.plt`. The real chaos starts here.
-
-* PLT entries are about lazy binding, by default.
-* For lazy binding, we need to understand global offset table (GOT) and procedure linkage table (PLT). Both of which are really complex and confusing.
-* Since it is fairly long, it deserves its own separate place. Therefore, we are dividing this article into two parts.
-* Here ends the first part.
-
 ---
 
 Before we end this, let's explore one thing we have deferred so far.

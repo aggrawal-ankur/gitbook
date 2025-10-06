@@ -82,3 +82,11 @@ hello_elf: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically 
 ***
 
 Later we will explore ELF in-depth.
+
+## Resources
+
+1. This document from Linux Foundation is a formal document for ELF specification. It can be found at [refspecs.linuxfoundation.org](https://refspecs.linuxfoundation.org/elf/elf.pdf?utm_source=chatgpt.com)
+
+2. The `<elf.h>` header file in C is another great source.
+
+3. The man page for ELF, which can be accessed as `man 5 elf` locally or at [man7.org](https://man7.org/linux/man-pages/man5/elf.5.html?utm_source=chatgpt.com) is a great, straightforward, NO BS, quick-reference in my opinion.
