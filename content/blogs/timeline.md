@@ -105,6 +105,8 @@ I ask ChatGPT again and we finally agreed upon pwn.college and I started practic
 
 I was so fed up in this month that very bad decisions were running in my mind. Thanks to the learnings I had in the first five months. They saved me from destroying my progress and myself.
 
+I also found Sir Richard Feynman this month and he's the person who kept me sane this month.
+
 This time I had enough and I took the third most important decision of my life. ***I decided to explore RE myself. I decided to create the roadmap that I didn't got.***
 
 I wrote simple C programs like hello world and calculator and decided to explore them at bit level myself.
