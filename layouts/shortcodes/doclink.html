@@ -1,8 +1,12 @@
 {{ $id := .Get 0 }}
 {{ $text := .Get 1 }}
 {{ $map := site.Data.links }}
-{{ with index $map $id }}
-  <a href="{{ . }}">{{ $text }}</a>
+{{ if $map }}
+  {{ with index $map $id }}
+    <a href="{{ . }}">{{ $text }}</a>
+  {{ else }}
+    <span style="color:red">BROKEN LINK: {{ $id }}</span>
+  {{ end }}
 {{ else }}
-  <span style="color:red">BROKEN LINK: {{ $id }}</span>
+  <span style="color:orange">⚠ links.json missing</span>
 {{ end }}

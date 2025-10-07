@@ -4,6 +4,7 @@ ROOT_DIR = './content/'
 OUT_FILE = './data/links.json'
 
 def gen_mapping(dir):
+  os.makedirs(os.path.dirname(OUT_FILE), exist_ok=True)
   mapping = []
 
   for cur_dir, _, files in os.walk(dir):
