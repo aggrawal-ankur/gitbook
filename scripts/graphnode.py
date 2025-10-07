@@ -4,6 +4,9 @@
 import os, json
 
 ROOT_DIR = 'content/docs/'
+OUTPUT_PATH = 'static/graph/graph.json'
+os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+
 mappings = {
   "nodes": [],
   "edges": []
