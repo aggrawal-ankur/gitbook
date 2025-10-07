@@ -3,3 +3,10 @@ test/
 content/docs/debugging/scripting-gdb
 content/blogs/five.md
 content/blogs/lp.md
+content/docs/elf-spec/coff
+content/docs/elf-spec/MachO
+content/docs/elf-spec/pe
+content/docs/elf-spec/elf/types.md
+/layouts/shortcodes/backup
+static/graph/graph.json
+data/links.json
