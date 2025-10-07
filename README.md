@@ -2,23 +2,27 @@
 
 Hi. My name is **Ankur Agrawal** and I love low level systems and reverse engineering.
 
-I am a lifelong student from India.
+I am a lifelong learner from India.
 
-Here I publish my polished notes.
+I am on a quest to build the roadmap to pursue reverse engineering that I didn't got.
 
-I write to organize my understanding, not for social credits.
+This roadmap is only for serious individuals who can do deep work.
 
-English is not my first language and I am not here to write perfect English. So, grammatical erros are inevitable. But I keep on polishing my notes so that I have the most clear articulation possible at any point in time.
+I write to organize my understanding, not for social credits. I publish my notes as a source of credibility.
+
+I am not a native English speaker, but I am working on my writing skills.
 
 If you read my notes consistently, you'll often notice significant changes in the structure and organization of both the files and the content in them because I absolutely love knowledge management.
 
-To me, knowledge management is paramount. I keep on organizing and polishing so that I can keep finding patches in my understanding and remove them. It's not a bug, it's a important feature in my whole functioning.
+I want to create the roadmap that I didn't got. This requires me to keep iterating my process and organizing my findings. That's why, knowledge management is very important for me.
 
-Understanding low level systems in a linear fashion is simply not possible. I have tried my best to organize my write ups in a sequential manner but it's just not possible. No matter how much I try to organize, it doesn't really work like that. It's a web. But that doesn't stop me either.
+I keep on organizing and polishing so that I can keep finding patches in my understanding and remove them. It's not a bug, it's a important feature in my whole functioning.
 
-This is the reason why links are often broken. Earlier I used to publish using GitBook, which used to manage links itself. Now I am on my own.
+Understanding low level systems in a linear fashion is hard. Because it exists as a web. But that can't stop me.
 
-I am mentioning all of this so that I can do the work guilt-free, otherwise I feel like I am decepting myself, fooling myself. As said by Sir Richard Feynman, *"don't fool yourself and you are the easiest to fool"*. I just don't want to listen and praise Mr. Feynman, but put those learnings into action and improve my life.
+This is the reason why bookmarks are often broken. Earlier I used to publish using GitBook, which used to manage this stuff. But now I am on my own.
+
+I am mentioning all of this so that I can do the work guilt-free, otherwise it feels like fooling myself. As said by Sir Richard Feynman, *"don't fool yourself and you are the easiest to fool"*. I just don't want to listen and praise Mr. Feynman, but put those learnings into action and improve my life.
 
 I don't have peers who share the same drive, who have the same hunger for deep understanding of low level systems. If you are like me, please don't hesitate to reach out at my [email](mailto:manageme@protonmail.com).
 

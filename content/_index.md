@@ -15,7 +15,7 @@ This roadmap is only for serious individuals who can do deep work.
 
 I write to organize my understanding, not for social credits. I publish my notes as a source of credibility.
 
-English is not my first language and I am not here to write perfect English. So, expect grammatical errors. But I keep on polishing my notes so that I have the most clear articulation possible at any point in time.
+I am not a native English speaker, but I am working on my writing skills.
 
 If you read my notes consistently, you'll often notice significant changes in the structure and organization of both the files and the content in them because I absolutely love knowledge management.
 
@@ -27,7 +27,7 @@ Understanding low level systems in a linear fashion is hard. Because it exists a
 
 This is the reason why bookmarks are often broken. Earlier I used to publish using GitBook, which used to manage this stuff. But now I am on my own.
 
-I am mentioning all of this so that I can do the work guilt-free, otherwise I feel like I am decepting myself and fooling myself. As said by Sir Richard Feynman, *"don't fool yourself and you are the easiest to fool"*. I just don't want to listen and praise Mr. Feynman, but put those learnings into action and improve my life.
+I am mentioning all of this so that I can do the work guilt-free, otherwise it feels like fooling myself. As said by Sir Richard Feynman, *"don't fool yourself and you are the easiest to fool"*. I just don't want to listen and praise Mr. Feynman, but put those learnings into action and improve my life.
 
 I don't have peers who share the same drive, who have the same hunger for deep understanding of low level systems. If you are like me, please don't hesitate to reach out at my [email](mailto:manageme@protonmail.com).
 

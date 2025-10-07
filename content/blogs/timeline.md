@@ -29,7 +29,7 @@ This was the first most important decision taken solely by myself.
 I asked as many dumb questions as I can. I explored every single thing to find their answer.
   - Religious books.
   - Philosophy.
-  - Psycchology.
+  - Psychology.
   - Sociology.
   - Quotes from famous people.
   - Lots of podcasts.
@@ -49,7 +49,7 @@ Mission accomplished on January 15, 2025.
 
 To patch this void, I started learning web application penetration testing again, because it has the least entry barrier and a lot of content available online.
 
-I worked hard on Tryhackme and Portswigger Labs, but I wasn't feeling good. It wasn't the right field for me.
+I worked hard on Tryhackme and PortSwigger Labs, but I wasn't feeling good. It wasn't the right field for me.
 
 I quit the usual path to WebAppSec and started a personal project.
 
@@ -57,7 +57,7 @@ I quit the usual path to WebAppSec and started a personal project.
 
 It was aimed at creating a realistic social media platform like Instagram and make every part of it hackable in a crazy amount of ways.
 
-I was able to build a fully hackable login page, which supported multiple techniques like rainbow tables, brute forcing, optimized bruteforcing based on certain information, rate limiting etc.
+I was able to build a fully hackable login page, which supported multiple techniques like rainbow tables, brute forcing, optimized brute forcing based on certain information, rate limiting etc.
 
 I worked on it for 3 weeks in April and I hit he wall again. It wasn't interesting at all. I wasted 10 days in April until I took the next decision, the second most important decision in my life, the deciding one.
 
@@ -65,7 +65,7 @@ I worked on it for 3 weeks in April and I hit he wall again. It wasn't interesti
 
 Back in 2015, when I was in 5th grade, my father purchased the first ever touch screen mobile in winters.
 
-Internet was crazy expensive at that time. I remember going to shops and getting a 50 INR recharge which buys 39 ruppes. And it was x-paisa per call. Only in summer vacations and Deepwali (Indian festival) do we get an internet recharge, which costed 350 INR for 1 GB. Yes, 1 GB.
+Internet was crazy expensive at that time. I remember going to shops and getting a 50 INR recharge which buys 39 rupees. And it was x-paisa per call. Only in summer vacations and Deepawali (the festival of lights) do we get an internet recharge, which costed 350 INR for 1 GB. Yes, 1 GB.
 
 Back then, 1$ = 66.79 INR (according to internet).
 
@@ -73,11 +73,11 @@ My friends told me about Clash of Clans game and it was a fantastic game. Before
 
 At that time, luck patcher was very famous to mod games. However, I could never use it.
 
-One day, my friends gave me a challenge to find a moded version of Clash of Clans, which was according to them not possible. I found and gave them the name, Clash of Nulls. Anyways.
+One day, my friends gave me a challenge to find a mod version of Clash of Clans, which was according to them not possible. I found and gave them the name, Clash of Nulls. Anyways.
 
 That's how I was introduced to hacking. But nothing happened after that. I continued my studies.
 
-In 2020, when lockdown happened, one day, maybe it was September 09, 2020, my mother asked me which stream I am aligning with as the next year I have to choose b/w math/bio/arts as I was entering into senior secondary schooling.
+In 2020, when quarantine happened, one day, maybe it was September 09, 2020, my mother asked me which stream I am aligning with as the next year I have to choose b/w math/bio/arts as I was entering into senior secondary schooling.
   - I replied, I want to do ethical hacking.
   - I don't want to study anymore.
 
@@ -117,7 +117,7 @@ I end that journey on 25 July and immediately started a new one.
 
 ---
 
-I wanted a tool that could display ELF information in C-style structs. Although dumpelf from pax-utils existed but I decided to create my own.
+I wanted a tool that could display ELF information in C-style structs. Although `dumpelf` from `pax-utils` existed but I decided to create my own.
 
 The first commit was on July 25 and the last commit on August 03. It took 9 days to complete it when I anticipated at least 2 weeks.
 
@@ -133,9 +133,9 @@ I brought my assembly notes on GitBook and started polishing them. I have also e
 
 After completing the assembly part, I dive deep into dlmalloc to understand the foundation of dynamic memory allocation.
 
-Finished dlmalloc theory on September 20, 2025.
+Finished `dlmalloc` theory on September 20, 2025.
 
-To verify this humungous theory, I started debugging once I completed dlmalloc.
+To verify this humongous theory, I started debugging once I completed dlmalloc.
 
 I started polishing my write ups to find pieces of theory to verify with gdb. Then I came across hello world. And that sucked my focus. I started polishing the static notes.
 
@@ -147,6 +147,14 @@ One September 26, 2025, I had enough of GitBook issues and I ported to Hugo + He
 
 ## October 2025
 
+### October 06, 2025
+
 Finally, as of writing this, it is October 06, 2025. Just in evening at 7 PM IST, I finished the last polish of the static notes. Now I am tasked with an even bigger restructuring. And I think that it will easily take this week if extra problems don't come.
 
 I also got the idea to manage a page for what I am doing now. Next I am gonna write that.
+
+### October 07, 2025
+
+I am anticipating a lot of changes in my write ups, therefore, now I have decided to actively work on the articulation part. No more wrong English.
+
+The first step I have taken is to install a spell checker extension in VS Code.
