@@ -1,16 +1,34 @@
 ---
 id: 7ca52ec23a2c419b8bae36efade4dae0
-title: Build Process In C
-weight: 1
+title: C Build Process
+weight: 3
 ---
 
-***Originally written between late june and early july 2025***
+Programming languages are written in English, but the CPU understands machine code. The process that transforms a human readable C source into CPU understandable machine code is called **build process**.
 
-***Polished on October 03, 2025***
+Every language has a different build process.
 
----
+C's build process is divided into 4 phases, where each phase requires a different tool to process the C source.
+  - Preprocessing is carried out by a preprocessor.
+  - Compilation is carried out by a compiler.
+  - Assembling is carried out by an assembler
+  - Linking is carried out by a linker.
 
-To compile this source, we can use a variety of compilers.
+When tools come together, they form a toolchain.
+  - A toolchain is a set of software development tools that are used in sequence to create a software product. The output of one tool often serves as the input for the next, forming a "chain".
+  - There are different toolchains for different purposes.
+
+For example: GCC stands for "GNU Compiler Collection", which is the GNU toolchain for compilation utilities. It has `ccp` (preprocessor), `cc1` (compiler), `as` (assembler) and `ld` (linker).
+
+On Debian, we can locate these tools at:
+```bash
+/usr/bin/x86_64-linux-gnu-cpp                  # Preprocessor
+/usr/libexec/gcc/x86_64-linux-gnu/14/cc1       # Compiler
+/usr/bin/x86_64-linux-gnu-as                   # Assembler
+/usr/bin/x86_64-linux-gnu-ld                   # Linker
+```
+
+Let's dive into each phase with a simple C program.
 
 ```c {filename="hello.c"}
 #include <stdio.h>
@@ -21,25 +39,7 @@ int main(){
 }
 ```
 
-Here we are using `gcc`.
-
-```bash
-$ gcc hello.c -o hello_executable
-$ ./hello_executable
-​
-Hello, World!
-```
-
-Although it looks simple, this process has four hidden layers. Let's peel them back.
-
-A source code turns into an executable file through these four steps:
-
-1. Preprocessing
-2. Compilation
-3. Assembling
-4. Linking
-
-## Preprocessing
+## Preprocessing (WHAT HAPPENS HERE??)
 
 Every C program includes at least this line: `#include <stdio.h>`, where `#include` is a preprocessing directive.
 
@@ -54,7 +54,7 @@ Preprocessing directives resolve into header files, which may contain other prep
 
 For more information, check out {{< doclink "42957ab7594145f0b492a14d2f38a783" "preprocessing directives" >}}
 
-## Compilation
+## Compilation (WHAT HAPPENS HERE??)
 
 The intermediate C code is compiled into assembly instructions—the closest we can get to the CPU while still keeping it somewhat readable.
 
@@ -71,7 +71,7 @@ To compile the intermediate C code into assembly code, we do:
 gcc -S -masm=intel hello.i -o hello.s
 ```
 
-## Assembling
+## Assembling (WHAT HAPPENS HERE??)
 
 Assembly instructions are converted to actual machine instructions (binary opcodes). This process is called assembling.
   - For more information, check out the {{< doclink "773caf1fe02945b5bc61a332be9c90aa" "machine instructions" >}} write up.
@@ -97,7 +97,7 @@ Object files follow a strict structure called the Executable and Linkable Format
 
 Object files aren't executable. They need to be linked.
 
-## Linking
+## Linking (WHAT HAPPENS HERE??)
 
 Object code contains unresolved references to various library functions (like printf). Until these are resolved, the file cannot be executed.
 
@@ -117,7 +117,3 @@ $ ./hello_elf
 
 Hello, World!
 ```
-
-## A Misconception About GCC
-
-GCC isn't just a compiler—it is a complete toolchain. If it were only a compiler, how could it assemble and link our code?
