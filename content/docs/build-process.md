@@ -8,33 +8,34 @@ weight: 3
 
 ## Expectations
 
-If we explore the C build process just **on surface**, that would save our time today, but will create headaches tomorrow.
-
-It is not at all assumed that you understand every single word just by reading it. If something is unclear, don’t worry; subsequent write-ups will clarify it. The process is long, but well-discussed in the upcoming write ups.
-
-Let's start our journey.
-
----
-
 Programming languages are written in English, but the CPU understands machine code. The process that transforms a human readable source code into CPU understandable code is called **build process**.
 
-Every language has a different build process.
+Every language has a different build process and studying it is definitely a lengthy job.
 
-C's build process is divided into 4 phases, where each phase builds on the top of the previous one and requires a different tool.
+C's build process is divided into 4 phases and these phases involve multiple steps.
+
+With this exploration, we are aiming to establish a baseline understanding of "everything that happens". This gives us some high-level checkpoints which will anchor our in-depth explorations.
+
+Therefore, this exploration by choice touches every single concept. This makes it a little tough to digest as you won't understand the meaning of each word, but you are not required to understand everything. You are only expected to settle these words in your mind, so that they don't foreign later.
+
+That being said, let's start our journey.
+
+## Introduction
+
+The build process in C is divided into 4 phases, where each phase builds on the top of the previous one and requires a different tool to work.
   - Preprocessing is carried out by a preprocessor.
   - Compilation is carried out by a compiler.
   - Assembling is carried out by an assembler
   - Linking is carried out by a linker.
 
-When multiple tools work together in a particular sequence to achieve the desired output, they form a toolchain.
+When multiple tools work together in a particular sequence to achieve the desired output, they form a **toolchain**.
 
-Different toolchains exist for different purposes. For example: GCC stands for "GNU Compiler Collection", which is the GNU toolchain for "compilation utilities".
-  - Although gcc has `cpp` (preprocessor), `cc1` (compiler), `as` (assembler) and `ld` (linker) for the four phases of the build process, it is not limited to that.
-  - Practically, it is an orchestrator that manages the builder process and provides some extra features, which we will discuss shortly.
+Different toolchains exist for different purposes. For example: GCC stands for "GNU Compiler Collection", which is the GNU toolchain for "compiler and build utilities".
+  - Although gcc has `cpp` (preprocessor), `cc1` (compiler), `as` (assembler) and `ld` (linker) for the four phases of the build process, it is not limited to them.
+  - Practically, GCC is an orchestrator that manages the build process and provides some extra features, which we will discuss later in this journey.
 
-## Locating these tools
+The location of these tools can vary based on the Linux distribution and the version of GCC in use. I am using gcc v14.2.0 on Debian v13.1
 
-On Debian, we can locate these tools at:
 ```bash
 /usr/bin/x86_64-linux-gnu-cpp                  # Preprocessor
 /usr/libexec/gcc/x86_64-linux-gnu/14/cc1       # Compiler
@@ -42,11 +43,9 @@ On Debian, we can locate these tools at:
 /usr/bin/x86_64-linux-gnu-ld                   # Linker
 ```
 
-Other distributions of Linux might manage them differently.
+To locate these on your Linux distribution, you can use the `find` utility or just Google it.
 
 ---
-
-Let's dive into each phase with a simple C program.
 
 ```c {filename="hello.c"}
 #include <stdio.h>
@@ -63,19 +62,19 @@ gcc hello.c -o hello
 ```
 ... and an executable file named `hello` is generated.
 
-Let's see how we can use them individually.
+Let's build the source step-by-step and understand each phase.
 
 ## Preprocessing
 
 Every C program starts with some `#` prefixed words. These are known as *preprocessing directives*.
 
-The preprocessor (cpp) processes all these directives and prepare the code for compilation.
+The preprocessor (cpp) processes all these directives and transforms the code into a form ready for compilation.
 
 Each directive is processed differently, so preprocessing depends on what directives are in use.
 
-The result of this process is an intermediate file with a `.i` extension. It transforms the original source code into extended/immediate source code.
+The result of this process is an expanded source file (often called, a preprocessed source) with a `.i` extension.
 
-`gcc` with `-E` does preprocessing only. Since it doesn't create a file, we have to pair it with `-o OUT_FILE.i` to create  a file.
+`gcc` with `-E` does preprocessing only. Since it doesn't create a file, we have to pair it with `-o OUT_FILE.i` to create a file.
 ```bash
 gcc -E hello.c -o hello_cpp.i
 ```
@@ -94,25 +93,25 @@ $ gcc -E hello.c > hello_gcc.i
 ```bash
 $ diff hello_cpp.i hello_gcc.i
 ```
-... two **immediate files** are generated but there is no output after diff, which indicates the files are identical.
+... two **expanded files** are generated but there is no output after diff, which indicates the files are identical.
 
 ## Compilation
 
-The compiler (cc1) processes the **preprocessed C source** and generate the assembly code for the targeted architecture.
+The compiler (cc1) processes the **preprocessed C source** and generates the assembly code for the targeted architecture.
 
 Compilation undergoes multiple steps including:
 
-- **Lexical analysis (or Tokenization)**, where the compiler reads the preprocessed source as a stream of characters and breaks it into tokens (identifiers, keywords, literals, punctuations, operators and operands). It strips white spaces and comments are already removed in preprocessing.
-- **Syntax analysis (or parsing)**, where these tokens are parsed according to the C grammar. The compiler generates a structured representation of the program, called **abstract syntax tree (AST)**. Syntax errors like *missing ;* are caught here.
-- The AST undergoes **semantic analysis** where the compiler checks for language standards compliance, which includes type checking, use after declaration, scope and linkage rules, function signatures and returns, etc.
+- **Lexical analysis (or Tokenization)**, where the compiler reads the preprocessed source as a stream of characters and breaks it into tokens (identifiers, keywords, literals, punctuations, operators and operands). It strips the white spaces and comments are already removed in preprocessing.
+- **Syntax analysis (or parsing)**, where these tokens are parsed according to the C grammar. The compiler generates a structured representation of the program, called **abstract syntax tree (AST)**. Syntax errors like *"a missing ;"* are caught here.
+- **Semantic analysis**, where the compiler verifies the AST's compliance with language standards, which includes type checking, use after declaration, scope and linkage rules, function signatures and returns, etc.
 - An **intermediate representation (IR)** is generated from the AST, which is easier to optimize.
 - The IR undergoes various **optimizations**, which can be controlled with the `-O` flag (-O0, -O1, -O2, -O3) etc.
-- The assembly code for the targeted architecture is generated. Instructions, calling mechanisms, register usage etc are managed here. This creates a `.s` file.
-- The assembly code may undergo some architecture-specific optimizations.
+- The assembly code for the targeted architecture is generated. Instructions, calling mechanisms, register usage, etc are managed here. This creates a `.s` file.
+- The assembly code may undergo some architecture-specific optimizations as well.
 
-Modern IDEs come with languages server protocols (or LSPs), which parses the opened source code and runs lexical, syntax and semantic analysis on the source in real-time. That's how VS Code flags the missing semi-colon or any language standard violation.
+Modern IDEs come with languages server protocols (or LSPs), which parse the opened source code and runs lexical, syntax and semantic analysis all in real-time. That's how any modern IDE flags the missing semi-colon or any language standard violation.
 
-We can invoke the compiler on the intermediate files generated previously,
+We can invoke the compiler on the expanded files generated previously,
 ```bash
 $ /usr/libexec/gcc/x86_64-linux-gnu/14/cc1 hello_cpp.i
 $ /usr/libexec/gcc/x86_64-linux-gnu/14/cc1 hello_gcc.i
@@ -124,15 +123,17 @@ $ /usr/libexec/gcc/x86_64-linux-gnu/14/cc1 hello_gcc.i
   - preprocess and compile a `.c` file, or
   - compile a `.i` file.
 
-If we compare the assembly files generated by `gcc` and `cc1`, only the `.file` directive line is different, which proves they are identical.
+If we compare the assembly files generated by `gcc` and `cc1`, only the `.file` directive is different again, which proves they are identical.
 
 ---
 
-It is possible that you have heard the words "assembler" and "linker". One step ahead, you might also know `as` and `ld`. But it is highly unlikely that you know the C preprocessor and compiler by their names (cpp and cc1).
+It is possible that you have heard the words "assembler" and "linker". Maybe you know the names `as` and `ld` as well. But it is highly unlikely that you know the C preprocessor and compiler by their names (cpp and cc1).
 
-It is because `as` and `ld` have use cases beyond the "toolchain" as well. They are very versatile and feature-rich solutions, and developers often create their own toolchains based on their likings and needs and `as` or `ld` might fit their use case.
+That's because, `as` and `ld` are so versatile and feature-rich solutions that they form use cases beyond the standard toolchain.
 
-On the other hand, `cpp` and `cc1` are primarily designed for internal use. They might be tightly coupled with the GNU toolchain. But they are still available to be used independently and they work normal.
+Developers often customize their own toolchains based on preferences and project needs. The standard GNU toolchain for "compiler and build utilities" might not fulfill their needs, but the versatility of the assembler or linker may become their choice. And C allows you to swap any tool in the build process as long as you know what you are doing.
+
+On the other hand, `cpp` and `cc1` are primarily designed for internal use. They might be tightly coupled with the GNU toolchain. But they are still available to be used independently and they work great.
 
 ## Assemble
 
@@ -140,12 +141,12 @@ The assembler (as) translates the assembly generated after compilation into mach
 
 Just like compilation, assembling also undergoes multiple steps, including:
 
-- **Lexical analysis and parsing** of the assembly source is done and each line is broken into labels, mnemonics, operands, and directives. Assembly itself has no grammar/rules, but the syntax is validated against the targeted architecture's ISA.
-- A **symbol table** is constructed to records all the labels and declared symbols. Unresolved external references are tracked and marked *undefined* for the linker.
+- **Lexical analysis and parsing** of the assembly source, where each line is broken into labels, mnemonics, operands, and directives and they are validated against the assembler syntax and the ISA of the targeted architecture.
+- A **symbol table** is constructed to record all the labels and declared symbols. Unresolved external references are tracked and marked *undefined* for the linker.
 - Instructions and data is organized in appropriate sections. And section metadata is generated.
 - Each assembly instruction is translated into its binary machine-code form (opcodes + operands).
 - Relocation entries are created for instructions involving symbols whose runtime address is not yet known.
-- Everything (machine instructions and data organized in sections, symbol tables and relocation records) are packed into a relocatable object file.
+- Everything (machine instructions and data organized in sections, symbol tables and relocation records) is packed into a relocatable object file.
 - The object file follows the ELF specification for its structure.
 
 The assembler can be used on the `.s` file generated previously.
@@ -158,12 +159,12 @@ We can use `gcc` with `-c` to do the same.
 $ gcc -c hello.s -o hello_gcc.o
 ```
 
-With `-c`, gcc carries out:
+gcc with `-c` carries out:
   - preprocessing, compilation and assembling on `.c` files.
   - compilation and assembling on `.i` files.
   - assembling on `.s` files.
 
-Running `diff` on both shows no difference. Also, the files sizes are the same, which proves they are identical.
+Running `diff` on both the files shows no difference. Also, the file sizes are the same, which proves they are identical.
 
 ## Linking
 
@@ -173,8 +174,8 @@ The linker takes one or more object files and generates a single executable file
 
 Linking also undergoes multiple steps, including:
 
-- Sections from all the object files are **merged and unified** sections (one for each, instead of separate) are created. Every instruction, symbol, relocation entry is assigned a virtual address and an offset within the unified layout.
-- If a symbol's definition exists in the combined layout, the linker calculates its offset and patch all the references of it during link-time only.
+- Sections from all the object files are **merged** and **unified sections** (one for each, instead of separate) are created. Every instruction, symbol, relocation entry is assigned a virtual address and an offset within the unified layout.
+- If a symbol's definition exist in the combined layout, the linker calculates its offset and patches all the references of it at link-time only.
 - If a symbol's definition doesn't exist in the combined layout, and is meant to be resolved via dynamic libraries, the linker creates a **dynamic relocation entry** for the runtime linker/loader program to fix it.
 - Instructions to load dynamic shared libraries at runtime are created as per the linker flags, so that references to library functions can be resolved at runtime.
 - Various structures for runtime efficiency are generated and the final memory layout is created.
@@ -195,14 +196,13 @@ hello.c:(.text+0xf): undefined reference to `puts'
 ```
 ... we get errors.
 
-These errors exist because the linker doesn't magically knows which libraries you want to link your object code with.
+These errors exist because the linker doesn't magically knows which libraries we want to link our object code with.
   - The linker expects certain arguments/flags which gives that information.
-  - This is the reason why `as` and `ld` are so versatile because they are not coupled with the GNU compilation toolchain.
-  - Developers can use programs of their choice and still get the work done.
+  - This is the reason why `as` and `ld` are so versatile because they are not coupled with the GNU toolchain. Instead, gcc orchestrates their usage, making it easier beginners to work with these tools.
 
-But newbies are far from this specificity. They need working solutions instead of customizations. That's where gcc comes in. GCC is an excellent orchestrator that smartly manages everything for you until you become capable to customize it.
+---
 
-Let's talk about `gcc` in brief.
+This marks the end of understanding the 4 phases of the C build process. But gcc is a huge part of this process, let's talk about `gcc` in brief.
 
 ## GCC as an Orchestrator
 
@@ -214,10 +214,10 @@ It's an excellent coordinator because it embeds vast range of intelligence about
 
 It supports multiple languages like C, C++, Go, Ada, Fortran and Objective-C. You can mix and link across them because GCC knows how to unify them.
 
-GCC can target architectures other than the host, that's why you can develop softwares for embedded systems without using an embedded system to develop them.
-  - You can build binaries for 32-bit or even 16-bit sitting on a 64-bit architecture.
-  - You can build binaries for ARM while on x86.
-  - Is softwares for mobile built on mobile? No. Because the tools that build them are intelligent enough that they can build them without being on that exact architecture. GCC is one such tool.
+GCC can target architectures other than the host, that's why you can develop software for embedded systems without using an embedded system to develop them.
+  - You can build binaries for 32-bit or even 16-bit on a 64-bit architecture.
+  - If you configure gcc the right way, you can even build binaries for ARM being on x86.
+  - Is software for mobile built on mobile? No. Because the tools that build them are intelligent enough to build them without being on that exact architecture. GCC is one such tool.
 
 If you use `-g`, GCC orchestrates the compiler and assembler to include magical information that streamlines the process of debugging. That magical information is known as DWARF/debug symbols, which is not a part of the build pipeline, but debug pipeline.
 
@@ -226,3 +226,9 @@ GCC also lets us optimize the code to an extent where multiple lines can be cond
 We had errors running the linker but GCC doesn't because it passes the appropriate arguments and flags internally, intelligently, so that it can work without any issues.
 
 There are other toolchains as well, but this was GCC for you.
+
+## Conclusion
+
+Every stage of this pipeline transforms representation: from source → preprocessed source → assembly → object → executable.
+
+The next logical step is exploring how these executables are actually loaded and executed by the operating system — but that’s a story for another day.
