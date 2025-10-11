@@ -4,10 +4,10 @@ title: Assembling
 weight: 4
 ---
 
+objdump and readelf are parts of the binutils project.
+
 We will inspect our file with `objdump` and `readelf`.
   - {{< doclink "74f6fea8f48c45c9af3f0037a3c4d69d" "Introduction to objdump" >}}
   - {{< doclink "a0f32ecb875b466eb17cc08105d28a57" "Introduction to readelf" >}}
 
 Note: We are not exploring relocations here as they make more sense later.
-
-## What is done in assembling?

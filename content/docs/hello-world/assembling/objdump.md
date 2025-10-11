@@ -4,30 +4,22 @@ title: Introduction To objdump
 weight: 1
 ---
 
-***Originally written between late june and early july 2025***
-
-***Polished on October 03, 2025***
-
-***Make sure you have read the {{< doclink "9d652181ee714f7988c5ed164e4cae4e" "compilation" >}} write up.***
-
----
-
-`objdump` (object dump), is a versatile tool from the GNU project, which displays information from object files. It essentially reads them.
+`objdump` (object dump), is a versatile tool from the GNU project, which reads and displays information from object files.
 
 It can be used as:
 ```bash
-objdump ELF FLAGS
+objdump ELF_FILE FLAGS
 ```
 
-It can do a lot of things, but we will use it as a disassembler, a program that extracts assembly out of an ELF file.
+It can do a lot of things, but we need only these:
 ```bash
-objdump hello.o -D -M intel   # Complete disassembly using Intel syntax
+objdump hello.o -D -M intel   # Full disassembly using Intel syntax
 objdump hello.o -t            # Symbol table
 objdump hello.o -r            # Relocation entries
 objdump hello.o -h            # Section headers
 ```
 
-Let's start by full disassembly.
+Let's start by examining the full disassembly.
 
 ## Full Disassembly (-D)
 
@@ -197,7 +189,7 @@ Idx         Name             Size       VMA               LMA               File
                           └─ CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
 
 # Section   Section          Size in   Virtual Memory      Load Memory      Offset In    Alignment
-# Index     Name             Bytes     Addrress            Address          File Where   Requirement
+# Index     Name             Bytes     Address             Address          File Where   Requirement
 #                                                                           It Begins
 ```
 

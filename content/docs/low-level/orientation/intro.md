@@ -48,6 +48,10 @@ Assemblers provide some ease of development in the form of directives, which the
   - This makes assembly code dependent on the assembler.
   - If the developer had used `nasm` to assemble it, we can't use any other assembler.
 
+---
+
+Learn assembly, not syntax. We will use the GNU assembler with intel syntax.
+
 ## Difference Between Assembly And Other Languages
 
 ### 1. Core Purpose

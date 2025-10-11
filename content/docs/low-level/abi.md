@@ -17,3 +17,9 @@ x64 psABI: https://refspecs.linuxfoundation.org/elf/x86_64-abi-0.99.pdf
 TIS ELF Spec: https://refspecs.linuxfoundation.org/elf/elf.pdf?utm_source=chatgpt.com
 
 psABI: https://gitlab.com/x86-psABIs/x86-64-ABI
+
+v1.1: https://refspecs.linuxfoundation.org/elf/TIS1.1.pdf?utm_source=chatgpt.com
+
+whole: https://refspecs.linuxfoundation.org/?utm_source=chatgpt.com
+
+LSB: https://refspecs.linuxfoundation.org/lsb.shtml

@@ -4,11 +4,11 @@ title: Basic Computer Theory
 weight: 2
 ---
 
-Learning assembly is not similar to learning yet another programming language. There are no high-level constructs. There is memory and instructions. That's it.
+Learning assembly requires a different mental model as there are no high level constructs. We have raw access to memory and instructions to program them.
 
 ## Memory (RAM)
 
-Imagine a room of personal-lockers inside a bank. Every locker has the same size, color, capacity, access mechanism and all the lockers are managed by an addressing system, which uniquely identifies them.
+Banks offer personal-lockers where every locker has the same size, capacity and access mechanism. All the lockers are managed by an addressing system, which uniquely identifies them.
 
 A locker can contain anything, but what identifies them commonly is **valuables**. A person can keep gold or silver items while another person can keep the photos of their family. Items are different but both of them identifies as a _valuable_.
 

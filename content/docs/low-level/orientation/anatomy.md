@@ -61,9 +61,7 @@ A complete list of general purpose registers, [link](https://www.google.com/imgr
 
 ***
 
-Always leave an empty line at end of the program. This gracefully marks the end of assembly code. Otherwise, you'll get a warning by the assembler.
-
-***
+Always leave an empty line at end of the program to mark the end of your assembly code. Otherwise, you'll get a warning by the assembler.
 
 ## System Calls
 
@@ -72,9 +70,8 @@ A **system call** is the controlled gateway between a user-space program and the
 ### User Mode vs Kernel Mode
 
 The CPU operates in two modes:
-
-* **User Mode**: Restricted environment in which our code runs.
-* **Kernel Mode**: Full-access mode where the operating system runs.
+  * **User Mode**: Restricted environment in which our code runs.
+  * **Kernel Mode**: Full-access mode where the operating system runs.
 
 Our program cannot perform privileged operations directly. Instead, it uses **syscalls** to request the kernel to perform them on its behalf.
 

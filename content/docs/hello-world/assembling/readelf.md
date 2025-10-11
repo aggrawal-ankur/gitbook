@@ -4,14 +4,14 @@ title: Introduction To readelf
 weight: 2
 ---
 
-`readelf` is a part the GNU's binutils Project. A versatile program that excels at parsing files with ELF structure.
+`readelf` parse and interprets the an ELF in human-readable terms.
 
 It can be used as:
 ```bash
-readelf ELF FLAGS
+readelf ELF_FILE FLAGS
 ```
 
-It is feature-rich just like objdump. The ones that concern us include:
+It is as feature-rich as objdump. The ones that concern us include:
 ```bash
 readelf hello.o -a      # Everything under one roof
 readelf hello.o -h      # ELF headers
@@ -21,7 +21,7 @@ readelf hello.o -s      # Symbol table
 readelf hello.o -r      # Relocation entries
 ```
 
-Let's start with file header.
+Let's start with the file header.
 
 ## ELF Header (File Header)
 
@@ -196,4 +196,4 @@ We have explored this already.
 
 ---
 
-Here we complete our object code analysis. Next is linked ELF.
+We're done with object code analysis. Next is linked ELF.

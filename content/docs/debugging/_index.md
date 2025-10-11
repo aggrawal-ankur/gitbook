@@ -4,13 +4,7 @@ title: Debugging In Depth
 weight: 5
 ---
 
-_**21 September 2025**_
-
-***22, 23 September 2025 (merged the next article)***
-
-***
-
-The most popular debugger on Linux is the GNU Debugger, bettern known as gdb. There are two way to learn it.
+The most popular debugger on Linux is the GNU Debugger (gdb). There are two way to learn it.
 
 - You pick a crash course that teaches it ASAP.
 - You learn debugging as a concept and understand how gdb implements it.
