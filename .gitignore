@@ -10,3 +10,5 @@ content/docs/elf-spec/elf/types.md
 /layouts/shortcodes/backup
 static/graph/graph.json
 data/links.json
+TEST_PARAMS
+build
