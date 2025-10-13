@@ -4,12 +4,6 @@ title: Program Headers
 weight: 4
 ---
 
-***Originally written in early July 2025.***
-
-***Polished on October 04, 2025***
-
----
-
 Program headers describes how to map a binary in virtual memory.
 
 These are the program headers in our binary.
@@ -55,32 +49,7 @@ Program Headers:
 Every entry in this table is a program header. These program headers are what segments.
   - A segment groups multiple sections based on usability.
 
-## Segments
-
-| Segment      | Description |
-| :------      | :---------- |
-| PHDR         | Specifies where the program headers themselves are located.  |
-| LOAD         | Loadable segment. Only segments can be loaded in the memory. |
-| DYNAMIC      | The address of the dynamic section.   |
-| INTERP       | Path to dynamic linker (ld-linux.so). |
-| NOTE         | Auxiliary information (e.g., build ID, security notes). |
-| GNU_STACK    | Stack permissions. |
-| GNU_RELRO    | Read-only after relocation. |
-| GNU_EH_FRAME | Exception handling info.    |
-
-## Attributes
-
-| Attribute   | Description |
-| :--------   | :---------- |
-| Offset      | The location of this segment relative to where the binary is loaded in the memory. |
-| VirtualAddr | The virtual memory address where the segment should be mapped in memory during execution. |
-| PhysAddr    | Usually ignored by modern OS. Same as `VirtAddr` or meaningless. |
-| FileSize    | The size of the segment in the binary. |
-| MemSize     | The size of the segment in memory after loading. |
-| Flags       | Memory access permissions. `R`: Readable, `W`: Writable, `E`: Executable |
-| Align       | Required alignment for the segment. |
-
-## Logic Behing This Segmentation
+## Logic Behind This Segmentation
 
 The **section to segment mapping** part defines the sections grouped under each each segment.
 

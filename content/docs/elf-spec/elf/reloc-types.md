@@ -6,11 +6,6 @@ sidebar:
   exclude: true
 ---
 
-***October 06, 2025***
-
-*Make sure you are familiar with ABIs. If not, check out the {{< doclink "1943e22373c34e3a9d2ff310e1781982" "application binary interface" >}} write up.*
----
-
 Relocations are carried out differently on 32-bit and 64-bit systems.
   - Both architectures have different gABI and psABI so they support different relocation types as well.
 

@@ -4,12 +4,6 @@ title: Full Disassembly
 weight: 2
 ---
 
-***Originally written between late June and early July 2025***
-
-***Polished on October 04, 2025***
-
----
-
 ```bash
 objdump linked_elf -D -M intel
 ```
@@ -19,4 +13,4 @@ It reveals the complete infrastructure (instruction by instruction) that runs th
 
 This proves that our source code is a tiny part in the whole ecosystem.
 
-We are not going to read it line by line. This diassembly is like a roadmap which we will use in the process to understand things better.
+We are not going to read it line by line. This disassembly is like a roadmap which we will use in the process to understand things better.

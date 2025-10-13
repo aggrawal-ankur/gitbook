@@ -4,12 +4,6 @@ title: ELF Headers
 weight: 1
 ---
 
-***Originally written between late June and early July 2025***
-
-***Polished on October 04, 2025***
-
----
-
 ```bash
 $ readelf ./linked_elf -h
 
