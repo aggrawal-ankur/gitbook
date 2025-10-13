@@ -1,28 +1,32 @@
 ---
 id: 7ca52ec23a2c419b8bae36efade4dae0
-title: C Build Process
-weight: 3
+title: Build-Execution Pipeline In C
+weight: 1
 ---
 
 ---
 
 ## Expectations
 
-Programming languages are written in English, but the CPU understands machine code. The process that transforms a human readable source code into CPU understandable code is called **build process**.
+Programming languages are written in English, but the CPU understands machine code. The process that transforms human readable instructions into CPU understandable instructions is called **the build pipeline**.
 
-Every language has a different build process and studying it is definitely a lengthy job.
+The process that ensures efficient execution and sharing of machine understandable instructions is called **the execution pipeline**.
 
-C's build process is divided into 4 phases and these phases involve multiple steps.
+The **build-execution pipeline** ensures that the source is built, executed and shared in the most efficient manner.
 
-With this exploration, we are aiming to establish a baseline understanding of "everything that happens". This gives us some high-level checkpoints which will anchor our in-depth explorations.
+Every language has a different build-execution pipeline and studying it is definitely a lengthy job.
 
-Therefore, this exploration by choice touches every single concept. This makes it a little tough to digest as you won't understand the meaning of each word, but you are not required to understand everything. You are only expected to settle these words in your mind, so that they don't foreign later.
+With this exploration, we are aiming to establish a baseline understanding of everything that happens in the C build-execution pipeline.
 
-That being said, let's start our journey.
+By the end of this exploration, we will have some high-level checkpoints which will anchor our future explorations.
+
+Therefore, this exploration by choice touches every single concept. This makes it a little tough to digest as you won't understand the meaning of each word, but you are not required to understand everything. You are only expected to settle these words in your mind, so that they don't feel foreign later.
+
+Let's start our journey.
 
 ## Introduction
 
-The build process in C is divided into 4 phases, where each phase builds on the top of the previous one and requires a different tool to work.
+The build-execution model in C is divided into 4 phases, where each phase builds on the top of the previous one and requires a different tool to work.
   - Preprocessing is carried out by a preprocessor.
   - Compilation is carried out by a compiler.
   - Assembling is carried out by an assembler
@@ -229,6 +233,6 @@ There are other toolchains as well, but this was GCC for you.
 
 ## Conclusion
 
-Every stage of this pipeline transforms representation: from source → preprocessed source → assembly → object → executable.
+Every stage in this pipeline transforms the human readable instructions into machine understandable instructions: from source → preprocessed source → assembly → object → executable.
 
 The next logical step is exploring how these executables are actually loaded and executed by the operating system — but that’s a story for another day.
