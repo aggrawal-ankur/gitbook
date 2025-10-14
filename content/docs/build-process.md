@@ -37,7 +37,7 @@ The build-execution model in C is divided into 4 phases, where each phase builds
 When multiple tools work together in a particular sequence to achieve the desired output, they form a **toolchain**.
 
 Different toolchains exist for different purposes. For example: GCC stands for "GNU Compiler Collection", which is the GNU toolchain for "compiler and build utilities".
-  - Although gcc has `cpp` (preprocessor), `cc1` (compiler), `as` (assembler) and `ld` (linker) for the four phases of the build process, it is not limited to them.
+  - It includes `cpp` (preprocessor), `cc1` (compiler), `as` (assembler) and `ld` (linker) for the four phases of the build-execution process, but it is not limited to them.
   - Practically, GCC is an orchestrator that manages the build process and provides some extra features, which we will discuss later in this journey.
 
 The location of these tools can vary based on the Linux distribution and the version of GCC in use. I am using gcc v14.2.0 on Debian v13.1
@@ -174,48 +174,36 @@ Running `diff` on both the files shows no difference. Also, the file sizes are t
 
 ## Linking
 
-### High Level Overview
+Writing **modular code** is a foundational principle in programming. It involves dividing a big task into atomic functions, which makes coding and debugging the whole software easier.
+  - In large projects, the number of such functions would rise immediately. To control it, we group these atomic functions in multiple files, each for one big task.
+  - When functions from other files are required, we import/include those files in that particular scope.
+  - We also use functions which aren't defined by us. Take `printf`.
 
-Writing **modular code** is a foundational principle in programming. It involves dividing tasks into atomic functions, which makes coding and debugging the whole software easier.
-  - In large projects, the number of such functions would immediately rise, which is why we use file based segregation to organize code.
-  - It ensures that each file includes functions and data to serve one high-level purpose. When functions from other files are required, we import/include that file in that scope and the build-execution pipeline does the rest.
+When we have multiple source files (.c), all of them are passed to `gcc`, which preprocesses, compiles and assembles them individually, generating relocatable object files one for each source file. But they exist as intermediaries, which are consumed by the linker.
+  - The "linking" step joins these object files together and yields one single executable object file, which follows the ELF specification for its layout.
 
-When we build such a big project, we pass all the source files to `gcc`, which generates multiple relocatable object files one for each source file. The process of linking join them together code and yields one single executable file.
+When multiple relocatable object files are combined, their individual sections are unified and a final layout is generated.
+  - Based on the final layout, the linker tries to calculate the address of these "functions/data" referenced across source files.
+  - If the address for a symbol could be calculated, it patches it wherever it is required.
+  - For functions whose definition doesn't exist in our source files (like `printf`), we have to use **shared libraries**, which are code **written and built** by other individuals for public use.
+  - We need to link our relocatable object files with these shared libraries to obtain the definition for these functions.
 
-### The Tasks
+These shared libraries exist in two forms to support two different modes of linking.
+  - Static shared libraries for static linking.
+  - Runtime shared libraries for dynamic linking.
 
-1. Different source files make use of functions and data defined in other source files.
-2. We use certain functions/data which we have not written ourselves, for example, `printf()`.
+In **static linking**, all the addresses are resolved at build-time only. The relocatable object files are linked with appropriate static shared libraries (.a), yielding an executable file which is completely isolated and can run independently.
 
-The process of linking is tasked with resolving all such function/data calls.
+**Dynamic linking** divides this process in two phases, where each phase uses a different linker.
+  - The **build-time phase** uses the **build-time linker**, which lay down instructions for the **runtime-linker** to act in the **runtime phase** to link the final layout obtained by merging all the relocatable object files at build-time linking with dynamic shared libraries (.so).
 
-When multiple relocatable object files are combined, their individual sections are unified.
-  - After this, the linker calculates the address of these functions/data and path it to wherever it is called in the source.
-  - But the definition for functions like `printf` doesn't exist in our source files. It exists in shared libraries, which are code written and built by other individuals. Therefore, we need to link our source with these shared libraries to obtain the definition for these functions.
+The linker used at build-time is the same in static and dynamic linking.
 
-These shared libraries exist in two forms, which are there to serve two different purposes.
-  - Shared archives
-  - Dynamic shared objects
+Let's try to link our object file.
 
+---
 
-
-The linker takes one or more object files and generates a single executable file. This executable file also follows the ELF specification.
-
-Linking also undergoes multiple steps, including:
-
-- Sections from all the object files are **merged** and **unified sections** (one for each, instead of separate) are created. Every instruction, symbol, relocation entry is assigned a virtual address and an offset within the unified layout.
-- If a symbol's definition exist in the combined layout, the linker calculates its offset and patches all the references of it at link-time only.
-- If a symbol's definition doesn't exist in the combined layout, and is meant to be resolved via dynamic libraries, the linker creates a **dynamic relocation entry** for the runtime linker/loader program to fix it.
-- Instructions to load dynamic shared libraries at runtime are created as per the linker flags, so that references to library functions can be resolved at runtime.
-- Various structures for runtime efficiency are generated and the final memory layout is created.
-- Last, everything is written to an executable file.
-
-When we use gcc, we don't get any error.
-```bash
-$ gcc hello_as.o -o hello_gcc_exec
-```
-
-But if we invoke the linker directly on the `.o` file generated previously,
+To invoke the linker on the `.o` file generated previously, we do:
 ```bash
 $ ld hello_as.o -o hello_ld_exe
 
@@ -223,41 +211,51 @@ ld: warning: cannot find entry symbol _start; defaulting to 0000000000401000
 ld: hello_as.o: in function `main':
 hello.c:(.text+0xf): undefined reference to `puts'
 ```
-... we get errors.
+... and we get errors.
 
-These errors exist because the linker doesn't magically knows which libraries we want to link our object code with.
-  - The linker expects certain arguments/flags which gives that information.
-  - This is the reason why `as` and `ld` are so versatile because they are not coupled with the GNU toolchain. Instead, gcc orchestrates their usage, making it easier beginners to work with these tools.
+However, if we us gcc, we don't get any error.
+```bash
+$ gcc hello_as.o -o hello_gcc_exec
+```
+
+These errors exist because the linker doesn't magically knows which libraries we want to link our relocatable object code with. The linker expects certain arguments/flags which gives that information.
+  - This is the reason why `as` and `ld` are so versatile because they are not coupled with the GNU toolchain.
+  - Instead, gcc orchestrates their usage, making it easier for beginners to work with these tools.
 
 ---
 
-This marks the end of understanding the 4 phases of the C build process. But gcc is a huge part of this process, let's talk about `gcc` in brief.
+This marks the end of the high level overview of the build-execution model in C. But gcc is a huge part of this process as this is what we use in the end.
+
+Let's talk about `gcc` in brief.
 
 ## GCC as an Orchestrator
 
-GCC, at its prime, is not just a compiler collection. It's a program that orchestrates multiple specialized tools in the build pipeline.
+GCC, if perceived properly, is not just a compiler collection. It's an excellent orchestrator for multiple specialized tools used in the build-execution pipeline.
 
-Its power lies in orchestration, not execution. It abstracts the complexity of the build pipeline while remaining open enough that advanced users can peek underneath, modify, or replace any stage when needed.
+Its power lies in orchestration, not execution. It abstracts the complexity of the build-execution pipeline while remaining open enough that advanced users can peek underneath, modify, or replace any stage when needed.
 
-It's an excellent coordinator because it embeds vast range of intelligence about platform-specificity, toolchain, and language semantics.
+It embeds vast range of intelligence about platform-specificity, toolchain, language semantics and things we don't understand yet.
 
-It supports multiple languages like C, C++, Go, Ada, Fortran and Objective-C. You can mix and link across them because GCC knows how to unify them.
+It supports multiple languages like C, C++, Go, Ada, Fortran and Objective-C. You can mix and link across them because GCC knows how to manage it.
 
-GCC can target architectures other than the host, that's why you can develop software for embedded systems without using an embedded system to develop them.
-  - You can build binaries for 32-bit or even 16-bit on a 64-bit architecture.
-  - If you configure gcc the right way, you can even build binaries for ARM being on x86.
-  - Is software for mobile built on mobile? No. Because the tools that build them are intelligent enough to build them without being on that exact architecture. GCC is one such tool.
+GCC can target architectures other than the host, when configured properly. 
+  - We can develop software for embedded systems without using an embedded system to develop them.
+  - We can build binaries for 32-bit or even 16-bit on a 64-bit architecture.
+  - We can build software for Windows/Mac or even ARM/MIPS being on Linux.
 
-If you use `-g`, GCC orchestrates the compiler and assembler to include magical information that streamlines the process of debugging. That magical information is known as DWARF/debug symbols, which is not a part of the build pipeline, but debug pipeline.
+Is software for mobile built on mobile? No. Because the tools that build them are intelligent enough to build them without being on that exact architecture. GCC is one such tool.
+
+If we use `-g`, GCC orchestrates the compiler and assembler to include some magical information that makes the process of debugging easier. That magical information is DWARF/debug symbols, which is not a part of the build-execution pipeline, but the debug pipeline.
 
 GCC also lets us optimize the code to an extent where multiple lines can be condensed into a bunch of assembly instructions.
 
-We had errors running the linker but GCC doesn't because it passes the appropriate arguments and flags internally, intelligently, so that it can work without any issues.
-
-There are other toolchains as well, but this was GCC for you.
+We had errors using the linker independently but GCC doesn't because it passes the required information intelligently, internally.
 
 ## Conclusion
 
-Every stage in this pipeline transforms the human readable instructions into machine understandable instructions: from source → preprocessed source → assembly → object → executable.
+Every stage in this pipeline transforms the human readable instructions into machine understandable instructions:
+```bash
+from source → preprocessed source → assembly → relocatable object → executable object.
+```
 
-The next logical step is exploring how these executables are actually loaded and executed by the operating system — but that’s a story for another day.
+The next logical step is exploring how these executables are actually loaded and executed by the operating system — but that's a story for another day.
