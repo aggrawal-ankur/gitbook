@@ -20,7 +20,9 @@ With this exploration, we are aiming to establish a baseline understanding of ev
 
 By the end of this exploration, we will have some high-level checkpoints which will anchor our future explorations.
 
-Therefore, this exploration by choice touches every single concept. This makes it a little tough to digest as you won't understand the meaning of each word, but you are not required to understand everything. You are only expected to settle these words in your mind, so that they don't feel foreign later.
+Therefore, *this exploration by choice touches every single concept in the build-execution pipeline of C*. This makes it a little tough to digest as you won't understand the meaning of each word, but you are not required to understand everything. You are only expected to settle these words in your mind, so that they don't feel foreign later.
+
+However, this journey does expects you to have basic familiarity with Linux command line and programming languages.
 
 Let's start our journey.
 
@@ -151,7 +153,7 @@ Just like compilation, assembling also undergoes multiple steps, including:
 - Each assembly instruction is translated into its binary machine-code form (opcodes + operands).
 - Relocation entries are created for instructions involving symbols whose runtime address is not yet known.
 - Everything (machine instructions and data organized in sections, symbol tables and relocation records) is packed into a relocatable object file.
-- The object file follows the ELF specification for its structure.
+- The relocatable object file follows the ELF specification for its structure.
 
 The assembler can be used on the `.s` file generated previously.
 ```bash
@@ -172,7 +174,30 @@ Running `diff` on both the files shows no difference. Also, the file sizes are t
 
 ## Linking
 
-If we have passed multiple files to `gcc` for either preprocessing/compilation/assembling, separate files would be generated. But if you pass multiple files in the linking phase, they are properly joined/linked and one single executable file is generated.
+### High Level Overview
+
+Writing **modular code** is a foundational principle in programming. It involves dividing tasks into atomic functions, which makes coding and debugging the whole software easier.
+  - In large projects, the number of such functions would immediately rise, which is why we use file based segregation to organize code.
+  - It ensures that each file includes functions and data to serve one high-level purpose. When functions from other files are required, we import/include that file in that scope and the build-execution pipeline does the rest.
+
+When we build such a big project, we pass all the source files to `gcc`, which generates multiple relocatable object files one for each source file. The process of linking join them together code and yields one single executable file.
+
+### The Tasks
+
+1. Different source files make use of functions and data defined in other source files.
+2. We use certain functions/data which we have not written ourselves, for example, `printf()`.
+
+The process of linking is tasked with resolving all such function/data calls.
+
+When multiple relocatable object files are combined, their individual sections are unified.
+  - After this, the linker calculates the address of these functions/data and path it to wherever it is called in the source.
+  - But the definition for functions like `printf` doesn't exist in our source files. It exists in shared libraries, which are code written and built by other individuals. Therefore, we need to link our source with these shared libraries to obtain the definition for these functions.
+
+These shared libraries exist in two forms, which are there to serve two different purposes.
+  - Shared archives
+  - Dynamic shared objects
+
+
 
 The linker takes one or more object files and generates a single executable file. This executable file also follows the ELF specification.
 

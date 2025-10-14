@@ -1,8 +1,10 @@
 ---
 id: c0c11864d8c043429261974140250bca
-title: Executable File Formats
-weight: 1
+title: Binary Object Formats
+weight: 2
 ---
+
+Continuing our journey from the build-execution pipeline in C, we know that exist
 
 An *executable file* contains instructions that the computer's processor can execute directly.
 
