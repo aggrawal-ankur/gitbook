@@ -30,22 +30,24 @@ An object file is a structured binary representation of a program.
 
 The executable and linkable file format defines the structure for object files in the Linux ecosystem.
 
-Every stage in the build-execution pipeline works with a different subset of this structure, which gives birth to different object files. Primarily there are 3 object file formats:
+Every stage in the build-execution pipeline either builds or consumes an a subset of this structure, which gives birth to different object files, notably:
   - Relocatable object
   - Executable object
-  - Shared libraries
+  - Shared object (or libraries)
 
-Let's talk about these representations.
+Let's talk brief about these representations.
 
 ### Relocatable Object
 
+Output of assembler
+
 ### Executable Object
 
-Statically and dynamically linked objects
+Statically and dynamically linked executable objects.
 
 ### Shared Libraries
 
-Dynamic (.so) and archived (.a) libraries.
+Runtime (.so) and static (.a) libraries.
 
 ---
 
