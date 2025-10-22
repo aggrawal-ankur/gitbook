@@ -8,14 +8,10 @@ weight:
 
 ---
 
-Just finished polishing my existing "hello world" write ups, where I corrected the wrong mental models, reorganized concepts, rephrased sentences for clarity and removed the redundant parts to a certain extent.
+On my way to try a new path to strengthen my mental model.
 
-I have found that my write ups lacks a lot of crucial information. Also, fragmented knowledge is reducing reusability and increasing redundancy.
+It's about creating programs to implement the theory, and annotate the code where required with comments, instead of writing separate articles.
 
-To strengthen my mental model, I am restructuring everything. I am also focusing on English this time.
+I am already improving the elf-parser project this way and I am thinking about implementing a basic linker/loader to improve my understanding of linking, instead of theory articles.
 
----
-
-October 10, 2025: Done with the "C Build Process" rewrite.
-
-October 11, 2025: Reading TIS document to design a clear ELF specification write up.
+I am leaving the site dormant for some time

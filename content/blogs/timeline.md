@@ -158,3 +158,25 @@ I also got the idea to manage a page for what I am doing now. Next I am gonna wr
 I am anticipating a lot of changes in my write ups, therefore, now I have decided to actively work on the articulation part. No more wrong English.
 
 The first step I have taken is to install a spell checker extension in VS Code.
+
+### October 20, 2025
+
+As I was improving the ELF Parser project, I had a thought on October 20 about this "roadmap pursuit".
+
+I understood why creating a roadmap is tough. I understood why writing is such a tough process.
+
+I am trying to rewrite my mental model in a way it never evolved. I never learned the build process as I am trying to formalize it, so as with every single write up.
+
+The chaos is what that gives my mental model its shape. Exploring without any barricades is what that accounts for my understanding, not formalizing the path.
+
+----
+
+So, what's next? I have two options.
+  - I continue this journey as-is, which will eat a lot of my time and energy.
+  - Or I drop this way of pursuing this goal, focus on an entirely different path which I still can't formulate as with every new path, and leave this task to my future-self.
+
+I have come on a conclusion to take the second choice.
+
+The second path, as I can perceive so far, is more about applying the theory practically and create a solution that works.
+
+It is definitely not about dropping writing altogether, but more about choosing what to write, which I don't know what is. I am also trying a different way to write, which is annotating the code with comments, instead of writing separate pages.
