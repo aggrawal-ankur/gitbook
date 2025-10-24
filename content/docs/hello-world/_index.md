@@ -1,7 +1,7 @@
 ---
 id: 243880d83f464517a201007716ffc581
 title: Hello World
-weight: 7
+weight: 8
 ---
 
 Everyone starts their coding journey with `Hello, World!`. It takes only 4 lines in C:

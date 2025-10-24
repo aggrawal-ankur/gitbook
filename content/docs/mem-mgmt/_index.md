@@ -1,7 +1,7 @@
 ---
 id: 259f273ff0484543b8720a5d8175bdd7
 title: Dynamic Memory Allocation
-weight: 4
+weight: 5
 ---
 
 _**9, 10, 15 September 2025**_

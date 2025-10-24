@@ -1,20 +1,8 @@
 ---
 id: 56be9810912342c68e111b11b6ebf5dc
-title: All Roads To Memory
+title: Addressing And Translation
 weight: 4
 ---
-
-## Update Timeline 
-
-_**August 9, 2025 (init write up)**_
-
-_**September 13, 2025 (rewrite triggered by dynamic memory allocation, but didn't do anything)**_
-
-**29, 30 September 2025 (another rewrite triggered by gdb sessions requiring polish of hello-world write ups where I found the void-main write up placed wrongly which I thought would be best explained alongside processes so I started polishing and that triggered the whole restructuring)**
-
-***Merged an August 11, 2025 write up***
-
-## Premise
 
 Processes and virtual memory are two very interlinked concepts.
 
